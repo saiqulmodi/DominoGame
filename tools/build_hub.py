@@ -29,6 +29,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 import domino_data as hub  # noqa: E402
+from translations import TRANSLATIONS  # noqa: E402
 
 # Kept outside the game folder so the raw map files never ship in the app.
 DL = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")),
@@ -41,6 +42,8 @@ FONT = r"C:\Windows\Fonts\comicbd.ttf"
 SIGN_FONT = r"C:\Windows\Fonts\arialbd.ttf"  # maths signs and the rupee symbol
 SIGNS = "+−×÷=₹"
 # Hindi is drawn with pygame because it joins letters (क्ष, त्र) correctly
+BENG_FONT_URL = ("https://github.com/notofonts/notofonts.github.io/raw/main/"
+                 "fonts/NotoSansBengali/hinted/ttf/NotoSansBengali-Bold.ttf")
 DEVA_FONT_URL = ("https://github.com/notofonts/notofonts.github.io/raw/main/"
                  "fonts/NotoSansDevanagari/hinted/ttf/NotoSansDevanagari-Bold.ttf")
 
@@ -257,6 +260,33 @@ def hindi_mask(text):
   return mask
 
 
+_BENG_FONTS = {}
+
+
+def beng_font(size):
+  import pygame
+  if size not in _BENG_FONTS:
+    pygame.font.init()
+    path = download(BENG_FONT_URL, os.path.join(DL, "fonts", "NotoSansBengali-Bold.ttf"))
+    f = pygame.font.Font(path, size)
+    f.set_script("Beng")
+    _BENG_FONTS[size] = f
+  return _BENG_FONTS[size]
+
+
+def native_word_image(text, slug, lang):
+  """Hindi or Bengali word drawn as a picture (shows on every device)."""
+  import pygame
+  font = deva_font(72) if lang == "hi" else beng_font(72)
+  surf = font.render(text, True, (255, 230, 120))
+  raw = pygame.image.tobytes(surf, "RGBA")
+  img = Image.frombytes("RGBA", surf.get_size(), raw)
+  img = img.crop(img.getbbox())
+  rel = f"pics/{slug}_{lang}.png"
+  compact(img).save(os.path.join(ROOT, rel), optimize=True)
+  return rel
+
+
 def hindi_word_image(text, slug):
   import pygame
   surf = deva_font(96).render(text, True, (255, 204, 0))
@@ -427,6 +457,12 @@ def main():
   for ci, (cat, items) in enumerate(hub.CATALOG.items()):
     for ii, (name, _desc, (kind, arg)) in enumerate(items):
       if kind == "custom":
+        key = hub.item_key(cat, name)
+        if key in TRANSLATIONS:
+          slug = slugify(ci, ii, name)
+          hi, bn = TRANSLATIONS[key]
+          result[key] = {"hi_img": native_word_image(hi, slug, "hi"),
+                         "bn_img": native_word_image(bn, slug, "bn")}
         continue
       key = hub.item_key(cat, name)
       slug = slugify(ci, ii, name)
@@ -544,6 +580,10 @@ def main():
 
         if not entry["loops"]:
           raise ValueError("empty outline")
+        if key in TRANSLATIONS:
+          hi, bn = TRANSLATIONS[key]
+          entry["hi_img"] = native_word_image(hi, slug, "hi")
+          entry["bn_img"] = native_word_image(bn, slug, "bn")
         result[key] = entry
         print(f"ok   {key:32s} loops={len(entry['loops'])} "
               f"pts={sum(len(l) for l in entry['loops'])}")

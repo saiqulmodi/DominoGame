@@ -6,7 +6,7 @@ package.name = dominowonderdash
 package.domain = org.saiqul
 
 source.dir = .
-source.include_exts = py,png,json
+source.include_exts = py,png,json,ogg,ttf
 source.exclude_dirs = build, bin, .buildozer, __pycache__, tools
 
 version = 1.0

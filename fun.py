@@ -203,14 +203,33 @@ def _save_path():
   return os.path.join(base, "progress.json")
 
 
+AVATARS = [("Animals", "Tiger"), ("Animals", "Elephant"), ("Animals", "Rabbit"),
+           ("Birds", "Peacock"), ("Animals", "Monkey"), ("Sea", "Dolphin")]
+MAX_PLAYERS = len(AVATARS)
+
+
+def new_profile(n):
+  return {"name": f"Player {n + 1}", "avatar": n % len(AVATARS), "done": [],
+          "stickers": [], "theme": 0, "best_streak": 0, "lang": "hi",
+          "quiz": {"right": 0, "asked": 0}, "spell": {"right": 0, "words": []},
+          "stories": [], "days": []}
+
+
 class Progress:
-  """Which items a child finished, their stickers, theme and best streak.
-  Saved in a file on desktop/Android and in the browser's localStorage."""
+  """Each child's progress: items traced, stickers, theme, language, quiz and
+  spelling scores, stories and days played. Several children can share one
+  device (profiles). Saved in a file on desktop/Android and in the browser's
+  localStorage."""
 
   def __init__(self, total_items):
     self.total = total_items
-    self.data = {"done": [], "stickers": [], "theme": 0, "best_streak": 0}
+    self.store = {"profiles": [new_profile(0)], "current": 0}
     self.load()
+
+  @property
+  def data(self):
+    """The current child's profile."""
+    return self.store["profiles"][self.store["current"]]
 
   # storage ------------------------------------------------------------
   def load(self):
@@ -222,13 +241,23 @@ class Progress:
         with open(_save_path(), encoding="utf-8") as fh:
           raw = fh.read()
       if raw:
-        self.data.update(json.loads(str(raw)))
+        saved = json.loads(str(raw))
+        if "profiles" not in saved:          # older single-player save
+          prof = new_profile(0)
+          prof.update(saved)
+          saved = {"profiles": [prof], "current": 0}
+        for i, prof in enumerate(saved["profiles"]):
+          full = new_profile(i)
+          full.update(prof)
+          saved["profiles"][i] = full
+        saved["current"] = min(saved.get("current", 0), len(saved["profiles"]) - 1)
+        self.store = saved
     except Exception:
       pass  # first run, or storage not available: start fresh
 
   def save(self):
     try:
-      raw = json.dumps(self.data)
+      raw = json.dumps(self.store)
       if IS_WEB:
         import platform
         platform.window.localStorage.setItem(STORAGE_KEY, raw)
@@ -240,6 +269,30 @@ class Progress:
     except Exception as exc:
       print(f"[progress] not saved: {exc}")
 
+  # profiles -----------------------------------------------------------
+  def profiles(self):
+    return self.store["profiles"]
+
+  def switch(self, index):
+    self.store["current"] = index
+    self.save()
+
+  def add_profile(self):
+    if len(self.profiles()) >= MAX_PLAYERS:
+      return None
+    used = {p["avatar"] for p in self.profiles()}
+    prof = new_profile(len(self.profiles()))
+    prof["avatar"] = next((i for i in range(len(AVATARS)) if i not in used), 0)
+    self.profiles().append(prof)
+    self.store["current"] = len(self.profiles()) - 1
+    self.save()
+    return prof
+
+  def mark_day(self, day):
+    if day not in self.data["days"]:
+      self.data["days"].append(day)
+      self.save()
+
   # queries ------------------------------------------------------------
   def is_done(self, key):
     return key in self._done_set()
@@ -250,11 +303,12 @@ class Progress:
   def count(self):
     return len(self.data["done"])
 
-  def all_stickers(self, categories):
-    """Every sticker that exists: milestones, then one per category."""
+  def all_stickers(self, categories, story_ids=()):
+    """Every sticker: milestones, all-done, one per category, one per story."""
     out = [f"m{n}" for n, _ in MILESTONES if n <= self.total]
     out.append("all")
     out += [f"c:{c}" for c in categories]
+    out += [f"s:{s}" for s in story_ids]
     return out
 
   def has(self, sticker):
@@ -280,6 +334,28 @@ class Progress:
     self.save()
     return new
 
+  def finish_story(self, story_id):
+    if story_id not in self.data["stories"]:
+      self.data["stories"].append(story_id)
+    sid = f"s:{story_id}"
+    new = [] if self.has(sid) else [sid]
+    self.data["stickers"] += new
+    self.save()
+    return new
+
+  def quiz_answer(self, right):
+    q = self.data["quiz"]
+    q["asked"] += 1
+    q["right"] += 1 if right else 0
+    self.save()
+
+  def spelled(self, word):
+    s = self.data["spell"]
+    s["right"] += 1
+    if word not in s["words"]:
+      s["words"].append(word)
+    self.save()
+
   def note_streak(self, streak):
     if streak > self.data.get("best_streak", 0):
       self.data["best_streak"] = streak
@@ -287,9 +363,14 @@ class Progress:
     return False
 
 
+STORY_TITLES = {}   # filled by main.py from stories.py
+
+
 def sticker_title(sid):
   if sid == "all":
     return "Grand Champion"
+  if sid.startswith("s:"):
+    return STORY_TITLES.get(sid[2:], "Story Star")
   if sid.startswith("m"):
     need = int(sid[1:])
     return dict(MILESTONES)[need]
@@ -299,6 +380,8 @@ def sticker_title(sid):
 def sticker_need(sid, total, cat_size=0):
   if sid == "all":
     return f"Trace all {total}"
+  if sid.startswith("s:"):
+    return "Finish the story"
   if sid.startswith("m"):
     return f"Trace {sid[1:]}"
   return f"Finish all {cat_size}"

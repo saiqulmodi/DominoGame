@@ -155,30 +155,34 @@ class SoundBank:
 # --------------------------------------------------------------------------
 # One long-lived PowerShell process speaks each line it receives, so there is
 # no start-up delay per word and a new word cancels the previous one.
-# Lines are "en<TAB>text" or "hi<TAB>hindi text<TAB>english fallback".
-# English uses the classic voices; Hindi uses the newer Windows voices
-# (Settings > Time & language > Speech > Add voices > Hindi), and falls back to
-# the English letters ("a se anaar") when no Hindi voice is installed.
+# Lines are "en<TAB>text" or "<lang><TAB>native text<TAB>english fallback"
+# (lang = hi or bn). English uses the classic voices; Hindi/Bengali use the
+# newer Windows voices (Settings > Time & language > Speech > Add voices) and
+# fall back to the English text when that voice is not installed.
 _WINDOWS_TTS = r"""
 Add-Type -AssemblyName System.Speech
 $s = New-Object System.Speech.Synthesis.SpeechSynthesizer
 $s.Rate = -2
-$hindi = $null
 $player = $null
+$voices = @{}
+$asTask = $null
 try {
   Add-Type -AssemblyName System.Runtime.WindowsRuntime
   $null = [Windows.Media.SpeechSynthesis.SpeechSynthesizer, Windows.Media.SpeechSynthesis, ContentType = WindowsRuntime]
   $asTask = [System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object {
     $_.Name -eq 'AsTask' -and $_.GetParameters().Count -eq 1 -and
     $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' } | Select-Object -First 1
-  $voice = [Windows.Media.SpeechSynthesis.SpeechSynthesizer]::AllVoices |
-    Where-Object { $_.Language -like 'hi*' } | Select-Object -First 1
-  if ($voice) {
-    $hindi = New-Object Windows.Media.SpeechSynthesis.SpeechSynthesizer
-    $hindi.Voice = $voice
-    $hindi.Options.SpeakingRate = 0.85
+  foreach ($lang in @('hi', 'bn')) {
+    $voice = [Windows.Media.SpeechSynthesis.SpeechSynthesizer]::AllVoices |
+      Where-Object { $_.Language -like "$lang*" } | Select-Object -First 1
+    if ($voice) {
+      $syn = New-Object Windows.Media.SpeechSynthesis.SpeechSynthesizer
+      $syn.Voice = $voice
+      $syn.Options.SpeakingRate = 0.85
+      $voices[$lang] = $syn
+    }
   }
-} catch { $hindi = $null }
+} catch { $voices = @{} }
 $in = New-Object System.IO.StreamReader([Console]::OpenStandardInput(), [System.Text.Encoding]::UTF8)
 while ($true) {
   $line = $in.ReadLine()
@@ -187,8 +191,9 @@ while ($true) {
   if ($player) { $player.Stop(); $player = $null }
   $parts = $line.Split("`t")
   try {
-    if ($parts[0] -eq 'hi' -and $hindi) {
-      $op = $hindi.SynthesizeTextToStreamAsync($parts[1])
+    $native = $voices[$parts[0]]
+    if ($parts[0] -ne 'en' -and $native) {
+      $op = $native.SynthesizeTextToStreamAsync($parts[1])
       $task = $asTask.MakeGenericMethod([Windows.Media.SpeechSynthesis.SpeechSynthesisStream]).Invoke($null, @($op))
       $task.Wait(-1) | Out-Null
       $ms = New-Object System.IO.MemoryStream
@@ -243,23 +248,24 @@ class Speaker:
       print(f"[audio] speech disabled: {exc}")
       self.mode = None
 
-  def say(self, text, hindi=None):
-    """Speaks text; if hindi is given it is spoken in Hindi where a Hindi
-    voice exists, otherwise text (English letters) is spoken."""
+  def say(self, text, hindi=None, lang="hi"):
+    """Speaks text. If `hindi` (native text) is given it is spoken in that
+    language (lang "hi" Hindi or "bn" Bengali) where the device has such a
+    voice; otherwise the English text is spoken."""
     try:
       if self.mode == "windows":
         if self._proc.poll() is None:
           clean = [p.replace("\t", " ").replace("\r", " ").replace("\n", " ")
                    for p in (hindi, text) if p is not None]
-          line = ("hi\t" if hindi else "en\t") + "\t".join(clean) + "\n"
+          line = (f"{lang}\t" if hindi else "en\t") + "\t".join(clean) + "\n"
           self._proc.stdin.write(line.encode("utf-8"))
           self._proc.stdin.flush()
       elif self.mode == "web":
         self._window.eval(
             "(function(){speechSynthesis.cancel();"
-            f"var hi={json.dumps(hindi)}, en={json.dumps(text)};"
+            f"var hi={json.dumps(hindi)}, en={json.dumps(text)}, lg={json.dumps(lang)};"
             "var hv=hi && speechSynthesis.getVoices().find(function(v){"
-            "return v.lang.indexOf('hi')===0;});"
+            "return v.lang.indexOf(lg)===0;});"
             "var u=new SpeechSynthesisUtterance(hv ? hi : en);"
             "if(hv){u.voice=hv; u.lang=hv.lang;}"
             "u.rate=0.8; speechSynthesis.speak(u);})();"
@@ -268,7 +274,7 @@ class Speaker:
         self._tts.setSpeechRate(0.8)
         speak = text
         if hindi:
-          hi = self._locale("hi", "IN")
+          hi = self._locale(lang, "IN")
           if self._tts.isLanguageAvailable(hi) >= 0:
             self._tts.setLanguage(hi)
             speak = hindi
@@ -281,13 +287,13 @@ class Speaker:
         self._stop_child()
         if self.mode == "say":
           args = ["say", "-r", "150", text]
-          if hindi:
+          if hindi and lang == "hi":
             args = ["say", "-v", "Lekha", "-r", "150", hindi]
         else:
           exe = shutil.which("espeak-ng") or shutil.which("espeak")
           args = [exe, "-s", "130", text]
           if hindi:
-            args = [exe, "-v", "hi", "-s", "120", hindi]
+            args = [exe, "-v", lang, "-s", "120", hindi]
         self._proc = subprocess.Popen(
             args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
         )

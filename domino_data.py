@@ -23,6 +23,8 @@ import json
 import math
 import os
 
+from translations import TRANSLATIONS
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 HUB_JSON = os.path.join(HERE, "hub_data.json")
 
@@ -583,6 +585,11 @@ for _cat, _items in CATALOG.items():
       _bucket[_name] = dict(desc=_desc, source=_src[0], **(_data or {}))
       if _src[0] == "hindi":
         _bucket[_name]["hindi"], _bucket[_name]["label"] = _src[1]
+      if item_key(_cat, _name) in TRANSLATIONS:
+        _bucket[_name]["hi"], _bucket[_name]["bn"] = TRANSLATIONS[item_key(_cat, _name)]
+      if _src[0] == "glyph" and not _name.isalnum():
+        # maths signs: the title spells the word ("Plus", "Rupee")
+        _bucket[_name]["tile_text"] = _desc.split(" - ")[0]
       _BY_NAME.setdefault(_name, _bucket[_name])
   if _bucket:
     CATEGORIES_HUB[_cat] = _bucket

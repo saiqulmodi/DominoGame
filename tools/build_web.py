@@ -13,7 +13,9 @@ import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GAME_FILES = ["main.py", "audio.py", "domino_data.py", "fun.py", "hub_data.json"]
+GAME_FILES = ["main.py", "audio.py", "domino_data.py", "fun.py", "calls.py", "modes.py",
+              "screens.py", "stories.py", "translations.py", "hub_data.json"]
+GAME_DIRS = ["pics", "sounds", "fonts"]
 APP = "dominowonderdash"
 
 
@@ -23,7 +25,8 @@ def main():
   os.makedirs(stage)
   for f in GAME_FILES:
     shutil.copy2(os.path.join(ROOT, f), stage)
-  shutil.copytree(os.path.join(ROOT, "pics"), os.path.join(stage, "pics"))
+  for d in GAME_DIRS:
+    shutil.copytree(os.path.join(ROOT, d), os.path.join(stage, d))
   for f in GAME_FILES:
     if f.endswith(".py"):
       subprocess.run([sys.executable, "-m", "py_compile", os.path.join(stage, f)], check=True)
