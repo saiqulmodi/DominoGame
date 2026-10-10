@@ -1,0 +1,314 @@
+"""Sound effects and spoken names for Domino Wonder Dash.
+
+Every sound is generated in code (no asset files), so the game runs the same
+on desktop, in the browser (pygbag) and on Android. If audio or speech is not
+available on a device, the game keeps running silently instead of crashing.
+"""
+
+import base64
+import io
+import json
+import math
+import os
+import random
+import shutil
+import struct
+import subprocess
+import sys
+from array import array
+
+import pygame
+
+RATE = 22050
+IS_WEB = sys.platform == "emscripten"
+IS_ANDROID = "ANDROID_ARGUMENT" in os.environ or hasattr(
+    sys, "getandroidapilevel"
+)
+
+
+# --------------------------------------------------------------------------
+# Procedural sound effects
+# --------------------------------------------------------------------------
+def _render(duration, fn, peak=0.6):
+  n = int(RATE * duration)
+  data = [fn(i / RATE, i / n) for i in range(n)]
+  top = max(1e-9, max(abs(s) for s in data))
+  scale = peak / top
+  pcm = array("h", (int(s * scale * 32767) for s in data))
+  if sys.byteorder == "big":
+    pcm.byteswap()
+  # WAV header written by hand: the browser build (pygbag) has no `wave`
+  # module and would try to fetch an unrelated "wave" package instead.
+  data = pcm.tobytes()
+  header = (b"RIFF" + struct.pack("<I", 36 + len(data)) + b"WAVEfmt "
+            + struct.pack("<IHHIIHH", 16, 1, 1, RATE, RATE * 2, 2, 16)
+            + b"data" + struct.pack("<I", len(data)))
+  return pygame.mixer.Sound(io.BytesIO(header + data))
+
+
+def _sin(freq, t):
+  return math.sin(2 * math.pi * freq * t)
+
+
+def _click(t, p):
+  return _sin(1400, t) * (1 - p) ** 3 + 0.3 * _sin(2800, t) * (1 - p) ** 6
+
+
+def _switch(t, p):
+  freq = 660 if p < 0.5 else 990
+  local = (p * 2) % 1
+  return _sin(freq, t) * math.sin(math.pi * local) ** 0.5 * (1 - local * 0.6)
+
+
+def _make_pencil(freq):
+  def fn(t, p):
+    return _sin(freq, t) * math.sin(math.pi * p) + 0.2 * random.uniform(-1, 1) * (1 - p)
+  return fn
+
+
+def _tip(t, p):
+  knock = (_sin(220, t) + 0.5 * _sin(440, t)) * math.exp(-t * 45)
+  return knock + random.uniform(-1, 1) * math.exp(-t * 120) * 0.4
+
+
+def _make_clack(pitch):
+  def fn(t, p):
+    noise = random.uniform(-1, 1) * math.exp(-t * 90) * 0.6
+    body = _sin(pitch, t) * math.exp(-t * 60) * 0.5
+    ring = _sin(pitch * 2.7, t) * math.exp(-t * 80) * 0.2
+    return noise + body + ring
+  return fn
+
+
+def _make_pop(freq):
+  def fn(t, p):
+    # Quick upward bubble: pitch slides up while it fades
+    f = freq * (1 + 0.5 * p)
+    return math.sin(2 * math.pi * f * t) * (1 - p) ** 2
+  return fn
+
+
+# Pentatonic notes, so covering dots one after another plays a little tune
+POP_FREQS = [523, 587, 659, 784, 880, 1047, 1175, 1319, 1568, 1760, 2093, 2349]
+
+_CHIME_NOTES =[(0.0, 523.25), (0.12, 659.25), (0.24, 783.99), (0.36, 1046.5)]
+
+
+def _chime(t, p):
+  total = 0.0
+  for start, freq in _CHIME_NOTES:
+    if t >= start:
+      lt = t - start
+      bell = _sin(freq, lt) + 0.3 * _sin(freq * 2, lt) + 0.15 * _sin(freq * 3, lt)
+      total += bell * math.exp(-lt * 4)
+  return total
+
+
+class SoundBank:
+  """Holds all effects; play() silently does nothing if audio is unavailable."""
+
+  CLACK_STEPS = 8
+
+  def __init__(self):
+    self.ok = False
+    self.sounds = {}
+    try:
+      if not pygame.mixer.get_init():
+        pygame.mixer.init()
+      pygame.mixer.set_num_channels(24)
+      random.seed(7)
+      self.sounds["click"] = [_render(0.05, _click, 0.45)]
+      self.sounds["switch"] = [_render(0.16, _switch, 0.45)]
+      self.sounds["pencil"] = [
+          _render(0.035, _make_pencil(f), 0.12) for f in (700, 820, 950, 1080)
+      ]
+      self.sounds["tip"] = [_render(0.10, _tip, 0.7)]
+      # Clack pitch climbs along the chain so the cascade "ripples".
+      self.sounds["clack"] = [
+          _render(0.06, _make_clack(1500 + k * 150), 0.5)
+          for k in range(self.CLACK_STEPS)
+      ]
+      self.sounds["chime"] = [_render(1.4, _chime, 0.6)]
+      self.sounds["pop"] = [_render(0.07, _make_pop(f), 0.35) for f in POP_FREQS]
+      self.ok = True
+    except Exception as exc:  # no audio device, unsupported platform, ...
+      print(f"[audio] sound effects disabled: {exc}")
+
+  def play(self, name, variant=None):
+    if not self.ok:
+      return
+    bank = self.sounds.get(name)
+    if not bank:
+      return
+    if variant is None:
+      snd = random.choice(bank)
+    else:
+      snd = bank[variant % len(bank)]
+    try:
+      snd.play()
+    except Exception:
+      pass
+
+
+# --------------------------------------------------------------------------
+# Spoken names (text to speech)
+# --------------------------------------------------------------------------
+# One long-lived PowerShell process speaks each line it receives, so there is
+# no start-up delay per word and a new word cancels the previous one.
+# Lines are "en<TAB>text" or "hi<TAB>hindi text<TAB>english fallback".
+# English uses the classic voices; Hindi uses the newer Windows voices
+# (Settings > Time & language > Speech > Add voices > Hindi), and falls back to
+# the English letters ("a se anaar") when no Hindi voice is installed.
+_WINDOWS_TTS = r"""
+Add-Type -AssemblyName System.Speech
+$s = New-Object System.Speech.Synthesis.SpeechSynthesizer
+$s.Rate = -2
+$hindi = $null
+$player = $null
+try {
+  Add-Type -AssemblyName System.Runtime.WindowsRuntime
+  $null = [Windows.Media.SpeechSynthesis.SpeechSynthesizer, Windows.Media.SpeechSynthesis, ContentType = WindowsRuntime]
+  $asTask = [System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object {
+    $_.Name -eq 'AsTask' -and $_.GetParameters().Count -eq 1 -and
+    $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' } | Select-Object -First 1
+  $voice = [Windows.Media.SpeechSynthesis.SpeechSynthesizer]::AllVoices |
+    Where-Object { $_.Language -like 'hi*' } | Select-Object -First 1
+  if ($voice) {
+    $hindi = New-Object Windows.Media.SpeechSynthesis.SpeechSynthesizer
+    $hindi.Voice = $voice
+    $hindi.Options.SpeakingRate = 0.85
+  }
+} catch { $hindi = $null }
+$in = New-Object System.IO.StreamReader([Console]::OpenStandardInput(), [System.Text.Encoding]::UTF8)
+while ($true) {
+  $line = $in.ReadLine()
+  if ($line -eq $null) { break }
+  $s.SpeakAsyncCancelAll()
+  if ($player) { $player.Stop(); $player = $null }
+  $parts = $line.Split("`t")
+  try {
+    if ($parts[0] -eq 'hi' -and $hindi) {
+      $op = $hindi.SynthesizeTextToStreamAsync($parts[1])
+      $task = $asTask.MakeGenericMethod([Windows.Media.SpeechSynthesis.SpeechSynthesisStream]).Invoke($null, @($op))
+      $task.Wait(-1) | Out-Null
+      $ms = New-Object System.IO.MemoryStream
+      [System.IO.WindowsRuntimeStreamExtensions]::AsStreamForRead($task.Result).CopyTo($ms)
+      $ms.Position = 0
+      $player = New-Object System.Media.SoundPlayer $ms
+      $player.Play()
+    } else {
+      $text = $parts[$parts.Length - 1]
+      if ($text.Length -gt 0) { [void]$s.SpeakAsync($text) }
+    }
+  } catch { }
+}
+"""
+
+
+class Speaker:
+  """Says words out loud using whatever voice the device already has."""
+
+  def __init__(self):
+    self.mode = None
+    self._proc = None
+    self._tts = None
+    try:
+      if IS_WEB:
+        import platform  # pygbag's browser bridge
+        self._window = platform.window
+        self.mode = "web"
+      elif IS_ANDROID:
+        from jnius import autoclass
+        activity = autoclass("org.kivy.android.PythonActivity").mActivity
+        self._tts_cls = autoclass("android.speech.tts.TextToSpeech")
+        self._locale = autoclass("java.util.Locale")
+        self._tts = self._tts_cls(activity, None)
+        self.mode = "android"
+      elif os.name == "nt":
+        script = base64.b64encode(_WINDOWS_TTS.encode("utf-16-le")).decode("ascii")
+        self._proc = subprocess.Popen(
+            ["powershell", "-NoProfile", "-NonInteractive", "-EncodedCommand",
+             script],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        self.mode = "windows"
+      elif sys.platform == "darwin" and shutil.which("say"):
+        self.mode = "say"
+      elif shutil.which("espeak-ng") or shutil.which("espeak"):
+        self.mode = "espeak"
+    except Exception as exc:
+      print(f"[audio] speech disabled: {exc}")
+      self.mode = None
+
+  def say(self, text, hindi=None):
+    """Speaks text; if hindi is given it is spoken in Hindi where a Hindi
+    voice exists, otherwise text (English letters) is spoken."""
+    try:
+      if self.mode == "windows":
+        if self._proc.poll() is None:
+          clean = [p.replace("\t", " ").replace("\r", " ").replace("\n", " ")
+                   for p in (hindi, text) if p is not None]
+          line = ("hi\t" if hindi else "en\t") + "\t".join(clean) + "\n"
+          self._proc.stdin.write(line.encode("utf-8"))
+          self._proc.stdin.flush()
+      elif self.mode == "web":
+        self._window.eval(
+            "(function(){speechSynthesis.cancel();"
+            f"var hi={json.dumps(hindi)}, en={json.dumps(text)};"
+            "var hv=hi && speechSynthesis.getVoices().find(function(v){"
+            "return v.lang.indexOf('hi')===0;});"
+            "var u=new SpeechSynthesisUtterance(hv ? hi : en);"
+            "if(hv){u.voice=hv; u.lang=hv.lang;}"
+            "u.rate=0.8; speechSynthesis.speak(u);})();"
+        )
+      elif self.mode == "android":
+        self._tts.setSpeechRate(0.8)
+        speak = text
+        if hindi:
+          hi = self._locale("hi", "IN")
+          if self._tts.isLanguageAvailable(hi) >= 0:
+            self._tts.setLanguage(hi)
+            speak = hindi
+          else:
+            self._tts.setLanguage(self._locale.US)
+        else:
+          self._tts.setLanguage(self._locale.US)
+        self._tts.speak(speak, self._tts_cls.QUEUE_FLUSH, None, "domino")
+      elif self.mode in ("say", "espeak"):
+        self._stop_child()
+        if self.mode == "say":
+          args = ["say", "-r", "150", text]
+          if hindi:
+            args = ["say", "-v", "Lekha", "-r", "150", hindi]
+        else:
+          exe = shutil.which("espeak-ng") or shutil.which("espeak")
+          args = [exe, "-s", "130", text]
+          if hindi:
+            args = [exe, "-v", "hi", "-s", "120", hindi]
+        self._proc = subprocess.Popen(
+            args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
+    except Exception as exc:
+      print(f"[audio] could not speak: {exc}")
+
+  def _stop_child(self):
+    if self._proc is not None and self._proc.poll() is None:
+      self._proc.terminate()
+
+  def close(self):
+    try:
+      if self.mode == "windows" and self._proc.poll() is None:
+        self._proc.stdin.close()  # PowerShell loop ends by itself
+        try:
+          self._proc.wait(timeout=1)
+        except subprocess.TimeoutExpired:
+          self._proc.terminate()
+      elif self.mode == "android":
+        self._tts.shutdown()
+      elif self.mode in ("say", "espeak"):
+        self._stop_child()
+    except Exception:
+      pass

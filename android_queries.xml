@@ -1,0 +1,7 @@
+<!-- Android 11+ only lets apps reach the phone's text-to-speech engine
+     if they declare it here. Inserted into AndroidManifest.xml by buildozer. -->
+<queries>
+    <intent>
+        <action android:name="android.intent.action.TTS_SERVICE" />
+    </intent>
+</queries>
