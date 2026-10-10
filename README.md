@@ -4,7 +4,8 @@ A learning game for children (NCERT Class 1-5 level). Pick something, trace its 
 outline with a finger or the mouse, watch the dominoes topple, and see the real picture
 while the name is said, spelled and shown.
 
-**Play in the browser:** https://saiqulmodi.github.io/DominoWonderDash/
+**Play in the browser:** https://saiqulmodi.github.io/DominoGame/
+(also on [Stratos Games](https://stratos-technologies-fzco.github.io/stratos-games-site/play/saiqulmodi-domino-wonder-dash/))
 
 ## What children learn
 
