@@ -30,6 +30,7 @@ import scenery
 import screens
 import stories
 import video
+import world
 from audio import IS_ANDROID, IS_WEB, SoundBank, Speaker
 from translations import LANGUAGES
 
@@ -57,6 +58,7 @@ BANK_COLS, BANK_ROWS = 4, 7
 
 # Game screen (screen coordinates; set_layout() fills these in)
 MENU_BTN = pygame.Rect(6, 10, 50, 54)
+TOWN_BTN = pygame.Rect(6, 68, 50, 40)     # back to Wonder Town (the 3D front door)
 NEXT_BTN = pygame.Rect(PANEL_W - 56, 10, 50, 54)
 BANNER_RECT = pygame.Rect(68, 8, PANEL_W - 136, 62)
 SPEAKER_R = 21
@@ -283,8 +285,10 @@ class Game:
     self.banner_override = None
     self.call_at = None
     self.rename_text = ""
+    self.in_world = True         # the game opens in Wonder Town (world.py)
 
     self.load_item(announce=True)
+    self.world = world.WorldScene(self)
 
   # ------------------------------------------------------------ helpers
   def font_at(self, size):
@@ -398,6 +402,7 @@ class Game:
 
   # ------------------------------------------------------------ modes
   def set_mode(self, mode):
+    self.in_world = False
     self.story = None
     self.particles.texts = []
     self.mode = mode
@@ -411,6 +416,7 @@ class Game:
       self.load_item()
 
   def start_story(self, story):
+    self.in_world = False
     self.mode = "trace"
     self.quiz = self.spell = None
     self.banner_override = None
@@ -553,6 +559,7 @@ class Game:
 
   def start_drawing(self):
     """Games menu: straight to the free drawing page."""
+    self.in_world = False
     self.mode = "trace"
     self.story = None
     self.quiz = self.spell = None
@@ -597,6 +604,12 @@ class Game:
       pass
     self.overlay = "players"
 
+  def go_to_town(self):
+    """Back to Wonder Town, to the door you left from."""
+    self.sfx.play("switch")
+    self.overlay = None
+    self.in_world = True
+
   # ------------------------------------------------------------ navigation
   def items(self):
     return list(hub.CATEGORIES_HUB[self.cat].keys())
@@ -616,6 +629,7 @@ class Game:
     self.refresh_mode()
 
   def select_puzzle(self, name):
+    self.in_world = False
     self.sfx.play("click")
     self.leave_story()
     self.puzzle = name
@@ -709,7 +723,12 @@ class Game:
         return
       screens.PANELS[self.overlay].press(self, (px, py))
       return
-    if MENU_BTN.collidepoint(mx, my):
+    if self.in_world:
+      self.world.press(pos)
+      return
+    if TOWN_BTN.collidepoint(mx, my):
+      self.go_to_town()
+    elif MENU_BTN.collidepoint(mx, my):
       self.sfx.play("switch")
       self.overlay = "nav"
     elif NEXT_BTN.collidepoint(mx, my):
@@ -756,6 +775,9 @@ class Game:
           self.load_item(announce=False)  # play again, endlessly
 
   def drag(self, pos):
+    if self.in_world and not self.overlay:
+      self.world.drag(pos)
+      return
     if self.overlay or self.mode != "trace":
       return
     mx, my = pos
@@ -775,6 +797,8 @@ class Game:
         self.strokes[-1].append((mx, my))
 
   def release(self, pos):
+    if self.in_world:
+      self.world.release(pos)
     if self.overlay or self.mode != "trace":
       self.last_pointer = None
       return
@@ -838,6 +862,8 @@ class Game:
     if self.overlay and event.key in (pygame.K_ESCAPE, pygame.K_AC_BACK):
       self.overlay = None
       return True
+    if self.in_world and not self.overlay:
+      return self.world.key(event)
     return False
 
   def text_input(self, text):
@@ -901,6 +927,8 @@ class Game:
     dt = min(0.05, now - self.last_tick)
     self.last_tick = now
     self.particles.update(dt)
+    if self.in_world:
+      self.world.update(dt)
     if self.celebration and now - self.celebration[1] > 3.5:
       self.celebration = None
     if self.call_at and now >= self.call_at:
@@ -1349,8 +1377,9 @@ class Game:
   def draw_description(self, screen):
     """Story sentence, or the second-language name and the description."""
     item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
+    desc_w = min(PANEL_W - 24, WIDTH - 2 * (TOWN_BTN.right + 8))
     if self.story and self.mode == "trace":
-      lines = wrap_text(self.font, self.story_line(), PANEL_W - 24)[:2]
+      lines = wrap_text(self.font, self.story_line(), desc_w)[:2]
       for n, line in enumerate(lines):
         surf = self.font.render(line, True, YELLOW)
         screen.blit(surf, surf.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + n * 17)))
@@ -1361,10 +1390,10 @@ class Game:
     desc = item["desc"]
     if native is not None:
       screen.blit(native, native.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y)))
-      line = fit_label(self.font, desc, CYAN, PANEL_W - 20)
+      line = fit_label(self.font, desc, CYAN, desc_w)
       screen.blit(line, line.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + 19)))
       return
-    for n, line in enumerate(wrap_text(self.font, desc, PANEL_W - 24)[:2]):
+    for n, line in enumerate(wrap_text(self.font, desc, desc_w)[:2]):
       surf = self.font.render(line, True, CYAN)
       screen.blit(surf, surf.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + n * 17)))
 
@@ -1372,9 +1401,12 @@ class Game:
     """Game screen: the play area fills the screen under a slim top row
     (menu button, name, Next). The menu and other panels open on top."""
     now = time.time()
-    screen.fill(self.theme["bg"])
-    self.draw_play_area(screen, now)
-    self.draw_top_row(screen, now)
+    if self.in_world:
+      self.world.draw(screen)
+    else:
+      screen.fill(self.theme["bg"])
+      self.draw_play_area(screen, now)
+      self.draw_top_row(screen, now)
     self.particles.draw(screen, self.hint_font)
     if self.overlay:
       dim = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
@@ -1402,6 +1434,13 @@ class Game:
     for k in range(3):
       y = MENU_BTN.centery - 12 + k * 12
       pygame.draw.line(screen, WHITE, (MENU_BTN.x + 14, y), (MENU_BTN.right - 14, y), 4)
+    # Town: a little house - back to Wonder Town
+    pygame.draw.rect(screen, (240, 140, 40), TOWN_BTN, border_radius=12)
+    pygame.draw.rect(screen, WHITE, TOWN_BTN, 2, border_radius=12)
+    cx, cy = TOWN_BTN.center
+    pygame.draw.polygon(screen, WHITE, [(cx - 14, cy - 1), (cx, cy - 13), (cx + 14, cy - 1)])
+    pygame.draw.rect(screen, WHITE, (cx - 10, cy - 1, 20, 14))
+    pygame.draw.rect(screen, (240, 140, 40), (cx - 3, cy + 4, 6, 9))
     # Next: an arrow to the next picture
     pygame.draw.rect(screen, (60, 180, 90), NEXT_BTN, border_radius=12)
     pygame.draw.rect(screen, WHITE, NEXT_BTN, 2, border_radius=12)
@@ -1508,6 +1547,7 @@ class Game:
           break
     elif RESET_RECT.collidepoint(mx, my):
       self.sfx.play("click")
+      self.in_world = False
       self.refresh_mode(self.puzzle)
       self.overlay = None
     elif GAMES_RECT.collidepoint(mx, my):
@@ -1520,6 +1560,7 @@ class Game:
       self.next_theme()
     elif NEXT_RECT.collidepoint(mx, my):
       self.sfx.play("click")
+      self.in_world = False
       self.overlay = None
 
   def relayout(self, old_play):
