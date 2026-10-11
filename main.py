@@ -60,6 +60,14 @@ GOLD = (255, 215, 0)
 HINT = (170, 180, 210)
 
 CUSTOM = "Custom Draw"
+# Free drawing: crayons, Undo and Done sit along the top of the play area
+CRAYONS = [(255, 204, 0), (233, 69, 96), (255, 140, 40), (80, 200, 90),
+           (60, 160, 255), (170, 110, 255), (255, 255, 255)]
+CRAYON_Y, CRAYON_R = PLAY_RECT.y + 22, 13
+UNDO_RECT = pygame.Rect(262, PLAY_RECT.y + 6, 80, 34)
+DONE_RECT = pygame.Rect(350, PLAY_RECT.y + 6, 92, 34)
+TOOLBAR_BOTTOM = PLAY_RECT.y + 46
+MAX_DRAW_DOMINOES = 260
 TRACE_RADIUS = 24      # how close the finger must pass to cover a dot
 TRACE_DONE = 0.95      # share of dots that completes the outline
 CALL_DELAY = 1.4       # real sound plays this long after the chime
@@ -234,6 +242,8 @@ class Game:
     """(Re)start the current item at the tracing stage."""
     self.stage = "draw" if self.is_custom else "trace"
     self.user_points = []
+    self.drawing = []            # free drawing: [crayon colour, points] per stroke
+    self.crayon = getattr(self, "crayon", 0)
     self.strokes = []
     self.last_pointer = None
     self.dominoes = []
@@ -326,6 +336,18 @@ class Game:
 
   def leave_story(self):
     self.story = None
+
+  def start_drawing(self):
+    """Games menu: straight to the free drawing page."""
+    self.mode = "trace"
+    self.story = None
+    self.quiz = self.spell = None
+    self.banner_override = None
+    self.particles.texts = []
+    self.subject = next(s for s, cats in self.subjects.items() if "Draw" in cats)
+    self.cat, self.puzzle = "Draw", CUSTOM
+    self.page = self.page_of(CUSTOM)
+    self.load_item()
 
   def next_language(self):
     order = LANG_ORDER
@@ -521,9 +543,7 @@ class Game:
           and time.time() - self.celebration[1] < 0.8):
         return                   # don't skip the new sticker by accident
       if self.stage == "draw":
-        self.user_points = [(mx, my)]
-        self.stroke_since_sound = 0.0
-        self.sfx.play("pencil")
+        self.draw_press(mx, my)
       elif self.stage == "trace":
         self.last_pointer = (mx, my)
         self.strokes.append([(mx, my)])
@@ -543,6 +563,7 @@ class Game:
     mx, my = pos
     if self.stage == "draw" and self.user_points:
       if PLAY_RECT.collidepoint(mx, my):
+        my = max(my, TOOLBAR_BOTTOM)
         last = self.user_points[-1]
         self.stroke_since_sound += math.hypot(mx - last[0], my - last[1])
         self.user_points.append((mx, my))
@@ -559,16 +580,52 @@ class Game:
     if self.overlay or self.mode != "trace":
       self.last_pointer = None
       return
-    if self.stage == "draw" and self.user_points:
-      if len(self.user_points) > 2:
-        loops = hub.fetch_path_from_hub(CUSTOM, self.box, self.user_points)
-        if loops:
-          self.loops = loops
-          self.dots = [p for lp in loops for p in lp]
-          self.covered = [True] * len(self.dots)
-          self.stand_dominoes(loops)
-      self.user_points = [] if self.stage == "draw" else self.user_points
+    if self.stage == "draw":
+      self.user_points = []      # the stroke stays in self.drawing; draw more!
     self.last_pointer = None
+
+  # ------------------------------------------------------------ free drawing
+  def draw_press(self, mx, my):
+    """Free drawing: pick a crayon, Undo, Done, or start a new stroke."""
+    for i, colour in enumerate(CRAYONS):
+      if math.hypot(mx - self.crayon_x(i), my - CRAYON_Y) <= CRAYON_R + 4:
+        self.crayon = i
+        self.sfx.play("click")
+        return
+    if self.drawing and UNDO_RECT.collidepoint(mx, my):
+      self.drawing.pop()
+      self.sfx.play("click")
+      return
+    if self.drawing and DONE_RECT.collidepoint(mx, my):
+      self.finish_drawing()
+      return
+    my = max(my, TOOLBAR_BOTTOM)
+    self.user_points = [(mx, my)]
+    self.drawing.append([CRAYONS[self.crayon], self.user_points])
+    self.stroke_since_sound = 0.0
+    self.sfx.play("pencil")
+
+  @staticmethod
+  def crayon_x(i):
+    return 22 + i * 33
+
+  def finish_drawing(self):
+    """Done: every stroke of the child's picture becomes a line of dominoes."""
+    strokes = [pts for _c, pts in self.drawing if len(pts) > 1]
+    length = sum(math.hypot(b[0] - a[0], b[1] - a[1])
+                 for pts in strokes for a, b in zip(pts, pts[1:]))
+    spacing = max(12.0, length / MAX_DRAW_DOMINOES)  # big pictures: fewer dominoes
+    loops = []
+    for pts in strokes:
+      loops += hub.fetch_path_from_hub(CUSTOM, self.box, pts, min_spacing=spacing)
+    if not loops:
+      self.sfx.play("click")
+      return
+    self.user_points = []
+    self.loops = loops
+    self.dots = [p for lp in loops for p in lp]
+    self.covered = [True] * len(self.dots)
+    self.stand_dominoes(loops)
 
   def key_down(self, event):
     """Keyboard: typing a name, or Esc to close a panel. Returns True if used."""
@@ -835,7 +892,9 @@ class Game:
 
   def hint_text(self):
     if self.stage == "draw":
-      return "Draw anything with your finger!"
+      if not self.drawing:
+        return "Draw anything you imagine!"
+      return "Draw more, or tap Done to make dominoes"
     if self.stage == "trace":
       return f"Trace the dots!  {sum(self.covered)} / {len(self.dots)}"
     if self.stage == "ready":
@@ -846,6 +905,33 @@ class Game:
         return "The end! Pick another story" if last else "Tap for the next part!"
       return "Yay! Tap to play again, or Next"
     return ""
+
+  def draw_free_drawing(self, screen, now):
+    """The child's own picture in crayon colours, plus the crayon toolbar."""
+    for colour, pts in self.drawing:
+      if len(pts) > 1:
+        pygame.draw.lines(screen, colour, False, pts, 6)
+      for p in pts[:1] + pts[-1:]:
+        pygame.draw.circle(screen, colour, (int(p[0]), int(p[1])), 3)
+    if self.stage != "draw":
+      return
+    for i, colour in enumerate(CRAYONS):
+      centre = (self.crayon_x(i), CRAYON_Y)
+      r = CRAYON_R + (3 if i == self.crayon else 0)
+      pygame.draw.circle(screen, colour, centre, r)
+      pygame.draw.circle(screen, WHITE if i == self.crayon else (40, 40, 60),
+                         centre, r, 3 if i == self.crayon else 1)
+    if self.drawing:
+      for rect, text, colour in ((UNDO_RECT, "Undo", (255, 100, 100)),
+                                 (DONE_RECT, "Done!", (60, 180, 90))):
+        pygame.draw.rect(screen, colour, rect, border_radius=10)
+        pygame.draw.rect(screen, WHITE, rect, 2, border_radius=10)
+        lbl = self.font.render(text, True, WHITE)
+        screen.blit(lbl, lbl.get_rect(center=rect.center))
+      if len(self.drawing) >= 2 and not self.user_points:
+        r = 4 + 2 * math.sin(now * 5)    # gentle pulse: "you can finish now"
+        pygame.draw.rect(screen, YELLOW, DONE_RECT.inflate(int(r), int(r)), 2,
+                         border_radius=12)
 
   def draw_play_area(self, screen, now):
     screen.set_clip(PLAY_RECT)
@@ -905,8 +991,8 @@ class Game:
         r = 13 + 4 * math.sin(now * 6)
         pygame.draw.circle(screen, YELLOW, (int(fx), int(fy)), int(r), 2)
 
-    if self.stage == "draw" and len(self.user_points) > 1:
-      pygame.draw.lines(screen, YELLOW, False, self.user_points, 3)
+    if self.is_custom:
+      self.draw_free_drawing(screen, now)
 
     if self.stage in ("ready", "running", "finished"):
       if self.stage == "ready" and self.dominoes:
@@ -922,6 +1008,8 @@ class Game:
         if self.stage == "finished":
           rotated.set_alpha(110)
         screen.blit(rotated, rotated.get_rect(center=(d.x, d.y)))
+      if self.is_custom and self.stage == "finished":
+        self.draw_free_drawing(screen, now)   # the child's picture is the reward
 
     if self.story:                      # story progress dots
       steps = len(self.story["story"]["steps"])
@@ -1140,19 +1228,93 @@ class Viewport:
   def to_virtual(self, wx, wy):
     return ((wx - self.ox) / self.scale, (wy - self.oy) / self.scale)
 
-  def present(self, window, canvas):
+  def present(self, window, canvas, border=(0, 0, 0)):
     if self.scale == 1.0 and self.ox == 0 and self.oy == 0:
       window.blit(canvas, (0, 0))
       return
-    window.fill((0, 0, 0))
+    window.fill(border)          # side bars take the theme colour, not black
     size = (int(WIDTH * self.scale), int(HEIGHT * self.scale))
     window.blit(pygame.transform.smoothscale(canvas, size), (self.ox, self.oy))
 
 
-def open_display():
+class FullScreen:
+  """Full-screen presentation. Computer: starts full screen, F11 or the Games
+  menu switches, Esc leaves it. Browser: the first tap goes full screen (and
+  keeps phones upright). Android apps are always full screen."""
+
+  WEB_TOGGLE = """(function(){var d=document,e=d.documentElement;
+  if(d.fullscreenElement||d.webkitFullscreenElement){
+    (d.exitFullscreen||d.webkitExitFullscreen).call(d);return 'off';}
+  var r=e.requestFullscreen||e.webkitRequestFullscreen;if(!r)return 'none';
+  var lock=function(){try{screen.orientation.lock('portrait').catch(function(){});}catch(x){}};
+  try{var p=r.call(e,{navigationUI:'hide'});
+    if(p&&p.then)p.then(lock).catch(function(){});else lock();}catch(x){return 'none';}
+  return 'on';})()"""
+  WEB_STATE = ("(document.fullscreenElement||document.webkitFullscreenElement)"
+               "?'yes':'no'")
+
+  def __init__(self):
+    self.available = not IS_ANDROID
+    self.full = IS_ANDROID
+    self.first_tap = IS_WEB          # browsers need a tap before full screen
+    self.border_theme = None
+
+  def is_full(self):
+    if IS_WEB:
+      try:
+        import platform
+        return str(platform.window.eval(self.WEB_STATE)) == "yes"
+      except Exception:
+        return False
+    return self.full
+
+  def toggle(self):
+    self.first_tap = False
+    if IS_ANDROID:
+      return
+    if IS_WEB:
+      try:
+        import platform
+        platform.window.eval(self.WEB_TOGGLE)
+      except Exception:
+        pass
+      return
+    self.full = not self.full
+    open_display(self.full)
+
+  def leave(self):
+    """Esc: step out of full screen first. True if it did."""
+    if self.available and not IS_WEB and self.full:
+      self.toggle()
+      return True
+    return False
+
+  def tapped(self):
+    if self.first_tap:
+      self.toggle()
+
+  def paint_page(self, theme):
+    """Browser page around the game takes the theme colour too."""
+    if not IS_WEB or theme is self.border_theme:
+      return
+    self.border_theme = theme
+    try:
+      import platform
+      colour = "#%02x%02x%02x" % border_colour(theme)
+      platform.document.body.style.background = colour
+      platform.document.documentElement.style.background = colour
+    except Exception:
+      pass
+
+
+def border_colour(theme):
+  return tuple(int(c * 0.6) for c in theme["bg"])
+
+
+def open_display(full=None):
   if IS_WEB:
     return pygame.display.set_mode((WIDTH, HEIGHT))
-  if IS_ANDROID:
+  if IS_ANDROID or full:
     return pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
   try:
     desk_h = pygame.display.get_desktop_sizes()[0][1]
@@ -1165,7 +1327,11 @@ def open_display():
 async def main():
   pygame.mixer.pre_init(RATE_HINT, -16, 2, 1024 if IS_ANDROID else 512)
   pygame.init()
-  open_display()
+  fullscreen = FullScreen()
+  # The computer version opens full screen (tests use the dummy video driver)
+  if not IS_WEB and os.environ.get("SDL_VIDEODRIVER") != "dummy":
+    fullscreen.full = True
+  open_display(fullscreen.full)
   pygame.display.set_caption("Domino Wonder Dash - Learn while you play")
   try:
     pygame.key.stop_text_input()   # only on while a name is being typed
@@ -1177,6 +1343,7 @@ async def main():
   sfx = SoundBank()
   speaker = Speaker()
   game = Game(sfx, speaker)
+  game.fullscreen = fullscreen
 
   # Touch and mouse share one code path. Phones also send "fake" mouse events
   # for each touch, so those are ignored to avoid double taps.
@@ -1259,8 +1426,14 @@ def frame(game, view, canvas, state):
     if event.type == pygame.QUIT:
       running = False
     elif event.type == pygame.KEYDOWN:
-      if not game.key_down(event) and event.key in (pygame.K_ESCAPE, pygame.K_AC_BACK):
-        running = False
+      full = getattr(game, "fullscreen", None)
+      if full and event.key == pygame.K_F11 and game.overlay != "rename":
+        full.toggle()
+      elif game.key_down(event):
+        pass
+      elif event.key in (pygame.K_ESCAPE, pygame.K_AC_BACK):
+        if not (full and full.leave()):
+          running = False
     elif event.type == pygame.TEXTINPUT:
       game.text_input(event.text)
 
@@ -1270,6 +1443,7 @@ def frame(game, view, canvas, state):
       if state["finger"] is not None and state["finger_pos"]:
         game.release(state["finger_pos"])     # a new touch takes over
       state.update(finger=event.finger_id, finger_at=now, finger_pos=pos)
+      tapped(game)
       game.press(pos)
     elif event.type == pygame.FINGERMOTION:
       state["ignore_mouse_until"] = now + 0.6
@@ -1290,6 +1464,7 @@ def frame(game, view, canvas, state):
         continue
       pos = view.to_virtual(*event.pos)
       if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        tapped(game)
         game.press(pos)
       elif event.type == pygame.MOUSEMOTION and event.buttons[0]:
         game.drag(pos)
@@ -1298,9 +1473,18 @@ def frame(game, view, canvas, state):
 
   game.update()
   game.draw(canvas)
-  view.present(window, canvas)
+  full = getattr(game, "fullscreen", None)
+  if full:
+    full.paint_page(game.theme)
+  view.present(window, canvas, border_colour(game.theme))
   pygame.display.flip()
   return running
+
+
+def tapped(game):
+  full = getattr(game, "fullscreen", None)
+  if full:
+    full.tapped()
 
 
 if __name__ == "__main__":

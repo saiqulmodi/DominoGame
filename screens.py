@@ -49,6 +49,19 @@ def button(screen, g, rect, text, color, icon=None, sub=None, active=False):
     screen.blit(lbl, lbl.get_rect(midleft=(x, rect.centery)))
 
 
+def crayon_icon(size):
+  """A little painter's palette: the free-drawing crayons."""
+  surf = pygame.Surface((size, size), pygame.SRCALPHA)
+  pygame.draw.ellipse(surf, (235, 200, 150), (1, 5, size - 2, size - 10))
+  pygame.draw.ellipse(surf, (120, 80, 40), (1, 5, size - 2, size - 10), 2)
+  colours = [(233, 69, 96), (255, 204, 0), (80, 200, 90), (60, 160, 255), (170, 110, 255)]
+  spots = [(0.28, 0.38), (0.5, 0.28), (0.72, 0.38), (0.75, 0.62), (0.5, 0.72)]
+  for c, (fx, fy) in zip(colours, spots):
+    pygame.draw.circle(surf, c, (int(size * fx), int(size * fy)), size // 9)
+  pygame.draw.circle(surf, (120, 80, 40), (int(size * 0.27), int(size * 0.64)), size // 10)
+  return surf
+
+
 # --------------------------------------------------------------------------
 class Menu:
   """The Games menu."""
@@ -60,6 +73,7 @@ class Menu:
         ("trace", "Trace & Topple", ("Home", "Pencil"), "Draw over the dots"),
         ("quiz", "Find it!", ("Home", "Bulb"), "Hear a name, tap the picture"),
         ("spell", "Spell it", ("ABC", "A"), "Put the letters in order"),
+        ("draw", "Draw my own", ("Home", "Pencil"), "Draw anything you imagine"),
         ("story", "Story of the day", (today["steps"][0][0], today["steps"][0][1]),
          today["title"]),
         ("stories", "All stories", ("Sky", "Rainbow"), f"{len(stories.STORIES)} adventures"),
@@ -68,20 +82,30 @@ class Menu:
         ("lang", "Language", ("Countries", "India"), LANGUAGES[g.lang] + "  (tap to change)"),
         ("parents", "For parents", ("Helpers", "Teacher"), "See what your child learned"),
     ]
+    full = getattr(g, "fullscreen", None)
+    if full and full.available:
+      items.append(("screen", "Exit full screen" if full.is_full() else "Full screen",
+                    ("Sky", "Mountain"),
+                    "Back to a window" if full.is_full() else "Fill the whole screen"))
+    step = min(76, (AREA_BOTTOM - 34 - 56) // len(items))
     out = []
     for i, it in enumerate(items):
-      out.append((pygame.Rect(16, 60 + i * 76, 418, 68), it))
+      out.append((pygame.Rect(16, 56 + i * step, 418, step - 7), it))
     return out
 
   def draw(self, screen, g, now):
     shade(screen, g.theme)
     title(screen, g, "Play & Learn")
+    drawing = g.mode == "trace" and not g.story and g.is_custom
     for rect, (key, text, icon, sub) in self.rows(g):
-      active = key == g.mode and key in ("trace", "quiz", "spell") and not g.story
+      active = (key == g.mode and key in ("trace", "quiz", "spell") and not g.story
+                and not (key == "trace" and drawing))
       if key == "story" and g.story:
         active = True
-      button(screen, g, rect, text, g.theme["subject"], g.thumb(icon[1], icon[0], 44),
-             sub, active)
+      if key == "draw":
+        active = drawing
+      pic = crayon_icon(44) if key == "draw" else g.thumb(icon[1], icon[0], 44)
+      button(screen, g, rect, text, g.theme["subject"], pic, sub, active)
     tip = g.small_font.render("Tap outside a button to close", True, HINT)
     screen.blit(tip, tip.get_rect(center=(225, AREA_BOTTOM - 12)))
 
@@ -91,6 +115,9 @@ class Menu:
         g.sfx.play("click")
         if key in ("trace", "quiz", "spell"):
           g.set_mode(key)
+          g.overlay = None
+        elif key == "draw":
+          g.start_drawing()
           g.overlay = None
         elif key == "story":
           g.start_story(g.story_of_today())
@@ -103,6 +130,9 @@ class Menu:
           g.next_language()
         elif key == "parents":
           g.overlay = "parents"
+        elif key == "screen":
+          g.fullscreen.toggle()
+          g.overlay = None
         return
     g.overlay = None
 

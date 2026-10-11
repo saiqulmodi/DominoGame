@@ -26,12 +26,18 @@ while the name is said, spelled and shown.
 
 - **Find it!** - the voice says a name, the child taps the right picture of four
 - **Spell it** - put jumbled letter tiles in the right order
+- **Draw my own** - free drawing from the child's own imagination: pick crayon
+  colours, draw as many lines as they like (Undo fixes a mistake), tap Done and
+  their picture turns into dominoes that topple
 - **Story of the day** - 14 short adventures (farm, jungle, sea, school, kitchen,
   a trip across India, rainy day, space ...) that link 5 pictures with a sentence each
 - **Players** - one profile per child (up to 6), with an on-screen keyboard for names
 - **Language** - every picture's name in English + Hindi or English + Bangla,
   shown and spoken (where the device has that voice)
 - **For parents** - progress per subject, quiz accuracy, words spelled, stories, days played
+- **Full screen** - the game fills the whole screen: in the browser the first tap
+  goes full screen (phones stay upright), on a computer it opens full screen
+  (F11 or this button switches, Esc leaves full screen)
 
 ## Fun that keeps them playing
 

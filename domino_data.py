@@ -511,7 +511,7 @@ CATALOG = {
         ("Medal", "A medal for doing your best.", ("emoji", "1F3C5")),
     ],
     "Draw": [
-        ("Custom Draw", "Draw your own animal, bird, road, or map with your finger or mouse!", ("custom", None)),
+        ("Custom Draw", "Draw anything you imagine, in any colour!", ("custom", None)),
     ],
 }
 
@@ -535,7 +535,7 @@ def spoken_text(name, cat=None):
   item = _find(name, cat)
   src = item["source"] if item else ""
   if src == "custom":
-    return "Draw anything you like!"
+    return "Draw anything you imagine! Pick a colour, draw, then tap Done."
   if src in ("glyph", "hindi"):
     return item["desc"].replace(" - ", ". ") + "!"
   letters = ", ".join(ch for ch in name.upper() if ch.isalpha())
@@ -650,13 +650,11 @@ def fetch_path_from_hub(shape_name, box, custom_points=None, cat=None,
   if item is None:
     return []
   if item["source"] == "custom":
-    if not custom_points or len(custom_points) < 3:
+    if not custom_points or len(custom_points) < 2:
       return []
-    filtered = [custom_points[0]]
-    for p in custom_points[1:]:
-      if math.hypot(p[0] - filtered[-1][0], p[1] - filtered[-1][1]) >= 10:
-        filtered.append(p)
-    return [filtered]
+    # evenly spaced along the child's line, however fast it was drawn
+    dots = _resample(list(custom_points), False, min_spacing)
+    return [dots] if len(dots) >= 2 else []
 
   s, ox, oy = _fit(item, box)
   closed = item.get("closed", True)
