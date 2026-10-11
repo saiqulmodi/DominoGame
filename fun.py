@@ -17,27 +17,33 @@ from audio import IS_ANDROID, IS_WEB
 # --------------------------------------------------------------------------
 # Colour themes (the palette button cycles them; the choice is saved)
 # --------------------------------------------------------------------------
+# Each theme also has a picture-book scene behind the play area (scenery.py).
+# "Sunny Day" is first, so it is what a new child sees.
 THEMES = [
+    {"name": "Sunny Day", "bg": (34, 108, 190), "panel": (22, 84, 156),
+     "banner": (24, 80, 150), "subject": (255, 130, 40), "cat": (233, 69, 96),
+     "cell": (52, 128, 200), "context": (70, 100, 150), "guide": (50, 80, 130),
+     "domino_sat": 85, "domino_val": 95, "scene": "day"},
     {"name": "Night", "bg": (26, 26, 46), "panel": (15, 52, 96),
      "banner": (22, 33, 62), "subject": (120, 80, 200), "cat": (233, 69, 96),
      "cell": (53, 79, 82), "context": (70, 85, 120), "guide": (90, 100, 140),
-     "domino_sat": 90, "domino_val": 85},
+     "domino_sat": 90, "domino_val": 85, "scene": "night"},
     {"name": "Ocean", "bg": (8, 38, 58), "panel": (6, 70, 100),
      "banner": (10, 52, 78), "subject": (0, 140, 170), "cat": (255, 120, 90),
      "cell": (30, 90, 110), "context": (60, 120, 150), "guide": (80, 140, 170),
-     "domino_sat": 55, "domino_val": 100},
+     "domino_sat": 55, "domino_val": 100, "scene": "sea"},
     {"name": "Forest", "bg": (18, 42, 28), "panel": (30, 80, 45),
      "banner": (24, 58, 36), "subject": (90, 150, 60), "cat": (230, 150, 40),
      "cell": (50, 90, 60), "context": (80, 120, 80), "guide": (100, 140, 100),
-     "domino_sat": 75, "domino_val": 95},
+     "domino_sat": 75, "domino_val": 95, "scene": "forest"},
     {"name": "Berry", "bg": (48, 18, 50), "panel": (90, 30, 90),
      "banner": (66, 24, 70), "subject": (200, 70, 160), "cat": (90, 160, 250),
      "cell": (90, 50, 95), "context": (130, 80, 130), "guide": (150, 100, 150),
-     "domino_sat": 45, "domino_val": 100},
+     "domino_sat": 45, "domino_val": 100, "scene": "candy"},
     {"name": "Sunset", "bg": (58, 28, 24), "panel": (120, 50, 30),
      "banner": (84, 38, 30), "subject": (230, 110, 50), "cat": (200, 60, 110),
      "cell": (110, 60, 50), "context": (150, 90, 80), "guide": (170, 110, 90),
-     "domino_sat": 100, "domino_val": 100},
+     "domino_sat": 100, "domino_val": 100, "scene": "sunset"},
 ]
 
 # --------------------------------------------------------------------------
@@ -210,7 +216,7 @@ MAX_PLAYERS = len(AVATARS)
 
 def new_profile(n):
   return {"name": f"Player {n + 1}", "avatar": n % len(AVATARS), "done": [],
-          "stickers": [], "theme": 0, "best_streak": 0, "lang": "hi",
+          "stickers": [], "theme": 0, "theme_v": 2, "best_streak": 0, "lang": "hi",
           "quiz": {"right": 0, "asked": 0}, "spell": {"right": 0, "words": []},
           "stories": [], "days": []}
 
@@ -247,6 +253,12 @@ class Progress:
           prof.update(saved)
           saved = {"profiles": [prof], "current": 0}
         for i, prof in enumerate(saved["profiles"]):
+          if prof.get("theme_v") != 2:
+            # "Sunny Day" was added in front: a child who picked a theme keeps
+            # it; the old default (Night) moves to the new bright default
+            if prof.get("theme", 0):
+              prof["theme"] = prof["theme"] + 1
+            prof["theme_v"] = 2
           full = new_profile(i)
           full.update(prof)
           saved["profiles"][i] = full

@@ -26,6 +26,7 @@ import calls
 import domino_data as hub
 import fun
 import modes
+import scenery
 import screens
 import stories
 import video
@@ -149,6 +150,49 @@ class Domino:
     self.current_angle = 0.0
     self.state = "standing"
     self.color = color
+
+
+_BANDS = {}
+
+
+def top_band(theme, width):
+  """The top row's background: the theme colour, a little lighter at the top."""
+  key = (theme["name"], width)
+  band = _BANDS.get(key)
+  if band is None:
+    band = pygame.Surface((width, TOP_H))
+    bg = theme["bg"]
+    for y in range(TOP_H):
+      k = 0.28 * (1 - y / TOP_H)
+      pygame.draw.line(band, tuple(int(c + (255 - c) * k) for c in bg), (0, y), (width, y))
+    if len(_BANDS) > 12:
+      _BANDS.clear()
+    _BANDS[key] = band
+  return band
+
+
+_TILES = {}
+
+
+def domino_tile(color):
+  """A small domino: coloured tile, darker rim, a shine, a middle line and two
+  pips. Painted once per colour."""
+  key = tuple(color)[:3]
+  tile = _TILES.get(key)
+  if tile is None:
+    if len(_TILES) > 600:
+      _TILES.clear()
+    tile = pygame.Surface((12, 28), pygame.SRCALPHA)
+    dark = tuple(int(c * 0.55) for c in key)
+    light = tuple(min(255, int(c + (255 - c) * 0.45)) for c in key)
+    pygame.draw.rect(tile, dark, (0, 0, 12, 28), border_radius=3)
+    pygame.draw.rect(tile, key, (1, 1, 10, 26), border_radius=3)
+    pygame.draw.line(tile, light, (2, 2), (2, 25), 2)
+    pygame.draw.line(tile, WHITE, (2, 14), (9, 14), 1)
+    pygame.draw.circle(tile, WHITE, (6, 7), 2)
+    pygame.draw.circle(tile, WHITE, (6, 21), 2)
+    _TILES[key] = tile
+  return tile
 
 
 def dominoes_from_loops(loops, closed, sat=90, val=85):
@@ -1118,6 +1162,11 @@ class Game:
 
   def draw_play_area(self, screen, now):
     screen.set_clip(PLAY_RECT)
+    scenery.draw(screen, PLAY_RECT, self.theme.get("scene", "night"), now)
+    if self.mode in ("quiz", "spell"):     # their white text needs a calmer backdrop
+      veil = pygame.Surface(PLAY_RECT.size, pygame.SRCALPHA)
+      veil.fill((*self.theme["bg"], 205))
+      screen.blit(veil, PLAY_RECT.topleft)
     if self.mode == "quiz" and self.quiz:
       self.quiz.draw(screen, now)
       screen.set_clip(None)
@@ -1164,11 +1213,15 @@ class Game:
             pygame.draw.lines(screen, glow, False, stroke[-40:], pulse)
           pygame.draw.lines(screen, YELLOW, False, stroke, width if live else 4)
       first_open = next((i for i, c in enumerate(self.covered) if not c), None)
+      rim = (40, 50, 80)
       for i, (dx, dy) in enumerate(self.dots):
+        c = (int(dx), int(dy))
         if self.covered[i]:
-          pygame.draw.circle(screen, self.dot_color(i), (int(dx), int(dy)), 6)
+          pygame.draw.circle(screen, WHITE, c, 8)
+          pygame.draw.circle(screen, self.dot_color(i), c, 6)
         else:
-          pygame.draw.circle(screen, WHITE, (int(dx), int(dy)), 5, 2)
+          pygame.draw.circle(screen, rim, c, 6)
+          pygame.draw.circle(screen, WHITE, c, 4)
       if first_open is not None and not any(self.covered):
         fx, fy = self.dots[first_open]
         r = 13 + 4 * math.sin(now * 6)
@@ -1183,9 +1236,7 @@ class Game:
         pygame.draw.circle(screen, YELLOW, (int(self.dominoes[0].x),
                                             int(self.dominoes[0].y)), int(r), 2)
       for d in self.dominoes:
-        surf = pygame.Surface((10, 26), pygame.SRCALPHA)
-        surf.fill(d.color)
-        pygame.draw.rect(surf, WHITE, (0, 0, 10, 26), 1)
+        surf = domino_tile(d.color)
         rotated = pygame.transform.rotate(
             surf, math.degrees(-(d.angle + d.current_angle)))
         if self.stage == "finished":
@@ -1210,8 +1261,12 @@ class Game:
     if streak >= 5:
       hint = f"Streak {streak}!  " + hint
     if hint:
-      surf = fit_label(self.hint_font, hint, YELLOW if streak >= 5 else HINT, PLAY_RECT.w - 20)
-      screen.blit(surf, surf.get_rect(center=(PLAY_RECT.centerx, PLAY_RECT.bottom - 14)))
+      surf = fit_label(self.hint_font, hint, YELLOW if streak >= 5 else WHITE, PLAY_RECT.w - 40)
+      box = surf.get_rect(center=(PLAY_RECT.centerx, PLAY_RECT.bottom - 18)).inflate(26, 10)
+      pill = pygame.Surface(box.size, pygame.SRCALPHA)
+      pygame.draw.rect(pill, (20, 24, 50, 170), pill.get_rect(), border_radius=box.h // 2)
+      screen.blit(pill, box.topleft)
+      screen.blit(surf, surf.get_rect(center=box.center))
     if self.celebration:
       self.draw_celebration(screen, now)
     screen.set_clip(None)
@@ -1335,7 +1390,7 @@ class Game:
 
   def draw_top_row(self, screen, now):
     tm = self.theme
-    pygame.draw.rect(screen, tm["bg"], (0, 0, WIDTH, TOP_H))
+    screen.blit(top_band(tm, WIDTH), (0, 0))
     pygame.draw.line(screen, tm["panel"], (0, TOP_H - 1), (WIDTH, TOP_H - 1), 2)
     self.draw_title_banner(screen, now)
     self.draw_description(screen)
