@@ -5,8 +5,9 @@
   `hub_data.json` are adapted from OpenMoji and are shared under the same license.
 - **Real-life videos:** short clips from Wikimedia Commons (https://commons.wikimedia.org),
   streamed from upload.wikimedia.org, each under its own free license (CC BY, CC BY-SA,
-  CC0 or public domain). The player shows each clip's author and license; the full list
-  with links is in `videos.json`.
+  CC0, GFDL or public domain). The player shows each clip's author and license; the full
+  list with links is in `videos.json`. The famous places of Indian states and union
+  territories (`tools/place_videos.py`) include Incredible India tourism films (CC BY 3.0).
 - **Maps and rivers:** Natural Earth (https://www.naturalearthdata.com). Public domain.
   Country borders use Natural Earth's India point-of-view edition.
 - **Hindi letters and words:** drawn with the Noto Sans Devanagari font (SIL Open Font License),

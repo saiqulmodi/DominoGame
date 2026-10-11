@@ -2544,81 +2544,1981 @@
   ],
   "title": "File:Carlos Alcaraz vs. Wu Yibing (2026 US Open) - 45.webm"
  },
- "States/Kerala": {
-  "artist": "Bhuvana Meenakshi",
-  "desc": "A video explaining the complete method to make Palada Pradhaman",
+ "States/Andhra Pradesh": {
+  "artist": "Im3847",
+  "desc": "",
   "editor_pick": false,
-  "license": "CC BY 4.0",
-  "page": "https://commons.wikimedia.org/wiki/File%3ATraditional_preparation_method_of_Palada_Pradhaman_%28a_sweet_delicacy_from_Kerala%29.webm",
-  "seconds": 130.885,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATime-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm",
+  "places": [
+   {
+    "artist": "Im3847",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATime-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm",
+    "place": "Visakhapatnam beach",
+    "seconds": 24.866,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/76/Time-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm/Time-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/76/Time-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm/Time-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Time-lapse of Diwali on Vizag Beach 2018 (2).webm"
+   },
+   {
+    "artist": "Kuldeepburjbhalaike",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABaby_monkey_drinking_water.webm",
+    "place": "Araku Valley",
+    "seconds": 7.5,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c4/Baby_monkey_drinking_water.webm/Baby_monkey_drinking_water.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c4/Baby_monkey_drinking_water.webm/Baby_monkey_drinking_water.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Baby monkey drinking water.webm"
+   }
+  ],
+  "seconds": 24.866,
   "sources": [
    {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Traditional_preparation_method_of_Palada_Pradhaman_%28a_sweet_delicacy_from_Kerala%29.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/76/Time-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm/Time-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm.480p.vp9.webm",
     "type": "video/webm"
    },
    {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7a/Traditional_preparation_method_of_Palada_Pradhaman_%28a_sweet_delicacy_from_Kerala%29.webm/Traditional_preparation_method_of_Palada_Pradhaman_%28a_sweet_delicacy_from_Kerala%29.webm.360p.mpeg4.mov",
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/76/Time-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm/Time-lapse_of_Diwali_on_Vizag_Beach_2018_%282%29.webm.360p.mpeg4.mov",
     "type": "video/mp4"
    }
   ],
-  "title": "File:Traditional preparation method of Palada Pradhaman (a sweet delicacy from Kerala).webm"
+  "title": "File:Time-lapse of Diwali on Vizag Beach 2018 (2).webm"
+ },
+ "States/Arunachal Pradesh": {
+  "artist": "Research Institute of World’s Ancient Traditions Cultures and Heritage",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APraying_with_big_prayer_wheel_at_Tawang_Monastry.webm",
+  "places": [
+   {
+    "artist": "Research Institute of World’s Ancient Traditions Cultures and Heritage",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3APraying_with_big_prayer_wheel_at_Tawang_Monastry.webm",
+    "place": "Tawang Monastery",
+    "seconds": 18.72,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/83/Praying_with_big_prayer_wheel_at_Tawang_Monastry.webm/Praying_with_big_prayer_wheel_at_Tawang_Monastry.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/83/Praying_with_big_prayer_wheel_at_Tawang_Monastry.webm/Praying_with_big_prayer_wheel_at_Tawang_Monastry.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Praying with big prayer wheel at Tawang Monastry.webm"
+   },
+   {
+    "artist": "JyotiPN",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJang_Waterfall_or_Nuranang_falls.webm",
+    "place": "Nuranang Falls",
+    "seconds": 45.469,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5a/Jang_Waterfall_or_Nuranang_falls.webm/Jang_Waterfall_or_Nuranang_falls.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5a/Jang_Waterfall_or_Nuranang_falls.webm/Jang_Waterfall_or_Nuranang_falls.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Jang Waterfall or Nuranang falls.webm"
+   },
+   {
+    "artist": "MaheshBaruahwildlife",
+    "license": "CC BY 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABUTTERFLYING_IN_HIGH_ALLTITUDE_%28SELA_PASS%29.webm",
+    "place": "Sela Pass butterflies",
+    "seconds": 50.205,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d4/BUTTERFLYING_IN_HIGH_ALLTITUDE_%28SELA_PASS%29.webm/BUTTERFLYING_IN_HIGH_ALLTITUDE_%28SELA_PASS%29.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d4/BUTTERFLYING_IN_HIGH_ALLTITUDE_%28SELA_PASS%29.webm/BUTTERFLYING_IN_HIGH_ALLTITUDE_%28SELA_PASS%29.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:BUTTERFLYING IN HIGH ALLTITUDE (SELA PASS).webm"
+   }
+  ],
+  "seconds": 18.72,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/83/Praying_with_big_prayer_wheel_at_Tawang_Monastry.webm/Praying_with_big_prayer_wheel_at_Tawang_Monastry.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/83/Praying_with_big_prayer_wheel_at_Tawang_Monastry.webm/Praying_with_big_prayer_wheel_at_Tawang_Monastry.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Praying with big prayer wheel at Tawang Monastry.webm"
+ },
+ "States/Assam": {
+  "artist": "Tisha Mukherjee",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AIndian_elephant_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_03.mpg",
+  "places": [
+   {
+    "artist": "Tisha Mukherjee",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AIndian_elephant_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_03.mpg",
+    "place": "Kaziranga elephants",
+    "seconds": 18.040978116079923,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f2/Indian_elephant_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_03.mpg/Indian_elephant_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_03.mpg.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Indian elephant in Kaziranga National Park March 2025 by Tisha Mukherjee 03.mpg"
+   },
+   {
+    "artist": "Tisha Mukherjee",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AWild_water_buffalo_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee.mpg",
+    "place": "Kaziranga buffalo",
+    "seconds": 10.8049216,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8f/Wild_water_buffalo_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee.mpg/Wild_water_buffalo_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee.mpg.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Wild water buffalo in Kaziranga National Park March 2025 by Tisha Mukherjee.mpg"
+   },
+   {
+    "artist": "Joy sagar Murmu",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATea_garden_Assam_India.webm",
+    "place": "Tea gardens",
+    "seconds": 39.323,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a3/Tea_garden_Assam_India.webm/Tea_garden_Assam_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a3/Tea_garden_Assam_India.webm/Tea_garden_Assam_India.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Tea garden Assam India.webm"
+   },
+   {
+    "artist": "JyotiPN",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHemchandra_Goswami%2C_Folk_Artist%2C_Majuli%2C_Assam.webm",
+    "place": "Majuli mask dance",
+    "seconds": 35.185,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/06/Hemchandra_Goswami%2C_Folk_Artist%2C_Majuli%2C_Assam.webm/Hemchandra_Goswami%2C_Folk_Artist%2C_Majuli%2C_Assam.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/06/Hemchandra_Goswami%2C_Folk_Artist%2C_Majuli%2C_Assam.webm/Hemchandra_Goswami%2C_Folk_Artist%2C_Majuli%2C_Assam.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Hemchandra Goswami, Folk Artist, Majuli, Assam.webm"
+   },
+   {
+    "artist": "Himanshum14",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARiver_flowing.webm",
+    "place": "Brahmaputra",
+    "seconds": 9.5,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6b/River_flowing.webm/River_flowing.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6b/River_flowing.webm/River_flowing.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:River flowing.webm"
+   }
+  ],
+  "seconds": 18.040978116079923,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f2/Indian_elephant_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_03.mpg/Indian_elephant_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_03.mpg.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Indian elephant in Kaziranga National Park March 2025 by Tisha Mukherjee 03.mpg"
+ },
+ "States/Bihar": {
+  "artist": "Rohit Sharma",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm",
+  "places": [
+   {
+    "artist": "Rohit Sharma",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm",
+    "place": "Bodh Gaya",
+    "seconds": 66.069,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm/Sacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm/Sacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Sacred Serenity at Mahabodhi Temple, Bodhgaya, Bihar.webm"
+   }
+  ],
+  "seconds": 66.069,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm/Sacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Sacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm/Sacred_Serenity_at_Mahabodhi_Temple%2C_Bodhgaya%2C_Bihar.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Sacred Serenity at Mahabodhi Temple, Bodhgaya, Bihar.webm"
+ },
+ "States/Goa": {
+  "artist": "Incredible India",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AChurches_%26_Convents_-_Old_Goa_-_India.webm",
+  "places": [
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChurches_%26_Convents_-_Old_Goa_-_India.webm",
+    "place": "Old Goa churches",
+    "seconds": 30.024,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6f/Churches_%26_Convents_-_Old_Goa_-_India.webm/Churches_%26_Convents_-_Old_Goa_-_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6f/Churches_%26_Convents_-_Old_Goa_-_India.webm/Churches_%26_Convents_-_Old_Goa_-_India.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Churches & Convents - Old Goa - India.webm"
+   },
+   {
+    "artist": "Subhashish Panigrahi",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAguada_beach%2C_Goa.webm",
+    "place": "Aguada beach",
+    "seconds": 54.846000000000004,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3c/Aguada_beach%2C_Goa.webm/Aguada_beach%2C_Goa.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3c/Aguada_beach%2C_Goa.webm/Aguada_beach%2C_Goa.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Aguada beach, Goa.webm"
+   },
+   {
+    "artist": "Subhashish Panigrahi",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACrab_in_a_hole_%28shot_in_Vainguinim_beach%2C_Goa%29.webm",
+    "place": "A crab on the beach",
+    "seconds": 41.289,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5a/Crab_in_a_hole_%28shot_in_Vainguinim_beach%2C_Goa%29.webm/Crab_in_a_hole_%28shot_in_Vainguinim_beach%2C_Goa%29.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5a/Crab_in_a_hole_%28shot_in_Vainguinim_beach%2C_Goa%29.webm/Crab_in_a_hole_%28shot_in_Vainguinim_beach%2C_Goa%29.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Crab in a hole (shot in Vainguinim beach, Goa).webm"
+   }
+  ],
+  "seconds": 30.024,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6f/Churches_%26_Convents_-_Old_Goa_-_India.webm/Churches_%26_Convents_-_Old_Goa_-_India.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6f/Churches_%26_Convents_-_Old_Goa_-_India.webm/Churches_%26_Convents_-_Old_Goa_-_India.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Churches & Convents - Old Goa - India.webm"
+ },
+ "States/Gujarat": {
+  "artist": "Statue of Unity",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm",
+  "places": [
+   {
+    "artist": "Statue of Unity",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3A%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm",
+    "place": "Statue of Unity",
+    "seconds": 135.961,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/88/%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm/%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/88/%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm/%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:\"STATUE OF UNITY\"- Kevadia (Gujarat) becomes a \"Land of Billion Lights\" at night..webm"
+   },
+   {
+    "artist": "Michel Cecil",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKutch_in_its_Traditional_form.webm",
+    "place": "Rann of Kutch",
+    "seconds": 64.71000000000001,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Kutch_in_its_Traditional_form.webm/Kutch_in_its_Traditional_form.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Kutch in its Traditional form.webm"
+   },
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAhmedabad_-_India%27s_First_World_Heritage_City.webm",
+    "place": "Ahmedabad",
+    "seconds": 30.024,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/12/Ahmedabad_-_India%27s_First_World_Heritage_City.webm/Ahmedabad_-_India%27s_First_World_Heritage_City.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/12/Ahmedabad_-_India%27s_First_World_Heritage_City.webm/Ahmedabad_-_India%27s_First_World_Heritage_City.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Ahmedabad - India's First World Heritage City.webm"
+   },
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AThe_Land_Of_Gandhi_-_Incredible_India.webm",
+    "place": "Sabarmati Ashram",
+    "seconds": 45.021,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/af/The_Land_Of_Gandhi_-_Incredible_India.webm/The_Land_Of_Gandhi_-_Incredible_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/af/The_Land_Of_Gandhi_-_Incredible_India.webm/The_Land_Of_Gandhi_-_Incredible_India.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:The Land Of Gandhi - Incredible India.webm"
+   }
+  ],
+  "seconds": 135.961,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/88/%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm/%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/88/%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm/%22STATUE_OF_UNITY%22-_Kevadia_%28Gujarat%29_becomes_a_%22Land_of_Billion_Lights%22_at_night..webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:\"STATUE OF UNITY\"- Kevadia (Gujarat) becomes a \"Land of Billion Lights\" at night..webm"
+ },
+ "States/Haryana": {
+  "artist": "gehoon",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AIndian_Been_Music_at_Surajkund_Craft_Fair.webm",
+  "places": [
+   {
+    "artist": "gehoon",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AIndian_Been_Music_at_Surajkund_Craft_Fair.webm",
+    "place": "Surajkund Craft Fair",
+    "seconds": 192.09900000000002,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0d/Indian_Been_Music_at_Surajkund_Craft_Fair.webm/Indian_Been_Music_at_Surajkund_Craft_Fair.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Indian Been Music at Surajkund Craft Fair.webm"
+   }
+  ],
+  "seconds": 192.09900000000002,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0d/Indian_Been_Music_at_Surajkund_Craft_Fair.webm/Indian_Been_Music_at_Surajkund_Craft_Fair.webm.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Indian Been Music at Surajkund Craft Fair.webm"
+ },
+ "States/Himachal Pradesh": {
+  "artist": "Poojilsharma07",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AKalka_Shimla_Toy_Train.webm",
+  "places": [
+   {
+    "artist": "Poojilsharma07",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKalka_Shimla_Toy_Train.webm",
+    "place": "Shimla toy train",
+    "seconds": 27.576,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e0/Kalka_Shimla_Toy_Train.webm/Kalka_Shimla_Toy_Train.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Kalka Shimla Toy Train.webm"
+   },
+   {
+    "artist": "Rajani Gairshail",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACars_stuck_in_snowfall_at_Summer_Hill%2C_Shimla%2C_Himachal_Pradesh%2C_2026.webm",
+    "place": "Snow in Shimla",
+    "seconds": 32.885,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5f/Cars_stuck_in_snowfall_at_Summer_Hill%2C_Shimla%2C_Himachal_Pradesh%2C_2026.webm/Cars_stuck_in_snowfall_at_Summer_Hill%2C_Shimla%2C_Himachal_Pradesh%2C_2026.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5f/Cars_stuck_in_snowfall_at_Summer_Hill%2C_Shimla%2C_Himachal_Pradesh%2C_2026.webm/Cars_stuck_in_snowfall_at_Summer_Hill%2C_Shimla%2C_Himachal_Pradesh%2C_2026.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Cars stuck in snowfall at Summer Hill, Shimla, Himachal Pradesh, 2026.webm"
+   },
+   {
+    "artist": "Yann Forget",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARoad_to_Rohtang_pass_on_the_Manali-Leh_Highway.webm",
+    "place": "Road to Rohtang Pass",
+    "seconds": 31.333000000000002,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4e/Road_to_Rohtang_pass_on_the_Manali-Leh_Highway.webm/Road_to_Rohtang_pass_on_the_Manali-Leh_Highway.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4e/Road_to_Rohtang_pass_on_the_Manali-Leh_Highway.webm/Road_to_Rohtang_pass_on_the_Manali-Leh_Highway.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Road to Rohtang pass on the Manali-Leh Highway.webm"
+   },
+   {
+    "artist": "Hippiefromhills",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFolk_Dance_Natti.webm",
+    "place": "Manali folk dance",
+    "seconds": 34.433,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/66/Folk_Dance_Natti.webm/Folk_Dance_Natti.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/66/Folk_Dance_Natti.webm/Folk_Dance_Natti.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Folk Dance Natti.webm"
+   }
+  ],
+  "seconds": 27.576,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e0/Kalka_Shimla_Toy_Train.webm/Kalka_Shimla_Toy_Train.webm.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Kalka Shimla Toy Train.webm"
+ },
+ "States/Jharkhand": {
+  "artist": "Jaydeep Shekhar",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABandana_Festival_in_Rajmahal.webm",
+  "places": [
+   {
+    "artist": "Jaydeep Shekhar",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABandana_Festival_in_Rajmahal.webm",
+    "place": "Bandana Festival",
+    "seconds": 30.64,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f5/Bandana_Festival_in_Rajmahal.webm/Bandana_Festival_in_Rajmahal.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f5/Bandana_Festival_in_Rajmahal.webm/Bandana_Festival_in_Rajmahal.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Bandana Festival in Rajmahal.webm"
+   }
+  ],
+  "seconds": 30.64,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f5/Bandana_Festival_in_Rajmahal.webm/Bandana_Festival_in_Rajmahal.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f5/Bandana_Festival_in_Rajmahal.webm/Bandana_Festival_in_Rajmahal.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Bandana Festival in Rajmahal.webm"
+ },
+ "States/Karnataka": {
+  "artist": "Incredible India",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADestination_-_Hampi_-_India.webm",
+  "places": [
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADestination_-_Hampi_-_India.webm",
+    "place": "Hampi",
+    "seconds": 30.024,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/92/Destination_-_Hampi_-_India.webm/Destination_-_Hampi_-_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/92/Destination_-_Hampi_-_India.webm/Destination_-_Hampi_-_India.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Destination - Hampi - India.webm"
+   },
+   {
+    "artist": "Vidyu44",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARainy_days_of_2013.webm",
+    "place": "Jog Falls",
+    "seconds": 18.393,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Rainy_days_of_2013.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a1/Rainy_days_of_2013.webm/Rainy_days_of_2013.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Rainy days of 2013.webm"
+   },
+   {
+    "artist": "Indian TV Karnataka - ಇಂಡಿಯನ್ ಟಿವಿ ಕರ್ನಾಟಕ",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3A%E0%B2%AE%E0%B3%88%E0%B2%B8%E0%B3%82%E0%B2%B0%E0%B3%81_%E0%B2%A6%E0%B2%B8%E0%B2%B0%E0%B2%BE_%28Mysore_Dasara%29_2019_%281%29.webm",
+    "place": "Mysuru Dasara elephants",
+    "seconds": 326.15500000000003,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8a/%E0%B2%AE%E0%B3%88%E0%B2%B8%E0%B3%82%E0%B2%B0%E0%B3%81_%E0%B2%A6%E0%B2%B8%E0%B2%B0%E0%B2%BE_%28Mysore_Dasara%29_2019_%281%29.webm/%E0%B2%AE%E0%B3%88%E0%B2%B8%E0%B3%82%E0%B2%B0%E0%B3%81_%E0%B2%A6%E0%B2%B8%E0%B2%B0%E0%B2%BE_%28Mysore_Dasara%29_2019_%281%29.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8a/%E0%B2%AE%E0%B3%88%E0%B2%B8%E0%B3%82%E0%B2%B0%E0%B3%81_%E0%B2%A6%E0%B2%B8%E0%B2%B0%E0%B2%BE_%28Mysore_Dasara%29_2019_%281%29.webm/%E0%B2%AE%E0%B3%88%E0%B2%B8%E0%B3%82%E0%B2%B0%E0%B3%81_%E0%B2%A6%E0%B2%B8%E0%B2%B0%E0%B2%BE_%28Mysore_Dasara%29_2019_%281%29.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:ಮೈಸೂರು ದಸರಾ (Mysore Dasara) 2019 (1).webm"
+   },
+   {
+    "artist": "Gpkp",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AIndian_Independence_day_celebration_216th_flower_show_2024%2C_Lalbagh%2C_Bangalore_06.ogg",
+    "place": "Lalbagh flower show",
+    "seconds": 30.71066666666667,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/87/Indian_Independence_day_celebration_216th_flower_show_2024%2C_Lalbagh%2C_Bangalore_06.ogg/Indian_Independence_day_celebration_216th_flower_show_2024%2C_Lalbagh%2C_Bangalore_06.ogg.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Indian Independence day celebration 216th flower show 2024, Lalbagh, Bangalore 06.ogg"
+   }
+  ],
+  "seconds": 30.024,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/92/Destination_-_Hampi_-_India.webm/Destination_-_Hampi_-_India.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/92/Destination_-_Hampi_-_India.webm/Destination_-_Hampi_-_India.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Destination - Hampi - India.webm"
+ },
+ "States/Kerala": {
+  "artist": "Incredible India",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AKerala_-_India%27s_Paradise_Found.webm",
+  "places": [
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKerala_-_India%27s_Paradise_Found.webm",
+    "place": "Backwaters and houseboats",
+    "seconds": 178.781,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9a/Kerala_-_India%27s_Paradise_Found.webm/Kerala_-_India%27s_Paradise_Found.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Kerala - India's Paradise Found.webm"
+   },
+   {
+    "artist": "Subhashish Panigrahi",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABoat_sailing_in_Alappuzha_canal%2C_Kerala.webm",
+    "place": "Alappuzha canal",
+    "seconds": 42.482,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b6/Boat_sailing_in_Alappuzha_canal%2C_Kerala.webm/Boat_sailing_in_Alappuzha_canal%2C_Kerala.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b6/Boat_sailing_in_Alappuzha_canal%2C_Kerala.webm/Boat_sailing_in_Alappuzha_canal%2C_Kerala.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Boat sailing in Alappuzha canal, Kerala.webm"
+   },
+   {
+    "artist": "Vinayaraj",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMunnar_road_and_tea_gardens_02.webm",
+    "place": "Munnar tea hills",
+    "seconds": 157.228,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/56/Munnar_road_and_tea_gardens_02.webm/Munnar_road_and_tea_gardens_02.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/56/Munnar_road_and_tea_gardens_02.webm/Munnar_road_and_tea_gardens_02.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Munnar road and tea gardens 02.webm"
+   },
+   {
+    "artist": "Vinayaraj",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKalakeyavadham_Kathakali_clips_held_at_Mridangasyleshwari_Temple%2C_Muzhakkunnu_%283%29.webm",
+    "place": "Kathakali",
+    "seconds": 30.488,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2b/Kalakeyavadham_Kathakali_clips_held_at_Mridangasyleshwari_Temple%2C_Muzhakkunnu_%283%29.webm/Kalakeyavadham_Kathakali_clips_held_at_Mridangasyleshwari_Temple%2C_Muzhakkunnu_%283%29.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Kalakeyavadham Kathakali clips held at Mridangasyleshwari Temple, Muzhakkunnu (3).webm"
+   },
+   {
+    "artist": "Varghesepunnamada",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANTBR26-Snakeboat_Heats3.webm",
+    "place": "Snake boat race",
+    "seconds": 33.883,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/99/NTBR26-Snakeboat_Heats3.webm/NTBR26-Snakeboat_Heats3.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/99/NTBR26-Snakeboat_Heats3.webm/NTBR26-Snakeboat_Heats3.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:NTBR26-Snakeboat Heats3.webm"
+   }
+  ],
+  "seconds": 178.781,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9a/Kerala_-_India%27s_Paradise_Found.webm/Kerala_-_India%27s_Paradise_Found.webm.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Kerala - India's Paradise Found.webm"
+ },
+ "States/Madhya Pradesh": {
+  "artist": "Biswarup Ganguly",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABuddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv",
+  "places": [
+   {
+    "artist": "Biswarup Ganguly",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABuddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv",
+    "place": "Sanchi Stupa",
+    "seconds": 22.0,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Buddhist Monuments - Sanchi Hill 2013-02-21 4421.ogv"
+   },
+   {
+    "artist": "The open draft",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKhajuraho_Dance_Festival_2025_01.webm",
+    "place": "Khajuraho Dance Festival",
+    "seconds": 119.05,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/80/Khajuraho_Dance_Festival_2025_01.webm/Khajuraho_Dance_Festival_2025_01.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Khajuraho Dance Festival 2025 01.webm"
+   }
+  ],
+  "seconds": 22.0,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Buddhist Monuments - Sanchi Hill 2013-02-21 4421.ogv"
  },
  "States/Maharashtra": {
-  "artist": "Subhashish Panigrahi",
-  "desc": "Video of Brown-headed Gulls Chroicocephalus brunnicephalus flying behind a ferry which was coming from Elephanta caves to Gateway of India, Mumbai.",
+  "artist": "I AM YOUR GUIDE",
+  "desc": "",
   "editor_pick": false,
-  "license": "CC BY-SA 3.0",
-  "page": "https://commons.wikimedia.org/wiki/File%3ABirds_flying_behind_a_ferry.webm",
-  "seconds": 44.415,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm",
+  "places": [
+   {
+    "artist": "I AM YOUR GUIDE",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm",
+    "place": "Gateway of India",
+    "seconds": 126.25,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b0/Gateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm/Gateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b0/Gateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm/Gateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Gateway Of India - I AM YOUR GUIDE - places in india tourist Travel Holiday Culture Adventure.webm"
+   },
+   {
+    "artist": "Tiven Gonsalves",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATimelapse_at_Marine_Drive_Mumbai.webm",
+    "place": "Marine Drive",
+    "seconds": 30.17,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5b/Timelapse_at_Marine_Drive_Mumbai.webm/Timelapse_at_Marine_Drive_Mumbai.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5b/Timelapse_at_Marine_Drive_Mumbai.webm/Timelapse_at_Marine_Drive_Mumbai.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Timelapse at Marine Drive Mumbai.webm"
+   },
+   {
+    "artist": "Suyash Dwivedi",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALocal_train_starting_from_Mumbai_CSTM_001.webm",
+    "place": "Mumbai local train",
+    "seconds": 9.540000000000001,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8d/Local_train_starting_from_Mumbai_CSTM_001.webm/Local_train_starting_from_Mumbai_CSTM_001.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8d/Local_train_starting_from_Mumbai_CSTM_001.webm/Local_train_starting_from_Mumbai_CSTM_001.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Local train starting from Mumbai CSTM 001.webm"
+   },
+   {
+    "artist": "Subhashish Panigrahi",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABirds_flying_behind_a_ferry.webm",
+    "place": "Gulls at the Gateway",
+    "seconds": 44.415,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/00/Birds_flying_behind_a_ferry.webm/Birds_flying_behind_a_ferry.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/00/Birds_flying_behind_a_ferry.webm/Birds_flying_behind_a_ferry.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Birds flying behind a ferry.webm"
+   }
+  ],
+  "seconds": 126.25,
   "sources": [
    {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/00/Birds_flying_behind_a_ferry.webm/Birds_flying_behind_a_ferry.webm.480p.vp9.webm",
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b0/Gateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm/Gateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm.480p.vp9.webm",
     "type": "video/webm"
    },
    {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/00/Birds_flying_behind_a_ferry.webm/Birds_flying_behind_a_ferry.webm.360p.mpeg4.mov",
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b0/Gateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm/Gateway_Of_India_-_I_AM_YOUR_GUIDE_-_places_in_india_tourist_Travel_Holiday_Culture_Adventure.webm.360p.mpeg4.mov",
     "type": "video/mp4"
    }
   ],
-  "title": "File:Birds flying behind a ferry.webm"
+  "title": "File:Gateway Of India - I AM YOUR GUIDE - places in india tourist Travel Holiday Culture Adventure.webm"
+ },
+ "States/Meghalaya": {
+  "artist": "ANKAN",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMajestic_Wei_Sawdong_Waterfall.webm",
+  "places": [
+   {
+    "artist": "ANKAN",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMajestic_Wei_Sawdong_Waterfall.webm",
+    "place": "Cherrapunji waterfall",
+    "seconds": 23.673000000000002,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/dd/Majestic_Wei_Sawdong_Waterfall.webm/Majestic_Wei_Sawdong_Waterfall.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/dd/Majestic_Wei_Sawdong_Waterfall.webm/Majestic_Wei_Sawdong_Waterfall.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Majestic Wei Sawdong Waterfall.webm"
+   },
+   {
+    "artist": "Sunitasaikia",
+    "license": "CC BY 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABoating_%40_Dawki%2C_Shillong.webm",
+    "place": "Dawki clear river",
+    "seconds": 33.022,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/39/Boating_%40_Dawki%2C_Shillong.webm/Boating_%40_Dawki%2C_Shillong.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/39/Boating_%40_Dawki%2C_Shillong.webm/Boating_%40_Dawki%2C_Shillong.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Boating @ Dawki, Shillong.webm"
+   },
+   {
+    "artist": "Massifs",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABeauty_of_Shillong.webm",
+    "place": "Shillong hills",
+    "seconds": 9.712,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/25/Beauty_of_Shillong.webm/Beauty_of_Shillong.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/25/Beauty_of_Shillong.webm/Beauty_of_Shillong.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Beauty of Shillong.webm"
+   }
+  ],
+  "seconds": 23.673000000000002,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/dd/Majestic_Wei_Sawdong_Waterfall.webm/Majestic_Wei_Sawdong_Waterfall.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/dd/Majestic_Wei_Sawdong_Waterfall.webm/Majestic_Wei_Sawdong_Waterfall.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Majestic Wei Sawdong Waterfall.webm"
+ },
+ "States/Mizoram": {
+  "artist": "T. R. Shankar Raman",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AChapchar_Kut_cheraw_dance_2014.webm",
+  "places": [
+   {
+    "artist": "T. R. Shankar Raman",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChapchar_Kut_cheraw_dance_2014.webm",
+    "place": "Bamboo dance",
+    "seconds": 60.141,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/34/Chapchar_Kut_cheraw_dance_2014.webm/Chapchar_Kut_cheraw_dance_2014.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/34/Chapchar_Kut_cheraw_dance_2014.webm/Chapchar_Kut_cheraw_dance_2014.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Chapchar Kut cheraw dance 2014.webm"
+   },
+   {
+    "artist": "Bodhisattwa",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATuirihiau_waterfall.webm",
+    "place": "Tuirihiau waterfall",
+    "seconds": 17.015,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ad/Tuirihiau_waterfall.webm/Tuirihiau_waterfall.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ad/Tuirihiau_waterfall.webm/Tuirihiau_waterfall.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Tuirihiau waterfall.webm"
+   },
+   {
+    "artist": "Bodhisattwa",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3A360_degree_view_from_Reiek_top.webm",
+    "place": "Reiek mountain",
+    "seconds": 39.447,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/91/360_degree_view_from_Reiek_top.webm/360_degree_view_from_Reiek_top.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/91/360_degree_view_from_Reiek_top.webm/360_degree_view_from_Reiek_top.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:360 degree view from Reiek top.webm"
+   }
+  ],
+  "seconds": 60.141,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/34/Chapchar_Kut_cheraw_dance_2014.webm/Chapchar_Kut_cheraw_dance_2014.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/34/Chapchar_Kut_cheraw_dance_2014.webm/Chapchar_Kut_cheraw_dance_2014.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Chapchar Kut cheraw dance 2014.webm"
+ },
+ "States/Nagaland": {
+  "artist": "JyotiPN",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFolk_dance_of_Nagaland.webm",
+  "places": [
+   {
+    "artist": "JyotiPN",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFolk_dance_of_Nagaland.webm",
+    "place": "Hornbill Festival",
+    "seconds": 34.673,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b4/Folk_dance_of_Nagaland.webm/Folk_dance_of_Nagaland.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b4/Folk_dance_of_Nagaland.webm/Folk_dance_of_Nagaland.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Folk dance of Nagaland.webm"
+   },
+   {
+    "artist": "JyotiPN",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AStories_in_motion.webm",
+    "place": "Angami dance",
+    "seconds": 84.906,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5a/Stories_in_motion.webm/Stories_in_motion.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5a/Stories_in_motion.webm/Stories_in_motion.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Stories in motion.webm"
+   }
+  ],
+  "seconds": 34.673,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b4/Folk_dance_of_Nagaland.webm/Folk_dance_of_Nagaland.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b4/Folk_dance_of_Nagaland.webm/Folk_dance_of_Nagaland.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Folk dance of Nagaland.webm"
+ },
+ "States/Odisha": {
+  "artist": "Subhashish Panigrahi",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATimelapse_of_sunset_in_Konarka_%28original%29.webm",
+  "places": [
+   {
+    "artist": "Subhashish Panigrahi",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATimelapse_of_sunset_in_Konarka_%28original%29.webm",
+    "place": "Konark Sun Temple",
+    "seconds": 23.978,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2b/Timelapse_of_sunset_in_Konarka_%28original%29.webm/Timelapse_of_sunset_in_Konarka_%28original%29.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2b/Timelapse_of_sunset_in_Konarka_%28original%29.webm/Timelapse_of_sunset_in_Konarka_%28original%29.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Timelapse of sunset in Konarka (original).webm"
+   },
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AThe_City_of_Legends_-_Bhubaneshwar_-_India.webm",
+    "place": "Bhubaneswar",
+    "seconds": 30.024,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3f/The_City_of_Legends_-_Bhubaneshwar_-_India.webm/The_City_of_Legends_-_Bhubaneshwar_-_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3f/The_City_of_Legends_-_Bhubaneshwar_-_India.webm/The_City_of_Legends_-_Bhubaneshwar_-_India.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:The City of Legends - Bhubaneshwar - India.webm"
+   },
+   {
+    "artist": "Soumendra Kumar Sahoo",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASinhadwaraShreeJagannathTemplePuri.webm",
+    "place": "Puri Jagannath",
+    "seconds": 33.745,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/56/SinhadwaraShreeJagannathTemplePuri.webm/SinhadwaraShreeJagannathTemplePuri.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/56/SinhadwaraShreeJagannathTemplePuri.webm/SinhadwaraShreeJagannathTemplePuri.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:SinhadwaraShreeJagannathTemplePuri.webm"
+   },
+   {
+    "artist": "Lipsa Mohapatra",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANandighosha_Ratha_or_Lord_Jagannath_in_2024.webm",
+    "place": "Rath Yatra",
+    "seconds": 21.1,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/97/Nandighosha_Ratha_or_Lord_Jagannath_in_2024.webm/Nandighosha_Ratha_or_Lord_Jagannath_in_2024.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/97/Nandighosha_Ratha_or_Lord_Jagannath_in_2024.webm/Nandighosha_Ratha_or_Lord_Jagannath_in_2024.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Nandighosha Ratha or Lord Jagannath in 2024.webm"
+   }
+  ],
+  "seconds": 23.978,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2b/Timelapse_of_sunset_in_Konarka_%28original%29.webm/Timelapse_of_sunset_in_Konarka_%28original%29.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2b/Timelapse_of_sunset_in_Konarka_%28original%29.webm/Timelapse_of_sunset_in_Konarka_%28original%29.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Timelapse of sunset in Konarka (original).webm"
+ },
+ "States/Punjab": {
+  "artist": "Roger Dumas (1891–1972)",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFilm_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm",
+  "places": [
+   {
+    "artist": "Roger Dumas (1891–1972)",
+    "license": "CC BY 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFilm_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm",
+    "place": "Golden Temple",
+    "seconds": 126.416,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2e/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2e/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Film footage of the Golden Temple in Amritsar, by Roger Dumas, circa November–December 1927.webm"
+   },
+   {
+    "artist": "Rajani Gairshail",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3APunjabi_Dance_Performance_at_Cultural_Fest%2C_Himachal_Pradesh_University%2C_Shimla.webm",
+    "place": "Bhangra",
+    "seconds": 21.259,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/17/Punjabi_Dance_Performance_at_Cultural_Fest%2C_Himachal_Pradesh_University%2C_Shimla.webm/Punjabi_Dance_Performance_at_Cultural_Fest%2C_Himachal_Pradesh_University%2C_Shimla.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/17/Punjabi_Dance_Performance_at_Cultural_Fest%2C_Himachal_Pradesh_University%2C_Shimla.webm/Punjabi_Dance_Performance_at_Cultural_Fest%2C_Himachal_Pradesh_University%2C_Shimla.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Punjabi Dance Performance at Cultural Fest, Himachal Pradesh University, Shimla.webm"
+   }
+  ],
+  "seconds": 126.416,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2e/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2e/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Film footage of the Golden Temple in Amritsar, by Roger Dumas, circa November–December 1927.webm"
  },
  "States/Rajasthan": {
-  "artist": "Shubhanshri01",
-  "desc": "Rajasthan's culture is a mesmerizing tapestry woven with vibrant colors, intricate artwork, and timeless traditions. From the majestic forts and palaces to the rhythmic beats of folk music and dance, ",
+  "artist": "Baap8969",
+  "desc": "",
   "editor_pick": false,
-  "license": "CC BY-SA 4.0",
-  "page": "https://commons.wikimedia.org/wiki/File%3ARAJASTHAN_Vibes.webm",
-  "seconds": 20.866,
+  "from_places": true,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATop_view_of_Hawa_Mahal_Jaipur.webm",
+  "places": [
+   {
+    "artist": "Baap8969",
+    "license": "CC0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATop_view_of_Hawa_Mahal_Jaipur.webm",
+    "place": "Hawa Mahal",
+    "seconds": 12.918000000000001,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/86/Top_view_of_Hawa_Mahal_Jaipur.webm/Top_view_of_Hawa_Mahal_Jaipur.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/86/Top_view_of_Hawa_Mahal_Jaipur.webm/Top_view_of_Hawa_Mahal_Jaipur.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Top view of Hawa Mahal Jaipur.webm"
+   },
+   {
+    "artist": "Baap8969",
+    "license": "CC0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAmber_Fort_Rajasthan.webm",
+    "place": "Amber Fort",
+    "seconds": 8.645,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9d/Amber_Fort_Rajasthan.webm/Amber_Fort_Rajasthan.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9d/Amber_Fort_Rajasthan.webm/Amber_Fort_Rajasthan.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Amber Fort Rajasthan.webm"
+   },
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJaisalmer_Fort_-_Rajasthan_-_India.webm",
+    "place": "Jaisalmer Fort",
+    "seconds": 120.008,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bb/Jaisalmer_Fort_-_Rajasthan_-_India.webm/Jaisalmer_Fort_-_Rajasthan_-_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Jaisalmer Fort - Rajasthan - India.webm"
+   },
+   {
+    "artist": "Noon Plastic",
+    "license": "CC BY 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKathputli_at_the_Jaipur_Wax_Museum_01.webm",
+    "place": "Kathputli puppets",
+    "seconds": 24.6,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a5/Kathputli_at_the_Jaipur_Wax_Museum_01.webm/Kathputli_at_the_Jaipur_Wax_Museum_01.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Kathputli at the Jaipur Wax Museum 01.webm"
+   },
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARajasthan_-_You_haven%27t_seen_it_all.webm",
+    "place": "Colours of Rajasthan",
+    "seconds": 92.232,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e5/Rajasthan_-_You_haven%27t_seen_it_all.webm/Rajasthan_-_You_haven%27t_seen_it_all.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e5/Rajasthan_-_You_haven%27t_seen_it_all.webm/Rajasthan_-_You_haven%27t_seen_it_all.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Rajasthan - You haven't seen it all.webm"
+   }
+  ],
+  "seconds": 12.918000000000001,
   "sources": [
    {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f4/RAJASTHAN_Vibes.webm/RAJASTHAN_Vibes.webm.480p.vp9.webm",
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/86/Top_view_of_Hawa_Mahal_Jaipur.webm/Top_view_of_Hawa_Mahal_Jaipur.webm.480p.vp9.webm",
     "type": "video/webm"
    },
    {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f4/RAJASTHAN_Vibes.webm/RAJASTHAN_Vibes.webm.360p.mpeg4.mov",
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/86/Top_view_of_Hawa_Mahal_Jaipur.webm/Top_view_of_Hawa_Mahal_Jaipur.webm.360p.mpeg4.mov",
     "type": "video/mp4"
    }
   ],
-  "title": "File:RAJASTHAN Vibes.webm"
+  "title": "File:Top view of Hawa Mahal Jaipur.webm"
+ },
+ "States/Sikkim": {
+  "artist": "Ugyal Yolmo",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AKhanchendzonga_from_Jorebunglow%2C_Darjeeling.webm",
+  "places": [
+   {
+    "artist": "Ugyal Yolmo",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKhanchendzonga_from_Jorebunglow%2C_Darjeeling.webm",
+    "place": "Kanchenjunga",
+    "seconds": 6.647,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/51/Khanchendzonga_from_Jorebunglow%2C_Darjeeling.webm/Khanchendzonga_from_Jorebunglow%2C_Darjeeling.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Khanchendzonga from Jorebunglow, Darjeeling.webm"
+   },
+   {
+    "artist": "Rajani Gairshail",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATsongmo_Lake%2C_Sikkim%2C_2026.webm",
+    "place": "Tsomgo Lake",
+    "seconds": 19.052,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9e/Tsongmo_Lake%2C_Sikkim%2C_2026.webm/Tsongmo_Lake%2C_Sikkim%2C_2026.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9e/Tsongmo_Lake%2C_Sikkim%2C_2026.webm/Tsongmo_Lake%2C_Sikkim%2C_2026.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Tsongmo Lake, Sikkim, 2026.webm"
+   },
+   {
+    "artist": "Rajani Gairshail",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3APrayer_flags_at_Enchey_Monastery%2C_Gangtok.webm",
+    "place": "Enchey Monastery",
+    "seconds": 16.245,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f8/Prayer_flags_at_Enchey_Monastery%2C_Gangtok.webm/Prayer_flags_at_Enchey_Monastery%2C_Gangtok.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f8/Prayer_flags_at_Enchey_Monastery%2C_Gangtok.webm/Prayer_flags_at_Enchey_Monastery%2C_Gangtok.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Prayer flags at Enchey Monastery, Gangtok.webm"
+   }
+  ],
+  "seconds": 6.647,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/51/Khanchendzonga_from_Jorebunglow%2C_Darjeeling.webm/Khanchendzonga_from_Jorebunglow%2C_Darjeeling.webm.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Khanchendzonga from Jorebunglow, Darjeeling.webm"
  },
  "States/Tamil Nadu": {
-  "artist": "SL Trades and Crafts Documentation Project (user: Noolaham_TamilWiki)",
-  "desc": "அத்தாங்கு மீன்பிடி - மீன்கள் இருக்கும் இடந்தேடி நீருக்குள் நகரும் பெண்கள்",
+  "artist": "[1]",
+  "desc": "",
   "editor_pick": false,
-  "license": "CC BY-SA 4.0",
-  "page": "https://commons.wikimedia.org/wiki/File%3A%E0%AE%85%E0%AE%A4%E0%AF%8D%E0%AE%A4%E0%AE%BE%E0%AE%99%E0%AF%8D%E0%AE%95%E0%AF%81_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%AA%E0%AE%BF%E0%AE%9F%E0%AE%BF_-_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D_%E0%AE%87%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%87%E0%AE%9F%E0%AE%A8%E0%AF%8D%E0%AE%A4%E0%AF%87%E0%AE%9F%E0%AE%BF_%E0%AE%A8%E0%AF%80%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%B3%E0%AF%8D_%E0%AE%A8%E0%AE%95%E0%AE%B0%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%AA%E0%AF%86%E0%AE%A3%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D.webm",
-  "seconds": 37.627,
+  "from_places": true,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMadurai_Meenakshi_Temple.webm",
+  "places": [
+   {
+    "artist": "[1]",
+    "license": "CC BY 2.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMadurai_Meenakshi_Temple.webm",
+    "place": "Meenakshi Temple",
+    "seconds": 32.097,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Madurai_Meenakshi_Temple.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Madurai_Meenakshi_Temple.webm/Madurai_Meenakshi_Temple.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Madurai Meenakshi Temple.webm"
+   },
+   {
+    "artist": "Wuselig",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATanjavur_Dance_01.webm",
+    "place": "Big Temple",
+    "seconds": 36.094,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/01/Tanjavur_Dance_01.webm/Tanjavur_Dance_01.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/01/Tanjavur_Dance_01.webm/Tanjavur_Dance_01.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Tanjavur Dance 01.webm"
+   },
+   {
+    "artist": "SlowPhoton",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChennai_-_bird%27s-eye_view.ogv",
+    "place": "Chennai from the lighthouse",
+    "seconds": 14.41340782122905,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3b/Chennai_-_bird%27s-eye_view.ogv/Chennai_-_bird%27s-eye_view.ogv.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3b/Chennai_-_bird%27s-eye_view.ogv/Chennai_-_bird%27s-eye_view.ogv.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Chennai - bird's-eye view.ogv"
+   },
+   {
+    "artist": "Meenakshi",
+    "license": "CC0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AOoty_view.webm",
+    "place": "Ooty hills",
+    "seconds": 29.766000000000002,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/56/Ooty_view.webm/Ooty_view.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/56/Ooty_view.webm/Ooty_view.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Ooty view.webm"
+   },
+   {
+    "artist": "EdHanleyTabla and Mayank Bedekar",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AKanyakumari_Express_Timelapse.webm",
+    "place": "Kanyakumari Express",
+    "seconds": 117.57300000000001,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0a/Kanyakumari_Express_Timelapse.webm/Kanyakumari_Express_Timelapse.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Kanyakumari Express Timelapse.webm"
+   }
+  ],
+  "seconds": 32.097,
   "sources": [
    {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cc/%E0%AE%85%E0%AE%A4%E0%AF%8D%E0%AE%A4%E0%AE%BE%E0%AE%99%E0%AF%8D%E0%AE%95%E0%AF%81_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%AA%E0%AE%BF%E0%AE%9F%E0%AE%BF_-_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D_%E0%AE%87%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%87%E0%AE%9F%E0%AE%A8%E0%AF%8D%E0%AE%A4%E0%AF%87%E0%AE%9F%E0%AE%BF_%E0%AE%A8%E0%AF%80%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%B3%E0%AF%8D_%E0%AE%A8%E0%AE%95%E0%AE%B0%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%AA%E0%AF%86%E0%AE%A3%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D.webm/transcode.480p.vp9.webm",
+    "src": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Madurai_Meenakshi_Temple.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
     "type": "video/webm"
    },
    {
-    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cc/%E0%AE%85%E0%AE%A4%E0%AF%8D%E0%AE%A4%E0%AE%BE%E0%AE%99%E0%AF%8D%E0%AE%95%E0%AF%81_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%AA%E0%AE%BF%E0%AE%9F%E0%AE%BF_-_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D_%E0%AE%87%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%87%E0%AE%9F%E0%AE%A8%E0%AF%8D%E0%AE%A4%E0%AF%87%E0%AE%9F%E0%AE%BF_%E0%AE%A8%E0%AF%80%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%B3%E0%AF%8D_%E0%AE%A8%E0%AE%95%E0%AE%B0%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%AA%E0%AF%86%E0%AE%A3%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D.webm/transcode.360p.mpeg4.mov",
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Madurai_Meenakshi_Temple.webm/Madurai_Meenakshi_Temple.webm.360p.mpeg4.mov",
     "type": "video/mp4"
    }
   ],
-  "title": "File:அத்தாங்கு மீன்பிடி - மீன்கள் இருக்கும் இடந்தேடி நீருக்குள் நகரும் பெண்கள்.webm"
+  "title": "File:Madurai Meenakshi Temple.webm"
+ },
+ "States/Telangana": {
+  "artist": "Rameshng",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACharminar_Surrounding_video_1.ogv",
+  "places": [
+   {
+    "artist": "Rameshng",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ACharminar_Surrounding_video_1.ogv",
+    "place": "Charminar",
+    "seconds": 31.808,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/15/Charminar_Surrounding_video_1.ogv/Charminar_Surrounding_video_1.ogv.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/15/Charminar_Surrounding_video_1.ogv/Charminar_Surrounding_video_1.ogv.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Charminar Surrounding video 1.ogv"
+   },
+   {
+    "artist": "Kuldeepburjbhalaike",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3APanoramic_View_of_Hyderabaad.webm",
+    "place": "Golconda Fort",
+    "seconds": 11.833,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/74/Panoramic_View_of_Hyderabaad.webm/Panoramic_View_of_Hyderabaad.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/74/Panoramic_View_of_Hyderabaad.webm/Panoramic_View_of_Hyderabaad.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Panoramic View of Hyderabaad.webm"
+   },
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATelangana_-_Visit_for_all_reasons_%26_all_seasons.webm",
+    "place": "A tour of Telangana",
+    "seconds": 54.728,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c8/Telangana_-_Visit_for_all_reasons_%26_all_seasons.webm/Telangana_-_Visit_for_all_reasons_%26_all_seasons.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c8/Telangana_-_Visit_for_all_reasons_%26_all_seasons.webm/Telangana_-_Visit_for_all_reasons_%26_all_seasons.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Telangana - Visit for all reasons & all seasons.webm"
+   }
+  ],
+  "seconds": 31.808,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/15/Charminar_Surrounding_video_1.ogv/Charminar_Surrounding_video_1.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/15/Charminar_Surrounding_video_1.ogv/Charminar_Surrounding_video_1.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Charminar Surrounding video 1.ogv"
+ },
+ "States/Tripura": {
+  "artist": "Cho21",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ANeermahal_Water_Palace%2C_Tripura%2C_India.webm",
+  "places": [
+   {
+    "artist": "Cho21",
+    "license": "CC BY 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ANeermahal_Water_Palace%2C_Tripura%2C_India.webm",
+    "place": "Neermahal",
+    "seconds": 20.933,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/64/Neermahal_Water_Palace%2C_Tripura%2C_India.webm/Neermahal_Water_Palace%2C_Tripura%2C_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/64/Neermahal_Water_Palace%2C_Tripura%2C_India.webm/Neermahal_Water_Palace%2C_Tripura%2C_India.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Neermahal Water Palace, Tripura, India.webm"
+   }
+  ],
+  "seconds": 20.933,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/64/Neermahal_Water_Palace%2C_Tripura%2C_India.webm/Neermahal_Water_Palace%2C_Tripura%2C_India.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/64/Neermahal_Water_Palace%2C_Tripura%2C_India.webm/Neermahal_Water_Palace%2C_Tripura%2C_India.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Neermahal Water Palace, Tripura, India.webm"
+ },
+ "States/Uttar Pradesh": {
+  "artist": "See script and authors listed in details below.",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AEu.Video-Taj_Mahal.webm",
+  "places": [
+   {
+    "artist": "See script and authors listed in details below.",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AEu.Video-Taj_Mahal.webm",
+    "place": "Taj Mahal",
+    "seconds": 53.647,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/11/Eu.Video-Taj_Mahal.webm/Eu.Video-Taj_Mahal.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/11/Eu.Video-Taj_Mahal.webm/Eu.Video-Taj_Mahal.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Eu.Video-Taj Mahal.webm"
+   },
+   {
+    "artist": "Davide Mauro",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGanges_River_in_Varanasi_by_boat.webm",
+    "place": "Varanasi ghats",
+    "seconds": 33.007,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f7/Ganges_River_in_Varanasi_by_boat.webm/Ganges_River_in_Varanasi_by_boat.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f7/Ganges_River_in_Varanasi_by_boat.webm/Ganges_River_in_Varanasi_by_boat.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Ganges River in Varanasi by boat.webm"
+   },
+   {
+    "artist": "ผู้สร้างสรรค์ผลงาน/ส่งข้อมูลเก็บในคลังข้อมูลเสรีวิกิมีเดียคอมมอนส์ - เทวประภาส ม",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AMaha_Aarti_in_Dasaswamedh_Ghat_%28Varanasi_india%29.ogv",
+    "place": "Ganga Aarti",
+    "seconds": 19.722448979591835,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/7/74/Maha_Aarti_in_Dasaswamedh_Ghat_%28Varanasi_india%29.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/74/Maha_Aarti_in_Dasaswamedh_Ghat_%28Varanasi_india%29.ogv/Maha_Aarti_in_Dasaswamedh_Ghat_%28Varanasi_india%29.ogv.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Maha Aarti in Dasaswamedh Ghat (Varanasi india).ogv"
+   },
+   {
+    "artist": "Junosoon",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARumi_Darwaza.webm",
+    "place": "Rumi Darwaza, Lucknow",
+    "seconds": 21.993000000000002,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/5/59/Rumi_Darwaza.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/59/Rumi_Darwaza.webm/Rumi_Darwaza.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Rumi Darwaza.webm"
+   }
+  ],
+  "seconds": 53.647,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/11/Eu.Video-Taj_Mahal.webm/Eu.Video-Taj_Mahal.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/11/Eu.Video-Taj_Mahal.webm/Eu.Video-Taj_Mahal.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Eu.Video-Taj Mahal.webm"
+ },
+ "States/Uttarakhand": {
+  "artist": "Incredible India",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABadrinath_-_Uttarakhand_-_India.webm",
+  "places": [
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABadrinath_-_Uttarakhand_-_India.webm",
+    "place": "Badrinath",
+    "seconds": 30.024,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a0/Badrinath_-_Uttarakhand_-_India.webm/Badrinath_-_Uttarakhand_-_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a0/Badrinath_-_Uttarakhand_-_India.webm/Badrinath_-_Uttarakhand_-_India.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Badrinath - Uttarakhand - India.webm"
+   },
+   {
+    "artist": "Subhashish Panigrahi",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARama_Jhula_Rishikesh_Uttarakhand%2C_India.ogv",
+    "place": "Ram Jhula, Rishikesh",
+    "seconds": 12.733333333333333,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/32/Rama_Jhula_Rishikesh_Uttarakhand%2C_India.ogv/Rama_Jhula_Rishikesh_Uttarakhand%2C_India.ogv.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/32/Rama_Jhula_Rishikesh_Uttarakhand%2C_India.ogv/Rama_Jhula_Rishikesh_Uttarakhand%2C_India.ogv.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Rama Jhula Rishikesh Uttarakhand, India.ogv"
+   },
+   {
+    "artist": "Subhashish Panigrahi",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARafting%2C_Rishikesh%2C_Uttarakhand.webm",
+    "place": "Rafting in Rishikesh",
+    "seconds": 31.339000000000002,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f5/Rafting%2C_Rishikesh%2C_Uttarakhand.webm/Rafting%2C_Rishikesh%2C_Uttarakhand.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f5/Rafting%2C_Rishikesh%2C_Uttarakhand.webm/Rafting%2C_Rishikesh%2C_Uttarakhand.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Rafting, Rishikesh, Uttarakhand.webm"
+   },
+   {
+    "artist": "Bhaiyaji Smile 123",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AGanga_Aarti_in_Haridwar.webm",
+    "place": "Ganga Aarti, Haridwar",
+    "seconds": 28.150000000000002,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b5/Ganga_Aarti_in_Haridwar.webm/Ganga_Aarti_in_Haridwar.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b5/Ganga_Aarti_in_Haridwar.webm/Ganga_Aarti_in_Haridwar.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Ganga Aarti in Haridwar.webm"
+   },
+   {
+    "artist": "Sukh1810",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABhatta_Falls_%2CMussoorie.webm",
+    "place": "Bhatta Falls, Mussoorie",
+    "seconds": 60.974000000000004,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c3/Bhatta_Falls_%2CMussoorie.webm/Bhatta_Falls_%2CMussoorie.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c3/Bhatta_Falls_%2CMussoorie.webm/Bhatta_Falls_%2CMussoorie.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Bhatta Falls ,Mussoorie.webm"
+   }
+  ],
+  "seconds": 30.024,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a0/Badrinath_-_Uttarakhand_-_India.webm/Badrinath_-_Uttarakhand_-_India.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a0/Badrinath_-_Uttarakhand_-_India.webm/Badrinath_-_Uttarakhand_-_India.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Badrinath - Uttarakhand - India.webm"
+ },
+ "States/West Bengal": {
+  "artist": "Hridoy Kundu",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AHowrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm",
+  "places": [
+   {
+    "artist": "Hridoy Kundu",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHowrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm",
+    "place": "Howrah Bridge",
+    "seconds": 30.024,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/df/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/df/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Howrah Bridge Night View (Silent Video) Full HD 1080p HIGH FR60.webm"
+   },
+   {
+    "artist": "Gannu03",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADarjeeling_toy_train.webm",
+    "place": "Darjeeling toy train",
+    "seconds": 23.568,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7e/Darjeeling_toy_train.webm/Darjeeling_toy_train.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7e/Darjeeling_toy_train.webm/Darjeeling_toy_train.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Darjeeling toy train.webm"
+   },
+   {
+    "artist": "Indrajit Das",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADurgaPuja2018_-_Pandal_of_Ahiritola_Sarbojonin_in_Kolkata_01.webm",
+    "place": "Durga Puja",
+    "seconds": 53.2,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9c/DurgaPuja2018_-_Pandal_of_Ahiritola_Sarbojonin_in_Kolkata_01.webm/DurgaPuja2018_-_Pandal_of_Ahiritola_Sarbojonin_in_Kolkata_01.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9c/DurgaPuja2018_-_Pandal_of_Ahiritola_Sarbojonin_in_Kolkata_01.webm/DurgaPuja2018_-_Pandal_of_Ahiritola_Sarbojonin_in_Kolkata_01.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:DurgaPuja2018 - Pandal of Ahiritola Sarbojonin in Kolkata 01.webm"
+   }
+  ],
+  "seconds": 30.024,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/df/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/df/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Howrah Bridge Night View (Silent Video) Full HD 1080p HIGH FR60.webm"
  },
  "Travel/Aeroplane": {
   "artist": "Quahadi",
@@ -2752,6 +4652,406 @@
    }
   ],
   "title": "File:Aerial drone chase of a train.webm"
+ },
+ "UTs/Andaman & Nicobar": {
+  "artist": "Incredible India",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AChoose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm",
+  "places": [
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChoose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm",
+    "place": "Scuba diving",
+    "seconds": 114.056,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c2/Choose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm/Choose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c2/Choose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm/Choose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Choose Your Own Adventure - Scuba Diving - India.webm"
+   },
+   {
+    "artist": "Vinayaraj",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ARide_into_Mangrove_Forest%2C_Havelock_Island_vrvbaan042k24.webm",
+    "place": "Havelock mangroves",
+    "seconds": 34.65,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2a/Ride_into_Mangrove_Forest%2C_Havelock_Island_vrvbaan042k24.webm/Ride_into_Mangrove_Forest%2C_Havelock_Island_vrvbaan042k24.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Ride into Mangrove Forest, Havelock Island vrvbaan042k24.webm"
+   },
+   {
+    "artist": "Biswarup Ganguly",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABaratang_-_Andaman_2009-04-17_4170044.ogv",
+    "place": "Baratang Island",
+    "seconds": 31.499685,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/4/49/Baratang_-_Andaman_2009-04-17_4170044.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/49/Baratang_-_Andaman_2009-04-17_4170044.ogv/Baratang_-_Andaman_2009-04-17_4170044.ogv.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Baratang - Andaman 2009-04-17 4170044.ogv"
+   }
+  ],
+  "seconds": 114.056,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c2/Choose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm/Choose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c2/Choose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm/Choose_Your_Own_Adventure_-_Scuba_Diving_-_India.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Choose Your Own Adventure - Scuba Diving - India.webm"
+ },
+ "UTs/Daman & Diu": {
+  "artist": "Incredible India",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADiu_Island_-_Isle_of_Calm_-IncredibleIndia.webm",
+  "places": [
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADiu_Island_-_Isle_of_Calm_-IncredibleIndia.webm",
+    "place": "Diu island",
+    "seconds": 121.544,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4e/Diu_Island_-_Isle_of_Calm_-IncredibleIndia.webm/Diu_Island_-_Isle_of_Calm_-IncredibleIndia.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4e/Diu_Island_-_Isle_of_Calm_-IncredibleIndia.webm/Diu_Island_-_Isle_of_Calm_-IncredibleIndia.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Diu Island - Isle of Calm -IncredibleIndia.webm"
+   }
+  ],
+  "seconds": 121.544,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4e/Diu_Island_-_Isle_of_Calm_-IncredibleIndia.webm/Diu_Island_-_Isle_of_Calm_-IncredibleIndia.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4e/Diu_Island_-_Isle_of_Calm_-IncredibleIndia.webm/Diu_Island_-_Isle_of_Calm_-IncredibleIndia.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Diu Island - Isle of Calm -IncredibleIndia.webm"
+ },
+ "UTs/Delhi": {
+  "artist": "Incredible India",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADestination_-_Delhi_-_India.webm",
+  "places": [
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADestination_-_Delhi_-_India.webm",
+    "place": "A tour of Delhi",
+    "seconds": 230.77,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ac/Destination_-_Delhi_-_India.webm/Destination_-_Delhi_-_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ac/Destination_-_Delhi_-_India.webm/Destination_-_Delhi_-_India.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Destination - Delhi - India.webm"
+   },
+   {
+    "artist": "Abhimanyu Jha",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AICC_World_Cup_2011_-_cheering_at_India_gate.ogv",
+    "place": "India Gate",
+    "seconds": 116.19265306122449,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/9/9e/ICC_World_Cup_2011_-_cheering_at_India_gate.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9e/ICC_World_Cup_2011_-_cheering_at_India_gate.ogv/ICC_World_Cup_2011_-_cheering_at_India_gate.ogv.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:ICC World Cup 2011 - cheering at India gate.ogv"
+   },
+   {
+    "artist": "Subhashish Panigrahi",
+    "license": "CC BY-SA 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADiwan-I-Am.ogv",
+    "place": "Red Fort",
+    "seconds": 47.714333333333336,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/39/Diwan-I-Am.ogv/Diwan-I-Am.ogv.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/39/Diwan-I-Am.ogv/Diwan-I-Am.ogv.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Diwan-I-Am.ogv"
+   },
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AHumayun%27s_Tomb_-_Poetry_of_Longing_-_Heritage_-_India.webm",
+    "place": "Humayun's Tomb",
+    "seconds": 30.024,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/30/Humayun%27s_Tomb_-_Poetry_of_Longing_-_Heritage_-_India.webm/Humayun%27s_Tomb_-_Poetry_of_Longing_-_Heritage_-_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Humayun's Tomb - Poetry of Longing - Heritage - India.webm"
+   },
+   {
+    "artist": "President of India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AView_of_Rashtrapati_bhavan.webm",
+    "place": "Rashtrapati Bhavan",
+    "seconds": 43.192,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f4/View_of_Rashtrapati_bhavan.webm/View_of_Rashtrapati_bhavan.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f4/View_of_Rashtrapati_bhavan.webm/View_of_Rashtrapati_bhavan.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:View of Rashtrapati bhavan.webm"
+   }
+  ],
+  "seconds": 230.77,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ac/Destination_-_Delhi_-_India.webm/Destination_-_Delhi_-_India.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ac/Destination_-_Delhi_-_India.webm/Destination_-_Delhi_-_India.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Destination - Delhi - India.webm"
+ },
+ "UTs/Jammu & Kashmir": {
+  "artist": "Incredible India",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AJammu_and_Kashmir_-_India.webm",
+  "places": [
+   {
+    "artist": "Incredible India",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AJammu_and_Kashmir_-_India.webm",
+    "place": "Kashmir valley",
+    "seconds": 60.018,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/be/Jammu_and_Kashmir_-_India.webm/Jammu_and_Kashmir_-_India.webm.480p.vp9.webm",
+      "type": "video/webm"
+     }
+    ],
+    "title": "File:Jammu and Kashmir - India.webm"
+   },
+   {
+    "artist": "Akankshasharma584",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADal_Lake_Srinagar.webm",
+    "place": "Dal Lake",
+    "seconds": 9.599,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/45/Dal_Lake_Srinagar.webm/Dal_Lake_Srinagar.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/45/Dal_Lake_Srinagar.webm/Dal_Lake_Srinagar.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Dal Lake Srinagar.webm"
+   },
+   {
+    "artist": "Florenz",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3APashmina%2C_The_Gold_of_Kashmir_%26_The_Himalaya.webm",
+    "place": "Pashmina goats",
+    "seconds": 83.762,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/82/Pashmina%2C_The_Gold_of_Kashmir_%26_The_Himalaya.webm/Pashmina%2C_The_Gold_of_Kashmir_%26_The_Himalaya.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/82/Pashmina%2C_The_Gold_of_Kashmir_%26_The_Himalaya.webm/Pashmina%2C_The_Gold_of_Kashmir_%26_The_Himalaya.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Pashmina, The Gold of Kashmir & The Himalaya.webm"
+   }
+  ],
+  "seconds": 60.018,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/be/Jammu_and_Kashmir_-_India.webm/Jammu_and_Kashmir_-_India.webm.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Jammu and Kashmir - India.webm"
+ },
+ "UTs/Ladakh": {
+  "artist": "Yann Forget",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APanorama_of_Pangong_lake%2C_Ladakh.webm",
+  "places": [
+   {
+    "artist": "Yann Forget",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3APanorama_of_Pangong_lake%2C_Ladakh.webm",
+    "place": "Pangong Lake",
+    "seconds": 22.133,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/49/Panorama_of_Pangong_lake%2C_Ladakh.webm/Panorama_of_Pangong_lake%2C_Ladakh.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/49/Panorama_of_Pangong_lake%2C_Ladakh.webm/Panorama_of_Pangong_lake%2C_Ladakh.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Panorama of Pangong lake, Ladakh.webm"
+   },
+   {
+    "artist": "Ankushgupta1987",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AA_Short_Video_of_Leh_City_from_Tsemo_Hill.webm",
+    "place": "Leh",
+    "seconds": 26.226,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2d/A_Short_Video_of_Leh_City_from_Tsemo_Hill.webm/A_Short_Video_of_Leh_City_from_Tsemo_Hill.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2d/A_Short_Video_of_Leh_City_from_Tsemo_Hill.webm/A_Short_Video_of_Leh_City_from_Tsemo_Hill.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:A Short Video of Leh City from Tsemo Hill.webm"
+   },
+   {
+    "artist": "Yann Forget",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3APanorama_from_Hemis_monastery%2C_Ladakh.webm",
+    "place": "Hemis Monastery",
+    "seconds": 22.966,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4c/Panorama_from_Hemis_monastery%2C_Ladakh.webm/Panorama_from_Hemis_monastery%2C_Ladakh.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4c/Panorama_from_Hemis_monastery%2C_Ladakh.webm/Panorama_from_Hemis_monastery%2C_Ladakh.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Panorama from Hemis monastery, Ladakh.webm"
+   },
+   {
+    "artist": "Kevin MacLeod",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ASnow_leopard_in_Ladakh.webm",
+    "place": "Snow leopard",
+    "seconds": 61.962,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Snow_leopard_in_Ladakh.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9f/Snow_leopard_in_Ladakh.webm/Snow_leopard_in_Ladakh.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Snow leopard in Ladakh.webm"
+   },
+   {
+    "artist": "Sajjadzairi",
+    "license": "CC BY-SA 4.0",
+    "page": "https://commons.wikimedia.org/wiki/File%3ALamsu_village%2C_Kargil_during_Summers.webm",
+    "place": "Kargil",
+    "seconds": 13.363,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6e/Lamsu_village%2C_Kargil_during_Summers.webm/Lamsu_village%2C_Kargil_during_Summers.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6e/Lamsu_village%2C_Kargil_during_Summers.webm/Lamsu_village%2C_Kargil_during_Summers.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Lamsu village, Kargil during Summers.webm"
+   }
+  ],
+  "seconds": 22.133,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/49/Panorama_of_Pangong_lake%2C_Ladakh.webm/Panorama_of_Pangong_lake%2C_Ladakh.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/49/Panorama_of_Pangong_lake%2C_Ladakh.webm/Panorama_of_Pangong_lake%2C_Ladakh.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Panorama of Pangong lake, Ladakh.webm"
  },
  "Vegetables/Brinjal": {
   "artist": "Shaai Sattar",

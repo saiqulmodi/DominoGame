@@ -2,7 +2,8 @@
 
 The videos are free Wikimedia Commons files listed in videos.json (made and
 checked with tools/find_videos.py). They stream from upload.wikimedia.org:
-no adverts, no "recommended next" list.
+no adverts, no "recommended next" list. Indian states and union territories
+play a list of their famous places (one button per place).
 
   Browser (pygbag): a player opens over the game with a big "Back to play"
                     button; the game notices when it is closed.
@@ -50,35 +51,82 @@ CSS = """
 """
 
 BODY = """<div id="dwd-video">
-<h1>{heading}</h1>
+<h1 id="dwd-head">{heading}</h1>
 <video id="dwd-player" controls autoplay playsinline preload="auto">{sources}</video>
 <div class="msg" id="dwd-msg">This video needs the internet. Try again later!</div>
+<div class="row" id="dwd-places">{places}</div>
 <div class="row"><button id="dwd-again">&#8635; Watch again</button>
 <button id="dwd-back">&#9664; Back to play</button></div>
 <div id="dwd-bye">Close this tab to go back to the game.</div>
-<div class="credit">{credit}</div></div>"""
+<div class="credit" id="dwd-credit">{credit}</div></div>"""
 
-# Shared by both players: "watch again" after the end, a message if offline
+# States and union territories: one button per famous place
+PLACE_CSS = """
+#dwd-video .place{font-size:17px;padding:8px 14px;border-radius:22px;
+ background:#2b2b4a;border:2px solid #ffcc00;color:#ffcc00}
+#dwd-video .place.on{background:#ffcc00;color:#0d0d1a}
+"""
+
+# Shared by both players: famous places one after another (each name is said
+# as it starts), "watch again" after the last one, a message if offline
 SCRIPT = """(function(){var v=document.getElementById('dwd-player');
  var again=document.getElementById('dwd-again');
- v.onended=function(){again.style.display='inline-block';};
- again.onclick=function(){again.style.display='none';v.currentTime=0;v.play();};
- var srcs=v.getElementsByTagName('source');
- if(srcs.length)srcs[srcs.length-1].onerror=function(){
-   document.getElementById('dwd-msg').style.display='block';v.style.display='none';};
- var p=v.play();if(p&&p.catch)p.catch(function(){v.muted=true;v.play();});})();"""
+ var list=window.dwdPlaylist||[];var at=0;
+ function say(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);
+   u.rate=0.9;speechSynthesis.speak(u);}catch(e){}}
+ function start(){var p=v.play();if(p&&p.catch)p.catch(function(){v.muted=true;v.play();});}
+ function show(i){if(!list.length)return;at=i;var c=list[i];
+   document.getElementById('dwd-head').textContent=c.heading;
+   document.getElementById('dwd-credit').textContent=c.credit;
+   var b=document.querySelectorAll('#dwd-places .place');
+   for(var k=0;k<b.length;k++)b[k].className='place'+(k==i?' on':'');
+   v.innerHTML=c.sources;v.style.display='';
+   document.getElementById('dwd-msg').style.display='none';hook();v.load();start();
+   if(list.length>1)say(c.name);}
+ function hook(){var srcs=v.getElementsByTagName('source');
+   if(srcs.length)srcs[srcs.length-1].onerror=function(){
+     if(at+1<list.length){show(at+1);return;}
+     document.getElementById('dwd-msg').style.display='block';v.style.display='none';};}
+ var b=document.querySelectorAll('#dwd-places .place');
+ for(var k=0;k<b.length;k++)(function(i){b[i].onclick=function(){
+   again.style.display='none';show(i);};})(k);
+ v.onended=function(){if(at+1<list.length){show(at+1);}
+   else{again.style.display='inline-block';}};
+ again.onclick=function(){again.style.display='none';
+   if(list.length>1){show(0);}else{v.currentTime=0;start();}};
+ hook();if(list.length>1)say(list[0].name);start();})();"""
+
+
+def _sources(clip):
+  # WebM first (Chrome, Firefox, Android), MP4 for iPhone / iPad
+  ordered = sorted(clip.get("sources", []), key=lambda s: s["type"] != "video/webm")
+  return "".join(f'<source src="{html.escape(s["src"])}" type="{s["type"]}">'
+                 for s in ordered)
+
+
+def _credit(clip):
+  return " - ".join(x for x in (
+      "Video: " + (clip.get("artist") or "Wikimedia Commons"),
+      clip.get("license", ""), "Wikimedia Commons") if x)
+
+
+def playlist(video, title):
+  """The clips to play: a state's famous places, or the one video."""
+  clips = [c for c in video.get("places") or [] if c.get("sources")] or [video]
+  return [{"name": c.get("place", title),
+           "heading": f"{title}: {c['place']}" if c.get("place") else f"The real {title}!",
+           "sources": _sources(c), "credit": _credit(c)} for c in clips]
 
 
 def _parts(video, title):
-  heading = html.escape(f"The real {title}!")
-  # WebM first (Chrome, Firefox, Android), MP4 for iPhone / iPad
-  ordered = sorted(video.get("sources", []), key=lambda s: s["type"] != "video/webm")
-  sources = "".join(f'<source src="{html.escape(s["src"])}" type="{s["type"]}">'
-                    for s in ordered)
-  credit = html.escape(" - ".join(x for x in (
-      "Video: " + (video.get("artist") or "Wikimedia Commons"),
-      video.get("license", ""), "Wikimedia Commons") if x))
-  return BODY.format(heading=heading, sources=sources, credit=credit)
+  clips = playlist(video, title)
+  places = ""
+  if len(clips) > 1:
+    places = "".join(f'<button class="place{" on" if i == 0 else ""}">{html.escape(c["name"])}</button>'
+                     for i, c in enumerate(clips))
+  body = BODY.format(heading=html.escape(clips[0]["heading"]), sources=clips[0]["sources"],
+                     places=places, credit=html.escape(clips[0]["credit"]))
+  return body, "window.dwdPlaylist=" + json.dumps(clips) + ";"
 
 
 class VideoPlayer:
@@ -133,23 +181,26 @@ class VideoPlayer:
   # ------------------------------------------------------------ per platform
   def _show_web(self, video, title):
     import platform
-    body = _parts(video, title)
+    body, clips = _parts(video, title)
     js = ("(function(){var old=document.getElementById('dwd-video');if(old)old.remove();"
           "try{speechSynthesis.cancel();}catch(e){}"
           "window.dwdVideoClosed=0;var d=document.createElement('div');"
           "d.innerHTML=" + json.dumps(body) + ";document.body.appendChild(d.firstChild);"
           "if(!document.getElementById('dwd-style')){var s=document.createElement('style');"
-          "s.id='dwd-style';s.textContent=" + json.dumps(CSS) + ";document.head.appendChild(s);}"
+          "s.id='dwd-style';s.textContent=" + json.dumps(CSS + PLACE_CSS)
+          + ";document.head.appendChild(s);}"
           "document.getElementById('dwd-back').onclick=function(){"
           "var v=document.getElementById('dwd-player');if(v)v.pause();"
+          "try{speechSynthesis.cancel();}catch(e){}"
           "document.getElementById('dwd-video').remove();window.dwdVideoClosed=1;"
           "var c=document.getElementById('canvas');if(c&&c.focus)c.focus();};"
-          + SCRIPT + "})()")
+          + clips + SCRIPT + "})()")
     platform.window.eval(js)
 
   def _show_desktop(self, video, title):
-    page = PAGE.format(title=html.escape(title), css=CSS, body=_parts(video, title),
-                       script=SCRIPT)
+    body, clips = _parts(video, title)
+    page = PAGE.format(title=html.escape(title), css=CSS + PLACE_CSS, body=body,
+                       script=clips + SCRIPT)
     path = os.path.join(tempfile.gettempdir(), "domino_wonder_dash_video.html")
     with open(path, "w", encoding="utf-8") as fh:
       fh.write(page)

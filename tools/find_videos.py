@@ -10,7 +10,11 @@ Every pick is checked by a person before it ships: run this, read
 tools/videos_review.txt (and watch anything unclear), put any bad file name
 in REJECT, run again.
 
-usage: python tools/find_videos.py
+States and union territories also get a playlist of their famous places
+(tools/place_videos.py; again only files a person picked).
+
+usage: python tools/find_videos.py            (everything)
+       python tools/find_videos.py --places   (only the famous-places playlists)
 """
 import json
 import os
@@ -128,7 +132,10 @@ BLOCK = re.compile(
     re.I)
 
 # File names a person rejected after checking (add more here)
-REJECT = set()
+REJECT = {
+    # filed under Tamil Nadu but filmed in Sri Lanka (found 2026-10-11)
+    "File:அத்தாங்கு மீன்பிடி - மீன்கள் இருக்கும் இடந்தேடி நீருக்குள் நகரும் பெண்கள்.webm",
+}
 
 # Only pictures a person approved get a video in the game (checked 2026-10-11
 # from each file's name, description and length). A new search result for an
@@ -350,9 +357,44 @@ def candidates(keys, per_item=8):
       print("  (nothing suitable)")
 
 
+def add_places(found):
+  """States and union territories: a playlist of their famous places, each
+  one a file a person picked (PLACES in place_videos.py)."""
+  from place_videos import PLACES
+  infos = video_info(sorted({f for places in PLACES.values() for _p, f in places}))
+  for key, places in PLACES.items():
+    clips = []
+    for place, name in places:
+      v = infos.get(name)
+      if not v:
+        print(f"  missing on Commons: {key} | {place} | {name}")
+      elif v["sources"] and v["license"] and v["title"] not in REJECT:
+        clips.append({"place": place, **{k: v[k] for k in (
+            "title", "seconds", "license", "artist", "page", "sources")}})
+    if not clips:
+      continue
+    # the first famous place is also the main video (Android plays only that)
+    entry = dict(clips[0], editor_pick=False, desc="", from_places=True)
+    entry.pop("place", None)
+    entry["places"] = clips
+    found[key] = entry
+    print(f"{key:30} {len(clips)} famous places")
+
+
 def main():
   if len(sys.argv) > 2 and sys.argv[1] == "--candidates":
     candidates(sys.argv[2:])
+    return
+  if sys.argv[1:] == ["--places"]:       # only the famous-places playlists
+    with open(OUT, encoding="utf-8") as fh:
+      found = json.load(fh)
+    for entry in found.values():
+      entry.pop("places", None)
+    found = {k: v for k, v in found.items() if not v.get("from_places")}
+    add_places(found)
+    with open(OUT, "w", encoding="utf-8") as fh:
+      json.dump(found, fh, ensure_ascii=False, indent=1, sort_keys=True)
+    print(f"videos for {len(found)} pictures -> {OUT}")
     return
   items = [(cat, e[0]) for cat, entries in hub.CATALOG.items() if cat not in SKIP
            for e in entries]
@@ -399,6 +441,7 @@ def main():
     json.dump(approved_files, fh, ensure_ascii=False, indent=1, sort_keys=True)
   found = {k: v for k, v in found.items()
            if k in APPROVED and approved_files.get(k) == v["title"]}
+  add_places(found)
   with open(OUT, "w", encoding="utf-8") as fh:
     json.dump(found, fh, ensure_ascii=False, indent=1, sort_keys=True)
   with open(REVIEW, "w", encoding="utf-8") as fh:

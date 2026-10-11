@@ -480,7 +480,9 @@ class Game:
     pygame.draw.circle(screen, WHITE, (cx, cy), 15)
     pygame.draw.polygon(screen, (230, 40, 50), [(cx - 5, cy - 8), (cx - 5, cy + 8), (cx + 9, cy)])
     title = hub.CATEGORIES_HUB[self.cat][self.puzzle].get("label") or self.puzzle
-    lbl = fit_label(self.hint_font, f"Watch the real {title}!", WHITE, rect.w - 64)
+    words = (f"See {title}'s famous places!" if self.current_video().get("places")
+             else f"Watch the real {title}!")
+    lbl = fit_label(self.hint_font, words, WHITE, rect.w - 64)
     screen.blit(lbl, lbl.get_rect(midleft=(rect.x + 52, rect.centery)))
 
   def watch_video(self):
@@ -901,8 +903,10 @@ class Game:
       self.celebration = (new[-1], time.time())
       self.particles.burst(PLAY_RECT.centerx, PLAY_RECT.centery, n=60)
       praise += " You got a new sticker!"
-    if self.current_video() and not self.story:
-      praise += " Tap the red button to watch a real one!"
+    clip = self.current_video()
+    if clip and not self.story:
+      praise += (" Tap the red button to see its famous places!" if clip.get("places")
+                 else " Tap the red button to watch a real one!")
     item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
     if item.get("hindi"):
       self.say(praise, hub.hindi_speech(self.puzzle, self.cat, praise=True), "hi")
@@ -1079,6 +1083,8 @@ class Game:
         last = self.story["step"] == len(self.story["story"]["steps"]) - 1
         return "The end! Pick another story" if last else "Tap for the next part!"
       if self.current_video():
+        if self.current_video().get("places"):
+          return "Yay! Tap to play again, or see the famous places"
         return "Yay! Tap to play again, or watch the real one"
       return "Yay! Tap to play again, or Next"
     return ""
