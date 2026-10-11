@@ -11,7 +11,10 @@
   Qutub Minar are Pexels clips by Vikash Yadav and Abhishek Shekhawat (Pexels License) and
   the Lotus Temple is a Pixabay clip by Aradhyagad (Pixabay Content License); the Asiatic
   lion is a Pixabay clip by sjahanmi and Puducherry's French Quarter and Rock Beach are
-  Pexels clips by Social Sudo; small copies
+  Pexels clips by Social Sudo; Chandigarh's Japanese Garden and sectors are Pexels clips
+  by Ananya Mandial; Chhattisgarh's folk dance is a Pixabay clip by kaushal237; Manipur's
+  Loktak Lake is a 15-second cut from "Abiding Grace - Glimpses of the North-East"
+  (Gautam Bora, Ministry of External Affairs, CC BY 3.0, Wikimedia Commons); small copies
   are served from the game's site, `docs/videos/`.
 - **Maps and rivers:** Natural Earth (https://www.naturalearthdata.com). Public domain.
   Country borders use Natural Earth's India point-of-view edition.

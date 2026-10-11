@@ -9,10 +9,12 @@ Places with no suitable free video yet (for example Lakshadweep) are simply
 not listed.
 
 Commons had no video of Lotus Temple, Qutub Minar, the National War Memorial,
-an Asiatic lion in India or Puducherry, so those are free Pexels / Pixabay clips, checked frame by frame, made
-small with ffmpeg and served from the game's own site (docs/videos/, see HOSTED).
+an Asiatic lion in India, Puducherry, Chandigarh's garden and sectors or
+Chhattisgarh, so those are free Pexels / Pixabay clips, checked frame by frame,
+made small with ffmpeg and served from the game's own site (docs/videos/, see
+HOSTED). Manipur's Loktak Lake is a short cut from a Commons documentary.
 
-game key -> [(place name shown and said to children, Commons file)]
+game key -> [(place name shown and said to children, Commons file or docs/ path)]
 """
 
 PLACES = {
@@ -36,6 +38,9 @@ PLACES = {
     ],
     "States/Bihar": [
         ("Bodh Gaya", "File:Sacred Serenity at Mahabodhi Temple, Bodhgaya, Bihar.webm"),
+    ],
+    "States/Chhattisgarh": [
+        ("Folk dance", "videos/chhattisgarh_folk_dance.mp4"),
     ],
     "States/Goa": [
         ("Old Goa churches", "File:Churches & Convents - Old Goa - India.webm"),
@@ -86,6 +91,9 @@ PLACES = {
         ("Marine Drive", "File:Timelapse at Marine Drive Mumbai.webm"),
         ("Mumbai local train", "File:Local train starting from Mumbai CSTM 001.webm"),
         ("Gulls at the Gateway", "File:Birds flying behind a ferry.webm"),
+    ],
+    "States/Manipur": [
+        ("Loktak Lake", "videos/manipur_loktak_lake.mp4"),
     ],
     "States/Meghalaya": [
         ("Cherrapunji waterfall", "File:Majestic Wei Sawdong Waterfall.webm"),
@@ -166,6 +174,11 @@ PLACES = {
         ("French Quarter", "videos/puducherry_french_quarter.mp4"),
         ("Rock Beach", "videos/puducherry_rock_beach.mp4"),
     ],
+    "UTs/Chandigarh": [
+        ("Sukhna Lake", "File:Chandigarh-lake-sukhna.webm"),
+        ("Japanese Garden", "videos/chandigarh_japanese_garden.mp4"),
+        ("A city of numbered sectors", "videos/chandigarh_sectors.mp4"),
+    ],
     "UTs/Daman & Diu": [
         ("Diu island", "File:Diu Island - Isle of Calm -IncredibleIndia.webm"),
     ],
@@ -214,6 +227,23 @@ HOSTED = {
     "videos/puducherry_french_quarter.mp4": {
         "artist": "Social Sudo", "license": "Pexels License", "seconds": 15,
         "page": "https://www.pexels.com/video/pondicherry-french-town-in-tamil-nadu-18428850/"},
+    # cut from "Abiding Grace - Glimpses of the North-East" (Ministry of External
+    # Affairs, 1999, on Wikimedia Commons): 1:32-1:47, the Manipur map, Loktak
+    # Lake's floating phumdis and a boat; ends before the sword-art scene
+    "videos/manipur_loktak_lake.mp4": {
+        "artist": "Gautam Bora, Ministry of External Affairs", "license": "CC BY 3.0", "seconds": 15,
+        "page": "https://commons.wikimedia.org/wiki/File:Abiding_Grace_-_Glimpses_of_the_North-East.webm"},
+    # tagged Chhattisgarh by the maker: villagers dancing in a big circle, from above
+    "videos/chhattisgarh_folk_dance.mp4": {
+        "artist": "kaushal237", "license": "Pixabay Content License", "seconds": 20,
+        "page": "https://pixabay.com/videos/people-celebration-dance-122709/"},
+    "videos/chandigarh_japanese_garden.mp4": {
+        "artist": "Ananya Mandial", "license": "Pexels License", "seconds": 30,
+        "page": "https://www.pexels.com/video/pagoda-in-chandigarh-architectural-marvel-29799544/"},
+    # the road sign shows Chandigarh's numbered sectors 32-51
+    "videos/chandigarh_sectors.mp4": {
+        "artist": "Ananya Mandial", "license": "Pexels License", "seconds": 21,
+        "page": "https://www.pexels.com/video/chandigarh-city-road-traffic-on-a-busy-day-34451088/"},
     "videos/puducherry_rock_beach.mp4": {
         "artist": "Social Sudo", "license": "Pexels License", "seconds": 22,
         "page": "https://www.pexels.com/video/people-enjoying-the-evening-in-a-pondicherry-beach-18462367/"},

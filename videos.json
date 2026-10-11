@@ -2818,6 +2818,38 @@
   ],
   "title": "File:Sacred Serenity at Mahabodhi Temple, Bodhgaya, Bihar.webm"
  },
+ "States/Chhattisgarh": {
+  "artist": "kaushal237",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "Pixabay Content License",
+  "page": "https://pixabay.com/videos/people-celebration-dance-122709/",
+  "places": [
+   {
+    "artist": "kaushal237",
+    "license": "Pixabay Content License",
+    "page": "https://pixabay.com/videos/people-celebration-dance-122709/",
+    "place": "Folk dance",
+    "seconds": 20,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/chhattisgarh_folk_dance.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/chhattisgarh_folk_dance.mp4"
+   }
+  ],
+  "seconds": 20,
+  "sources": [
+   {
+    "src": "https://saiqulmodi.github.io/DominoGame/videos/chhattisgarh_folk_dance.mp4",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "videos/chhattisgarh_folk_dance.mp4"
+ },
  "States/Goa": {
   "artist": "Incredible India",
   "desc": "",
@@ -3493,6 +3525,38 @@
    }
   ],
   "title": "File:Gateway Of India - I AM YOUR GUIDE - places in india tourist Travel Holiday Culture Adventure.webm"
+ },
+ "States/Manipur": {
+  "artist": "Gautam Bora, Ministry of External Affairs",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Abiding_Grace_-_Glimpses_of_the_North-East.webm",
+  "places": [
+   {
+    "artist": "Gautam Bora, Ministry of External Affairs",
+    "license": "CC BY 3.0",
+    "page": "https://commons.wikimedia.org/wiki/File:Abiding_Grace_-_Glimpses_of_the_North-East.webm",
+    "place": "Loktak Lake",
+    "seconds": 15,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/manipur_loktak_lake.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/manipur_loktak_lake.mp4"
+   }
+  ],
+  "seconds": 15,
+  "sources": [
+   {
+    "src": "https://saiqulmodi.github.io/DominoGame/videos/manipur_loktak_lake.mp4",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "videos/manipur_loktak_lake.mp4"
  },
  "States/Meghalaya": {
   "artist": "ANKAN",
@@ -4738,6 +4802,74 @@
    }
   ],
   "title": "File:Choose Your Own Adventure - Scuba Diving - India.webm"
+ },
+ "UTs/Chandigarh": {
+  "artist": "Info-farmer",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AChandigarh-lake-sukhna.webm",
+  "places": [
+   {
+    "artist": "Info-farmer",
+    "license": "CC0",
+    "page": "https://commons.wikimedia.org/wiki/File%3AChandigarh-lake-sukhna.webm",
+    "place": "Sukhna Lake",
+    "seconds": 9.198,
+    "sources": [
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9a/Chandigarh-lake-sukhna.webm/Chandigarh-lake-sukhna.webm.480p.vp9.webm",
+      "type": "video/webm"
+     },
+     {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9a/Chandigarh-lake-sukhna.webm/Chandigarh-lake-sukhna.webm.360p.mpeg4.mov",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "File:Chandigarh-lake-sukhna.webm"
+   },
+   {
+    "artist": "Ananya Mandial",
+    "license": "Pexels License",
+    "page": "https://www.pexels.com/video/pagoda-in-chandigarh-architectural-marvel-29799544/",
+    "place": "Japanese Garden",
+    "seconds": 30,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/chandigarh_japanese_garden.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/chandigarh_japanese_garden.mp4"
+   },
+   {
+    "artist": "Ananya Mandial",
+    "license": "Pexels License",
+    "page": "https://www.pexels.com/video/chandigarh-city-road-traffic-on-a-busy-day-34451088/",
+    "place": "A city of numbered sectors",
+    "seconds": 21,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/chandigarh_sectors.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/chandigarh_sectors.mp4"
+   }
+  ],
+  "seconds": 9.198,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9a/Chandigarh-lake-sukhna.webm/Chandigarh-lake-sukhna.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9a/Chandigarh-lake-sukhna.webm/Chandigarh-lake-sukhna.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Chandigarh-lake-sukhna.webm"
  },
  "UTs/Daman & Diu": {
   "artist": "Incredible India",
