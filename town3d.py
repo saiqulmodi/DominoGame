@@ -91,6 +91,9 @@ SUBJECT_HOUSES = [
     ("hindi", 1, 40, 18, 14, 11, (246, 140, 72), "Hindi Pathshala", "Swar and Vyanjan", "Hindi", None),
     ("maths", -1, 70, 18, 14, 13, (90, 150, 240), "Number House", "Numbers, shapes, signs", "Maths", None),
     ("home", 1, 70, 18, 14, 10, (240, 170, 150), "My Home", "Body, home, helpers", "Me & Home", None),
+    # NCERT Class 6-7
+    ("science", -1, 86, 18, 11, 12, (110, 200, 230), "Science Lab", "Class 6-7 science", "Science", ("Lab Tools", "Microscope")),
+    ("social", 1, 86, 18, 11, 12, (200, 150, 100), "Heritage Hall", "Class 6-7 history, maps, civics", "Social", ("Long Ago", "Clay Pot")),
     ("nature", -1, 136, 24, 18, 9, (90, 190, 110), "Zoo & Garden", "Animals, birds, plants", "Nature", ("Animals", "Tiger")),
     ("food", 1, 136, 20, 16, 9, (236, 90, 90), "Food Market", "Fruits and vegetables", "Food", ("Fruits", "Apple")),
     ("travel", -1, 168, 22, 16, 12, (160, 110, 220), "Station", "Vehicles, travel, bridges", "Travel", None),

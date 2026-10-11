@@ -362,6 +362,33 @@ def shape_mask(kind):
       d.rectangle((c - r * 0.5, y - r * 0.05, c + r * 0.5, y + r * 0.05), fill=255)
     for x in (c - r * 0.3, c + r * 0.3):
       d.rectangle((x - r * 0.05, c - r * 1.02, x + r * 0.05, c + r * 1.02), fill=255)
+  # Class 6-7 geometry
+  elif kind == "parallelogram":
+    d.polygon([(c - r, c + r * 0.5), (c + r * 0.45, c + r * 0.5), (c + r, c - r * 0.5),
+               (c - r * 0.45, c - r * 0.5)], fill=255)
+  elif kind == "trapezium":
+    d.polygon([(c - r, c + r * 0.55), (c + r, c + r * 0.55), (c + r * 0.5, c - r * 0.55),
+               (c - r * 0.5, c - r * 0.55)], fill=255)
+  elif kind == "kite":
+    d.polygon([(c, c - r), (c + r * 0.6, c - r * 0.3), (c, c + r), (c - r * 0.6, c - r * 0.3)], fill=255)
+  elif kind == "octagon":
+    d.polygon(poly(8, rot=-math.pi / 2 + math.pi / 8), fill=255)
+  elif kind == "semicircle":
+    d.pieslice((c - r, c - r * 0.6, c + r, c + r * 1.4), 180, 360, fill=255)
+  elif kind in ("right_angle", "acute_angle", "obtuse_angle"):
+    # the angle as a wedge opening from the bottom-left corner
+    deg = {"right_angle": 90, "acute_angle": 45, "obtuse_angle": 130}[kind]
+    ox, oy = (c - r * 0.6, c + r * 0.7) if deg < 120 else (c + r * 0.1, c + r * 0.6)
+    rad = r * (1.5 if deg < 120 else 1.0)
+    d.pieslice((ox - rad, oy - rad, ox + rad, oy + rad), 360 - deg, 360, fill=255)
+  elif kind == "cylinder":
+    w, h = r * 0.6, r * 0.9
+    d.rectangle((c - w, c - h, c + w, c + h), fill=255)
+    d.ellipse((c - w, c - h - r * 0.22, c + w, c - h + r * 0.22), fill=255)
+    d.ellipse((c - w, c + h - r * 0.22, c + w, c + h + r * 0.22), fill=255)
+  elif kind == "cone":
+    d.polygon([(c, c - r), (c + r * 0.6, c + r * 0.7), (c - r * 0.6, c + r * 0.7)], fill=255)
+    d.ellipse((c - r * 0.6, c + r * 0.5, c + r * 0.6, c + r * 0.9), fill=255)
   elif kind == "arrow":
     d.polygon([(c - r, c - r * 0.25), (c + r * 0.2, c - r * 0.25),
                (c + r * 0.2, c - r * 0.6), (c + r, c), (c + r * 0.2, c + r * 0.6),

@@ -40,8 +40,8 @@ TIPS = [
     ((255, 120, 120), "Magic tools: WEB to swing, ZIP onto a roof, BOOTS to jump high, CAPE to float."),
     ((140, 230, 140), "Press E (or GO IN) at a door. The house button in a game brings you back here."),
 ]
-TOUR = ["english", "nature", "maths", "food", "story", "hindi", "home", "travel", "world", "india",
-        "fun", "studio", "museum", "family", "arcade"]
+TOUR = ["english", "nature", "maths", "food", "story", "hindi", "home", "science", "social", "travel",
+        "world", "india", "fun", "studio", "museum", "family", "arcade"]
 
 
 def _mix(a, b, k):
