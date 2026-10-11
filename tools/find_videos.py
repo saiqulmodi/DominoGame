@@ -360,8 +360,12 @@ def candidates(keys, per_item=8):
 def add_places(found):
   """States and union territories: a playlist of their famous places, each
   one a file a person picked (PLACES in place_videos.py)."""
-  from place_videos import PLACES
-  infos = video_info(sorted({f for places in PLACES.values() for _p, f in places}))
+  from place_videos import PLACES, HOSTED, SITE
+  infos = video_info(sorted({f for places in PLACES.values() for _p, f in places
+                             if f.startswith("File:")}))
+  for path, meta in HOSTED.items():      # our own copies on the game's site
+    if os.path.exists(os.path.join(ROOT, "docs", path)):
+      infos[path] = dict(meta, title=path, sources=[{"src": SITE + path, "type": "video/mp4"}])
   for key, places in PLACES.items():
     clips = []
     for place, name in places:

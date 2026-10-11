@@ -4810,6 +4810,20 @@
     "title": "File:ICC World Cup 2011 - cheering at India gate.ogv"
    },
    {
+    "artist": "Vikash Yadav",
+    "license": "Pexels License",
+    "page": "https://www.pexels.com/video/ceremonial-event-at-outdoor-memorial-35974421/",
+    "place": "National War Memorial",
+    "seconds": 45,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/war_memorial.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/war_memorial.mp4"
+   },
+   {
     "artist": "Subhashish Panigrahi",
     "license": "CC BY-SA 3.0",
     "page": "https://commons.wikimedia.org/wiki/File%3ADiwan-I-Am.ogv",
@@ -4826,6 +4840,34 @@
      }
     ],
     "title": "File:Diwan-I-Am.ogv"
+   },
+   {
+    "artist": "Abhishek Shekhawat",
+    "license": "Pexels License",
+    "page": "https://www.pexels.com/video/majestic-view-of-qutub-minar-in-delhi-34416410/",
+    "place": "Qutub Minar",
+    "seconds": 26,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/qutub_minar.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/qutub_minar.mp4"
+   },
+   {
+    "artist": "Aradhyagad",
+    "license": "Pixabay Content License",
+    "page": "https://pixabay.com/videos/lotus-temple-delhi-india-temple-370418/",
+    "place": "Lotus Temple",
+    "seconds": 8,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/lotus_temple.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/lotus_temple.mp4"
    },
    {
     "artist": "Incredible India",

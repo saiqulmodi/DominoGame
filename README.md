@@ -63,8 +63,9 @@ Stickers and Theme; picking a picture (or Play) goes straight back to the game.
   Commons clip checked by a person (`tools/find_videos.py`): no adverts and no
   "watch next" list
 - **Famous places of India** - 31 states and union territories have a playlist of
-  their famous places (99 clips, `tools/place_videos.py`), for example Delhi: India
-  Gate, Red Fort, Humayun's Tomb, Rashtrapati Bhavan; Kerala: backwaters,
+  their famous places (102 clips, `tools/place_videos.py`), for example Delhi: India
+  Gate, National War Memorial, Red Fort, Qutub Minar, Lotus Temple, Humayun's Tomb,
+  Rashtrapati Bhavan; Kerala: backwaters,
   houseboats, Munnar tea hills, Kathakali, snake boat race; Ladakh: Pangong Lake,
   Hemis Monastery, a snow leopard. One button per place; each place's name is said
   as it starts and the next place follows by itself

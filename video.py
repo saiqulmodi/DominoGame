@@ -105,9 +105,11 @@ def _sources(clip):
 
 
 def _credit(clip):
+  licence = clip.get("license", "")
+  # a few clips are Pexels / Pixabay copies on the game's own site
+  site = "" if licence.startswith(("Pexels", "Pixabay")) else "Wikimedia Commons"
   return " - ".join(x for x in (
-      "Video: " + (clip.get("artist") or "Wikimedia Commons"),
-      clip.get("license", ""), "Wikimedia Commons") if x)
+      "Video: " + (clip.get("artist") or site), licence, site) if x)
 
 
 def playlist(video, title):

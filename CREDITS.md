@@ -7,7 +7,10 @@
   streamed from upload.wikimedia.org, each under its own free license (CC BY, CC BY-SA,
   CC0, GFDL or public domain). The player shows each clip's author and license; the full
   list with links is in `videos.json`. The famous places of Indian states and union
-  territories (`tools/place_videos.py`) include Incredible India tourism films (CC BY 3.0).
+  territories (`tools/place_videos.py`) include Incredible India tourism films (CC BY 3.0). Delhi's National War Memorial and
+  Qutub Minar are Pexels clips by Vikash Yadav and Abhishek Shekhawat (Pexels License) and
+  the Lotus Temple is a Pixabay clip by Aradhyagad (Pixabay Content License); small copies
+  are served from the game's site, `docs/videos/`.
 - **Maps and rivers:** Natural Earth (https://www.naturalearthdata.com). Public domain.
   Country borders use Natural Earth's India point-of-view edition.
 - **Hindi letters and words:** drawn with the Noto Sans Devanagari font (SIL Open Font License),

@@ -5,8 +5,12 @@ Every file below was picked by a person on 2026-10-11 from Wikimedia Commons
 searches (tourism films, travellers' clips, festivals), checking its name,
 description, length and licence. Left out: visits by politicians, interviews,
 clips filmed outside India and anything not suitable for small children.
-Places with no suitable free video yet (for example Lotus Temple, Qutub Minar,
-Gir lions, Lakshadweep, Puducherry) are simply not listed.
+Places with no suitable free video yet (for example Gir lions, Lakshadweep,
+Puducherry) are simply not listed.
+
+Commons had no video of Lotus Temple, Qutub Minar or the National War Memorial,
+so those three are free Pexels / Pixabay clips, checked frame by frame, made
+small with ffmpeg and served from the game's own site (docs/videos/, see HOSTED).
 
 game key -> [(place name shown and said to children, Commons file)]
 """
@@ -163,7 +167,10 @@ PLACES = {
     "UTs/Delhi": [
         ("A tour of Delhi", "File:Destination - Delhi - India.webm"),
         ("India Gate", "File:ICC World Cup 2011 - cheering at India gate.ogv"),
+        ("National War Memorial", "videos/war_memorial.mp4"),
         ("Red Fort", "File:Diwan-I-Am.ogv"),
+        ("Qutub Minar", "videos/qutub_minar.mp4"),
+        ("Lotus Temple", "videos/lotus_temple.mp4"),
         ("Humayun's Tomb", "File:Humayun's Tomb - Poetry of Longing - Heritage - India.webm"),
         ("Rashtrapati Bhavan", "File:View of Rashtrapati bhavan.webm"),
     ],
@@ -179,4 +186,19 @@ PLACES = {
         ("Snow leopard", "File:Snow leopard in Ladakh.webm"),
         ("Kargil", "File:Lamsu village, Kargil during Summers.webm"),
     ],
+}
+
+# Clips served from the game's own GitHub Pages site (docs/videos/): free
+# licences that allow use without attribution; we credit the maker anyway.
+SITE = "https://saiqulmodi.github.io/DominoGame/"
+HOSTED = {
+    "videos/war_memorial.mp4": {
+        "artist": "Vikash Yadav", "license": "Pexels License", "seconds": 45,
+        "page": "https://www.pexels.com/video/ceremonial-event-at-outdoor-memorial-35974421/"},
+    "videos/qutub_minar.mp4": {
+        "artist": "Abhishek Shekhawat", "license": "Pexels License", "seconds": 26,
+        "page": "https://www.pexels.com/video/majestic-view-of-qutub-minar-in-delhi-34416410/"},
+    "videos/lotus_temple.mp4": {
+        "artist": "Aradhyagad", "license": "Pixabay Content License", "seconds": 8,
+        "page": "https://pixabay.com/videos/lotus-temple-delhi-india-temple-370418/"},
 }
