@@ -2921,6 +2921,20 @@
     "title": "File:\"STATUE OF UNITY\"- Kevadia (Gujarat) becomes a \"Land of Billion Lights\" at night..webm"
    },
    {
+    "artist": "sjahanmi",
+    "license": "Pixabay Content License",
+    "page": "https://pixabay.com/videos/asiatic-lion-india-lion-mammal-50530/",
+    "place": "Asiatic lion",
+    "seconds": 20,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/asiatic_lion.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/asiatic_lion.mp4"
+   },
+   {
     "artist": "Michel Cecil",
     "license": "CC BY-SA 4.0",
     "page": "https://commons.wikimedia.org/wiki/File%3AKutch_in_its_Traditional_form.webm",
@@ -5094,6 +5108,52 @@
    }
   ],
   "title": "File:Panorama of Pangong lake, Ladakh.webm"
+ },
+ "UTs/Puducherry": {
+  "artist": "Social Sudo",
+  "desc": "",
+  "editor_pick": false,
+  "from_places": true,
+  "license": "Pexels License",
+  "page": "https://www.pexels.com/video/pondicherry-french-town-in-tamil-nadu-18428850/",
+  "places": [
+   {
+    "artist": "Social Sudo",
+    "license": "Pexels License",
+    "page": "https://www.pexels.com/video/pondicherry-french-town-in-tamil-nadu-18428850/",
+    "place": "French Quarter",
+    "seconds": 15,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/puducherry_french_quarter.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/puducherry_french_quarter.mp4"
+   },
+   {
+    "artist": "Social Sudo",
+    "license": "Pexels License",
+    "page": "https://www.pexels.com/video/people-enjoying-the-evening-in-a-pondicherry-beach-18462367/",
+    "place": "Rock Beach",
+    "seconds": 22,
+    "sources": [
+     {
+      "src": "https://saiqulmodi.github.io/DominoGame/videos/puducherry_rock_beach.mp4",
+      "type": "video/mp4"
+     }
+    ],
+    "title": "videos/puducherry_rock_beach.mp4"
+   }
+  ],
+  "seconds": 15,
+  "sources": [
+   {
+    "src": "https://saiqulmodi.github.io/DominoGame/videos/puducherry_french_quarter.mp4",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "videos/puducherry_french_quarter.mp4"
  },
  "Vegetables/Brinjal": {
   "artist": "Shaai Sattar",

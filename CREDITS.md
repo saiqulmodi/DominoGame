@@ -9,7 +9,9 @@
   list with links is in `videos.json`. The famous places of Indian states and union
   territories (`tools/place_videos.py`) include Incredible India tourism films (CC BY 3.0). Delhi's National War Memorial and
   Qutub Minar are Pexels clips by Vikash Yadav and Abhishek Shekhawat (Pexels License) and
-  the Lotus Temple is a Pixabay clip by Aradhyagad (Pixabay Content License); small copies
+  the Lotus Temple is a Pixabay clip by Aradhyagad (Pixabay Content License); the Asiatic
+  lion is a Pixabay clip by sjahanmi and Puducherry's French Quarter and Rock Beach are
+  Pexels clips by Social Sudo; small copies
   are served from the game's site, `docs/videos/`.
 - **Maps and rivers:** Natural Earth (https://www.naturalearthdata.com). Public domain.
   Country borders use Natural Earth's India point-of-view edition.

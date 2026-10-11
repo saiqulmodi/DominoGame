@@ -5,11 +5,11 @@ Every file below was picked by a person on 2026-10-11 from Wikimedia Commons
 searches (tourism films, travellers' clips, festivals), checking its name,
 description, length and licence. Left out: visits by politicians, interviews,
 clips filmed outside India and anything not suitable for small children.
-Places with no suitable free video yet (for example Gir lions, Lakshadweep,
-Puducherry) are simply not listed.
+Places with no suitable free video yet (for example Lakshadweep) are simply
+not listed.
 
-Commons had no video of Lotus Temple, Qutub Minar or the National War Memorial,
-so those three are free Pexels / Pixabay clips, checked frame by frame, made
+Commons had no video of Lotus Temple, Qutub Minar, the National War Memorial,
+an Asiatic lion in India or Puducherry, so those are free Pexels / Pixabay clips, checked frame by frame, made
 small with ffmpeg and served from the game's own site (docs/videos/, see HOSTED).
 
 game key -> [(place name shown and said to children, Commons file)]
@@ -45,6 +45,7 @@ PLACES = {
     "States/Gujarat": [
         ("Statue of Unity",
          'File:"STATUE OF UNITY"- Kevadia (Gujarat) becomes a "Land of Billion Lights" at night..webm'),
+        ("Asiatic lion", "videos/asiatic_lion.mp4"),
         ("Rann of Kutch", "File:Kutch in its Traditional form.webm"),
         ("Ahmedabad", "File:Ahmedabad - India's First World Heritage City.webm"),
         ("Sabarmati Ashram", "File:The Land Of Gandhi - Incredible India.webm"),
@@ -161,6 +162,10 @@ PLACES = {
         ("Havelock mangroves", "File:Ride into Mangrove Forest, Havelock Island vrvbaan042k24.webm"),
         ("Baratang Island", "File:Baratang - Andaman 2009-04-17 4170044.ogv"),
     ],
+    "UTs/Puducherry": [
+        ("French Quarter", "videos/puducherry_french_quarter.mp4"),
+        ("Rock Beach", "videos/puducherry_rock_beach.mp4"),
+    ],
     "UTs/Daman & Diu": [
         ("Diu island", "File:Diu Island - Isle of Calm -IncredibleIndia.webm"),
     ],
@@ -201,4 +206,15 @@ HOSTED = {
     "videos/lotus_temple.mp4": {
         "artist": "Aradhyagad", "license": "Pixabay Content License", "seconds": 8,
         "page": "https://pixabay.com/videos/lotus-temple-delhi-india-temple-370418/"},
+    # location not stated by the maker; a wild-looking Asiatic lion tagged India
+    # (wild Asiatic lions live only in and around Gir)
+    "videos/asiatic_lion.mp4": {
+        "artist": "sjahanmi", "license": "Pixabay Content License", "seconds": 20,
+        "page": "https://pixabay.com/videos/asiatic-lion-india-lion-mammal-50530/"},
+    "videos/puducherry_french_quarter.mp4": {
+        "artist": "Social Sudo", "license": "Pexels License", "seconds": 15,
+        "page": "https://www.pexels.com/video/pondicherry-french-town-in-tamil-nadu-18428850/"},
+    "videos/puducherry_rock_beach.mp4": {
+        "artist": "Social Sudo", "license": "Pexels License", "seconds": 22,
+        "page": "https://www.pexels.com/video/people-enjoying-the-evening-in-a-pondicherry-beach-18462367/"},
 }

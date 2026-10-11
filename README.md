@@ -56,17 +56,18 @@ The picture to trace fills the screen. A slim top row has the **☰ menu** butto
 (right). The menu shows every subject, category and picture plus Reset, Games,
 Stickers and Theme; picking a picture (or Play) goes straight back to the game.
 - **Watch the real one** - pictures with a red ▶ badge have a short real-life
-  video (190 pictures: animals, birds, sea life, plants, food, vehicles, bridges,
+  video (191 pictures: animals, birds, sea life, plants, food, vehicles, bridges,
   sky, states, cities, rivers, monuments, instruments, sports). Tap the red play
   button next to the speaker, or the big "Watch the real ..." button after
   finishing; "Back to play" returns to the game to trace it again. Every video is a free Wikimedia
   Commons clip checked by a person (`tools/find_videos.py`): no adverts and no
   "watch next" list
-- **Famous places of India** - 31 states and union territories have a playlist of
-  their famous places (102 clips, `tools/place_videos.py`), for example Delhi: India
+- **Famous places of India** - 32 states and union territories have a playlist of
+  their famous places (105 clips, `tools/place_videos.py`), for example Delhi: India
   Gate, National War Memorial, Red Fort, Qutub Minar, Lotus Temple, Humayun's Tomb,
   Rashtrapati Bhavan; Kerala: backwaters,
-  houseboats, Munnar tea hills, Kathakali, snake boat race; Ladakh: Pangong Lake,
+  houseboats, Munnar tea hills, Kathakali, snake boat race; Gujarat: Statue of Unity, an Asiatic lion, Rann of Kutch; Puducherry: the French
+  Quarter and Rock Beach; Ladakh: Pangong Lake,
   Hemis Monastery, a snow leopard. One button per place; each place's name is said
   as it starts and the next place follows by itself
 
