@@ -69,6 +69,51 @@ ARTICLE = {
     "Rivers/Indus": "Indus River", "Rivers/Amazon": "Amazon River", "Rivers/Thames": "River Thames",
     "Rivers/Mississippi": "Mississippi River",
     "Sports/Football": "Association football", "Sports/Hockey": "Field hockey",
+    "Monuments/War Memorial": "National War Memorial (India)", "Monuments/Qutub Minar": "Qutb Minar",
+    "Monuments/Mysuru Palace": "Mysore Palace", "Monuments/Konark Wheel": "Konark Sun Temple",
+    "Monuments/Sanchi Stupa": "Sanchi", "Cities/Delhi": "India Gate", "Cities/Kolkata": "Howrah Bridge",
+    "Cities/Bengaluru": "Vidhana Soudha", "Cities/Paris": "Eiffel Tower",
+    "Cities/Mumbai": "Gateway of India", "Cities/Hyderabad": "Charminar",
+}
+
+# A file a person picked by hand from the candidates list (see --candidates);
+# used instead of the automatic first pick (chosen 2026-10-11)
+PINNED = {
+    "Animals/Cat": "File:Cat meowing into camera.webm",
+    "Animals/Elephant": "File:Elephant eating Yala Sri Lanka.ogv",
+    "Animals/Giraffe": "File:Juvenile Giraffe - walking - Malawi - 2018 Aug.webm",
+    "Birds/Swan": "File:Mute swans and Canada geese.webm",
+    "Birds/Flamingo": "File:Phoenicopterus roseus feeding.ogv",
+    "Sea/Fish": "File:Madeira Garajau.webm",
+    "Sea/Whale": "File:Humpbackwhale singing.webm",
+    "Sea/Octopus": "File:Octopus.ogv",
+    "Reptiles/Turtle": "File:Trachemys scripta elegans in koi pond at Hakone Gardens.webm",
+    "Insects/Bee": "File:Honeybee.ogv",
+    "Plants/Tree": "File:Centre Frame of a Faculty of Geography Tree, One.webm",
+    "Fruits/Apple": "File:Apple harvest in South Tyrol 2015 video.webm",
+    "Fruits/Watermelon": "File:Water melon.webm",
+    "Fruits/Pineapple": "File:Preparing pineapple - 01.ogv",
+    "Food/Milk": "File:Milk crown HighSpeedPhoto.webm",
+    "Food/Water": "File:Eau de ruissellement.mpg",
+    "Food/Honey": "File:Kodersdorf - Schusterweg - Bienen (mT) 01 ies.ogv",
+    "Food/Rice": "File:Garnish fried rice.webm",
+    "Sky/Rainbow": "File:Niagara waterfalls with rainbow 2015.webm",
+    "Sky/Comet": "File:Comet C2014 Q2 Lovejoy captured by the AAE from Ibiza (2015-1-8 -- 2015-1-25).ogv",
+    "Rivers/Ganga": "File:Ganges River in Varanasi by boat.webm",
+    "Rivers/Brahmaputra": "File:River flowing.webm",
+    "Cities/Delhi": "File:ICC World Cup 2011 - cheering at India gate.ogv",
+    "Cities/Kolkata": "File:Howrah Bridge Night View (Silent Video) Full HD 1080p HIGH FR60.webm",
+    "Cities/Paris": "File:Eiffel Tower Drone 4k-Qx c1X3zfEc-313-251.webm",
+    "Travel/Aeroplane": "File:Airplane landing Innsbruck 143134.webm",
+    "Home/Clock": "File:Glockenturm Villa Haas mit Stunden und Viertelstunden Schlag.webm",
+    "Home/Umbrella": "File:Maeklong Station - Folding Umbrella Market - Thailand.webm",
+    "Sports/Kite": "File:Kite flying in Seaside.webm",
+    "Music/Trumpet": "File:Trompete in B (Périnetventile) Kurzdemonstration.webm",
+    "Monuments/Red Fort": "File:Diwan-I-Am.ogv",
+    "Monuments/Golden Temple": "File:Film footage of the Golden Temple in Amritsar, by Roger Dumas, circa November–December 1927.webm",
+    "Monuments/Hawa Mahal": "File:Top view of Hawa Mahal Jaipur.webm",
+    "Monuments/Meenakshi Temple": "File:Madurai Meenakshi Temple.webm",
+    "Monuments/Sanchi Stupa": "File:Buddhist Monuments - Sanchi Hill 2013-02-21 4421.ogv",
 }
 
 # Never show a video whose name, description or categories have these words
@@ -125,6 +170,7 @@ APPROVED = {
     "Music/Maracas",
     "Sports/Cricket", "Sports/Football", "Sports/Hockey", "Sports/Tennis", "Sports/Chess",
 }
+APPROVED |= set(PINNED)                  # hand-picked files are approved too
 # The exact file approved for each item above (a changed search result needs a
 # fresh check before it ships)
 APPROVED_FILES = "videos_approved.json"
@@ -276,7 +322,38 @@ def suitable(v):
   return (MIN_SECONDS <= v["seconds"] <= MAX_SECONDS and v["sources"] and v["license"])
 
 
+def title_videos(words):
+  """Video files whose title has all the words (a last resort search)."""
+  d = api(COMMONS, {"action": "query", "list": "search", "srnamespace": 6, "srlimit": 25,
+                    "srsearch": "filetype:video " + " ".join(f"intitle:{w}" for w in words.split())})
+  return [hit["title"] for hit in d.get("query", {}).get("search", [])]
+
+
+def candidates(keys, per_item=8):
+  """Prints the suitable videos for each picture so a person can choose."""
+  pairs = [tuple(k.split("/", 1)) for k in keys]
+  article = {k: ARTICLE.get(k, k.split("/", 1)[1]) for k in keys}
+  ids = wikidata_ids(article.values())
+  media = wikidata_media(v for v in ids.values())
+  for key in keys:
+    chosen, category = media.get(ids.get(article[key]), ([], None))
+    files = list(chosen)
+    if category:
+      files += [f for f in category_videos(category) if f not in files]
+    files += [f for f in title_videos(article[key].lower()) if f not in files]
+    infos = video_info(files[:45]) if files else {}
+    good = [infos[f] for f in files if suitable(infos.get(f))][:per_item]
+    print(f"\n### {key}  (article: {article[key]}, category: {category})")
+    for v in good:
+      print(f"  {v['title']}\n      {v['seconds']:.0f}s {v['license']} | {v['desc'][:150]}")
+    if not good:
+      print("  (nothing suitable)")
+
+
 def main():
+  if len(sys.argv) > 2 and sys.argv[1] == "--candidates":
+    candidates(sys.argv[2:])
+    return
   items = [(cat, e[0]) for cat, entries in hub.CATALOG.items() if cat not in SKIP
            for e in entries]
   article = {(c, n): ARTICLE.get(hub.item_key(c, n), n) for c, n in items}
@@ -292,6 +369,8 @@ def main():
     files = list(chosen)
     if category:
       files += [f for f in category_videos(category) if f not in files]
+    if key in PINNED:                    # picked by a person: that file only
+      files = [PINNED[key]]
     infos = video_info(files[:30]) if files else {}
     pick = next((infos[f] for f in files if suitable(infos.get(f))), None)
     if pick:
@@ -312,7 +391,9 @@ def main():
   except (OSError, ValueError):
     approved_files = {}
   for key in APPROVED:
-    if key in found and key not in approved_files:
+    if key in PINNED:
+      approved_files[key] = PINNED[key]               # the file a person chose
+    elif key in found and key not in approved_files:
       approved_files[key] = found[key]["title"]      # first approval: record the file
   with open(approved_path, "w", encoding="utf-8") as fh:
     json.dump(approved_files, fh, ensure_ascii=False, indent=1, sort_keys=True)

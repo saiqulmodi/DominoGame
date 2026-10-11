@@ -71,8 +71,12 @@ for rel in ENGINE:
   else:
     shutil.copyfile(src, dst)
 
-for name in (f"{APP}.tar.gz", f"{APP}.apk", "favicon.png"):
+# The page loads the .tar.gz everywhere except itch.io (which gets the .apk),
+# so the box leaves the .apk out to stay under the 20 MB limit
+for name in (f"{APP}.tar.gz", "favicon.png"):
   shutil.copyfile(os.path.join(DOCS, name), os.path.join(BOX, name))
+if os.path.exists(os.path.join(BOX, f"{APP}.apk")):
+  os.remove(os.path.join(BOX, f"{APP}.apk"))
 
 html = open(os.path.join(DOCS, "index.html"), encoding="utf-8").read()
 html = html.replace('<script src="https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js"></script>', "")

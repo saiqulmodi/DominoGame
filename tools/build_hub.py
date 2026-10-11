@@ -409,6 +409,110 @@ def render_map(frame, fills, lines=(), size=PIC_MAX * 2):
   return img
 
 
+def official_kashmir(india, states):
+  """Jammu & Kashmir and Ladakh as on India's official map.
+
+  Natural Earth's state shapes stop at the Line of Control. India's official
+  map (Natural Earth India view, used for the country) also includes PoK,
+  which belongs to Jammu & Kashmir, and Gilgit-Baltistan and Aksai Chin,
+  which belong to Ladakh. Done on a 0.01 degree grid, then traced back."""
+  lon0, lat0, res = 72.0, 37.6, 0.01
+  w, h = int((81.0 - lon0) / res), int((lat0 - 32.0) / res)
+
+  def fill(features):
+    img = Image.new("L", (w, h), 0)
+    d = ImageDraw.Draw(img)
+    for f in features:
+      for poly in polygons_of(f["geometry"]):
+        d.polygon([((lon - lon0) / res, (lat0 - lat) / res) for lon, lat in poly[0]], fill=255)
+    return np.array(img) > 0
+
+  jk = next(f for f in states if f["properties"]["name"] == "Jammu and Kashmir")
+  la = next(f for f in states if f["properties"]["name"] == "Ladakh")
+  extra = fill([india]) & ~fill([f for f in states if f not in (jk, la)])
+  extra &= ~fill([jk]) & ~fill([la])
+  yy, xx = np.mgrid[0:h, 0:w]
+  pok = (lon0 + xx * res < 75.6) & (lat0 - yy * res < 35.05)
+
+  def feature(mask, props):
+    m = cv2.morphologyEx(mask.astype(np.uint8) * 255, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+    contours, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    big = max(contours, key=cv2.contourArea).reshape(-1, 2)
+    ring = [(round(lon0 + x * res, 4), round(lat0 - y * res, 4)) for x, y in big]
+    return {"type": "Feature", "properties": props,
+            "geometry": {"type": "Polygon", "coordinates": [ring]}}
+
+  return (feature(fill([jk]) | (extra & pok), jk["properties"]),
+          feature(fill([la]) | (extra & ~pok), la["properties"]))
+
+
+def group_rings(feature, proj):
+  """The main land of a state plus its nearby islands (Andaman, Lakshadweep,
+  Daman next to Dadra), biggest first; far-away bits are left out."""
+  rings = sorted((proj(poly[0]) for poly in polygons_of(feature["geometry"])),
+                 key=area, reverse=True)
+  main = rings[0]
+  x0, y0, x1, y1 = bbox([main])
+  cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+  reach = max(3 * max(x1 - x0, y1 - y0), 1.2)
+  keep = [main]
+  for r in rings[1:]:
+    rx0, ry0, rx1, ry1 = bbox([r])
+    if (area(r) >= area(main) * 0.03
+        and math.hypot((rx0 + rx1) / 2 - cx, (ry0 + ry1) / 2 - cy) <= reach):
+      keep.append(r)
+  return keep
+
+
+# Island territories whose islands are too tiny to trace at true size: the
+# islands are taken from India's official outline (lon0, lon1, lat0, lat1)
+# and drawn a little bigger, at their real places.
+ISLAND_GROUPS = {"Lakshadweep": (71.0, 74.5, 7.8, 12.6)}
+
+
+def island_group(india, proj, window, grow=0.025):
+  lon0, lon1, lat0, lat1 = window
+  rings = []
+  for poly in polygons_of(india["geometry"]):
+    r = poly[0]
+    lon = sum(p[0] for p in r) / len(r)
+    lat = sum(p[1] for p in r) / len(r)
+    if lon0 <= lon <= lon1 and lat0 <= lat <= lat1:
+      rings.append(proj(r))
+  frame = Frame(*expand(bbox(rings), 0.08))
+  img = Image.new("L", (int(frame.w) + 2, int(frame.h) + 2), 0)
+  d = ImageDraw.Draw(img)
+  for r in rings:
+    d.polygon(frame(r), fill=255)
+  size = int(NORM * grow) * 2 + 1
+  mask = cv2.dilate(np.array(img), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (size, size)))
+  contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+  out = [[(x / frame.s + frame.x0, y / frame.s + frame.y0) for x, y in c.reshape(-1, 2)]
+         for c in contours]
+  return sorted(out, key=area, reverse=True)
+
+
+def label_point(rings, frame, k=0.5):
+  """Point deepest inside a shape (where its name fits best), frame units."""
+  size = (int(frame.w * k) + 2, int(frame.h * k) + 2)
+  img = Image.new("L", size, 0)
+  d = ImageDraw.Draw(img)
+  for r in rings:
+    d.polygon([(x * k, y * k) for x, y in frame(r)], fill=255)
+  dist = cv2.distanceTransform(np.array(img), cv2.DIST_L2, 3)
+  y, x = np.unravel_index(int(np.argmax(dist)), dist.shape)
+  return round(x / k, 1), round(y / k, 1), float(dist.max()) / k
+
+
+# Monument colours (the rest of the landmarks are sandstone)
+LANDMARK_FILL = {
+    "Monuments/War Memorial": (205, 205, 195), "Monuments/Red Fort": (205, 90, 70),
+    "Monuments/Lotus Temple": (240, 240, 245), "Monuments/Golden Temple": (240, 190, 60),
+    "Monuments/Hawa Mahal": (235, 140, 120), "Monuments/Qutub Minar": (190, 100, 70),
+    "Monuments/Konark Wheel": (180, 130, 90), "Monuments/Sanchi Stupa": (215, 180, 140),
+}
+
+
 def flag_thumb(iso2, slug):
   code = "-".join(f"{0x1F1E6 + ord(ch) - 65:X}" for ch in iso2.upper())
   img = Image.open(emoji_png(code)).convert("RGBA")
@@ -459,6 +563,9 @@ def main():
     return (min(lats) + max(lats)) / 2
 
   india = country("India")
+  jk, la = official_kashmir(india, states)
+  states = [jk if f["properties"]["name"] == "Jammu and Kashmir" else
+            la if f["properties"]["name"] == "Ladakh" else f for f in states]
   result, failed = {}, []
   for ci, (cat, items) in enumerate(hub.CATALOG.items()):
     for ii, (name, _desc, (kind, arg)) in enumerate(items):
@@ -505,7 +612,7 @@ def main():
             min_frac = 0.04
           else:
             mask = landmark_mask(arg)
-            fill = (226, 120, 80) if cat == "Bridges" else (236, 196, 140)
+            fill = LANDMARK_FILL.get(key, (226, 120, 80) if cat == "Bridges" else (236, 196, 140))
             pic = colour_silhouette(mask, fill, (90, 60, 40))
             min_frac = 0.01
           loops, frame, pic_frame = outline_from_mask(mask, min_frac)
@@ -513,13 +620,89 @@ def main():
                        pic=save_pic(pic, slug), pic_frame=pic_frame)
           entry["thumb"] = save_pic(pic.crop(pic.getbbox()), slug, "thumb", THUMB)
 
-        elif kind in ("country", "state"):
+        elif kind == "state":
+          # The state (with its nearby islands), its capital and famous places
+          feat = next(f for f in states if f["properties"]["name"] == arg)
+          others = [f for f in states if f is not feat]
+          proj = Projection(lat_centre([poly[0] for poly in polygons_of(feat["geometry"])]))
+          if arg in ISLAND_GROUPS:
+            rings = island_group(india, proj, ISLAND_GROUPS[arg])
+          else:
+            rings = group_rings(feat, proj)
+          frame = Frame(*bbox(rings))
+          loops = [lp for lp in (simplify(frame(r), 2.0, True) for r in rings) if len(lp) >= 3]
+          ctx = []
+          vbox = (-NORM * 0.4, -NORM * 0.4, frame.w + NORM * 0.4, frame.h + NORM * 0.4)
+          for ring in neighbours(expand(bbox(rings), 0.35), proj, skip=feat, extra=others):
+            for run in clip_runs(frame(ring), vbox):
+              s = simplify(run, 3.0, False)
+              if len(s) >= 2:
+                ctx.append(s)
+          pic = render_map(frame, [(rings, (250, 170, 70, 255), (150, 80, 20, 255))])
+          places = []
+          cap, cap_at, spots = hub.INDIA_PLACES.get(arg, (None, None, []))
+          marks = ([(cap, cap_at, "capital")] if cap else []) + [
+              (n, (lat, lon), "place") for n, lat, lon in spots]
+          for label, (lat, lon), what in marks:
+            x, y = frame(proj([(lon, lat)]))[0]
+            if -0.03 * frame.w <= x <= 1.03 * frame.w and -0.03 * frame.h <= y <= 1.03 * frame.h:
+              places.append([label, round(x, 1), round(y, 1), what])
+          entry.update(loops=loops, w=round(frame.w, 1), h=round(frame.h, 1), context=ctx,
+                       pic=save_pic(pic, slug), places=places,
+                       pic_frame=[0, 0, round(frame.w, 1), round(frame.h, 1)])
+          ip = Projection(22)
+          iring, _ = biggest_ring(india, ip)
+          ifr = Frame(*bbox([iring]))
+          own = (island_group(india, ip, ISLAND_GROUPS[arg]) if arg in ISLAND_GROUPS
+                 else group_rings(feat, ip))
+          th = render_map(ifr, [
+              ([iring], (200, 230, 200, 255), (60, 110, 60, 255)),
+              (own, (250, 140, 40, 255), (150, 70, 10, 255)),
+          ], size=THUMB * 2)
+          if sum(area(r) for r in own) < area(iring) * 0.004:
+            # too small to see on India: a red ring shows where it is
+            k = THUMB * 2 / max(ifr.w, ifr.h)
+            x0, y0, x1, y1 = bbox([ifr(r) for r in own])
+            cx, cy, rad = (x0 + x1) / 2 * k, (y0 + y1) / 2 * k, THUMB * 0.13
+            ImageDraw.Draw(th).ellipse((cx - rad, cy - rad, cx + rad, cy + rad),
+                                       outline=(220, 30, 40, 255), width=5)
+          entry["thumb"] = save_pic(th, slug, "thumb", THUMB)
+
+        elif kind == "india_map":
+          # Trace India; then every state appears in its own colour with its name
+          proj = Projection(22)
+          main_ring, islands = biggest_ring(india, proj)
+          frame = Frame(*bbox([main_ring]))
+          loops = [simplify(frame(main_ring), 2.5, True)]
+          fills, ctx, places = [], [], []
+          ordered = sorted(states, key=lambda f: f["properties"]["name"])
+          names = {ne: n for n, ne, *_r in hub.INDIA_STATES + hub.INDIA_UTS}
+          for i, f in enumerate(ordered):
+            rings = [proj(poly[0]) for poly in polygons_of(f["geometry"])]
+            r, g, b = hsv(i * 7 % len(ordered), len(ordered), s=0.45, v=0.97)
+            fills.append((rings, (r, g, b, 255), (70, 70, 90, 255)))
+            for ring in rings:
+              if area(ring) > area(main_ring) * 0.0004:
+                s = simplify(frame(ring), 2.5, True)
+                if len(s) >= 3:
+                  ctx.append(s + s[:1])
+            main = max(rings, key=area)
+            x, y, room = label_point([main], frame)
+            places.append([names.get(f["properties"]["name"], f["properties"]["name"]),
+                           x, y, "state", round(room, 1)])
+          x, y = frame(proj([(77.2090, 28.6139)]))[0]
+          places.append(["New Delhi", round(x, 1), round(y, 1), "capital"])
+          pic = render_map(frame, [([main_ring] + islands, (235, 235, 225, 255),
+                                    (60, 60, 80, 255))] + fills)
+          entry.update(loops=loops, w=round(frame.w, 1), h=round(frame.h, 1), context=ctx,
+                       pic=save_pic(pic, slug, size=640), places=places,
+                       pic_frame=[0, 0, round(frame.w, 1), round(frame.h, 1)])
+          entry["thumb"] = save_pic(pic, slug, "thumb", THUMB)
+
+        elif kind == "country":
           if kind == "country":
             feat = country(arg)
             others = []
-          else:
-            feat = next(f for f in states if f["properties"]["name"] == arg)
-            others = [f for f in states if f is not feat]
           proj = Projection(lat_centre([poly[0] for poly in polygons_of(feat["geometry"])]))
           main_ring, islands = biggest_ring(feat, proj)
           frame = Frame(*bbox([main_ring]))

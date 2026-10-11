@@ -77,6 +77,76 @@ BURJ_KHALIFA = [
     (60, 68), (60, 82), (63, 84), (63, 100), (50, 100),
 ]
 
+# Monuments of India (right half, mirrored like the landmarks above)
+WAR_MEMORIAL = [                     # National War Memorial: the eternal-flame pillar
+    (50, 0), (51.6, 5), (52.6, 12), (54, 70), (60, 70), (60, 78), (72, 78),
+    (72, 86), (86, 86), (86, 93), (100, 93), (100, 100), (50, 100),
+]
+QUTUB_MINAR = [
+    (50, 0), (53, 3), (53, 8), (56, 8), (56, 11), (54.5, 11), (55.5, 24), (58.5, 24),
+    (58.5, 27), (56.5, 27), (58, 42), (61, 42), (61, 45), (59, 45), (60.5, 60),
+    (63.5, 60), (63.5, 63), (61.5, 63), (63, 78), (66, 78), (66, 81), (64, 81),
+    (65.5, 94), (72, 94), (72, 100), (50, 100),
+]
+RED_FORT = [                         # Lahori Gate: gateway between two towers
+    (50, 22), (52, 24), (53, 28), (56, 28), (56, 34), (64, 34), (64, 26), (66, 22),
+    (66, 18), (68, 13), (70, 10), (72, 13), (74, 18), (74, 22), (76, 26), (76, 50),
+    (84, 50), (84, 46), (87, 46), (87, 50), (92, 50), (92, 46), (95, 46), (95, 50),
+    (100, 50), (100, 100), (60, 100), (60, 72), (58.7, 65), (55, 60.5), (50, 59),
+]
+LOTUS_TEMPLE = [
+    (50, 6), (53, 12), (56, 22), (59, 31), (63, 21), (66, 12), (68, 22), (70, 35),
+    (76, 30), (83, 26), (84, 38), (84.5, 50), (91, 48), (99, 52), (95, 60), (91, 66),
+    (96, 66), (96, 74), (100, 74), (100, 86), (50, 86),
+]
+GOLDEN_TEMPLE = [
+    (50, 4), (51, 8), (53, 10), (57, 14), (60, 20), (61, 26), (59, 30), (60, 32),
+    (63, 32), (63, 35), (72, 35), (72, 28), (74, 24), (75, 20), (76, 24), (78, 28),
+    (78, 35), (84, 35), (84, 39), (80, 39), (80, 58), (86, 58), (86, 62), (82, 62),
+    (82, 90), (100, 90), (100, 100), (50, 100),
+]
+HAWA_MAHAL = [                       # Jaipur's palace of winds: stepped front
+    (50, 2), (52, 0), (54, 2), (54, 10), (57, 10), (58, 8), (60, 10), (60, 22),
+    (63, 22), (64, 20), (66, 22), (66, 36), (70, 36), (71, 34), (73, 36), (73, 52),
+    (78, 52), (79, 50), (81, 52), (81, 66), (86, 66), (87, 64), (89, 66), (89, 100),
+    (50, 100),
+]
+MYSURU_PALACE = [
+    (50, 0), (51, 4), (54, 8), (57, 14), (58, 20), (56, 24), (58, 26), (58, 40),
+    (62, 40), (62, 46), (68, 46), (68, 36), (69, 32), (71, 28), (73, 32), (74, 36),
+    (74, 46), (84, 46), (84, 40), (86, 36), (88, 40), (88, 46), (96, 46), (96, 54),
+    (100, 54), (100, 100), (50, 100),
+]
+MEENAKSHI_GOPURAM = [                # tall temple gateway tower of Madurai
+    (50, 2), (52, 2), (52, 6), (58, 6), (60, 2), (62, 6), (62, 12), (60.5, 12),
+    (62, 24), (64, 24), (65, 36), (67, 36), (68, 48), (70, 48), (71, 60), (73, 60),
+    (74, 72), (76, 72), (77, 84), (80, 84), (80, 100), (50, 100),
+]
+SANCHI_STUPA = (
+    [(50, 0), (57, 0), (57, 3), (51.5, 3), (51.5, 8), (56, 8), (56, 18)]
+    + [(50 + 38 * math.cos(math.radians(a)), 58 - 38 * math.sin(math.radians(a)))
+       for a in range(80, -1, -10)]
+    + [(92, 58), (92, 74), (96, 74), (96, 100), (50, 100)],
+    [],
+)
+GOL_GUMBAZ = (
+    [(50, 8), (51, 14)]
+    + [(50 + 30 * math.cos(math.radians(a)), 46 - 30 * math.sin(math.radians(a)))
+       for a in range(86, -1, -8)]
+    + [(84, 46), (84, 30), (86, 26), (88, 22), (90, 26), (92, 30), (92, 100), (50, 100)],
+    [],
+)
+KONARK_WHEEL = (                     # wheel of the Sun Temple chariot, 8 spokes
+    [(50 + 48 * math.sin(math.radians(a)), 50 - 48 * math.cos(math.radians(a)))
+     for a in range(0, 181, 10)],
+    [
+        [(50 + r * math.sin(math.radians(a0 + t * (a1 - a0) / 6)),
+          50 - r * math.cos(math.radians(a0 + t * (a1 - a0) / 6)))
+         for r, ts in ((38, range(7)), (12, range(6, -1, -1))) for t in ts]
+        for a0, a1 in [(k * 45 + 7, k * 45 + 38) for k in range(8)]
+    ],
+)
+
 # Bridges: (right half, optional hole loops in full 0..100 coordinates)
 ARCH_BRIDGE = [
     (50, 40), (100, 40), (100, 100), (92, 100), (90.6, 89.1), (86.4, 79),
@@ -119,6 +189,132 @@ NUMBER_WORDS = [
     "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight",
     "Nine", "Ten",
 ]
+
+# India, state by state: (name in the game, Natural Earth name, capital,
+# capital (lat, lon), famous places shown on the map [(name, lat, lon)],
+# what it is famous for). The maps follow India's official boundaries.
+INDIA_STATES = [
+    ("Andhra Pradesh", "Andhra Pradesh", "Amaravati", (16.51, 80.52),
+     [("Tirupati", 13.63, 79.42), ("Visakhapatnam", 17.69, 83.22)],
+     "Tirupati temple and the Araku valley."),
+    ("Arunachal Pradesh", "Arunachal Pradesh", "Itanagar", (27.08, 93.61),
+     [("Tawang Monastery", 27.59, 91.86)], "India's first sunrise and Tawang Monastery."),
+    ("Assam", "Assam", "Dispur", (26.14, 91.79),
+     [("Kaziranga", 26.58, 93.17), ("Majuli Island", 26.95, 94.17)],
+     "Kaziranga's one-horned rhinos and tea gardens."),
+    ("Bihar", "Bihar", "Patna", (25.59, 85.14),
+     [("Bodh Gaya", 24.70, 84.99), ("Nalanda", 25.14, 85.44)],
+     "Bodh Gaya and the old Nalanda University."),
+    ("Chhattisgarh", "Chhattisgarh", "Raipur", (21.25, 81.63),
+     [("Chitrakote Falls", 19.21, 81.70)], "Chitrakote Falls and green forests."),
+    ("Goa", "Goa", "Panaji", (15.49, 73.83),
+     [("Old Goa churches", 15.50, 73.95), ("Palolem Beach", 15.01, 74.02)],
+     "Sunny beaches and old churches."),
+    ("Gujarat", "Gujarat", "Gandhinagar", (23.22, 72.65),
+     [("Statue of Unity", 21.84, 73.72), ("Gir lions", 21.12, 70.82),
+      ("Rann of Kutch", 23.85, 69.80)],
+     "Statue of Unity, Gir lions and the white Rann."),
+    ("Haryana", "Haryana", "Chandigarh", (30.73, 76.78),
+     [("Kurukshetra", 29.97, 76.85), ("Gurugram", 28.46, 77.03)],
+     "Kurukshetra and fields of wheat."),
+    ("Himachal Pradesh", "Himachal Pradesh", "Shimla", (31.10, 77.17),
+     [("Manali", 32.24, 77.19), ("Dharamshala", 32.22, 76.32)],
+     "Snowy mountains and apple orchards."),
+    ("Jharkhand", "Jharkhand", "Ranchi", (23.34, 85.31),
+     [("Hundru Falls", 23.45, 85.65), ("Jamshedpur", 22.80, 86.20)],
+     "Waterfalls, forests and the steel city Jamshedpur."),
+    ("Karnataka", "Karnataka", "Bengaluru", (12.97, 77.59),
+     [("Mysuru Palace", 12.31, 76.65), ("Hampi", 15.34, 76.46), ("Gol Gumbaz", 16.83, 75.74)],
+     "Mysuru Palace, Hampi, coffee and silk."),
+    ("Kerala", "Kerala", "Thiruvananthapuram", (8.52, 76.94),
+     [("Backwaters", 9.50, 76.34), ("Munnar tea hills", 10.09, 77.06)],
+     "Backwaters, houseboats and coconut trees."),
+    ("Madhya Pradesh", "Madhya Pradesh", "Bhopal", (23.26, 77.41),
+     [("Sanchi Stupa", 23.48, 77.74), ("Khajuraho", 24.85, 79.92), ("Kanha tigers", 22.33, 80.61)],
+     "The heart of India: Sanchi, Khajuraho and tigers."),
+    ("Maharashtra", "Maharashtra", "Mumbai", (19.08, 72.88),
+     [("Ajanta Caves", 20.55, 75.70), ("Ellora Caves", 20.03, 75.18), ("Pune", 18.52, 73.86)],
+     "Gateway of India, Ajanta and Ellora caves."),
+    ("Manipur", "Manipur", "Imphal", (24.82, 93.94),
+     [("Loktak Lake", 24.55, 93.80)], "Loktak Lake with floating islands."),
+    ("Meghalaya", "Meghalaya", "Shillong", (25.58, 91.89),
+     [("Cherrapunji", 25.27, 91.73)], "Home of clouds and living root bridges."),
+    ("Mizoram", "Mizoram", "Aizawl", (23.73, 92.72),
+     [("Vantawng Falls", 23.12, 92.75)], "Green hills and bamboo forests."),
+    ("Nagaland", "Nagaland", "Kohima", (25.67, 94.11),
+     [("Mokokchung", 26.32, 94.52)], "The colourful Hornbill Festival."),
+    ("Odisha", "Odisha", "Bhubaneswar", (20.30, 85.82),
+     [("Konark Sun Temple", 19.89, 86.09), ("Chilika Lake", 19.72, 85.32)],
+     "Konark Sun Temple and Puri Jagannath."),
+    ("Punjab", "Punjab", "Chandigarh", (30.73, 76.78),
+     [("Golden Temple", 31.62, 74.88), ("Ludhiana", 30.90, 75.85)],
+     "Golden Temple, land of five rivers."),
+    ("Rajasthan", "Rajasthan", "Jaipur", (26.91, 75.79),
+     [("Jaisalmer Fort", 26.91, 70.91), ("Udaipur lakes", 24.58, 73.71),
+      ("Ranthambore", 26.02, 76.50)],
+     "Hawa Mahal, forts, camels and the Thar desert."),
+    ("Sikkim", "Sikkim", "Gangtok", (27.33, 88.61),
+     [("Kanchenjunga", 27.70, 88.15)], "Kanchenjunga, India's highest mountain."),
+    ("Tamil Nadu", "Tamil Nadu", "Chennai", (13.08, 80.27),
+     [("Meenakshi Temple", 9.92, 78.12), ("Big Temple", 10.78, 79.13),
+      ("Kanyakumari", 8.08, 77.54)],
+     "Meenakshi Temple, Big Temple and Kanyakumari."),
+    ("Telangana", "Telangana", "Hyderabad", (17.39, 78.49),
+     [("Ramappa Temple", 18.26, 79.94)], "Charminar and the Ramappa Temple."),
+    ("Tripura", "Tripura", "Agartala", (23.83, 91.29),
+     [("Neermahal", 23.50, 91.31)], "Ujjayanta Palace and the Neermahal water palace."),
+    ("Uttar Pradesh", "Uttar Pradesh", "Lucknow", (26.85, 80.95),
+     [("Taj Mahal", 27.17, 78.04), ("Varanasi ghats", 25.31, 83.01), ("Prayagraj", 25.43, 81.88)],
+     "Taj Mahal, Varanasi ghats and the Ganga."),
+    ("Uttarakhand", "Uttarakhand", "Dehradun", (30.32, 78.03),
+     [("Kedarnath", 30.73, 79.07), ("Jim Corbett", 29.53, 78.77), ("Haridwar", 29.95, 78.16)],
+     "Himalayas, the Ganga's source and Corbett tigers."),
+    ("West Bengal", "West Bengal", "Kolkata", (22.57, 88.36),
+     [("Darjeeling", 27.04, 88.26), ("Sundarbans", 21.95, 88.90)],
+     "Howrah Bridge, Darjeeling tea and Sundarbans tigers."),
+]
+INDIA_UTS = [
+    ("Andaman & Nicobar", "Andaman and Nicobar", "Sri Vijaya Puram", (11.62, 92.73),
+     [("Radhanagar Beach", 11.98, 92.95)], "Islands with coral reefs and the Cellular Jail."),
+    ("Chandigarh", "Chandigarh", "Chandigarh", (30.73, 76.78),
+     [("Rock Garden", 30.755, 76.805), ("Sukhna Lake", 30.742, 76.818)],
+     "A planned city with the Rock Garden."),
+    ("Daman & Diu", "Dadra and Nagar Haveli and Daman and Diu", "Daman", (20.40, 72.83),
+     [("Silvassa", 20.27, 73.01), ("Diu", 20.71, 70.99)],
+     "Dadra and Nagar Haveli and Daman and Diu: beaches and forts."),
+    ("Delhi", "Delhi", "New Delhi", (28.6143, 77.1994),
+     [("War Memorial & India Gate", 28.6128, 77.2312), ("Red Fort", 28.6562, 77.2410),
+      ("Qutub Minar", 28.5245, 77.1855), ("Lotus Temple", 28.5535, 77.2588),
+      ("Akshardham", 28.6127, 77.2773)],
+     "Capital of India: War Memorial, India Gate, Red Fort, Qutub Minar."),
+    ("Jammu & Kashmir", "Jammu and Kashmir", "Srinagar", (34.08, 74.80),
+     [("Jammu", 32.73, 74.86), ("Gulmarg", 34.05, 74.38), ("Vaishno Devi", 33.03, 74.95)],
+     "Capitals: Srinagar (summer) and Jammu (winter). Dal Lake, saffron."),
+    ("Ladakh", "Ladakh", "Leh", (34.15, 77.58),
+     [("Kargil", 34.56, 76.13), ("Pangong Lake", 33.75, 78.66)],
+     "A cold desert with high passes and Pangong Lake."),
+    ("Lakshadweep", "Lakshadweep", "Kavaratti", (10.57, 72.64),
+     [("Agatti", 10.85, 72.19)], "36 coral islands in the Arabian Sea."),
+    ("Puducherry", "Puducherry", "Puducherry", (11.94, 79.81),
+     [("Auroville", 12.01, 79.81), ("Karaikal", 10.92, 79.84)],
+     "French-style streets, beaches and Auroville."),
+]
+# Short names for the India map when a full name does not fit inside a state
+INDIA_SHORT = {
+    "Uttar Pradesh": "UP", "Madhya Pradesh": "MP", "Andhra Pradesh": "AP", "Tamil Nadu": "TN",
+    "West Bengal": "WB", "Himachal Pradesh": "HP", "Arunachal Pradesh": "Arunachal",
+    "Jammu & Kashmir": "J&K", "Andaman & Nicobar": "A&N", "Chhattisgarh": "CG",
+    "Uttarakhand": "UK", "Maharashtra": "MH", "Karnataka": "KA", "Telangana": "TG",
+    "Jharkhand": "JH", "Rajasthan": "RJ", "Gujarat": "GJ", "Haryana": "HR", "Odisha": "OD",
+    "Meghalaya": "ML", "Nagaland": "NL", "Manipur": "MN", "Mizoram": "MZ", "Tripura": "TR",
+    "Kerala": "KL", "Punjab": "PB", "Bihar": "BR", "Assam": "AS", "Sikkim": "SK",
+    "Ladakh": "LA", "Delhi": "DL", "Goa": "Goa", "Puducherry": "PY", "Lakshadweep": "LD",
+    "Chandigarh": "CH", "Daman & Diu": "DD",
+}
+# game name -> capital, used for speech
+INDIA_CAPITALS = {n: cap for n, _ne, cap, *_rest in INDIA_STATES + INDIA_UTS}
+# Natural Earth name -> (capital, (lat, lon), places) for the map builder
+INDIA_PLACES = {ne: (cap, at, places) for _n, ne, cap, at, places, _f in INDIA_STATES + INDIA_UTS}
 
 # Hindi varnamala: (letter, word, letter in English letters, word in English
 # letters, meaning). Letters with no common word just say themselves.
@@ -451,17 +647,32 @@ CATALOG = {
         ("Brazil", "Home of the Amazon forest. Capital: Brasilia.", ("country", "Brazil")),
         ("Egypt", "Land of the pyramids. Capital: Cairo.", ("country", "Egypt")),
     ],
-    "States": [
-        ("Karnataka", "Karnataka - capital Bengaluru.", ("state", "Karnataka")),
-        ("Kerala", "Kerala - capital Thiruvananthapuram.", ("state", "Kerala")),
-        ("Tamil Nadu", "Tamil Nadu - capital Chennai.", ("state", "Tamil Nadu")),
-        ("Maharashtra", "Maharashtra - capital Mumbai.", ("state", "Maharashtra")),
-        ("Gujarat", "Gujarat - capital Gandhinagar.", ("state", "Gujarat")),
-        ("Rajasthan", "Rajasthan - the biggest state. Capital Jaipur.", ("state", "Rajasthan")),
-        ("Uttar Pradesh", "Uttar Pradesh - capital Lucknow.", ("state", "Uttar Pradesh")),
-        ("West Bengal", "West Bengal - capital Kolkata.", ("state", "West Bengal")),
-        ("Telangana", "Telangana - capital Hyderabad.", ("state", "Telangana")),
-        ("Punjab", "Punjab - land of five rivers.", ("state", "Punjab")),
+    # India: the whole map, all 28 states, 8 union territories, monuments
+    "India Map": [
+        ("India Map", "India: 28 states and 8 union territories. Capital: New Delhi.",
+         ("india_map", None)),
+    ],
+    "States": [(name, f"Capital: {cap}. {famous}", ("state", ne))
+               for name, ne, cap, _at, _places, famous in INDIA_STATES],
+    "UTs": [(name, f"Capital: {cap}. {famous}" if not famous.startswith("Capital")
+             else famous, ("state", ne))
+            for name, ne, cap, _at, _places, famous in INDIA_UTS],
+    "Monuments": [
+        ("War Memorial", "National War Memorial, New Delhi: we honour our brave soldiers.",
+         ("landmark", WAR_MEMORIAL)),
+        ("Qutub Minar", "Qutub Minar, Delhi: a tall tower of red stone.", ("landmark", QUTUB_MINAR)),
+        ("Red Fort", "Red Fort, Delhi: our flag is raised here on 15 August.", ("landmark", RED_FORT)),
+        ("Lotus Temple", "Lotus Temple, Delhi: shaped like a lotus flower.", ("landmark", LOTUS_TEMPLE)),
+        ("Golden Temple", "Golden Temple, Amritsar in Punjab, shines with gold.",
+         ("landmark", GOLDEN_TEMPLE)),
+        ("Hawa Mahal", "Hawa Mahal, Jaipur: a palace with 953 small windows.", ("landmark", HAWA_MAHAL)),
+        ("Mysuru Palace", "Mysuru Palace, Karnataka, lights up for Dasara.", ("landmark", MYSURU_PALACE)),
+        ("Meenakshi Temple", "Meenakshi Temple, Madurai: tall colourful towers.",
+         ("landmark", MEENAKSHI_GOPURAM)),
+        ("Sanchi Stupa", "Sanchi Stupa, Madhya Pradesh: a great Buddhist dome.", ("landmark", SANCHI_STUPA)),
+        ("Gol Gumbaz", "Gol Gumbaz, Vijayapura: a giant dome that echoes.", ("landmark", GOL_GUMBAZ)),
+        ("Konark Wheel", "Konark Sun Temple wheel, Odisha: it can tell the time!",
+         ("landmark", KONARK_WHEEL)),
     ],
     "Cities": [
         ("Delhi", "Delhi is India's capital. This is India Gate.", ("landmark", INDIA_GATE)),
@@ -542,11 +753,12 @@ SUBJECTS = {
     "English": ["ABC", "abc"],
     "Hindi": ["Swar", "Vyanjan"],
     "Maths": ["123", "Shapes", "Signs"],
+    "India": ["India Map", "States", "UTs", "Monuments"],
     "Nature": ["Animals", "Birds", "Sea", "Reptiles", "Insects", "Plants"],
     "Food": ["Fruits", "Vegetables", "Food"],
     "Me & Home": ["Body", "Home", "Buildings", "Helpers"],
     "Travel": ["Vehicles", "Travel", "Bridges"],
-    "World": ["Sky", "Countries", "States", "Cities", "Rivers"],
+    "World": ["Sky", "Countries", "Cities", "Rivers"],
     "Fun": ["Cartoons", "Music", "Sports", "Draw"],
 }
 
@@ -560,7 +772,18 @@ def spoken_text(name, cat=None):
   if src in ("glyph", "hindi"):
     return item["desc"].replace(" - ", ". ") + "!"
   letters = ", ".join(ch for ch in name.upper() if ch.isalpha())
-  return f"{name}. {letters}. {name}!"
+  return f"{name}. {letters}. {name}!" + _capital_line(name, src)
+
+
+def _capital_line(name, src):
+  """States and union territories also say their capital."""
+  if src == "india_map":
+    return " India has 28 states and 8 union territories. Our capital is New Delhi."
+  if src != "state" or name not in INDIA_CAPITALS:
+    return ""
+  if name == "Jammu & Kashmir":
+    return " Its capitals are Srinagar and Jammu."
+  return f" Its capital is {INDIA_CAPITALS[name]}."
 
 
 def hindi_speech(name, cat=None, praise=False):
@@ -577,7 +800,7 @@ def praise_text(name, cat=None):
     return "Wonderful drawing!"
   if item and item["source"] in ("glyph", "hindi"):
     return f"Well done! {item['desc'].split(' - ')[0]}!"
-  return f"Well done! {name}!"
+  return f"Well done! {name}!" + (_capital_line(name, item["source"]) if item else "")
 
 
 # --------------------------------------------------------------------------
@@ -697,6 +920,18 @@ def fetch_context_from_hub(shape_name, box, cat=None):
     return []
   s, ox, oy = _fit(item, box)
   return [[(ox + x * s, oy + y * s) for x, y in line] for line in item["context"]]
+
+
+def fetch_places_from_hub(shape_name, box, cat=None):
+  """Capital, famous places (and state names on the India map) as
+  [(label, x, y, kind, room)] in screen coordinates; kind is "capital",
+  "place" or "state"; room is how far a state's middle is from its edge."""
+  item = _find(shape_name, cat)
+  if not item or not item.get("places"):
+    return []
+  s, ox, oy = _fit(item, box)
+  return [(p[0], ox + p[1] * s, oy + p[2] * s, p[3], (p[4] if len(p) > 4 else 0) * s)
+          for p in item["places"]]
 
 
 def fetch_thumb_from_hub(shape_name, cat=None):

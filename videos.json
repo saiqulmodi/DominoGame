@@ -18,6 +18,25 @@
   ],
   "title": "File:Puerto del Rosario - Tefia - La Alcogida - dromedary (oT) 01.ogv"
  },
+ "Animals/Cat": {
+  "artist": "Legendaryreel.pull1",
+  "desc": "A cat meows into a camera.",
+  "editor_pick": false,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACat_meowing_into_camera.webm",
+  "seconds": 14.981,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Cat_meowing_into_camera.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cb/Cat_meowing_into_camera.webm/Cat_meowing_into_camera.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Cat meowing into camera.webm"
+ },
  "Animals/Cow": {
   "artist": "Frank Vincentz",
   "desc": "Young female cattle on a meadow in Radevormwald",
@@ -55,6 +74,40 @@
    }
   ],
   "title": "File:Canemangia.ogv"
+ },
+ "Animals/Elephant": {
+  "artist": "Adbar",
+  "desc": "Sri Lankan elephant (Elephas maximus maximus) eating in Yala National Park, Sri Lanka.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AElephant_eating_Yala_Sri_Lanka.ogv",
+  "seconds": 65.25866666666667,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/61/Elephant_eating_Yala_Sri_Lanka.ogv/Elephant_eating_Yala_Sri_Lanka.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/61/Elephant_eating_Yala_Sri_Lanka.ogv/Elephant_eating_Yala_Sri_Lanka.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Elephant eating Yala Sri Lanka.ogv"
+ },
+ "Animals/Giraffe": {
+  "artist": "Nesnad",
+  "desc": "A juvenile giraffe walking in Malawi",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AJuvenile_Giraffe_-_walking_-_Malawi_-_2018_Aug.webm",
+  "seconds": 13.68,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/89/Juvenile_Giraffe_-_walking_-_Malawi_-_2018_Aug.webm/Juvenile_Giraffe_-_walking_-_Malawi_-_2018_Aug.webm.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Juvenile Giraffe - walking - Malawi - 2018 Aug.webm"
  },
  "Animals/Goat": {
   "artist": "Loz Pycock",
@@ -223,6 +276,25 @@
   ],
   "title": "File:Crested Serpent Eagle flight.ogv"
  },
+ "Birds/Flamingo": {
+  "artist": "El Grafo",
+  "desc": "Greater flamingos (Phoenicopterus roseus) feeding. Tierpark Röhrensee, Bayreuth, Germany",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APhoenicopterus_roseus_feeding.ogv",
+  "seconds": 21.44,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/47/Phoenicopterus_roseus_feeding.ogv/Phoenicopterus_roseus_feeding.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/47/Phoenicopterus_roseus_feeding.ogv/Phoenicopterus_roseus_feeding.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Phoenicopterus roseus feeding.ogv"
+ },
  "Birds/Owl": {
   "artist": "بدارين",
   "desc": "Little owl (Athene noctua) filmed in Palestine.",
@@ -317,6 +389,25 @@
    }
   ],
   "title": "File:Chickens scratching.webm"
+ },
+ "Birds/Swan": {
+  "artist": "David G",
+  "desc": "Mute swans (Cygnus olor) and Canada geese (Branta canadensis) in the United Kingdom.",
+  "editor_pick": false,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMute_swans_and_Canada_geese.webm",
+  "seconds": 35.003,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/58/Mute_swans_and_Canada_geese.webm/Mute_swans_and_Canada_geese.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/58/Mute_swans_and_Canada_geese.webm/Mute_swans_and_Canada_geese.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Mute swans and Canada geese.webm"
  },
  "Bridges/Arch Bridge": {
   "artist": "Nchiriano",
@@ -470,6 +561,25 @@
   ],
   "title": "File:Eu.Video-Taj Mahal.webm"
  },
+ "Cities/Delhi": {
+  "artist": "Abhimanyu Jha",
+  "desc": "Cheering at India gate",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AICC_World_Cup_2011_-_cheering_at_India_gate.ogv",
+  "seconds": 116.19265306122449,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/9/9e/ICC_World_Cup_2011_-_cheering_at_India_gate.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9e/ICC_World_Cup_2011_-_cheering_at_India_gate.ogv/ICC_World_Cup_2011_-_cheering_at_India_gate.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:ICC World Cup 2011 - cheering at India gate.ogv"
+ },
  "Cities/Dubai": {
   "artist": "NASA/Goddard Space Flight Center",
   "desc": "This time-lapse video shows the rate of Dubai's growth at one frame per year from 2000 through 2011. In the false-color satellite images making up the video, bare desert is tan, plant-covered land is ",
@@ -507,6 +617,25 @@
    }
   ],
   "title": "File:Hitec city lake wildlife.webm"
+ },
+ "Cities/Kolkata": {
+  "artist": "Hridoy Kundu",
+  "desc": "This video was captured while a boat going beneath the Howrah Bridge at night.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AHowrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm",
+  "seconds": 30.024,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/df/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/df/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Howrah Bridge Night View (Silent Video) Full HD 1080p HIGH FR60.webm"
  },
  "Cities/London": {
   "artist": "Christopher Parker",
@@ -564,6 +693,25 @@
    }
   ],
   "title": "File:Columbus Day - 2011 2.ogv"
+ },
+ "Cities/Paris": {
+  "artist": "the Dronalist",
+  "desc": "Beautiful Morning views of Eiffel tower and surrounding park via drone.",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AEiffel_Tower_Drone_4k-Qx_c1X3zfEc-313-251.webm",
+  "seconds": 306.213,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/90/Eiffel_Tower_Drone_4k-Qx_c1X3zfEc-313-251.webm/Eiffel_Tower_Drone_4k-Qx_c1X3zfEc-313-251.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/90/Eiffel_Tower_Drone_4k-Qx_c1X3zfEc-313-251.webm/Eiffel_Tower_Drone_4k-Qx_c1X3zfEc-313-251.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Eiffel Tower Drone 4k-Qx c1X3zfEc-313-251.webm"
  },
  "Cities/Tokyo": {
   "artist": "Emran Kassim from Nagoya, Aichi, Japan",
@@ -713,6 +861,21 @@
   ],
   "title": "File:Spinning hardboiled egg 01.ogv"
  },
+ "Food/Honey": {
+  "artist": "Frank Vincentz",
+  "desc": "Bees (Apis mellifera) at their beehives, Schusterweg in Kodersdorf close to the border to Niesky, in Germany. Video with sound.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AKodersdorf_-_Schusterweg_-_Bienen_%28mT%29_01_ies.ogv",
+  "seconds": 22.52,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3d/Kodersdorf_-_Schusterweg_-_Bienen_%28mT%29_01_ies.ogv/Kodersdorf_-_Schusterweg_-_Bienen_%28mT%29_01_ies.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Kodersdorf - Schusterweg - Bienen (mT) 01 ies.ogv"
+ },
  "Food/Ice Cream": {
   "artist": "Fancibaer",
   "desc": "Oreo Enjoying A Frosty Paws Cold Treat, Shot With A Nikon CoolPix S220.",
@@ -732,6 +895,44 @@
   ],
   "title": "File:Oreo Enjoying A Frosty Paws Cold Treat.webm"
  },
+ "Food/Milk": {
+  "artist": "Phonon.b",
+  "desc": "ミルククラウンの40倍高速度撮影 実時間0.15秒 960fps",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMilk_crown_HighSpeedPhoto.webm",
+  "seconds": 6.465,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/de/Milk_crown_HighSpeedPhoto.webm/Milk_crown_HighSpeedPhoto.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/de/Milk_crown_HighSpeedPhoto.webm/Milk_crown_HighSpeedPhoto.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Milk crown HighSpeedPhoto.webm"
+ },
+ "Food/Rice": {
+  "artist": "Harriwillz",
+  "desc": "This is an image with the theme \"Farm to Plate\" from:",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGarnish_fried_rice.webm",
+  "seconds": 27.568,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/59/Garnish_fried_rice.webm/Garnish_fried_rice.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/59/Garnish_fried_rice.webm/Garnish_fried_rice.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Garnish fried rice.webm"
+ },
  "Food/Roti": {
   "artist": "SharonDawn",
   "desc": "This is an image with the theme \"Farm to Plate\" from:",
@@ -750,6 +951,44 @@
    }
   ],
   "title": "File:Making chapatis.webm"
+ },
+ "Food/Water": {
+  "artist": "Komavo",
+  "desc": "Eau de pluie",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AEau_de_ruissellement.mpg",
+  "seconds": 30.2,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f4/Eau_de_ruissellement.mpg/Eau_de_ruissellement.mpg.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f4/Eau_de_ruissellement.mpg/Eau_de_ruissellement.mpg.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Eau de ruissellement.mpg"
+ },
+ "Fruits/Apple": {
+  "artist": "Marsupium",
+  "desc": "apple harvest in the South Tyrolean Unterland in August 2015",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AApple_harvest_in_South_Tyrol_2015_video.webm",
+  "seconds": 16.536,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/81/Apple_harvest_in_South_Tyrol_2015_video.webm/Apple_harvest_in_South_Tyrol_2015_video.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/81/Apple_harvest_in_South_Tyrol_2015_video.webm/Apple_harvest_in_South_Tyrol_2015_video.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Apple harvest in South Tyrol 2015 video.webm"
  },
  "Fruits/Banana": {
   "artist": "Koffermejia",
@@ -827,6 +1066,25 @@
   ],
   "title": "File:Fruit vendor in Colombia - 20110527.ogv"
  },
+ "Fruits/Pineapple": {
+  "artist": "Anna Frodesiak",
+  "desc": "Preparing pineapple",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APreparing_pineapple_-_01.ogv",
+  "seconds": 55.552,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Preparing_pineapple_-_01.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c4/Preparing_pineapple_-_01.ogv/Preparing_pineapple_-_01.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Preparing pineapple - 01.ogv"
+ },
  "Fruits/Strawberry": {
   "artist": "Mark Rigler from Poole, England",
   "desc": "Now some where I put down down a bowl of strawberries that I was going to have for my afternoon tea. techy info/ update The Sony A1E has a time lapse function hidden in the menu and the stills are cap",
@@ -845,6 +1103,25 @@
    }
   ],
   "title": "File:Strawberries time-lapse.ogv"
+ },
+ "Fruits/Watermelon": {
+  "artist": "Muktee1494",
+  "desc": "Water melon",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AWater_melon.webm",
+  "seconds": 18.02,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/56/Water_melon.webm/Water_melon.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/56/Water_melon.webm/Water_melon.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Water melon.webm"
  },
  "Helpers/Farmer": {
   "artist": "Adefanike",
@@ -922,6 +1199,25 @@
   ],
   "title": "File:Yeager supersonic flight 1947.ogv"
  },
+ "Home/Clock": {
+  "artist": "Anne1234",
+  "desc": "Villa Haas: Hour and quarter hour strike (Wiener shock) to the local time stamp (manufacturer Perrot, Calw). Bell bronze and steel (Glockengiesserei Rincker, Sinn)",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGlockenturm_Villa_Haas_mit_Stunden_und_Viertelstunden_Schlag.webm",
+  "seconds": 41.22,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Glockenturm_Villa_Haas_mit_Stunden_und_Viertelstunden_Schlag.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2d/Glockenturm_Villa_Haas_mit_Stunden_und_Viertelstunden_Schlag.webm/Glockenturm_Villa_Haas_mit_Stunden_und_Viertelstunden_Schlag.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Glockenturm Villa Haas mit Stunden und Viertelstunden Schlag.webm"
+ },
  "Home/House": {
   "artist": "Salifu Wumpini Hussein",
   "desc": "A typical Mudhouse of a family in rural Tamale.",
@@ -960,6 +1256,25 @@
   ],
   "title": "File:Customized shoe making in Sweden.webm"
  },
+ "Home/Umbrella": {
+  "artist": "Luciana Junqueira",
+  "desc": "Maeklong Station - Folding Umbrella Market - Thailand",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMaeklong_Station_-_Folding_Umbrella_Market_-_Thailand.webm",
+  "seconds": 267.032,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/22/Maeklong_Station_-_Folding_Umbrella_Market_-_Thailand.webm/Maeklong_Station_-_Folding_Umbrella_Market_-_Thailand.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/22/Maeklong_Station_-_Folding_Umbrella_Market_-_Thailand.webm/Maeklong_Station_-_Folding_Umbrella_Market_-_Thailand.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Maeklong Station - Folding Umbrella Market - Thailand.webm"
+ },
  "Insects/Ant": {
   "artist": "Pristurus",
   "desc": "Ants milking aphids. Location: Wollenberg (near Marburg), Hesse, Germany.",
@@ -978,6 +1293,25 @@
    }
   ],
   "title": "File:Ants and aphids.ogv"
+ },
+ "Insects/Bee": {
+  "artist": "Vijayanrajapuram",
+  "desc": "Small honey bee",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AHoneybee.ogv",
+  "seconds": 16.950266666666668,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/3/31/Honeybee.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/31/Honeybee.ogv/Honeybee.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Honeybee.ogv"
  },
  "Insects/Butterfly": {
   "artist": "Dennis.insect.filmer",
@@ -1054,6 +1388,101 @@
    }
   ],
   "title": "File:Diaea dorsata.ogv"
+ },
+ "Monuments/Golden Temple": {
+  "artist": "Roger Dumas (1891–1972)",
+  "desc": "Film footage of the Golden Temple in Amritsar, by Roger Dumas [sometimes mistakenly spelt as 'Roger Dumes'], circa November–December 1927. A maharaja of a Punjabi princely-state accompanied Dumas on h",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFilm_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm",
+  "seconds": 126.416,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2e/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2e/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm/Film_footage_of_the_Golden_Temple_in_Amritsar%2C_by_Roger_Dumas%2C_circa_November%E2%80%93December_1927.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Film footage of the Golden Temple in Amritsar, by Roger Dumas, circa November–December 1927.webm"
+ },
+ "Monuments/Hawa Mahal": {
+  "artist": "Baap8969",
+  "desc": "The Hawa Mahal is a palace in the city of Jaipur, Rajasthan, India. Hawa Mahal is known as the “palace of winds “. Maharaja Sawai Pratap Singh built it palace in 1799.",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATop_view_of_Hawa_Mahal_Jaipur.webm",
+  "seconds": 12.918000000000001,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/86/Top_view_of_Hawa_Mahal_Jaipur.webm/Top_view_of_Hawa_Mahal_Jaipur.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/86/Top_view_of_Hawa_Mahal_Jaipur.webm/Top_view_of_Hawa_Mahal_Jaipur.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Top view of Hawa Mahal Jaipur.webm"
+ },
+ "Monuments/Meenakshi Temple": {
+  "artist": "[1]",
+  "desc": "Madurai Meenakshi Temple",
+  "editor_pick": false,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMadurai_Meenakshi_Temple.webm",
+  "seconds": 32.097,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Madurai_Meenakshi_Temple.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Madurai_Meenakshi_Temple.webm/Madurai_Meenakshi_Temple.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Madurai Meenakshi Temple.webm"
+ },
+ "Monuments/Red Fort": {
+  "artist": "Subhashish Panigrahi",
+  "desc": "Diwan-i-Aam is a large pavilion for public imperial audiences with an ornate throne-balcony (jharokha) for the emperor. The columns were painted in gold and there was a gold and silver railing separat",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADiwan-I-Am.ogv",
+  "seconds": 47.714333333333336,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/39/Diwan-I-Am.ogv/Diwan-I-Am.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/39/Diwan-I-Am.ogv/Diwan-I-Am.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Diwan-I-Am.ogv"
+ },
+ "Monuments/Sanchi Stupa": {
+  "artist": "Biswarup Ganguly",
+  "desc": "This is a photo of ASI monument number",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABuddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv",
+  "seconds": 22.0,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv/Buddhist_Monuments_-_Sanchi_Hill_2013-02-21_4421.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Buddhist Monuments - Sanchi Hill 2013-02-21 4421.ogv"
  },
  "Music/Banjo": {
   "artist": "Missvain",
@@ -1168,6 +1597,25 @@
    }
   ],
   "title": "File:Maracas, cajita rectangular, chapitas.webm"
+ },
+ "Music/Trumpet": {
+  "artist": "DrTrumpet",
+  "desc": "Trompete in B (Périnetventile) Kurzdemonstration",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATrompete_in_B_%28P%C3%A9rinetventile%29_Kurzdemonstration.webm",
+  "seconds": 9.394,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/36/Trompete_in_B_%28P%C3%A9rinetventile%29_Kurzdemonstration.webm/Trompete_in_B_%28P%C3%A9rinetventile%29_Kurzdemonstration.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/36/Trompete_in_B_%28P%C3%A9rinetventile%29_Kurzdemonstration.webm/Trompete_in_B_%28P%C3%A9rinetventile%29_Kurzdemonstration.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Trompete in B (Périnetventile) Kurzdemonstration.webm"
  },
  "Music/Violin": {
   "artist": "[1]",
@@ -1374,6 +1822,25 @@
   ],
   "title": "File:Sunflower Flower Opening Time Lapse 320x240.ogv"
  },
+ "Plants/Tree": {
+  "artist": "Joaquim Baeta",
+  "desc": "A view of the top of a tree swaying in the wind.",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACentre_Frame_of_a_Faculty_of_Geography_Tree%2C_One.webm",
+  "seconds": 28.168,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/09/Centre_Frame_of_a_Faculty_of_Geography_Tree%2C_One.webm/Centre_Frame_of_a_Faculty_of_Geography_Tree%2C_One.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/09/Centre_Frame_of_a_Faculty_of_Geography_Tree%2C_One.webm/Centre_Frame_of_a_Faculty_of_Geography_Tree%2C_One.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Centre Frame of a Faculty of Geography Tree, One.webm"
+ },
  "Plants/Tulip": {
   "artist": "Polygoon-Profilti (producent) / Nederlands Instituut voor Beeld en Geluid (behee",
   "desc": "Bioscoopjournaals waarin Nederlandse onderwerpen van een bepaalde week worden gepresenteerd. – Drie kinderen in Marker klederdracht plukken tulpen. Div. instellingen 89\".",
@@ -1450,6 +1917,25 @@
   ],
   "title": "File:Furcifer pardalis moving eyes.ogv"
  },
+ "Reptiles/Turtle": {
+  "artist": "Grendelkhan",
+  "desc": "A red-eared slider, Trachemys scripta elegans, swimming in a koi pond at Hakone Gardens in Saratoga, California.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATrachemys_scripta_elegans_in_koi_pond_at_Hakone_Gardens.webm",
+  "seconds": 22.155,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1d/Trachemys_scripta_elegans_in_koi_pond_at_Hakone_Gardens.webm/Trachemys_scripta_elegans_in_koi_pond_at_Hakone_Gardens.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1d/Trachemys_scripta_elegans_in_koi_pond_at_Hakone_Gardens.webm/Trachemys_scripta_elegans_in_koi_pond_at_Hakone_Gardens.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Trachemys scripta elegans in koi pond at Hakone Gardens.webm"
+ },
  "Rivers/Amazon": {
   "artist": "Brasil Silvaaa",
   "desc": "Rio Madeira Amazônia Brasil silvaaa",
@@ -1468,6 +1954,44 @@
    }
   ],
   "title": "File:Rio Madeira Amazônia Brasil.webm"
+ },
+ "Rivers/Brahmaputra": {
+  "artist": "Himanshum14",
+  "desc": "This place is in Goalpara",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ARiver_flowing.webm",
+  "seconds": 9.5,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6b/River_flowing.webm/River_flowing.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6b/River_flowing.webm/River_flowing.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:River flowing.webm"
+ },
+ "Rivers/Ganga": {
+  "artist": "Davide Mauro",
+  "desc": "Ganges River in Varanasi by boat",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGanges_River_in_Varanasi_by_boat.webm",
+  "seconds": 33.007,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f7/Ganges_River_in_Varanasi_by_boat.webm/Ganges_River_in_Varanasi_by_boat.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f7/Ganges_River_in_Varanasi_by_boat.webm/Ganges_River_in_Varanasi_by_boat.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Ganges River in Varanasi by boat.webm"
  },
  "Rivers/Indus": {
   "artist": "Shehrology",
@@ -1621,6 +2145,44 @@
   ],
   "title": "File:Risso's dolphins en.webm"
  },
+ "Sea/Fish": {
+  "artist": "Victor Marafona",
+  "desc": "Dive in Madeira - Reserve Garajau (shallow dive)",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMadeira_Garajau.webm",
+  "seconds": 109.397,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/fa/Madeira_Garajau.webm/Madeira_Garajau.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/fa/Madeira_Garajau.webm/Madeira_Garajau.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Madeira Garajau.webm"
+ },
+ "Sea/Octopus": {
+  "artist": "prilfish (Silke Baron)",
+  "desc": "Reef octopus (Octopus cyanea), also known as the big blue octopus, day octopus and Cyane's octopus. Filmed in the Red Sea.",
+  "editor_pick": false,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AOctopus.ogv",
+  "seconds": 53.35945578231293,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/14/Octopus.ogv/Octopus.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/14/Octopus.ogv/Octopus.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Octopus.ogv"
+ },
  "Sea/Pufferfish": {
   "artist": "Kora27",
   "desc": "Звездчатый аротрон (Arothron stellatus) в Красном море. Египет, коралловый риф у отеля Grand Makadi, Makadi Bay.",
@@ -1659,6 +2221,25 @@
   ],
   "title": "File:Pelagic thresher shark (Alopias pelagicus).webm"
  },
+ "Sea/Whale": {
+  "artist": "Sylke Rohrlach",
+  "desc": "Young humpback whale (Megaptera novaeangliae) sings in the water of Vava'u, Tonga.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AHumpbackwhale_singing.webm",
+  "seconds": 60.044000000000004,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/74/Humpbackwhale_singing.webm/Humpbackwhale_singing.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/74/Humpbackwhale_singing.webm/Humpbackwhale_singing.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Humpbackwhale singing.webm"
+ },
  "Sky/Cloud": {
   "artist": "Rubbish computer",
   "desc": "Arcus cloud passing overhead in Galley Common, Nuneaton, Warwickshire, UK, July 28, 2021",
@@ -1677,6 +2258,25 @@
    }
   ],
   "title": "File:Arcus passing overhead 28 July 2021 Galley Common.webm"
+ },
+ "Sky/Comet": {
+  "artist": "AAEIVISSA",
+  "desc": "Comet C2014 Q2 Lovejoy",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AComet_C2014_Q2_Lovejoy_captured_by_the_AAE_from_Ibiza_%282015-1-8_--_2015-1-25%29.ogv",
+  "seconds": 67.13333333333334,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/98/Comet_C2014_Q2_Lovejoy_captured_by_the_AAE_from_Ibiza_%282015-1-8_--_2015-1-25%29.ogv/Comet_C2014_Q2_Lovejoy_captured_by_the_AAE_from_Ibiza_%282015-1-8_--_2015-1-25%29.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/98/Comet_C2014_Q2_Lovejoy_captured_by_the_AAE_from_Ibiza_%282015-1-8_--_2015-1-25%29.ogv/Comet_C2014_Q2_Lovejoy_captured_by_the_AAE_from_Ibiza_%282015-1-8_--_2015-1-25%29.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Comet C2014 Q2 Lovejoy captured by the AAE from Ibiza (2015-1-8 -- 2015-1-25).ogv"
  },
  "Sky/Lightning": {
   "artist": "MrNousia",
@@ -1734,6 +2334,25 @@
    }
   ],
   "title": "File:Rain in Rome 34.webm"
+ },
+ "Sky/Rainbow": {
+  "artist": "GolhaMedia",
+  "desc": "Rainbow above the Niagara waterfalls.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ANiagara_waterfalls_with_rainbow_2015.webm",
+  "seconds": 68.978,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Niagara_waterfalls_with_rainbow_2015.webm/Niagara_waterfalls_with_rainbow_2015.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Niagara_waterfalls_with_rainbow_2015.webm/Niagara_waterfalls_with_rainbow_2015.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Niagara waterfalls with rainbow 2015.webm"
  },
  "Sky/Saturn": {
   "artist": "NASA/JPL-Caltech/Space Science Institute",
@@ -1887,6 +2506,25 @@
   ],
   "title": "File:Torneo María Noel Quintana 2021 - 03.webm"
  },
+ "Sports/Kite": {
+  "artist": "Cody Logan",
+  "desc": "Flying a kite on the beach in Seaside, Oregon.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AKite_flying_in_Seaside.webm",
+  "seconds": 17.794,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/45/Kite_flying_in_Seaside.webm/Kite_flying_in_Seaside.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/45/Kite_flying_in_Seaside.webm/Kite_flying_in_Seaside.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Kite flying in Seaside.webm"
+ },
  "Sports/Tennis": {
   "artist": "Oleg Yunakov",
   "desc": "Carlos Alcaraz vs. Wu Yibing at the 2026 US Open",
@@ -1981,6 +2619,25 @@
    }
   ],
   "title": "File:அத்தாங்கு மீன்பிடி - மீன்கள் இருக்கும் இடந்தேடி நீருக்குள் நகரும் பெண்கள்.webm"
+ },
+ "Travel/Aeroplane": {
+  "artist": "Quahadi",
+  "desc": "Airplane landing Innsbruck",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAirplane_landing_Innsbruck_143134.webm",
+  "seconds": 80.74,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/66/Airplane_landing_Innsbruck_143134.webm/Airplane_landing_Innsbruck_143134.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/66/Airplane_landing_Innsbruck_143134.webm/Airplane_landing_Innsbruck_143134.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Airplane landing Innsbruck 143134.webm"
  },
  "Travel/Coach": {
   "artist": "Video: Capricorn4049Audio: Kevin MacLeod",

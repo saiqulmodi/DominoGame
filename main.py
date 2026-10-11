@@ -32,31 +32,39 @@ import video
 from audio import IS_ANDROID, IS_WEB, SoundBank, Speaker
 from translations import LANGUAGES
 
-# Virtual canvas, 800 high. Upright phones use the 450-wide portrait layout.
-# Wide screens (computer, tablet on its side, wide browser) get a landscape
-# layout as wide as the screen: the 450-wide control column on the left and
-# a big play area filling the rest, so full screen has no empty side bars.
-# set_layout() switches between them.
-PANEL_W = 450
-WIDTH, HEIGHT = PANEL_W, 800
-LANDSCAPE = False
+# The game screen is the whole screen: a slim top row (menu button, the
+# picture's name with speaker and video buttons, Next) and the play area under
+# it. The canvas takes the real screen's shape (at least 450 x 800), so
+# nothing is cut off and there are no empty bars. The menu button opens the
+# 450 x 800 menu panel (subjects, categories, every picture, Games, Stickers,
+# Theme), drawn in the middle of the screen; picking a picture goes straight
+# back to the game. set_layout() fits everything to the screen.
+PANEL_W, PANEL_H = 450, 800
+WIDTH, HEIGHT = PANEL_W, PANEL_H
+TOP_H = 112                       # height of the top row (name + description)
 
+# Inside the menu panel (panel coordinates)
 SUBJ_RECT = pygame.Rect(0, 0, PANEL_W, 40)
 CAT_RECT = pygame.Rect(0, 40, PANEL_W, 38)
-BANNER_RECT = pygame.Rect(8, 82, PANEL_W - 16, 66)
-SPEAKER_CENTER = (BANNER_RECT.right - 28, BANNER_RECT.centery)
+BANK_RECT = pygame.Rect(0, 84, PANEL_W, PANEL_H - 52 - 84)
+RESET_RECT = pygame.Rect(8, PANEL_H - 48, 96, 42)
+GAMES_RECT = pygame.Rect(110, PANEL_H - 48, 92, 42)
+STICKER_RECT = pygame.Rect(208, PANEL_H - 48, 80, 42)
+THEME_RECT = pygame.Rect(294, PANEL_H - 48, 48, 42)
+NEXT_RECT = pygame.Rect(348, PANEL_H - 48, 94, 42)      # "Play" closes the menu
+BANK_COLS, BANK_ROWS = 4, 7
+
+# Game screen (screen coordinates; set_layout() fills these in)
+MENU_BTN = pygame.Rect(6, 10, 50, 54)
+NEXT_BTN = pygame.Rect(PANEL_W - 56, 10, 50, 54)
+BANNER_RECT = pygame.Rect(68, 8, PANEL_W - 136, 62)
 SPEAKER_R = 21
-VIDEO_CENTER = (SPEAKER_CENTER[0] - 48, BANNER_RECT.centery)   # "watch real" button
 VIDEO_R = 19
-DESC_Y = 151
-PLAY_RECT = pygame.Rect(0, 188, PANEL_W, 408)
-BANK_RECT = pygame.Rect(0, 598, PANEL_W, 150)
-RESET_RECT = pygame.Rect(8, HEIGHT - 48, 96, 42)
-GAMES_RECT = pygame.Rect(110, HEIGHT - 48, 92, 42)
-STICKER_RECT = pygame.Rect(208, HEIGHT - 48, 80, 42)
-THEME_RECT = pygame.Rect(294, HEIGHT - 48, 48, 42)
-NEXT_RECT = pygame.Rect(348, HEIGHT - 48, 94, 42)
-BANK_COLS, BANK_ROWS = 4, 2
+SPEAKER_CENTER = (BANNER_RECT.right - 28, BANNER_RECT.centery)
+VIDEO_CENTER = (SPEAKER_CENTER[0] - 48, BANNER_RECT.centery)   # "watch real" button
+DESC_Y = 73
+PLAY_RECT = pygame.Rect(0, TOP_H, PANEL_W, PANEL_H - TOP_H)
+NAV_X = NAV_Y = 0                 # where the 450 x 800 panels sit on screen
 
 # Colors (backgrounds and panels come from the chosen theme in fun.THEMES)
 WHITE = (255, 255, 255)
@@ -77,28 +85,29 @@ DONE_RECT = pygame.Rect(350, PLAY_RECT.y + 6, 92, 34)
 TOOLBAR_BOTTOM = PLAY_RECT.y + 46
 
 
-def layout_width(window_size):
-  """Canvas width for a window: portrait 450, or as wide as a wide screen."""
+def layout_size(window_size):
+  """Canvas size with the screen's own shape: 800 high on wide screens, 450
+  wide on tall phones (never smaller than the 450 x 800 menu panel)."""
   ww, wh = window_size
-  if wh <= 0 or ww / wh < 0.95:
-    return PANEL_W
-  return max(800, int(round(HEIGHT * ww / wh)))
+  if ww <= 0 or wh <= 0:
+    return PANEL_W, PANEL_H
+  if ww / wh >= PANEL_W / PANEL_H:
+    return min(2400, max(PANEL_W, int(round(PANEL_H * ww / wh)))), PANEL_H
+  return PANEL_W, min(1600, max(PANEL_H, int(round(PANEL_W * wh / ww))))
 
 
-def set_layout(width):
-  """Moves the play area, item bank and drawing tools for the canvas width."""
-  global WIDTH, LANDSCAPE, PLAY_RECT, BANK_RECT, BANK_ROWS
-  global CRAYON_Y, UNDO_RECT, DONE_RECT, TOOLBAR_BOTTOM
-  WIDTH = width
-  LANDSCAPE = width > PANEL_W
-  if LANDSCAPE:
-    PLAY_RECT = pygame.Rect(PANEL_W, 0, width - PANEL_W, HEIGHT)
-    BANK_RECT = pygame.Rect(0, 188, PANEL_W, HEIGHT - 52 - 188)
-    BANK_ROWS = 6
-  else:
-    PLAY_RECT = pygame.Rect(0, 188, PANEL_W, 408)
-    BANK_RECT = pygame.Rect(0, 598, PANEL_W, 150)
-    BANK_ROWS = 2
+def set_layout(width, height=PANEL_H):
+  """Fits the top row, play area, drawing tools and menu panel to the canvas."""
+  global WIDTH, HEIGHT, PLAY_RECT, BANNER_RECT, SPEAKER_CENTER, VIDEO_CENTER
+  global NEXT_BTN, NAV_X, NAV_Y, CRAYON_Y, UNDO_RECT, DONE_RECT, TOOLBAR_BOTTOM
+  WIDTH, HEIGHT = width, height
+  NEXT_BTN = pygame.Rect(width - 56, 10, 50, 54)
+  BANNER_RECT = pygame.Rect(0, 8, min(width - 120, 660), 62)
+  BANNER_RECT.centerx = width // 2
+  SPEAKER_CENTER = (BANNER_RECT.right - 28, BANNER_RECT.centery)
+  VIDEO_CENTER = (SPEAKER_CENTER[0] - 48, BANNER_RECT.centery)
+  PLAY_RECT = pygame.Rect(0, TOP_H, width, height - TOP_H)
+  NAV_X, NAV_Y = (width - PANEL_W) // 2, (height - PANEL_H) // 2
   CRAYON_Y = PLAY_RECT.y + 22
   UNDO_RECT = pygame.Rect(PLAY_RECT.right - 188, PLAY_RECT.y + 6, 80, 34)
   DONE_RECT = pygame.Rect(PLAY_RECT.right - 100, PLAY_RECT.y + 6, 92, 34)
@@ -119,7 +128,7 @@ FONT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts",
                          "Sniglet-ExtraBold.ttf")
 LANG_ORDER = ["hi", "bn", "en"]
 
-modes.set_area(PLAY_RECT)
+set_layout(PANEL_W, PANEL_H)
 fun.STORY_TITLES.update({s["id"]: s["title"] for s in stories.STORIES})
 
 
@@ -219,6 +228,7 @@ class Game:
     self.particles = fun.Particles()
     self.streak = fun.Streak()
     self.calls = calls.CallBank(enabled=getattr(sfx, "ok", True))
+    self.started_at = time.time()        # the menu button glows at first
     self.player = video.VideoPlayer()    # "watch real" videos
     self.overlay = None          # "shelf", "menu", "players", "rename", ...
     self.celebration = None      # (sticker id, start time)
@@ -307,6 +317,8 @@ class Game:
       self.context = hub.fetch_context_from_hub(self.puzzle, self.box, cat=self.cat)
       self.pic_path, self.pic_rect = hub.fetch_picture_from_hub(
           self.puzzle, self.box, cat=self.cat)
+    self.places = ([] if self.is_custom else
+                   hub.fetch_places_from_hub(self.puzzle, self.box, cat=self.cat))
     if announce:
       self.announce()
 
@@ -381,6 +393,95 @@ class Game:
     if self.mode != "trace" or self.banner_override or self.is_custom:
       return None
     return hub.fetch_video_from_hub(self.puzzle, self.cat)
+
+  def draw_places(self, screen, now):
+    """Maps, once traced: the capital (star), famous places (red dots) and,
+    on the India map, every state's name."""
+    places = getattr(self, "places", None)
+    if self.stage != "finished" or not places or now - self.finished_at < 0.6:
+      return
+    area = PLAY_RECT.inflate(-6, -6)
+    # markers first, so no name is written over another place's dot
+    taken = [pygame.Rect(int(x) - 8, int(y) - 8, 16, 16)
+             for _l, x, y, kind, _r in places if kind in ("capital", "place")]
+    if self.current_video():
+      taken.append(self.watch_rect().inflate(10, 10))
+    for _label, x, y, kind, _room in places:
+      if kind == "capital":
+        self.draw_star(screen, (int(x), int(y)), 10)
+      elif kind == "place":
+        pygame.draw.circle(screen, WHITE, (int(x), int(y)), 6)
+        pygame.draw.circle(screen, (230, 40, 50), (int(x), int(y)), 4)
+    busy = sum(1 for p in places if p[3] == "place") > 3
+    # famous places first (in their listed order), then the capital (which
+    # always gets a name), then state names where they fit
+    order = {"place": 0, "capital": 1, "state": 2}
+    for label, x, y, kind, room in sorted(places, key=lambda p: order.get(p[3], 3)):
+      x, y = int(x), int(y)
+      if kind == "state":
+        text = self.halo_text(self.small_font, label)
+        if text.get_width() > room * 4.2:            # long name: try the short one
+          text = self.halo_text(self.small_font, hub.INDIA_SHORT.get(label, label))
+        if text.get_width() > room * 4.2 or text.get_height() > room * 2.2:
+          continue                       # the state is too small for its name here
+        spots = [("center", (x, y))]
+        box = text.get_rect()
+      else:
+        font = self.small_font if busy and kind == "place" else self.font
+        text = font.render(label, True, WHITE)
+        box = text.get_rect().inflate(8, 4)
+        spots = [("midleft", (x + 11, y)), ("midright", (x - 11, y)),
+                 ("midbottom", (x, y - 9)), ("midtop", (x, y + 9)),
+                 ("bottomleft", (x + 6, y - 6)), ("topleft", (x + 6, y + 6)),
+                 ("bottomright", (x - 6, y - 6)), ("topright", (x - 6, y + 6))]
+      for anchor, point in spots:
+        r = box.copy()
+        setattr(r, anchor, point)
+        if area.contains(r) and not any(r.colliderect(t) for t in taken
+                                        if not t.collidepoint(x, y)):
+          break
+      else:
+        if kind != "capital":
+          continue                       # no room: leave this name out
+        r = box.copy()
+        r.midleft = (x + 11, y)
+      taken.append(r)
+      if kind != "state":
+        pill = pygame.Surface(r.size, pygame.SRCALPHA)
+        pill.fill((20, 20, 40, 200) if kind == "place" else (120, 80, 0, 225))
+        screen.blit(pill, r.topleft)
+      screen.blit(text, text.get_rect(center=r.center))
+
+  def halo_text(self, font, text):
+    """Dark words with a white edge: readable on any map colour."""
+    ink = font.render(text, True, (25, 25, 45))
+    edge = font.render(text, True, WHITE)
+    surf = pygame.Surface((ink.get_width() + 2, ink.get_height() + 2), pygame.SRCALPHA)
+    for dx, dy in ((0, 1), (2, 1), (1, 0), (1, 2)):
+      surf.blit(edge, (dx, dy))
+    surf.blit(ink, (1, 1))
+    return surf
+
+  def watch_rect(self):
+    """Big "Watch the real ..." button shown after a picture is finished."""
+    r = pygame.Rect(0, 0, min(320, PLAY_RECT.w - 40), 46)
+    r.midbottom = (PLAY_RECT.centerx, PLAY_RECT.bottom - 34)
+    return r
+
+  def draw_watch_button(self, screen, now):
+    if self.stage != "finished" or not self.current_video():
+      return
+    rect = self.watch_rect()
+    grow = int(3 * (1 + math.sin(now * 5)))
+    pygame.draw.rect(screen, YELLOW, rect.inflate(6 + grow, 6 + grow), 3, border_radius=26)
+    pygame.draw.rect(screen, (230, 40, 50), rect, border_radius=23)
+    pygame.draw.rect(screen, WHITE, rect, 2, border_radius=23)
+    cx, cy = rect.x + 28, rect.centery
+    pygame.draw.circle(screen, WHITE, (cx, cy), 15)
+    pygame.draw.polygon(screen, (230, 40, 50), [(cx - 5, cy - 8), (cx - 5, cy + 8), (cx + 9, cy)])
+    title = hub.CATEGORIES_HUB[self.cat][self.puzzle].get("label") or self.puzzle
+    lbl = fit_label(self.hint_font, f"Watch the real {title}!", WHITE, rect.w - 64)
+    screen.blit(lbl, lbl.get_rect(midleft=(rect.x + 52, rect.centery)))
 
   def watch_video(self):
     clip = self.current_video()
@@ -552,20 +653,21 @@ class Game:
       self.sfx.play("click")
       return
     if self.overlay:
-      if GAMES_RECT.collidepoint(mx, my) and self.overlay != "rename":
+      px, py = mx - NAV_X, my - NAV_Y      # panels sit in the middle of the screen
+      if self.overlay == "nav":
+        self.menu_press(px, py)
+        return
+      if GAMES_RECT.collidepoint(px, py) and self.overlay != "rename":
         self.overlay = None
         self.sfx.play("click")
         return
-      screens.PANELS[self.overlay].press(self, (mx - self.overlay_x(), my))
+      screens.PANELS[self.overlay].press(self, (px, py))
       return
-    if SUBJ_RECT.collidepoint(mx, my):
-      for rect, s in self.subject_rects():
-        if rect.collidepoint(mx, my) and s != self.subject:
-          self.select_subject(s)
-    elif CAT_RECT.collidepoint(mx, my):
-      for rect, c in self.category_rects():
-        if rect.collidepoint(mx, my) and c != self.cat:
-          self.select_category(c)
+    if MENU_BTN.collidepoint(mx, my):
+      self.sfx.play("switch")
+      self.overlay = "nav"
+    elif NEXT_BTN.collidepoint(mx, my):
+      self.next_item()
     elif BANNER_RECT.collidepoint(mx, my):
       self.sfx.play("click")
       if (self.current_video() and
@@ -580,29 +682,6 @@ class Game:
         self.say(f"Spell the word: {self.puzzle}.", self.native_word(self.cat, self.puzzle))
       else:
         self.announce()
-    elif BANK_RECT.collidepoint(mx, my):
-      cells, _ = self.bank_cells()
-      for rect, name in cells:
-        if rect.collidepoint(mx, my):
-          if name == ">more":
-            self.sfx.play("switch")
-            self.page += 1
-          else:
-            self.select_puzzle(name)
-          break
-    elif RESET_RECT.collidepoint(mx, my):
-      self.sfx.play("click")
-      self.refresh_mode(self.puzzle)
-    elif GAMES_RECT.collidepoint(mx, my):
-      self.sfx.play("switch")
-      self.overlay = "menu"
-    elif NEXT_RECT.collidepoint(mx, my):
-      self.next_item()
-    elif STICKER_RECT.collidepoint(mx, my):
-      self.sfx.play("switch")
-      self.overlay = "shelf"
-    elif THEME_RECT.collidepoint(mx, my):
-      self.next_theme()
     elif PLAY_RECT.collidepoint(mx, my):
       if self.mode == "quiz":
         self.quiz.press(pos)
@@ -622,7 +701,9 @@ class Game:
       elif self.stage == "ready":
         self.start_cascade()
       elif self.stage == "finished":
-        if self.story:
+        if self.current_video() and self.watch_rect().collidepoint(mx, my):
+          self.watch_video()
+        elif self.story:
           self.next_item()
         else:
           self.sfx.play("click")
@@ -820,6 +901,8 @@ class Game:
       self.celebration = (new[-1], time.time())
       self.particles.burst(PLAY_RECT.centerx, PLAY_RECT.centery, n=60)
       praise += " You got a new sticker!"
+    if self.current_video() and not self.story:
+      praise += " Tap the red button to watch a real one!"
     item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
     if item.get("hindi"):
       self.say(praise, hub.hindi_speech(self.puzzle, self.cat, praise=True), "hi")
@@ -883,6 +966,7 @@ class Game:
     # Real picture at the left of the name (tap it to hear its sound)
     x_start = BANNER_RECT.x + 10
     hide = self.banner_override or self.mode == "quiz"   # don't show the answer
+    hide = hide or BANNER_RECT.w < 420     # narrow phone: room for the letters
     th = None if hide else self.thumb(self.puzzle, self.cat, 52)
     if th is not None:
       screen.blit(th, th.get_rect(center=(BANNER_RECT.x + 34, BANNER_RECT.centery)))
@@ -995,7 +1079,7 @@ class Game:
         last = self.story["step"] == len(self.story["story"]["steps"]) - 1
         return "The end! Pick another story" if last else "Tap for the next part!"
       if self.current_video():
-        return "Yay! See it for real: tap the red button"
+        return "Yay! Tap to play again, or watch the real one"
       return "Yay! Tap to play again, or Next"
     return ""
 
@@ -1112,6 +1196,9 @@ class Game:
         pygame.draw.circle(screen, YELLOW if done else HINT, (int(cx), PLAY_RECT.top + 14),
                            7 if k == self.story["step"] else 5, 0 if done else 2)
 
+    self.draw_places(screen, now)
+    if not self.celebration:
+      self.draw_watch_button(screen, now)
     hint = self.hint_text()
     streak = self.streak.active(now) if self.stage == "trace" else 0
     if streak >= 5:
@@ -1205,27 +1292,68 @@ class Game:
       lines = wrap_text(self.font, self.story_line(), PANEL_W - 24)[:2]
       for n, line in enumerate(lines):
         surf = self.font.render(line, True, YELLOW)
-        screen.blit(surf, surf.get_rect(midtop=(PANEL_W / 2, DESC_Y + n * 17)))
+        screen.blit(surf, surf.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + n * 17)))
       return
     if self.banner_override:              # spelling: don't give the word away
       return
     native = None if item.get("word_img") else self.native_image(self.cat, self.puzzle, 18)
     desc = item["desc"]
     if native is not None:
-      screen.blit(native, native.get_rect(midtop=(PANEL_W / 2, DESC_Y)))
+      screen.blit(native, native.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y)))
       line = fit_label(self.font, desc, CYAN, PANEL_W - 20)
-      screen.blit(line, line.get_rect(midtop=(PANEL_W / 2, DESC_Y + 19)))
+      screen.blit(line, line.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + 19)))
       return
     for n, line in enumerate(wrap_text(self.font, desc, PANEL_W - 24)[:2]):
       surf = self.font.render(line, True, CYAN)
-      screen.blit(surf, surf.get_rect(midtop=(PANEL_W / 2, DESC_Y + n * 17)))
+      screen.blit(surf, surf.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + n * 17)))
 
   def draw(self, screen):
+    """Game screen: the play area fills the screen under a slim top row
+    (menu button, name, Next). The menu and other panels open on top."""
     now = time.time()
+    screen.fill(self.theme["bg"])
+    self.draw_play_area(screen, now)
+    self.draw_top_row(screen, now)
+    self.particles.draw(screen, self.hint_font)
+    if self.overlay:
+      dim = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+      dim.fill((0, 0, 0, 150))
+      screen.blit(dim, (0, 0))
+      panel = screen.subsurface(pygame.Rect(NAV_X, NAV_Y, PANEL_W, PANEL_H))
+      if self.overlay == "nav":
+        self.draw_menu_panel(panel, now)
+      elif self.overlay == "shelf":
+        self.draw_shelf(panel, now)
+      else:
+        screens.PANELS[self.overlay].draw(panel, self, now)
+
+  def draw_top_row(self, screen, now):
+    tm = self.theme
+    pygame.draw.rect(screen, tm["bg"], (0, 0, WIDTH, TOP_H))
+    pygame.draw.line(screen, tm["panel"], (0, TOP_H - 1), (WIDTH, TOP_H - 1), 2)
+    self.draw_title_banner(screen, now)
+    self.draw_description(screen)
+    # Menu button: three bars; it glows for a while so children find it
+    pulse = now - self.started_at < 12 and not self.overlay
+    pygame.draw.rect(screen, (70, 130, 230), MENU_BTN, border_radius=12)
+    pygame.draw.rect(screen, YELLOW if pulse and int(now * 2) % 2 else WHITE, MENU_BTN, 2,
+                     border_radius=12)
+    for k in range(3):
+      y = MENU_BTN.centery - 12 + k * 12
+      pygame.draw.line(screen, WHITE, (MENU_BTN.x + 14, y), (MENU_BTN.right - 14, y), 4)
+    # Next: an arrow to the next picture
+    pygame.draw.rect(screen, (60, 180, 90), NEXT_BTN, border_radius=12)
+    pygame.draw.rect(screen, WHITE, NEXT_BTN, 2, border_radius=12)
+    cx, cy = NEXT_BTN.center
+    pygame.draw.polygon(screen, WHITE, [(cx - 8, cy - 13), (cx + 10, cy), (cx - 8, cy + 13)])
+
+  def draw_menu_panel(self, screen, now):
+    """The menu: subjects, categories, every picture of the category and the
+    Reset / Games / Stickers / Theme / Play buttons."""
     tm = self.theme
     bg = tm["bg"]
     screen.fill(bg)
-    self.draw_play_area(screen, now)
+    pygame.draw.rect(screen, tm["panel"], screen.get_rect(), 3)
 
     # Subjects (top row) and their categories (second row)
     pygame.draw.rect(screen, tm["panel"], SUBJ_RECT.union(CAT_RECT))
@@ -1241,9 +1369,6 @@ class Game:
       screen.blit(lbl, lbl.get_rect(center=rect.center))
       if self.progress.has(f"c:{c}"):          # whole category finished
         pygame.draw.circle(screen, GOLD, (rect.right - 5, rect.top + 5), 5)
-
-    self.draw_title_banner(screen, now)
-    self.draw_description(screen)
 
     # Item bank: picture + name, with "More" when a category has many items
     pygame.draw.rect(screen, tm["panel"], BANK_RECT)
@@ -1262,14 +1387,20 @@ class Game:
       if th is not None:
         screen.blit(th, th.get_rect(center=(rect.centerx, rect.y + (rect.h - 18) / 2 + 2)))
       elif name == CUSTOM:
-        pygame.draw.circle(screen, YELLOW, (rect.centerx, rect.y + 26), 14, 3)
+        screen.blit(screens.crayon_icon(rect.h - 30),
+                    screens.crayon_icon(rect.h - 30).get_rect(
+                        center=(rect.centerx, rect.y + (rect.h - 18) / 2 + 2)))
       label = hub.CATEGORIES_HUB[self.cat][name].get("label", name)  # Hindi: "ka"
       lbl = fit_label(self.small_font, label, bg if active else WHITE, rect.w - 6)
       screen.blit(lbl, lbl.get_rect(center=(rect.centerx, rect.bottom - 10)))
       if self.progress.is_done(self.key(name)):  # gold star = already traced
         self.draw_star(screen, (rect.right - 10, rect.top + 10), 8)
+      if self.mode == "trace" and hub.fetch_video_from_hub(name, self.cat):
+        bx, by = rect.x + 11, rect.y + 11          # red badge: has a real video
+        pygame.draw.circle(screen, (230, 40, 50), (bx, by), 8)
+        pygame.draw.polygon(screen, WHITE, [(bx - 3, by - 4), (bx - 3, by + 4), (bx + 5, by)])
 
-    # Reset, Games, Stickers, Theme and Next
+    # Reset, Games, Stickers, Theme and Play (back to the game)
     pygame.draw.rect(screen, (255, 100, 100), RESET_RECT, border_radius=10)
     lbl = self.hint_font.render("Reset", True, WHITE)
     screen.blit(lbl, lbl.get_rect(center=RESET_RECT.center))
@@ -1286,37 +1417,87 @@ class Game:
       pygame.draw.circle(screen, col, (int(THEME_RECT.centerx + 9 * math.cos(a)),
                                        int(THEME_RECT.centery + 9 * math.sin(a))), 6)
     pygame.draw.rect(screen, (60, 180, 90), NEXT_RECT, border_radius=10)
-    lbl = self.hint_font.render("Next >", True, WHITE)
+    lbl = self.hint_font.render("Play >", True, WHITE)
     screen.blit(lbl, lbl.get_rect(center=NEXT_RECT.center))
 
-    if LANDSCAPE:                        # control column | play area
-      pygame.draw.line(screen, tm["panel"], (PANEL_W, 0), (PANEL_W, HEIGHT), 3)
-    self.particles.draw(screen, self.hint_font)
-    if self.overlay:
-      panel = screen
-      if LANDSCAPE:                      # panels are 450 wide: centre one, dim the rest
-        dim = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 150))
-        screen.blit(dim, (0, 0))
-        panel = screen.subsurface(pygame.Rect(self.overlay_x(), 0, PANEL_W, HEIGHT))
-      if self.overlay == "shelf":
-        self.draw_shelf(panel, now)
-      else:
-        screens.PANELS[self.overlay].draw(panel, self, now)
+  def menu_press(self, mx, my):
+    """A tap in the menu panel (panel coordinates). Picking a picture, Play,
+    or a tap outside the panel goes back to the game."""
+    if not (0 <= mx < PANEL_W and 0 <= my < PANEL_H):
+      self.overlay = None
+      return
+    if SUBJ_RECT.collidepoint(mx, my):
+      for rect, s in self.subject_rects():
+        if rect.collidepoint(mx, my) and s != self.subject:
+          self.select_subject(s)
+    elif CAT_RECT.collidepoint(mx, my):
+      for rect, c in self.category_rects():
+        if rect.collidepoint(mx, my) and c != self.cat:
+          self.select_category(c)
+    elif BANK_RECT.collidepoint(mx, my):
+      cells, _ = self.bank_cells()
+      for rect, name in cells:
+        if rect.collidepoint(mx, my):
+          if name == ">more":
+            self.sfx.play("switch")
+            self.page += 1
+          else:
+            self.select_puzzle(name)
+            self.overlay = None              # straight back to the picture
+          break
+    elif RESET_RECT.collidepoint(mx, my):
+      self.sfx.play("click")
+      self.refresh_mode(self.puzzle)
+      self.overlay = None
+    elif GAMES_RECT.collidepoint(mx, my):
+      self.sfx.play("switch")
+      self.overlay = "menu"
+    elif STICKER_RECT.collidepoint(mx, my):
+      self.sfx.play("switch")
+      self.overlay = "shelf"
+    elif THEME_RECT.collidepoint(mx, my):
+      self.next_theme()
+    elif NEXT_RECT.collidepoint(mx, my):
+      self.sfx.play("click")
+      self.overlay = None
 
-  def overlay_x(self):
-    """Left edge of the 450-wide panels (over the play area when wide)."""
-    if not LANDSCAPE:
-      return 0
-    return min(WIDTH - PANEL_W, PANEL_W + max(0, (WIDTH - 2 * PANEL_W) // 2))
-
-  def relayout(self):
-    """The screen turned or resized: fit the picture into the new play area."""
+  def relayout(self, old_play):
+    """The screen turned or resized: everything on the picture moves to the
+    new play area, so a child keeps what was already traced or drawn."""
     self.particles.texts = []
-    if self.mode in ("quiz", "spell"):
-      self.set_mode(self.mode)
-    else:
-      self.load_item(announce=False)
+    if self.mode != "trace" or not hasattr(self, "box"):
+      return                                 # quiz and spelling lay out live
+    old_box = self.box
+    box = PLAY_RECT.inflate(-16, -40)
+    self.box = (box.x, box.y, box.w, box.h)
+    item = None if self.is_custom else hub.CATEGORIES_HUB[self.cat][self.puzzle]
+    if item is not None and "w" in item:
+      s1, ox1, oy1 = hub._fit(item, old_box)
+      s2, ox2, oy2 = hub._fit(item, self.box)
+    else:                                    # free drawing: keep it in proportion
+      s1, ox1, oy1 = 1.0, old_box[0], old_box[1]
+      s2 = min(box.w / old_box[2], box.h / old_box[3])
+      ox2 = box.x + (box.w - old_box[2] * s2) / 2
+      oy2 = box.y + (box.h - old_box[3] * s2) / 2
+    k = s2 / s1
+
+    def move(p):
+      return (ox2 + (p[0] - ox1) * k, oy2 + (p[1] - oy1) * k)
+
+    self.loops = [[move(p) for p in lp] for lp in self.loops]
+    self.dots = [p for lp in self.loops for p in lp]
+    self.strokes = [[move(p) for p in st] for st in self.strokes]
+    for stroke in self.drawing:
+      stroke[1][:] = [move(p) for p in stroke[1]]
+    for d in self.dominoes:
+      d.x, d.y = move((d.x, d.y))
+    if self.last_pointer is not None:
+      self.last_pointer = move(self.last_pointer)
+    if item is not None:
+      self.context = hub.fetch_context_from_hub(self.puzzle, self.box, cat=self.cat)
+      self.pic_path, self.pic_rect = hub.fetch_picture_from_hub(
+          self.puzzle, self.box, cat=self.cat)
+      self.places = hub.fetch_places_from_hub(self.puzzle, self.box, cat=self.cat)
 
   def draw_star(self, screen, center, r):
     cx, cy = center
@@ -1555,13 +1736,22 @@ def frame(game, view, canvas, state):
   """One frame: input, update, draw. Returns False when the game should quit."""
   running = True
   window = pygame.display.get_surface()
-  # Turned phone, resized window or full screen: pick portrait or landscape
-  target = layout_width(screen_shape(window, state))
-  if target != WIDTH:
-    set_layout(target)
+  # Turned phone, resized window, browser bar or full screen: the canvas
+  # takes the screen's shape (a pixel or two of change is ignored)
+  tw, th = layout_size(screen_shape(window, state))
+  if abs(tw - WIDTH) > 2 or abs(th - HEIGHT) > 2:
+    old_play = PLAY_RECT.copy()
+    set_layout(tw, th)
     if IS_WEB:                           # the browser canvas takes the new shape
       window = pygame.display.set_mode((WIDTH, HEIGHT))
-    game.relayout()
+      try:                               # and the page re-fits it to the screen
+        import platform
+        platform.window.eval(
+            "[60, 400, 1200].forEach(function(t){setTimeout(function(){"
+            "window.dispatchEvent(new Event('resize'));}, t);});")
+      except Exception:
+        pass
+    game.relayout(old_play)
   canvas = state.get("canvas", canvas)
   if canvas.get_size() != (WIDTH, HEIGHT):
     canvas = state["canvas"] = pygame.Surface((WIDTH, HEIGHT))

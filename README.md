@@ -9,17 +9,23 @@ while the name is said, spelled and shown.
 
 ## What children learn
 
-366 items in 8 subjects, all from the Picture Data Hub (`domino_data.py`):
+422 items in 10 subjects, all from the Picture Data Hub (`domino_data.py`):
 
 - **English** - A-Z ("A for Apple") and a-z
 - **Hindi** - वर्णमाला: 13 स्वर and 36 व्यंजन ("क से कबूतर")
 - **Maths** - 0-10, shapes, signs (+ − × ÷ = ₹), coin, ruler, balance
+- **India** - the whole India map (trace it, then every state appears in colour
+  with its name), all 28 states and 8 union territories on India's official map,
+  each with its capital (star) and famous places (for example Delhi: National War
+  Memorial and India Gate, Red Fort, Qutub Minar, Lotus Temple, Akshardham), and
+  11 monuments (War Memorial, Qutub Minar, Red Fort, Lotus Temple, Golden Temple,
+  Hawa Mahal, Mysuru Palace, Meenakshi Temple, Sanchi Stupa, Gol Gumbaz, Konark wheel)
 - **Nature** - animals, birds, sea life, reptiles, insects, plants
 - **Food** - fruits, vegetables, everyday food
 - **Me & Home** - body parts, home, buildings, community helpers
 - **Travel** - vehicles, trains, planes, ships, bridges
-- **World** - sky and weather, countries (India's official map), Indian states,
-  cities (famous landmarks), rivers
+- **World** - sky and weather, countries (India's official map), cities (famous
+  landmarks), rivers
 - **Fun** - cartoon friends (superhero, robot, unicorn, dragon, fairy, mermaid,
   genie, wizard, prince, princess, ninja, alien, friendly ghost, teddy bear,
   snowman, Santa, panda, elf), music, sports, and free drawing
@@ -39,13 +45,21 @@ while the name is said, spelled and shown.
 - **For parents** - progress per subject, quiz accuracy, words spelled, stories, days played
 - **Full screen** - the game fills the whole screen: in the browser the first tap
   goes full screen (phones stay upright), on a computer it opens full screen
-  (F11 or this button switches, Esc leaves full screen). Wide screens (computers,
-  tablets on their side) get a landscape layout with a big tracing area, so there
-  are no empty side bars
-- **Watch the real one** - the red play button next to the speaker shows a short
-  real-life video of the picture (128 pictures: animals, birds, sea life, plants,
-  food, vehicles, bridges, sky, places, rivers, instruments, sports). "Back to
-  play" returns to the game to trace it again. Every video is a free Wikimedia
+  (F11 or this button switches, Esc leaves full screen). The game takes the shape
+  of any screen (phone, tablet, computer), so nothing is cut off and there are no
+  empty bars; turning the screen keeps what was already traced
+
+## Playing
+
+The picture to trace fills the screen. A slim top row has the **☰ menu** button
+(left), the picture's name with the speaker and real-video buttons, and **Next**
+(right). The menu shows every subject, category and picture plus Reset, Games,
+Stickers and Theme; picking a picture (or Play) goes straight back to the game.
+- **Watch the real one** - pictures with a red ▶ badge have a short real-life
+  video (163 pictures: animals, birds, sea life, plants, food, vehicles, bridges,
+  sky, states, cities, rivers, monuments, instruments, sports). Tap the red play
+  button next to the speaker, or the big "Watch the real ..." button after
+  finishing; "Back to play" returns to the game to trace it again. Every video is a free Wikimedia
   Commons clip checked by a person (`tools/find_videos.py`): no adverts and no
   "watch next" list
 
