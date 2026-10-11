@@ -3,6 +3,10 @@
 - **Pictures:** OpenMoji, the open-source emoji and icon project (https://openmoji.org).
   License: CC BY-SA 4.0. The pictures in `pics/` and the outlines traced from them in
   `hub_data.json` are adapted from OpenMoji and are shared under the same license.
+- **Real-life videos:** short clips from Wikimedia Commons (https://commons.wikimedia.org),
+  streamed from upload.wikimedia.org, each under its own free license (CC BY, CC BY-SA,
+  CC0 or public domain). The player shows each clip's author and license; the full list
+  with links is in `videos.json`.
 - **Maps and rivers:** Natural Earth (https://www.naturalearthdata.com). Public domain.
   Country borders use Natural Earth's India point-of-view edition.
 - **Hindi letters and words:** drawn with the Noto Sans Devanagari font (SIL Open Font License),

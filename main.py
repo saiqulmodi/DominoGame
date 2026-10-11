@@ -28,21 +28,29 @@ import fun
 import modes
 import screens
 import stories
+import video
 from audio import IS_ANDROID, IS_WEB, SoundBank, Speaker
 from translations import LANGUAGES
 
-# Virtual 9:16 portrait canvas. Everything is drawn here, then scaled to fit
-# the real window / phone screen with letterboxing.
-WIDTH, HEIGHT = 450, 800
+# Virtual canvas, 800 high. Upright phones use the 450-wide portrait layout.
+# Wide screens (computer, tablet on its side, wide browser) get a landscape
+# layout as wide as the screen: the 450-wide control column on the left and
+# a big play area filling the rest, so full screen has no empty side bars.
+# set_layout() switches between them.
+PANEL_W = 450
+WIDTH, HEIGHT = PANEL_W, 800
+LANDSCAPE = False
 
-SUBJ_RECT = pygame.Rect(0, 0, WIDTH, 40)
-CAT_RECT = pygame.Rect(0, 40, WIDTH, 38)
-BANNER_RECT = pygame.Rect(8, 82, WIDTH - 16, 66)
+SUBJ_RECT = pygame.Rect(0, 0, PANEL_W, 40)
+CAT_RECT = pygame.Rect(0, 40, PANEL_W, 38)
+BANNER_RECT = pygame.Rect(8, 82, PANEL_W - 16, 66)
 SPEAKER_CENTER = (BANNER_RECT.right - 28, BANNER_RECT.centery)
 SPEAKER_R = 21
+VIDEO_CENTER = (SPEAKER_CENTER[0] - 48, BANNER_RECT.centery)   # "watch real" button
+VIDEO_R = 19
 DESC_Y = 151
-PLAY_RECT = pygame.Rect(0, 188, WIDTH, 408)
-BANK_RECT = pygame.Rect(0, 598, WIDTH, 150)
+PLAY_RECT = pygame.Rect(0, 188, PANEL_W, 408)
+BANK_RECT = pygame.Rect(0, 598, PANEL_W, 150)
 RESET_RECT = pygame.Rect(8, HEIGHT - 48, 96, 42)
 GAMES_RECT = pygame.Rect(110, HEIGHT - 48, 92, 42)
 STICKER_RECT = pygame.Rect(208, HEIGHT - 48, 80, 42)
@@ -67,6 +75,35 @@ CRAYON_Y, CRAYON_R = PLAY_RECT.y + 22, 13
 UNDO_RECT = pygame.Rect(262, PLAY_RECT.y + 6, 80, 34)
 DONE_RECT = pygame.Rect(350, PLAY_RECT.y + 6, 92, 34)
 TOOLBAR_BOTTOM = PLAY_RECT.y + 46
+
+
+def layout_width(window_size):
+  """Canvas width for a window: portrait 450, or as wide as a wide screen."""
+  ww, wh = window_size
+  if wh <= 0 or ww / wh < 0.95:
+    return PANEL_W
+  return max(800, int(round(HEIGHT * ww / wh)))
+
+
+def set_layout(width):
+  """Moves the play area, item bank and drawing tools for the canvas width."""
+  global WIDTH, LANDSCAPE, PLAY_RECT, BANK_RECT, BANK_ROWS
+  global CRAYON_Y, UNDO_RECT, DONE_RECT, TOOLBAR_BOTTOM
+  WIDTH = width
+  LANDSCAPE = width > PANEL_W
+  if LANDSCAPE:
+    PLAY_RECT = pygame.Rect(PANEL_W, 0, width - PANEL_W, HEIGHT)
+    BANK_RECT = pygame.Rect(0, 188, PANEL_W, HEIGHT - 52 - 188)
+    BANK_ROWS = 6
+  else:
+    PLAY_RECT = pygame.Rect(0, 188, PANEL_W, 408)
+    BANK_RECT = pygame.Rect(0, 598, PANEL_W, 150)
+    BANK_ROWS = 2
+  CRAYON_Y = PLAY_RECT.y + 22
+  UNDO_RECT = pygame.Rect(PLAY_RECT.right - 188, PLAY_RECT.y + 6, 80, 34)
+  DONE_RECT = pygame.Rect(PLAY_RECT.right - 100, PLAY_RECT.y + 6, 92, 34)
+  TOOLBAR_BOTTOM = PLAY_RECT.y + 46
+  modes.set_area(PLAY_RECT)
 MAX_DRAW_DOMINOES = 260
 TRACE_RADIUS = 24      # how close the finger must pass to cover a dot
 TRACE_DONE = 0.95      # share of dots that completes the outline
@@ -182,6 +219,7 @@ class Game:
     self.particles = fun.Particles()
     self.streak = fun.Streak()
     self.calls = calls.CallBank(enabled=getattr(sfx, "ok", True))
+    self.player = video.VideoPlayer()    # "watch real" videos
     self.overlay = None          # "shelf", "menu", "players", "rename", ...
     self.celebration = None      # (sticker id, start time)
     self.last_tick = time.time()
@@ -337,6 +375,35 @@ class Game:
   def leave_story(self):
     self.story = None
 
+  # ------------------------------------------------------------ real videos
+  def current_video(self):
+    """The item's checked real-life video, only while tracing (not in quizzes)."""
+    if self.mode != "trace" or self.banner_override or self.is_custom:
+      return None
+    return hub.fetch_video_from_hub(self.puzzle, self.cat)
+
+  def watch_video(self):
+    clip = self.current_video()
+    title = hub.CATEGORIES_HUB[self.cat][self.puzzle].get("label") or self.puzzle
+    self.call_at = None                  # no animal call over the video
+    full = getattr(self, "fullscreen", None)
+    if full and not IS_WEB and not IS_ANDROID:
+      full.pause()                       # computer: let the browser come in front
+    if not self.player.show(clip, title):
+      if full:
+        full.resume()
+      self.say("Sorry, the video cannot play here.")
+
+  def back_from_video(self):
+    """Back to play: a finished picture starts again so the child can redo it."""
+    full = getattr(self, "fullscreen", None)
+    if full:
+      full.resume()
+    if self.stage == "finished" and not self.story:
+      self.load_item()
+    else:
+      self.announce()
+
   def start_drawing(self):
     """Games menu: straight to the free drawing page."""
     self.mode = "trace"
@@ -447,13 +514,13 @@ class Game:
   # ------------------------------------------------------------ layout
   def subject_rects(self):
     subs = list(self.subjects)
-    w = WIDTH / len(subs)
+    w = PANEL_W / len(subs)
     return [(pygame.Rect(int(i * w) + 2, 4, int(w) - 4, 32), s)
             for i, s in enumerate(subs)]
 
   def category_rects(self):
     cats = self.subjects[self.subject]
-    w = WIDTH / len(cats)
+    w = PANEL_W / len(cats)
     return [(pygame.Rect(int(i * w) + 3, 44, int(w) - 6, 30), c)
             for i, c in enumerate(cats)]
 
@@ -467,7 +534,7 @@ class Game:
     cells = [(name) for name in shown]
     if pages > 1:
       cells.append(">more")
-    cw = WIDTH / BANK_COLS
+    cw = PANEL_W / BANK_COLS
     ch = (BANK_RECT.h - 8) / BANK_ROWS
     out = []
     for i, name in enumerate(cells):
@@ -489,7 +556,7 @@ class Game:
         self.overlay = None
         self.sfx.play("click")
         return
-      screens.PANELS[self.overlay].press(self, pos)
+      screens.PANELS[self.overlay].press(self, (mx - self.overlay_x(), my))
       return
     if SUBJ_RECT.collidepoint(mx, my):
       for rect, s in self.subject_rects():
@@ -501,6 +568,10 @@ class Game:
           self.select_category(c)
     elif BANNER_RECT.collidepoint(mx, my):
       self.sfx.play("click")
+      if (self.current_video() and
+          math.hypot(mx - VIDEO_CENTER[0], my - VIDEO_CENTER[1]) <= VIDEO_R + 6):
+        self.watch_video()
+        return
       if mx < BANNER_RECT.x + 64 and self.calls.play(self.puzzle):
         return                   # tap the little picture to hear its sound
       if self.mode == "quiz":
@@ -607,7 +678,7 @@ class Game:
 
   @staticmethod
   def crayon_x(i):
-    return 22 + i * 33
+    return PLAY_RECT.x + 22 + i * 33
 
   def finish_drawing(self):
     """Done: every stroke of the child's picture becomes a line of dominoes."""
@@ -823,7 +894,7 @@ class Game:
     if item.get("word_img") and not self.banner_override:
       word = self.image(os.path.join(hub.HERE, item["word_img"]))
       if word is not None:
-        avail_w = SPEAKER_CENTER[0] - SPEAKER_R - 10 - x_start
+        avail_w = self.banner_right() - 10 - x_start
         avail_h = BANNER_RECT.h - 12
         if now - self.praised_at < 2.5:  # glow on "Well done"
           pygame.draw.rect(screen, YELLOW, BANNER_RECT, 5, border_radius=14)
@@ -833,11 +904,12 @@ class Game:
         screen.blit(word, word.get_rect(center=(x_start + avail_w / 2,
                                                 BANNER_RECT.centery)))
       self.draw_speaker(screen)
+      self.draw_video_button(screen, now)
       return
 
     name = self.banner_override or item.get("tile_text") or self.puzzle
     gap = 3
-    avail = SPEAKER_CENTER[0] - SPEAKER_R - 8 - x_start
+    avail = self.banner_right() - 8 - x_start
     units = sum(0.5 if ch == " " else 1 for ch in name)
     tile_w = int(min(44, (avail - gap * (len(name) - 1)) / units))
     tile_h = min(54, int(tile_w * 1.3))
@@ -873,6 +945,25 @@ class Game:
       letter_idx += 1
     screen.set_clip(None)
     self.draw_speaker(screen)
+    self.draw_video_button(screen, now)
+
+  def banner_right(self):
+    """Where the name tiles must stop (before the video and speaker buttons)."""
+    if self.current_video():
+      return VIDEO_CENTER[0] - VIDEO_R
+    return SPEAKER_CENTER[0] - SPEAKER_R
+
+  def draw_video_button(self, screen, now):
+    """Red "watch the real thing" play button; it pulses after a finish."""
+    if not self.current_video():
+      return
+    cx, cy = VIDEO_CENTER
+    if self.stage == "finished":
+      r = VIDEO_R + 4 + 3 * math.sin(now * 6)
+      pygame.draw.circle(screen, YELLOW, VIDEO_CENTER, int(r), 3)
+    pygame.draw.circle(screen, (230, 40, 50), VIDEO_CENTER, VIDEO_R)
+    pygame.draw.circle(screen, WHITE, VIDEO_CENTER, VIDEO_R, 2)
+    pygame.draw.polygon(screen, WHITE, [(cx - 6, cy - 10), (cx - 6, cy + 10), (cx + 11, cy)])
 
   def draw_speaker(self, screen):
     """Speaker icon (tap to hear the name again)."""
@@ -903,6 +994,8 @@ class Game:
       if self.story:
         last = self.story["step"] == len(self.story["story"]["steps"]) - 1
         return "The end! Pick another story" if last else "Tap for the next part!"
+      if self.current_video():
+        return "Yay! See it for real: tap the red button"
       return "Yay! Tap to play again, or Next"
     return ""
 
@@ -1014,7 +1107,7 @@ class Game:
     if self.story:                      # story progress dots
       steps = len(self.story["story"]["steps"])
       for k in range(steps):
-        cx = WIDTH / 2 + (k - (steps - 1) / 2) * 22
+        cx = PLAY_RECT.centerx + (k - (steps - 1) / 2) * 22
         done = k < self.story["step"] or (k == self.story["step"] and self.stage == "finished")
         pygame.draw.circle(screen, YELLOW if done else HINT, (int(cx), PLAY_RECT.top + 14),
                            7 if k == self.story["step"] else 5, 0 if done else 2)
@@ -1024,8 +1117,8 @@ class Game:
     if streak >= 5:
       hint = f"Streak {streak}!  " + hint
     if hint:
-      surf = fit_label(self.hint_font, hint, YELLOW if streak >= 5 else HINT, WIDTH - 20)
-      screen.blit(surf, surf.get_rect(center=(WIDTH / 2, PLAY_RECT.bottom - 14)))
+      surf = fit_label(self.hint_font, hint, YELLOW if streak >= 5 else HINT, PLAY_RECT.w - 20)
+      screen.blit(surf, surf.get_rect(center=(PLAY_RECT.centerx, PLAY_RECT.bottom - 14)))
     if self.celebration:
       self.draw_celebration(screen, now)
     screen.set_clip(None)
@@ -1063,20 +1156,21 @@ class Game:
 
   def draw_shelf(self, screen, now):
     """Sticker shelf: every sticker, earned ones in colour."""
-    area = pygame.Rect(0, 0, WIDTH, STICKER_RECT.top - 6)
+    width = screen.get_width()           # the shelf panel is 450 wide
+    area = pygame.Rect(0, 0, width, STICKER_RECT.top - 6)
     shade = pygame.Surface(area.size, pygame.SRCALPHA)
     shade.fill((*self.theme["bg"], 240))
     screen.blit(shade, area.topleft)
     title = self.big_font.render(f"{self.progress.data['name']}'s Stickers", True, YELLOW)
-    screen.blit(title, title.get_rect(center=(WIDTH / 2, 24)))
+    screen.blit(title, title.get_rect(center=(width / 2, 24)))
     info = (f"Traced {self.progress.count()} of {self.progress.total}   "
             f"Best streak {self.progress.data.get('best_streak', 0)}")
     surf = self.font.render(info, True, CYAN)
-    screen.blit(surf, surf.get_rect(center=(WIDTH / 2, 50)))
+    screen.blit(surf, surf.get_rect(center=(width / 2, 50)))
     cats = [c for cs in self.subjects.values() for c in cs]
     stickers = self.progress.all_stickers(cats, [s["id"] for s in stories.STORIES])
     cols = 8
-    cw = WIDTH / cols
+    cw = width / cols
     ch = (area.h - 90) / math.ceil(len(stickers) / cols)
     r = int(min(cw, ch) * 0.33)
     for i, sid in enumerate(stickers):
@@ -1095,7 +1189,7 @@ class Game:
       lbl = fit_label(self.small_font, label, WHITE if earned else HINT, cw - 2)
       screen.blit(lbl, lbl.get_rect(center=(cx, cy + r + 7)))
     tip = self.small_font.render("Tap anywhere to go back", True, HINT)
-    screen.blit(tip, tip.get_rect(center=(WIDTH / 2, area.bottom - 10)))
+    screen.blit(tip, tip.get_rect(center=(width / 2, area.bottom - 10)))
 
   def _loop_slices(self):
     out, start = [], 0
@@ -1108,23 +1202,23 @@ class Game:
     """Story sentence, or the second-language name and the description."""
     item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
     if self.story and self.mode == "trace":
-      lines = wrap_text(self.font, self.story_line(), WIDTH - 24)[:2]
+      lines = wrap_text(self.font, self.story_line(), PANEL_W - 24)[:2]
       for n, line in enumerate(lines):
         surf = self.font.render(line, True, YELLOW)
-        screen.blit(surf, surf.get_rect(midtop=(WIDTH / 2, DESC_Y + n * 17)))
+        screen.blit(surf, surf.get_rect(midtop=(PANEL_W / 2, DESC_Y + n * 17)))
       return
     if self.banner_override:              # spelling: don't give the word away
       return
     native = None if item.get("word_img") else self.native_image(self.cat, self.puzzle, 18)
     desc = item["desc"]
     if native is not None:
-      screen.blit(native, native.get_rect(midtop=(WIDTH / 2, DESC_Y)))
-      line = fit_label(self.font, desc, CYAN, WIDTH - 20)
-      screen.blit(line, line.get_rect(midtop=(WIDTH / 2, DESC_Y + 19)))
+      screen.blit(native, native.get_rect(midtop=(PANEL_W / 2, DESC_Y)))
+      line = fit_label(self.font, desc, CYAN, PANEL_W - 20)
+      screen.blit(line, line.get_rect(midtop=(PANEL_W / 2, DESC_Y + 19)))
       return
-    for n, line in enumerate(wrap_text(self.font, desc, WIDTH - 24)[:2]):
+    for n, line in enumerate(wrap_text(self.font, desc, PANEL_W - 24)[:2]):
       surf = self.font.render(line, True, CYAN)
-      screen.blit(surf, surf.get_rect(midtop=(WIDTH / 2, DESC_Y + n * 17)))
+      screen.blit(surf, surf.get_rect(midtop=(PANEL_W / 2, DESC_Y + n * 17)))
 
   def draw(self, screen):
     now = time.time()
@@ -1195,11 +1289,34 @@ class Game:
     lbl = self.hint_font.render("Next >", True, WHITE)
     screen.blit(lbl, lbl.get_rect(center=NEXT_RECT.center))
 
+    if LANDSCAPE:                        # control column | play area
+      pygame.draw.line(screen, tm["panel"], (PANEL_W, 0), (PANEL_W, HEIGHT), 3)
     self.particles.draw(screen, self.hint_font)
-    if self.overlay == "shelf":
-      self.draw_shelf(screen, now)
-    elif self.overlay:
-      screens.PANELS[self.overlay].draw(screen, self, now)
+    if self.overlay:
+      panel = screen
+      if LANDSCAPE:                      # panels are 450 wide: centre one, dim the rest
+        dim = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+        dim.fill((0, 0, 0, 150))
+        screen.blit(dim, (0, 0))
+        panel = screen.subsurface(pygame.Rect(self.overlay_x(), 0, PANEL_W, HEIGHT))
+      if self.overlay == "shelf":
+        self.draw_shelf(panel, now)
+      else:
+        screens.PANELS[self.overlay].draw(panel, self, now)
+
+  def overlay_x(self):
+    """Left edge of the 450-wide panels (over the play area when wide)."""
+    if not LANDSCAPE:
+      return 0
+    return min(WIDTH - PANEL_W, PANEL_W + max(0, (WIDTH - 2 * PANEL_W) // 2))
+
+  def relayout(self):
+    """The screen turned or resized: fit the picture into the new play area."""
+    self.particles.texts = []
+    if self.mode in ("quiz", "spell"):
+      self.set_mode(self.mode)
+    else:
+      self.load_item(announce=False)
 
   def draw_star(self, screen, center, r):
     cx, cy = center
@@ -1282,6 +1399,19 @@ class FullScreen:
     self.full = not self.full
     open_display(self.full)
 
+  def pause(self):
+    """Computer: a window instead of full screen while a video plays."""
+    self.paused = self.full and not IS_WEB and not IS_ANDROID
+    if self.paused:
+      self.full = False
+      open_display(False)
+
+  def resume(self):
+    if getattr(self, "paused", False):
+      self.paused = False
+      self.full = True
+      open_display(True)
+
   def leave(self):
     """Esc: step out of full screen first. True if it did."""
     if self.available and not IS_WEB and self.full:
@@ -1321,7 +1451,7 @@ def open_display(full=None):
   except Exception:
     desk_h = 900
   h = max(480, int(desk_h * 0.85))
-  return pygame.display.set_mode((int(h * WIDTH / HEIGHT), h), pygame.RESIZABLE)
+  return pygame.display.set_mode((int(h * PANEL_W / HEIGHT), h), pygame.RESIZABLE)
 
 
 async def main():
@@ -1406,10 +1536,35 @@ def log_event(event):
       pass
 
 
+def screen_shape(window, state):
+  """Shape of the real screen: the browser page on the web, else the window."""
+  if not IS_WEB:
+    return window.get_size()
+  now = time.time()
+  if now - state.get("shape_at", 0.0) > 0.4:    # asking the page costs a little
+    state["shape_at"] = now
+    try:
+      import platform
+      state["shape"] = (int(platform.window.innerWidth), int(platform.window.innerHeight))
+    except Exception:
+      state["shape"] = window.get_size()
+  return state.get("shape", window.get_size())
+
+
 def frame(game, view, canvas, state):
   """One frame: input, update, draw. Returns False when the game should quit."""
   running = True
   window = pygame.display.get_surface()
+  # Turned phone, resized window or full screen: pick portrait or landscape
+  target = layout_width(screen_shape(window, state))
+  if target != WIDTH:
+    set_layout(target)
+    if IS_WEB:                           # the browser canvas takes the new shape
+      window = pygame.display.set_mode((WIDTH, HEIGHT))
+    game.relayout()
+  canvas = state.get("canvas", canvas)
+  if canvas.get_size() != (WIDTH, HEIGHT):
+    canvas = state["canvas"] = pygame.Surface((WIDTH, HEIGHT))
   view.fit(window.get_size())
   now = time.time()
   ww, wh = window.get_size()
@@ -1425,6 +1580,11 @@ def frame(game, view, canvas, state):
       log_event(event)
     if event.type == pygame.QUIT:
       running = False
+    elif event.type == pygame.WINDOWFOCUSLOST:
+      game.player.focus_lost()
+    elif event.type == pygame.WINDOWFOCUSGAINED:
+      if game.player.returned():         # back from the video in the browser
+        game.back_from_video()
     elif event.type == pygame.KEYDOWN:
       full = getattr(game, "fullscreen", None)
       if full and event.key == pygame.K_F11 and game.overlay != "rename":
@@ -1443,8 +1603,8 @@ def frame(game, view, canvas, state):
       if state["finger"] is not None and state["finger_pos"]:
         game.release(state["finger_pos"])     # a new touch takes over
       state.update(finger=event.finger_id, finger_at=now, finger_pos=pos)
-      tapped(game)
-      game.press(pos)
+      if not tapped(game):               # the first web tap only opens full screen
+        game.press(pos)
     elif event.type == pygame.FINGERMOTION:
       state["ignore_mouse_until"] = now + 0.6
       if event.finger_id == state["finger"]:
@@ -1464,13 +1624,15 @@ def frame(game, view, canvas, state):
         continue
       pos = view.to_virtual(*event.pos)
       if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        tapped(game)
-        game.press(pos)
+        if not tapped(game):
+          game.press(pos)
       elif event.type == pygame.MOUSEMOTION and event.buttons[0]:
         game.drag(pos)
       elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
         game.release(pos)
 
+  if game.player.closed():               # browser: "Back to play" was pressed
+    game.back_from_video()
   game.update()
   game.draw(canvas)
   full = getattr(game, "fullscreen", None)
@@ -1482,9 +1644,12 @@ def frame(game, view, canvas, state):
 
 
 def tapped(game):
+  """True when this tap was used to go full screen (the picture then resizes)."""
   full = getattr(game, "fullscreen", None)
-  if full:
+  if full and full.first_tap:
     full.tapped()
+    return True
+  return False
 
 
 if __name__ == "__main__":

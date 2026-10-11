@@ -70,6 +70,12 @@ def download(url, path):
   return path
 
 
+# Parts of a picture left out of its outline (x0, y0, x1, y1 on the 618 px image)
+EMOJI_TRIM = {
+    "Cartoons/Mermaid": [(0, 0, 192, 618)],     # the thin trident
+}
+
+
 def emoji_png(code):
   for name in (f"{code}.png", f"{code}-FE0F.png"):
     try:
@@ -475,6 +481,11 @@ def main():
             mask = cv2.morphologyEx(
                 mask, cv2.MORPH_CLOSE,
                 cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9)))
+            for x0, y0, x1, y1 in EMOJI_TRIM.get(key, ()):
+              mask[y0:y1, x0:x1] = 0         # thin props make messy dots
+              arr = np.array(img)
+              arr[y0:y1, x0:x1] = 0
+              img = Image.fromarray(arr)
             pic = img
             min_frac = 0.02
           elif kind == "glyph":

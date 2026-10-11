@@ -501,6 +501,10 @@ ITEM_SOUNDS = {
     "Badminton": "pock", "Hockey": "bat", "Trophy": "cheer", "Medal": "cheer",
     "Hospital": "wail", "Temple": "bell", "Church": "bell", "School": "bell",
     "Factory": "rumble", "Sea": "waves",
+    "Superhero": "whoosh", "Dragon": "roar", "Unicorn": "neigh", "Mermaid": "waves",
+    "Fairy": "bell", "Genie": "whoosh", "Wizard": "whoosh", "Ninja": "whoosh",
+    "Prince": "trumpet", "Princess": "trumpet", "Alien": "rocket", "Ghost": "wind",
+    "Snowman": "wind", "Santa": "bell",
 }
 
 

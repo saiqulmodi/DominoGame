@@ -1,0 +1,2422 @@
+{
+ "Animals/Camel": {
+  "artist": "Frank Vincentz",
+  "desc": "Dromedary (Camelus dromedarius) in Ecomuseo La Alcogida at Aldea Tefia, FV-207 in Tefia, Puerto del Rosario, Fuerteventura, Canary Islands",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APuerto_del_Rosario_-_Tefia_-_La_Alcogida_-_dromedary_%28oT%29_01.ogv",
+  "seconds": 18.56,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5f/Puerto_del_Rosario_-_Tefia_-_La_Alcogida_-_dromedary_%28oT%29_01.ogv/Puerto_del_Rosario_-_Tefia_-_La_Alcogida_-_dromedary_%28oT%29_01.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5f/Puerto_del_Rosario_-_Tefia_-_La_Alcogida_-_dromedary_%28oT%29_01.ogv/Puerto_del_Rosario_-_Tefia_-_La_Alcogida_-_dromedary_%28oT%29_01.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Puerto del Rosario - Tefia - La Alcogida - dromedary (oT) 01.ogv"
+ },
+ "Animals/Cow": {
+  "artist": "Frank Vincentz",
+  "desc": "Young female cattle on a meadow in Radevormwald",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ARadevormwald_-_cattle_02_ies.ogv",
+  "seconds": 43.2,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/06/Radevormwald_-_cattle_02_ies.ogv/Radevormwald_-_cattle_02_ies.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/06/Radevormwald_-_cattle_02_ies.ogv/Radevormwald_-_cattle_02_ies.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Radevormwald - cattle 02 ies.ogv"
+ },
+ "Animals/Dog": {
+  "artist": "Calogero bonaventura",
+  "desc": "Video che mostra un cane che mangia un normale biscotto per cani",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACanemangia.ogv",
+  "seconds": 29.533333333333335,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Canemangia.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/dc/Canemangia.ogv/Canemangia.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Canemangia.ogv"
+ },
+ "Animals/Goat": {
+  "artist": "Loz Pycock",
+  "desc": "Baby goats in Slea Head Famine Cottages and Animal Park, Ventry, Kerry, Ireland.",
+  "editor_pick": true,
+  "license": "CC BY-SA 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABaby_goats_in_Ireland.webm",
+  "seconds": 39.57,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Baby_goats_in_Ireland.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5e/Baby_goats_in_Ireland.webm/Baby_goats_in_Ireland.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Baby goats in Ireland.webm"
+ },
+ "Animals/Horse": {
+  "artist": "AnRo0002",
+  "desc": "Pferdedressur in der Domäne Mechtildshausen",
+  "editor_pick": true,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A20120616Domaene_Mechtildshausen04.ogv",
+  "seconds": 108.99891,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/9/94/20120616Domaene_Mechtildshausen04.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/94/20120616Domaene_Mechtildshausen04.ogv/20120616Domaene_Mechtildshausen04.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:20120616Domaene Mechtildshausen04.ogv"
+ },
+ "Animals/Monkey": {
+  "artist": "Frank Schulenburg",
+  "desc": "Japanese macaques (Macaca fuscata) grooming each other at the Jigokudani Monkey Park, Japan",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AJapanmakaken_im_Jigokudani_Monkey_Park_bei_der_Fellpflege.webm",
+  "seconds": 79.682,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/36/Japanmakaken_im_Jigokudani_Monkey_Park_bei_der_Fellpflege.webm/Japanmakaken_im_Jigokudani_Monkey_Park_bei_der_Fellpflege.webm.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Japanmakaken im Jigokudani Monkey Park bei der Fellpflege.webm"
+ },
+ "Animals/Pig": {
+  "artist": "Adoscam",
+  "desc": "Une truie (femelle du cochon) de race métis de couleur noire s'alimentant dans un enclos sur une ferme à Porto-Nono au Bénin",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AUne_truie_%28femelle_du_cochon%29_de_race_m%C3%A9tis_de_couleur_noire_s%27alimentant_dans_un_enclos_sur_une_ferme_%C3%A0_Porto-Nono_au_B%C3%A9nin.webm",
+  "seconds": 31.133,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e3/Une_truie_%28femelle_du_cochon%29_de_race_m%C3%A9tis_de_couleur_noire_s%27alimentant_dans_un_enclos_sur_une_ferme_%C3%A0_Porto-Nono_au_B%C3%A9nin.webm/Une_truie_%28femelle_du_cochon%29_de_race_m%C3%A9tis_de_couleur_noire_s%27alimentant_dans_un_enclos_sur_une_ferme_%C3%A0_Porto-Nono_au_B%C3%A9nin.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e3/Une_truie_%28femelle_du_cochon%29_de_race_m%C3%A9tis_de_couleur_noire_s%27alimentant_dans_un_enclos_sur_une_ferme_%C3%A0_Porto-Nono_au_B%C3%A9nin.webm/Une_truie_%28femelle_du_cochon%29_de_race_m%C3%A9tis_de_couleur_noire_s%27alimentant_dans_un_enclos_sur_une_ferme_%C3%A0_Porto-Nono_au_B%C3%A9nin.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Une truie (femelle du cochon) de race métis de couleur noire s'alimentant dans un enclos sur une ferme à Porto-Nono au Bénin.webm"
+ },
+ "Animals/Rabbit": {
+  "artist": "Fowler&amp;fowler",
+  "desc": "Rabbit browsing",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ARabbit_browsing.webm",
+  "seconds": 18.67,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d4/Rabbit_browsing.webm/Rabbit_browsing.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d4/Rabbit_browsing.webm/Rabbit_browsing.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Rabbit browsing.webm"
+ },
+ "Animals/Tiger": {
+  "artist": "Grendelkhan",
+  "desc": "A Bengal tiger-Indochinese tiger crossbreed swimming in a pool at Tiger Park Pattaya and playing with a piece of wood.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATiger_playing_with_a_piece_of_wood_in_a_pool.webm",
+  "seconds": 37.037,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2b/Tiger_playing_with_a_piece_of_wood_in_a_pool.webm/Tiger_playing_with_a_piece_of_wood_in_a_pool.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2b/Tiger_playing_with_a_piece_of_wood_in_a_pool.webm/Tiger_playing_with_a_piece_of_wood_in_a_pool.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Tiger playing with a piece of wood in a pool.webm"
+ },
+ "Birds/Dove": {
+  "artist": "",
+  "desc": "",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APtilinopus_porphyrea.ogv",
+  "seconds": 11.0,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/9/92/Ptilinopus_porphyrea.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/92/Ptilinopus_porphyrea.ogv/Ptilinopus_porphyrea.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Ptilinopus porphyrea.ogv"
+ },
+ "Birds/Duck": {
+  "artist": "POS78",
+  "desc": "Ducks in Kashmar",
+  "editor_pick": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADucks_in_Kashmar2021.webm",
+  "seconds": 13.795,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/88/Ducks_in_Kashmar2021.webm/Ducks_in_Kashmar2021.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/88/Ducks_in_Kashmar2021.webm/Ducks_in_Kashmar2021.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Ducks in Kashmar2021.webm"
+ },
+ "Birds/Eagle": {
+  "artist": "Aviceda",
+  "desc": "Crested Serpent Eagle (Spilornis cheela) In flight, Cotigao NP, Goa, India",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACrested_Serpent_Eagle_flight.ogv",
+  "seconds": 18.76,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Crested_Serpent_Eagle_flight.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9c/Crested_Serpent_Eagle_flight.ogv/Crested_Serpent_Eagle_flight.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Crested Serpent Eagle flight.ogv"
+ },
+ "Birds/Owl": {
+  "artist": "بدارين",
+  "desc": "Little owl (Athene noctua) filmed in Palestine.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ALittle_Owl%2CSouth_Hebron.webm",
+  "seconds": 66.403,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c1/Little_Owl%2CSouth_Hebron.webm/Little_Owl%2CSouth_Hebron.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c1/Little_Owl%2CSouth_Hebron.webm/Little_Owl%2CSouth_Hebron.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Little Owl,South Hebron.webm"
+ },
+ "Birds/Parrot": {
+  "artist": "exfordy (Brian Snelson)",
+  "desc": "A Blue-fronted Amazon at The Parrot Zoo, Friskney, Lincolnshire, England.",
+  "editor_pick": true,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAmazona_aestiva_-The_Parrot_Zoo%2C_Friskney%2C_Lincolnshire%2C_England_-laughing-8a.ogv",
+  "seconds": 40.72780045351474,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Amazona_aestiva_-The_Parrot_Zoo%2C_Friskney%2C_Lincolnshire%2C_England_-laughing-8a.ogv/Amazona_aestiva_-The_Parrot_Zoo%2C_Friskney%2C_Lincolnshire%2C_England_-laughing-8a.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Amazona_aestiva_-The_Parrot_Zoo%2C_Friskney%2C_Lincolnshire%2C_England_-laughing-8a.ogv/Amazona_aestiva_-The_Parrot_Zoo%2C_Friskney%2C_Lincolnshire%2C_England_-laughing-8a.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Amazona aestiva -The Parrot Zoo, Friskney, Lincolnshire, England -laughing-8a.ogv"
+ },
+ "Birds/Peacock": {
+  "artist": "Altes",
+  "desc": "Indian peafowls and chickens in Rostov-on-Don zoo.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APeafowls_and_chickens.webm",
+  "seconds": 6.323,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8e/Peafowls_and_chickens.webm/Peafowls_and_chickens.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8e/Peafowls_and_chickens.webm/Peafowls_and_chickens.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Peafowls and chickens.webm"
+ },
+ "Birds/Penguin": {
+  "artist": "Brocken Inaglory",
+  "desc": "Chinstrap Penguins are trying to get to iceberg in Antarctica.",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APygoscelis_antarctica_trying_to_get_to_iceberg_edit1.ogv",
+  "seconds": 48.81543333333333,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Pygoscelis_antarctica_trying_to_get_to_iceberg_edit1.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/ef/Pygoscelis_antarctica_trying_to_get_to_iceberg_edit1.ogv/Pygoscelis_antarctica_trying_to_get_to_iceberg_edit1.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Pygoscelis antarctica trying to get to iceberg edit1.ogv"
+ },
+ "Birds/Rooster": {
+  "artist": "Remarksman",
+  "desc": "The chickens are happy to be out in the yard even on a wet and drizzly day.",
+  "editor_pick": true,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AChickens_scratching.webm",
+  "seconds": 15.932,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Chickens_scratching.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e3/Chickens_scratching.webm/Chickens_scratching.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Chickens scratching.webm"
+ },
+ "Bridges/Arch Bridge": {
+  "artist": "Nchiriano",
+  "desc": "Rendering 3D di Modesto Bilotta che sintetizza le fasi di realizzazione del viadotto sulla Fiumarella a Catanzaro, opera di Riccardo Morandi",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AViadotto_Bisantis%2C_Catanzaro_-_fasi_della_costruzione.webm",
+  "seconds": 40.307,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/63/Viadotto_Bisantis%2C_Catanzaro_-_fasi_della_costruzione.webm/Viadotto_Bisantis%2C_Catanzaro_-_fasi_della_costruzione.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/63/Viadotto_Bisantis%2C_Catanzaro_-_fasi_della_costruzione.webm/Viadotto_Bisantis%2C_Catanzaro_-_fasi_della_costruzione.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Viadotto Bisantis, Catanzaro - fasi della costruzione.webm"
+ },
+ "Bridges/Howrah Bridge": {
+  "artist": "Hridoy Kundu",
+  "desc": "This video was captured while a boat going beneath the Howrah Bridge at night.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AHowrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm",
+  "seconds": 30.024,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/df/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/df/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm/Howrah_Bridge_Night_View_%28Silent_Video%29_Full_HD_1080p_HIGH_FR60.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Howrah Bridge Night View (Silent Video) Full HD 1080p HIGH FR60.webm"
+ },
+ "Bridges/Suspension Bridge": {
+  "artist": "https://www.youtube.com/user/Editor",
+  "desc": "Shot of the Bay Bridge, connecting San Francisco, Treasure Island, and Oakland",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASan_Francisco_Bay_Bridge.webm",
+  "seconds": 9.143,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7d/San_Francisco_Bay_Bridge.webm/San_Francisco_Bay_Bridge.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7d/San_Francisco_Bay_Bridge.webm/San_Francisco_Bay_Bridge.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:San Francisco Bay Bridge.webm"
+ },
+ "Bridges/Tower Bridge": {
+  "artist": "Joergsam",
+  "desc": "LondonTowerBridge1998Video1",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ALondonTowerBridge1998Video1.ogv",
+  "seconds": 38.621655328798184,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/0/0d/LondonTowerBridge1998Video1.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0d/LondonTowerBridge1998Video1.ogv/LondonTowerBridge1998Video1.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:LondonTowerBridge1998Video1.ogv"
+ },
+ "Buildings/Castle": {
+  "artist": "Дмитро Феняк",
+  "desc": "Генуезький замок (цитадель), Білгород-Дністровський, вул. Адмірала Ушакова",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A%D0%90%D0%BA%D0%BA%D0%B5%D1%80%D0%BC%D0%B0%D0%BD%D1%81%D1%8C%D0%BA%D0%B0_%D1%84%D0%BE%D1%80%D1%82%D0%B5%D1%86%D1%8F_%28%D0%A6%D0%B8%D1%82%D0%B0%D0%B4%D0%B5%D0%BB%D1%8C%29_-_1.webm",
+  "seconds": 15.802630859375,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a9/%D0%90%D0%BA%D0%BA%D0%B5%D1%80%D0%BC%D0%B0%D0%BD%D1%81%D1%8C%D0%BA%D0%B0_%D1%84%D0%BE%D1%80%D1%82%D0%B5%D1%86%D1%8F_%28%D0%A6%D0%B8%D1%82%D0%B0%D0%B4%D0%B5%D0%BB%D1%8C%29_-_1.webm/%D0%90%D0%BA%D0%BA%D0%B5%D1%80%D0%BC%D0%B0%D0%BD%D1%81%D1%8C%D0%BA%D0%B0_%D1%84%D0%BE%D1%80%D1%82%D0%B5%D1%86%D1%8F_%28%D0%A6%D0%B8%D1%82%D0%B0%D0%B4%D0%B5%D0%BB%D1%8C%29_-_1.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a9/%D0%90%D0%BA%D0%BA%D0%B5%D1%80%D0%BC%D0%B0%D0%BD%D1%81%D1%8C%D0%BA%D0%B0_%D1%84%D0%BE%D1%80%D1%82%D0%B5%D1%86%D1%8F_%28%D0%A6%D0%B8%D1%82%D0%B0%D0%B4%D0%B5%D0%BB%D1%8C%29_-_1.webm/%D0%90%D0%BA%D0%BA%D0%B5%D1%80%D0%BC%D0%B0%D0%BD%D1%81%D1%8C%D0%BA%D0%B0_%D1%84%D0%BE%D1%80%D1%82%D0%B5%D1%86%D1%8F_%28%D0%A6%D0%B8%D1%82%D0%B0%D0%B4%D0%B5%D0%BB%D1%8C%29_-_1.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Аккерманська фортеця (Цитадель) - 1.webm"
+ },
+ "Buildings/House": {
+  "artist": "Salifu Wumpini Hussein",
+  "desc": "A typical Mudhouse of a family in rural Tamale.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADrone_or_view_of_a_Mudhouse_House_02.webm",
+  "seconds": 22.289,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c5/Drone_or_view_of_a_Mudhouse_House_02.webm/Drone_or_view_of_a_Mudhouse_House_02.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c5/Drone_or_view_of_a_Mudhouse_House_02.webm/Drone_or_view_of_a_Mudhouse_House_02.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Drone or view of a Mudhouse House 02.webm"
+ },
+ "Buildings/Temple": {
+  "artist": "03Ani03",
+  "desc": "Charan Tirath",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACharan_Tirath.webm",
+  "seconds": 5.347,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2b/Charan_Tirath.webm/Charan_Tirath.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2b/Charan_Tirath.webm/Charan_Tirath.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Charan Tirath.webm"
+ },
+ "Cities/Agra": {
+  "artist": "See script and authors listed in details below.",
+  "desc": "Wikipedia:VideoWiki/Taj_Mahal",
+  "editor_pick": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AEu.Video-Taj_Mahal.webm",
+  "seconds": 53.647,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/11/Eu.Video-Taj_Mahal.webm/Eu.Video-Taj_Mahal.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/11/Eu.Video-Taj_Mahal.webm/Eu.Video-Taj_Mahal.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Eu.Video-Taj Mahal.webm"
+ },
+ "Cities/Dubai": {
+  "artist": "NASA/Goddard Space Flight Center",
+  "desc": "This time-lapse video shows the rate of Dubai's growth at one frame per year from 2000 through 2011. In the false-color satellite images making up the video, bare desert is tan, plant-covered land is ",
+  "editor_pick": true,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADubai%27s_Rapid_Growth.ogv",
+  "seconds": 12.07437641723356,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e7/Dubai%27s_Rapid_Growth.ogv/Dubai%27s_Rapid_Growth.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e7/Dubai%27s_Rapid_Growth.ogv/Dubai%27s_Rapid_Growth.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Dubai's Rapid Growth.ogv"
+ },
+ "Cities/Hyderabad": {
+  "artist": "Ventrovert",
+  "desc": "Hitec city lake wildlife near Novotel hotel and Hitec exhibition centre, Hyderabad",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AHitec_city_lake_wildlife.webm",
+  "seconds": 53.746,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/a/af/Hitec_city_lake_wildlife.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/af/Hitec_city_lake_wildlife.webm/Hitec_city_lake_wildlife.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Hitec city lake wildlife.webm"
+ },
+ "Cities/London": {
+  "artist": "Christopher Parker",
+  "desc": "A London bus (G551VBB) pulls into its stop outside Bow Church DLR Station in London",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ALondon_Bus_pulls_in.webm",
+  "seconds": 25.898,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/1/17/London_Bus_pulls_in.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/17/London_Bus_pulls_in.webm/London_Bus_pulls_in.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:London Bus pulls in.webm"
+ },
+ "Cities/Mumbai": {
+  "artist": "Zoshua Colah",
+  "desc": "Timelapse video of the life in Mumbai. Fimed with a One Plus Two mobile phone. Copyrighted music removed.",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMumbai_Timelapse_-_Movement_Prevails_Here.webm",
+  "seconds": 176.916,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/34/Mumbai_Timelapse_-_Movement_Prevails_Here.webm/Mumbai_Timelapse_-_Movement_Prevails_Here.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/34/Mumbai_Timelapse_-_Movement_Prevails_Here.webm/Mumbai_Timelapse_-_Movement_Prevails_Here.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Mumbai Timelapse - Movement Prevails Here.webm"
+ },
+ "Cities/New York": {
+  "artist": "Mike LoCascio",
+  "desc": "New York City's Columbus Day Parade 2011 - Sons of San Paolino along with the East Harlem Giglio Society are marching on 5th Ave, NYC. They are seen carrying two saints, St Anthony and San Paolino to ",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AColumbus_Day_-_2011_2.ogv",
+  "seconds": 202.68,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/1/17/Columbus_Day_-_2011_2.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/17/Columbus_Day_-_2011_2.ogv/Columbus_Day_-_2011_2.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Columbus Day - 2011 2.ogv"
+ },
+ "Cities/Tokyo": {
+  "artist": "Emran Kassim from Nagoya, Aichi, Japan",
+  "desc": "My first video on flickr! Taken a year ago at Shibuya,Tokyo Japan (12:18) See where this picture was taken.[?]",
+  "editor_pick": true,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AShibuya_Crossing.ogv",
+  "seconds": 90.00054421768708,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Shibuya_Crossing.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f5/Shibuya_Crossing.ogv/Shibuya_Crossing.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Shibuya Crossing.ogv"
+ },
+ "Countries/Bangladesh": {
+  "artist": "মোঃ সাকিবুল হাসান",
+  "desc": "Tagore Lodge",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A%E0%A6%9F%E0%A7%87%E0%A6%97%E0%A6%B0_%E0%A6%B2%E0%A6%9C.webm",
+  "seconds": 50.6,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0e/%E0%A6%9F%E0%A7%87%E0%A6%97%E0%A6%B0_%E0%A6%B2%E0%A6%9C.webm/%E0%A6%9F%E0%A7%87%E0%A6%97%E0%A6%B0_%E0%A6%B2%E0%A6%9C.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0e/%E0%A6%9F%E0%A7%87%E0%A6%97%E0%A6%B0_%E0%A6%B2%E0%A6%9C.webm/%E0%A6%9F%E0%A7%87%E0%A6%97%E0%A6%B0_%E0%A6%B2%E0%A6%9C.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:টেগর লজ.webm"
+ },
+ "Countries/Egypt": {
+  "artist": "Minamorcose",
+  "desc": "The passage between Port Said and Port Fouad in Egypt, with gulls eating bread in the water",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AThe_Ferry_Between_Port_Foad_and_Port_Said_-_Egypt.webm",
+  "seconds": 151.161,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ce/The_Ferry_Between_Port_Foad_and_Port_Said_-_Egypt.webm/The_Ferry_Between_Port_Foad_and_Port_Said_-_Egypt.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ce/The_Ferry_Between_Port_Foad_and_Port_Said_-_Egypt.webm/The_Ferry_Between_Port_Foad_and_Port_Said_-_Egypt.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:The Ferry Between Port Foad and Port Said - Egypt.webm"
+ },
+ "Countries/Nepal": {
+  "artist": "S Pakhrin",
+  "desc": "Kartik Naach video",
+  "editor_pick": false,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AKartik_Naach_video.ogv",
+  "seconds": 81.5,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/be/Kartik_Naach_video.ogv/Kartik_Naach_video.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:Kartik Naach video.ogv"
+ },
+ "Countries/Sri Lanka": {
+  "artist": "John Townsend",
+  "desc": "Doing the baby elephant walk at Pinnawala Elephant Orphanage Sri Lanka. They are only on the chain for feeding. After receiving their bottles they are returned to the herd.",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABaby_Elephant_at_Pinnawala_Elephant_Orphanage_Sri_Lanka.webm",
+  "seconds": 16.828,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/4/46/Baby_Elephant_at_Pinnawala_Elephant_Orphanage_Sri_Lanka.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/46/Baby_Elephant_at_Pinnawala_Elephant_Orphanage_Sri_Lanka.webm/Baby_Elephant_at_Pinnawala_Elephant_Orphanage_Sri_Lanka.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Baby Elephant at Pinnawala Elephant Orphanage Sri Lanka.webm"
+ },
+ "Food/Bread": {
+  "artist": "Clairissa Simmons",
+  "desc": "A video of a baker in Bahrain making Afghan bread.",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAfgan_Bread_Production.webm",
+  "seconds": 18.363,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6d/Afgan_Bread_Production.webm/Afgan_Bread_Production.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6d/Afgan_Bread_Production.webm/Afgan_Bread_Production.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Afgan Bread Production.webm"
+ },
+ "Food/Cake": {
+  "artist": "rapidcitylibrary",
+  "desc": "Looking to spice it up in the kitchen? Follow along this month as we bake the Easy Berry Cake with Lemon Whipped Cream recipe from the America's Test Kitchen Menu Cookbook.",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AEasy_Berry_Cake_with_Lemon_Whipped_Cream.webm",
+  "seconds": 147.233,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/42/Easy_Berry_Cake_with_Lemon_Whipped_Cream.webm/Easy_Berry_Cake_with_Lemon_Whipped_Cream.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/42/Easy_Berry_Cake_with_Lemon_Whipped_Cream.webm/Easy_Berry_Cake_with_Lemon_Whipped_Cream.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Easy Berry Cake with Lemon Whipped Cream.webm"
+ },
+ "Food/Egg": {
+  "artist": "Coyau",
+  "desc": "spinning hardboiled egg, standing on end.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASpinning_hardboiled_egg_01.ogv",
+  "seconds": 29.0,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/31/Spinning_hardboiled_egg_01.ogv/Spinning_hardboiled_egg_01.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/31/Spinning_hardboiled_egg_01.ogv/Spinning_hardboiled_egg_01.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Spinning hardboiled egg 01.ogv"
+ },
+ "Food/Ice Cream": {
+  "artist": "Fancibaer",
+  "desc": "Oreo Enjoying A Frosty Paws Cold Treat, Shot With A Nikon CoolPix S220.",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AOreo_Enjoying_A_Frosty_Paws_Cold_Treat.webm",
+  "seconds": 93.714,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Oreo_Enjoying_A_Frosty_Paws_Cold_Treat.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a4/Oreo_Enjoying_A_Frosty_Paws_Cold_Treat.webm/Oreo_Enjoying_A_Frosty_Paws_Cold_Treat.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Oreo Enjoying A Frosty Paws Cold Treat.webm"
+ },
+ "Food/Roti": {
+  "artist": "SharonDawn",
+  "desc": "This is an image with the theme \"Farm to Plate\" from:",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMaking_chapatis.webm",
+  "seconds": 58.406,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Making_chapatis.webm/Making_chapatis.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Making_chapatis.webm/Making_chapatis.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Making chapatis.webm"
+ },
+ "Fruits/Banana": {
+  "artist": "Koffermejia",
+  "desc": "Abejas en la flor del platano",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAbejas_en_la_flor_del_platano.webm",
+  "seconds": 33.533,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5d/Abejas_en_la_flor_del_platano.webm/Abejas_en_la_flor_del_platano.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5d/Abejas_en_la_flor_del_platano.webm/Abejas_en_la_flor_del_platano.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Abejas en la flor del platano.webm"
+ },
+ "Fruits/Carrot": {
+  "artist": "Grendelkhan",
+  "desc": "A prairie dog eating a carrot by the railroad tracks in downtown Santa Fe.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APrairie_dog_eating_a_carrot.webm",
+  "seconds": 30.864,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/59/Prairie_dog_eating_a_carrot.webm/Prairie_dog_eating_a_carrot.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/59/Prairie_dog_eating_a_carrot.webm/Prairie_dog_eating_a_carrot.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Prairie dog eating a carrot.webm"
+ },
+ "Fruits/Grapes": {
+  "artist": "Polygoon Hollands Nieuws (producent) / Nederlands Instituut voor Beeld en Geluid",
+  "desc": "DRUIVENFEEST; Weekjournaal van Polygoon Hollands Nieuws van week 39 uit 1938.; Twee meisjes in historische kleding die van een tros druiven eten en een optocht te Huissen tgv het druivenfeest, waarin ",
+  "editor_pick": false,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADRUIVENFEEST-PGM4011538.webm",
+  "seconds": 59.005,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/04/DRUIVENFEEST-PGM4011538.webm/DRUIVENFEEST-PGM4011538.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/04/DRUIVENFEEST-PGM4011538.webm/DRUIVENFEEST-PGM4011538.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:DRUIVENFEEST-PGM4011538.webm"
+ },
+ "Fruits/Mango": {
+  "artist": "Peter Angritt",
+  "desc": "A fruit vendor in Colombia preparing a mango fruit cup.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFruit_vendor_in_Colombia_-_20110527.ogv",
+  "seconds": 54.63333333333333,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Fruit_vendor_in_Colombia_-_20110527.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Fruit_vendor_in_Colombia_-_20110527.ogv/Fruit_vendor_in_Colombia_-_20110527.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Fruit vendor in Colombia - 20110527.ogv"
+ },
+ "Fruits/Strawberry": {
+  "artist": "Mark Rigler from Poole, England",
+  "desc": "Now some where I put down down a bowl of strawberries that I was going to have for my afternoon tea. techy info/ update The Sony A1E has a time lapse function hidden in the menu and the stills are cap",
+  "editor_pick": false,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AStrawberries_time-lapse.ogv",
+  "seconds": 30.0,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/03/Strawberries_time-lapse.ogv/Strawberries_time-lapse.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/03/Strawberries_time-lapse.ogv/Strawberries_time-lapse.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Strawberries time-lapse.ogv"
+ },
+ "Helpers/Farmer": {
+  "artist": "Adefanike",
+  "desc": "Farmers in Atisbo",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFamers_in_ATISBO.webm",
+  "seconds": 60.765,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Famers_in_ATISBO.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1d/Famers_in_ATISBO.webm/Famers_in_ATISBO.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Famers in ATISBO.webm"
+ },
+ "Helpers/Firefighter": {
+  "artist": "Fire Cadet of the Republic of Korea",
+  "desc": "Videos of The 25th Fire Cadet of the Republic of Korea",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A%EC%A0%9C25%EA%B8%B0_%EC%86%8C%EB%B0%A9%EA%B0%84%EB%B6%80%ED%9B%84%EB%B3%B4%EC%83%9D_%EC%A4%91%EC%95%99%EC%86%8C%EB%B0%A9%ED%95%99%EA%B5%90_%EC%88%98%EB%82%9C%EA%B5%AC%EC%A1%B0%ED%9B%88%EB%A0%A8_2017_0103_012735_035.webm",
+  "seconds": 23.52,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d9/%EC%A0%9C25%EA%B8%B0_%EC%86%8C%EB%B0%A9%EA%B0%84%EB%B6%80%ED%9B%84%EB%B3%B4%EC%83%9D_%EC%A4%91%EC%95%99%EC%86%8C%EB%B0%A9%ED%95%99%EA%B5%90_%EC%88%98%EB%82%9C%EA%B5%AC%EC%A1%B0%ED%9B%88%EB%A0%A8_2017_0103_012735_035.webm/%EC%A0%9C25%EA%B8%B0_%EC%86%8C%EB%B0%A9%EA%B0%84%EB%B6%80%ED%9B%84%EB%B3%B4%EC%83%9D_%EC%A4%91%EC%95%99%EC%86%8C%EB%B0%A9%ED%95%99%EA%B5%90_%EC%88%98%EB%82%9C%EA%B5%AC%EC%A1%B0%ED%9B%88%EB%A0%A8_2017_0103_012735_035.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d9/%EC%A0%9C25%EA%B8%B0_%EC%86%8C%EB%B0%A9%EA%B0%84%EB%B6%80%ED%9B%84%EB%B3%B4%EC%83%9D_%EC%A4%91%EC%95%99%EC%86%8C%EB%B0%A9%ED%95%99%EA%B5%90_%EC%88%98%EB%82%9C%EA%B5%AC%EC%A1%B0%ED%9B%88%EB%A0%A8_2017_0103_012735_035.webm/%EC%A0%9C25%EA%B8%B0_%EC%86%8C%EB%B0%A9%EA%B0%84%EB%B6%80%ED%9B%84%EB%B3%B4%EC%83%9D_%EC%A4%91%EC%95%99%EC%86%8C%EB%B0%A9%ED%95%99%EA%B5%90_%EC%88%98%EB%82%9C%EA%B5%AC%EC%A1%B0%ED%9B%88%EB%A0%A8_2017_0103_012735_035.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:제25기 소방간부후보생 중앙소방학교 수난구조훈련 2017 0103 012735 035.webm"
+ },
+ "Helpers/Mechanic": {
+  "artist": "ProtoplasmaKid",
+  "desc": "Red Bull Racing team doing a pit stop practice in the Autódromo Hermanos Rodríguez previous to 2015 Mexican Grand Prix. Mexico City, Mexico.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ARed_Bull_Racing_Pit_Stop_Practice.webm",
+  "seconds": 43.861000000000004,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/ba/Red_Bull_Racing_Pit_Stop_Practice.webm/Red_Bull_Racing_Pit_Stop_Practice.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/ba/Red_Bull_Racing_Pit_Stop_Practice.webm/Red_Bull_Racing_Pit_Stop_Practice.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Red Bull Racing Pit Stop Practice.webm"
+ },
+ "Helpers/Pilot": {
+  "artist": "not named",
+  "desc": "Chuck Yeager broke the sound barrier on October 14, 1947. The plane that carried Yeager, the X-1, now resides at the Smithsonian Institution.",
+  "editor_pick": false,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3AYeager_supersonic_flight_1947.ogv",
+  "seconds": 184.1180045351474,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Yeager_supersonic_flight_1947.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a2/Yeager_supersonic_flight_1947.ogv/Yeager_supersonic_flight_1947.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Yeager supersonic flight 1947.ogv"
+ },
+ "Home/House": {
+  "artist": "Salifu Wumpini Hussein",
+  "desc": "A typical Mudhouse of a family in rural Tamale.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADrone_or_view_of_a_Mudhouse_House_02.webm",
+  "seconds": 22.289,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c5/Drone_or_view_of_a_Mudhouse_House_02.webm/Drone_or_view_of_a_Mudhouse_House_02.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c5/Drone_or_view_of_a_Mudhouse_House_02.webm/Drone_or_view_of_a_Mudhouse_House_02.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Drone or view of a Mudhouse House 02.webm"
+ },
+ "Home/Shoe": {
+  "artist": "Suyash Dwivedi",
+  "desc": "Customized shoe making in Sweden",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACustomized_shoe_making_in_Sweden.webm",
+  "seconds": 45.147,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9d/Customized_shoe_making_in_Sweden.webm/Customized_shoe_making_in_Sweden.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9d/Customized_shoe_making_in_Sweden.webm/Customized_shoe_making_in_Sweden.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Customized shoe making in Sweden.webm"
+ },
+ "Insects/Ant": {
+  "artist": "Pristurus",
+  "desc": "Ants milking aphids. Location: Wollenberg (near Marburg), Hesse, Germany.",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAnts_and_aphids.ogv",
+  "seconds": 93.2,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9c/Ants_and_aphids.ogv/Ants_and_aphids.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9c/Ants_and_aphids.ogv/Ants_and_aphids.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Ants and aphids.ogv"
+ },
+ "Insects/Butterfly": {
+  "artist": "Dennis.insect.filmer",
+  "desc": "Fiery skippers visit a zinnia. The clips are repeated in slow motion. Recorded at 4,000 fps and played back at sixty fps. Its wings beat faster than sixty times per second.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFiery_skipper.webm",
+  "seconds": 130.034,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1e/Fiery_skipper.webm/Fiery_skipper.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1e/Fiery_skipper.webm/Fiery_skipper.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Fiery skipper.webm"
+ },
+ "Insects/Ladybug": {
+  "artist": "Aris riyanto",
+  "desc": "Kumbang kura-kura pada tumbuhan kucing galak",
+  "editor_pick": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A%22%2Barya%2B%22_Coccinellidae_on_Acalypha_indica_-_Pilangsari_2020.webm",
+  "seconds": 30.522000000000002,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b9/%22%2Barya%2B%22_Coccinellidae_on_Acalypha_indica_-_Pilangsari_2020.webm/%22%2Barya%2B%22_Coccinellidae_on_Acalypha_indica_-_Pilangsari_2020.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b9/%22%2Barya%2B%22_Coccinellidae_on_Acalypha_indica_-_Pilangsari_2020.webm/%22%2Barya%2B%22_Coccinellidae_on_Acalypha_indica_-_Pilangsari_2020.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:\"+arya+\" Coccinellidae on Acalypha indica - Pilangsari 2020.webm"
+ },
+ "Insects/Snail": {
+  "artist": "Oleg Yunakov",
+  "desc": "Snails on a chalk",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASnails_on_a_chalk.webm",
+  "seconds": 11.152000000000001,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1d/Snails_on_a_chalk.webm/Snails_on_a_chalk.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1d/Snails_on_a_chalk.webm/Snails_on_a_chalk.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Snails on a chalk.webm"
+ },
+ "Insects/Spider": {
+  "artist": "Pristurus",
+  "desc": "Crab spider (Diaea dorsata) filmed at the Wollenberg, Hesse, Germany",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADiaea_dorsata.ogv",
+  "seconds": 115.68,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9b/Diaea_dorsata.ogv/Diaea_dorsata.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9b/Diaea_dorsata.ogv/Diaea_dorsata.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Diaea dorsata.ogv"
+ },
+ "Music/Banjo": {
+  "artist": "Missvain",
+  "desc": "Bluegrass musician at the The Apple Barn and Cider Mill",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABluegrass_musician_at_the_The_Apple_Barn_and_Cider_Mill_-_October_2023_-_Sarah_Stierch_01.webm",
+  "seconds": 38.443,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/10/Bluegrass_musician_at_the_The_Apple_Barn_and_Cider_Mill_-_October_2023_-_Sarah_Stierch_01.webm/Bluegrass_musician_at_the_The_Apple_Barn_and_Cider_Mill_-_October_2023_-_Sarah_Stierch_01.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/10/Bluegrass_musician_at_the_The_Apple_Barn_and_Cider_Mill_-_October_2023_-_Sarah_Stierch_01.webm/Bluegrass_musician_at_the_The_Apple_Barn_and_Cider_Mill_-_October_2023_-_Sarah_Stierch_01.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Bluegrass musician at the The Apple Barn and Cider Mill - October 2023 - Sarah Stierch 01.webm"
+ },
+ "Music/Bell": {
+  "artist": "中国新闻网",
+  "desc": "​2月12日，大年初一，湖北武汉海昌极地海洋公园两只麦哲伦企鹅大七、小七登黄鹤楼敲钟祈福。",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A2021-02-13_%E5%8F%AF%E5%8F%AF%E7%88%B1%E7%88%B1_%E4%B8%A4%E5%8F%AA%E4%BC%81%E9%B9%85%E9%BB%84%E9%B9%A4%E6%A5%BC%E6%95%B2%E9%92%9F%E7%A5%88%E7%A6%8F.webm",
+  "seconds": 37.68,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/00/2021-02-13_%E5%8F%AF%E5%8F%AF%E7%88%B1%E7%88%B1_%E4%B8%A4%E5%8F%AA%E4%BC%81%E9%B9%85%E9%BB%84%E9%B9%A4%E6%A5%BC%E6%95%B2%E9%92%9F%E7%A5%88%E7%A6%8F.webm/2021-02-13_%E5%8F%AF%E5%8F%AF%E7%88%B1%E7%88%B1_%E4%B8%A4%E5%8F%AA%E4%BC%81%E9%B9%85%E9%BB%84%E9%B9%A4%E6%A5%BC%E6%95%B2%E9%92%9F%E7%A5%88%E7%A6%8F.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/00/2021-02-13_%E5%8F%AF%E5%8F%AF%E7%88%B1%E7%88%B1_%E4%B8%A4%E5%8F%AA%E4%BC%81%E9%B9%85%E9%BB%84%E9%B9%A4%E6%A5%BC%E6%95%B2%E9%92%9F%E7%A5%88%E7%A6%8F.webm/2021-02-13_%E5%8F%AF%E5%8F%AF%E7%88%B1%E7%88%B1_%E4%B8%A4%E5%8F%AA%E4%BC%81%E9%B9%85%E9%BB%84%E9%B9%A4%E6%A5%BC%E6%95%B2%E9%92%9F%E7%A5%88%E7%A6%8F.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:2021-02-13 可可爱爱 两只企鹅黄鹤楼敲钟祈福.webm"
+ },
+ "Music/Drum": {
+  "artist": "Dragfyre",
+  "desc": "Traditional use of gong and drum at an end-of-year ceremony at a family temple in Da Nang, Vietnam, the day before Tet 2011.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGong_and_Drum.ogv",
+  "seconds": 9.976645833333333,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Gong_and_Drum.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d6/Gong_and_Drum.ogv/Gong_and_Drum.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Gong and Drum.ogv"
+ },
+ "Music/Flute": {
+  "artist": "St Cecilia's Hall: all things musical instruments",
+  "desc": "Tom Oakes plays excerpts from Johann Sebastian Bach's Bourée Anglaise on our glass flute by Claude Laurent from c. 1825 (MIMEd 0055). https://collections.ed.ac.uk/stcecilias/record/99189",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGlass_flute_by_Claude_Laurent.webm",
+  "seconds": 203.721,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ae/Glass_flute_by_Claude_Laurent.webm/Glass_flute_by_Claude_Laurent.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ae/Glass_flute_by_Claude_Laurent.webm/Glass_flute_by_Claude_Laurent.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Glass flute by Claude Laurent.webm"
+ },
+ "Music/Guitar": {
+  "artist": "Erik Mongrain's management. For any question, please contact Meanos 18:38, 28 Ma",
+  "desc": "Erik Mongrain demonstrating the lap-tapping technique with his song AirTap!. See also: Belle et Bum, Michael Hedges...",
+  "editor_pick": true,
+  "license": "CC BY-SA 2.5",
+  "page": "https://commons.wikimedia.org/wiki/File%3AErik_Mongrain-AirTap.ogv",
+  "seconds": 180.24673333333334,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Erik_Mongrain-AirTap.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d4/Erik_Mongrain-AirTap.ogv/Erik_Mongrain-AirTap.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Erik Mongrain-AirTap.ogv"
+ },
+ "Music/Maracas": {
+  "artist": "KijadaStudio",
+  "desc": "Museo Afroperuano de Zaña - Peru - 01/08/2013 www.museoafroperuano.pe www.facebook.com/RitmosNegrosDelPeruWebdoc",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMaracas%2C_cajita_rectangular%2C_chapitas.webm",
+  "seconds": 34.665,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/21/Maracas%2C_cajita_rectangular%2C_chapitas.webm/Maracas%2C_cajita_rectangular%2C_chapitas.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/21/Maracas%2C_cajita_rectangular%2C_chapitas.webm/Maracas%2C_cajita_rectangular%2C_chapitas.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Maracas, cajita rectangular, chapitas.webm"
+ },
+ "Music/Violin": {
+  "artist": "[1]",
+  "desc": "original song by mari, the pianist",
+  "editor_pick": false,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AEri_%26_Mari_Yoshizawa_duet_at_Yamaha_Recital%3B_2010_%284326354048%29.webm",
+  "seconds": 228.604,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/3/33/Eri_%26_Mari_Yoshizawa_duet_at_Yamaha_Recital%3B_2010_%284326354048%29.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/33/Eri_%26_Mari_Yoshizawa_duet_at_Yamaha_Recital%3B_2010_%284326354048%29.webm/Eri_%26_Mari_Yoshizawa_duet_at_Yamaha_Recital%3B_2010_%284326354048%29.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Eri & Mari Yoshizawa duet at Yamaha Recital; 2010 (4326354048).webm"
+ },
+ "Plants/Cactus": {
+  "artist": "first and last name",
+  "desc": "A quick test of timelapse making with my new Panasonic Lumix DMC-G7 (lens: Lumix G X Vario 12-35 2.8)",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AEaster_Cactus.webm",
+  "seconds": 16.740000000000002,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/de/Easter_Cactus.webm/Easter_Cactus.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/de/Easter_Cactus.webm/Easter_Cactus.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Easter Cactus.webm"
+ },
+ "Plants/Cherry Blossom": {
+  "artist": "Hufsakamal",
+  "desc": "Cherry Blossom Festival in Washington, D.C.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACherry-_Blossom-Festival-_in-_Washington-_D.C..webm",
+  "seconds": 42.009,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6a/Cherry-_Blossom-Festival-_in-_Washington-_D.C..webm/Cherry-_Blossom-Festival-_in-_Washington-_D.C..webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/6a/Cherry-_Blossom-Festival-_in-_Washington-_D.C..webm/Cherry-_Blossom-Festival-_in-_Washington-_D.C..webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Cherry- Blossom-Festival- in- Washington- D.C..webm"
+ },
+ "Plants/Hibiscus": {
+  "artist": "Hrishikesh.kb",
+  "desc": "Brown Awl (Badamia exclamationis) butterfly in Hibiscus Flower.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AChembarathi_and_butterfly.ogv",
+  "seconds": 34.454770833333335,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Chembarathi_and_butterfly.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8d/Chembarathi_and_butterfly.ogv/Chembarathi_and_butterfly.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Chembarathi and butterfly.ogv"
+ },
+ "Plants/Leaf": {
+  "artist": "California Academy of Sciences",
+  "desc": "Please turn on subtitles with the CC (Closed Captions) button to see the explanatory annotations designed for educators. Transcript of closed captions: .mw-parser-output .hidden-begin{box-sizing:borde",
+  "editor_pick": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATravel_Deep_Inside_a_Leaf_-_Annotated_Version_-_California_Academy_of_Sciences.webm",
+  "seconds": 172.761,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5b/Travel_Deep_Inside_a_Leaf_-_Annotated_Version_-_California_Academy_of_Sciences.webm/Travel_Deep_Inside_a_Leaf_-_Annotated_Version_-_California_Academy_of_Sciences.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5b/Travel_Deep_Inside_a_Leaf_-_Annotated_Version_-_California_Academy_of_Sciences.webm/Travel_Deep_Inside_a_Leaf_-_Annotated_Version_-_California_Academy_of_Sciences.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Travel Deep Inside a Leaf - Annotated Version - California Academy of Sciences.webm"
+ },
+ "Plants/Mushroom": {
+  "artist": "Treysam",
+  "desc": "Mushroom",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMVI-4217-1.webm",
+  "seconds": 58.376,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a7/MVI-4217-1.webm/MVI-4217-1.webm.480p.vp9.webm",
+    "type": "video/webm"
+   }
+  ],
+  "title": "File:MVI-4217-1.webm"
+ },
+ "Plants/Palm Tree": {
+  "artist": "IfyClassique",
+  "desc": "A man climbing a palm tree using a rope (twine) tied around the trunk to aid his ascent. The rope provides support and grip as he steadily moves upward. Upon reaching the top of the tree, he uses a ma",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AA_Video_of_a_Man_Climbing_a_Palm_tree.webm",
+  "seconds": 43.633,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/61/A_Video_of_a_Man_Climbing_a_Palm_tree.webm/A_Video_of_a_Man_Climbing_a_Palm_tree.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/61/A_Video_of_a_Man_Climbing_a_Palm_tree.webm/A_Video_of_a_Man_Climbing_a_Palm_tree.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:A Video of a Man Climbing a Palm tree.webm"
+ },
+ "Plants/Pine Tree": {
+  "artist": "Сергій Ковальов",
+  "desc": "Олешківські піски, Цюрупинський район, вул. Заводська, 1в, с. Раденськ",
+  "editor_pick": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A%D0%9B%D1%96%D1%81%D0%BE%D1%81%D0%BC%D1%83%D0%B3%D0%B0_%D0%B1%D1%96%D0%BB%D1%8F_%D0%9E%D0%BB%D0%B5%D1%88%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B8%D1%85_%D0%BF%D1%96%D1%81%D0%BA%D1%96%D0%B2.webm",
+  "seconds": 26.7,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0c/%D0%9B%D1%96%D1%81%D0%BE%D1%81%D0%BC%D1%83%D0%B3%D0%B0_%D0%B1%D1%96%D0%BB%D1%8F_%D0%9E%D0%BB%D0%B5%D1%88%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B8%D1%85_%D0%BF%D1%96%D1%81%D0%BA%D1%96%D0%B2.webm/%D0%9B%D1%96%D1%81%D0%BE%D1%81%D0%BC%D1%83%D0%B3%D0%B0_%D0%B1%D1%96%D0%BB%D1%8F_%D0%9E%D0%BB%D0%B5%D1%88%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B8%D1%85_%D0%BF%D1%96%D1%81%D0%BA%D1%96%D0%B2.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0c/%D0%9B%D1%96%D1%81%D0%BE%D1%81%D0%BC%D1%83%D0%B3%D0%B0_%D0%B1%D1%96%D0%BB%D1%8F_%D0%9E%D0%BB%D0%B5%D1%88%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B8%D1%85_%D0%BF%D1%96%D1%81%D0%BA%D1%96%D0%B2.webm/%D0%9B%D1%96%D1%81%D0%BE%D1%81%D0%BC%D1%83%D0%B3%D0%B0_%D0%B1%D1%96%D0%BB%D1%8F_%D0%9E%D0%BB%D0%B5%D1%88%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B8%D1%85_%D0%BF%D1%96%D1%81%D0%BA%D1%96%D0%B2.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Лісосмуга біля Олешківських пісків.webm"
+ },
+ "Plants/Rose": {
+  "artist": "BY-YOUR-⌘ from Spain",
+  "desc": "A rose opening",
+  "editor_pick": true,
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ARose_time-lapse.ogv",
+  "seconds": 89.6896,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Rose_time-lapse.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/8e/Rose_time-lapse.ogv/Rose_time-lapse.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Rose time-lapse.ogv"
+ },
+ "Plants/Seedling": {
+  "artist": "Animaldetector",
+  "desc": "grass seedlings, 150min time lapse video",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASeedlings.webm",
+  "seconds": 7.7,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/7/76/Seedlings.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/76/Seedlings.webm/Seedlings.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Seedlings.webm"
+ },
+ "Plants/Sunflower": {
+  "artist": "Video by and (c)2006 Derek Ramsey (Ram-Man)",
+  "desc": "A time-lapse video of the flower head of a sunflower opening up. The video is 35 seconds at 30 frames per second at 320x240. It represents 8 hours and 45 minutes of real time, one frame for every 30 s",
+  "editor_pick": false,
+  "license": "GFDL 1.2",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASunflower_Flower_Opening_Time_Lapse_320x240.ogv",
+  "seconds": 35.0,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/d/df/Sunflower_Flower_Opening_Time_Lapse_320x240.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/df/Sunflower_Flower_Opening_Time_Lapse_320x240.ogv/Sunflower_Flower_Opening_Time_Lapse_320x240.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Sunflower Flower Opening Time Lapse 320x240.ogv"
+ },
+ "Plants/Tulip": {
+  "artist": "Polygoon-Profilti (producent) / Nederlands Instituut voor Beeld en Geluid (behee",
+  "desc": "Bioscoopjournaals waarin Nederlandse onderwerpen van een bepaalde week worden gepresenteerd. – Drie kinderen in Marker klederdracht plukken tulpen. Div. instellingen 89\".",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0 nl",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATulpenvelden_Weeknummer%2C_24-12_-_Open_Beelden_-_79639.ogv",
+  "seconds": 91.52,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Tulpenvelden_Weeknummer%2C_24-12_-_Open_Beelden_-_79639.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7e/Tulpenvelden_Weeknummer%2C_24-12_-_Open_Beelden_-_79639.ogv/Tulpenvelden_Weeknummer%2C_24-12_-_Open_Beelden_-_79639.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Tulpenvelden Weeknummer, 24-12 - Open Beelden - 79639.ogv"
+ },
+ "Reptiles/Crocodile": {
+  "artist": "Knowledge and philosophy",
+  "desc": "Crocodiles at the shore of Paga crocodile pond",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACrocodile_at_Paga_crocodile_pond.webm",
+  "seconds": 9.879,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3f/Crocodile_at_Paga_crocodile_pond.webm/Crocodile_at_Paga_crocodile_pond.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3f/Crocodile_at_Paga_crocodile_pond.webm/Crocodile_at_Paga_crocodile_pond.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Crocodile at Paga crocodile pond.webm"
+ },
+ "Reptiles/Frog": {
+  "artist": "Subhashish Panigrahi",
+  "desc": "Baby frog jumping on a floor",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABaby_frog_jumping.webm",
+  "seconds": 10.206,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a3/Baby_frog_jumping.webm/Baby_frog_jumping.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a3/Baby_frog_jumping.webm/Baby_frog_jumping.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Baby frog jumping.webm"
+ },
+ "Reptiles/Lizard": {
+  "artist": "MatthiasKabel",
+  "desc": "A Panther chameleon (Furcifer pardalis) moves its eyes.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFurcifer_pardalis_moving_eyes.ogv",
+  "seconds": 15.000090702947846,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/90/Furcifer_pardalis_moving_eyes.ogv/Furcifer_pardalis_moving_eyes.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/90/Furcifer_pardalis_moving_eyes.ogv/Furcifer_pardalis_moving_eyes.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Furcifer pardalis moving eyes.ogv"
+ },
+ "Rivers/Amazon": {
+  "artist": "Brasil Silvaaa",
+  "desc": "Rio Madeira Amazônia Brasil silvaaa",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ARio_Madeira_Amaz%C3%B4nia_Brasil.webm",
+  "seconds": 283.216,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f3/Rio_Madeira_Amaz%C3%B4nia_Brasil.webm/Rio_Madeira_Amaz%C3%B4nia_Brasil.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f3/Rio_Madeira_Amaz%C3%B4nia_Brasil.webm/Rio_Madeira_Amaz%C3%B4nia_Brasil.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Rio Madeira Amazônia Brasil.webm"
+ },
+ "Rivers/Indus": {
+  "artist": "Shehrology",
+  "desc": "The Indus River during summer, with its exceptionally clear and pleasant-looking water. The view highlights the natural beauty of the river near Hund village when the weather is warm.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AThe_Indus_River_during_summer%2C_with_its_exceptionally_clear_and_pleasant-looking_water._The_view_highlights_the_natural_beauty_of_the_river_near_Hund_village_when_the_weather_is_warm..webm",
+  "seconds": 6.809,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c6/The_Indus_River_during_summer%2C_with_its_exceptionally_clear_and_pleasant-looking_water._The_view_highlights_the_natural_beauty_of_the_river_near_Hund_village_when_the_weather_is_warm..webm/The_Indus_River_during_summer%2C_with_its_exceptionally_clear_and_pleasant-looking_water._The_view_highlights_the_natural_beauty_of_the_river_near_Hund_village_when_the_weather_is_warm..webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c6/The_Indus_River_during_summer%2C_with_its_exceptionally_clear_and_pleasant-looking_water._The_view_highlights_the_natural_beauty_of_the_river_near_Hund_village_when_the_weather_is_warm..webm/The_Indus_River_during_summer%2C_with_its_exceptionally_clear_and_pleasant-looking_water._The_view_highlights_the_natural_beauty_of_the_river_near_Hund_village_when_the_weather_is_warm..webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:The Indus River during summer, with its exceptionally clear and pleasant-looking water. The view highlights the natural beauty of the river near Hund village when the weather is warm..webm"
+ },
+ "Rivers/Mississippi": {
+  "artist": "U.S. Fish and Wildlife Service - Midwest Region",
+  "desc": "With temperatures in the 50s, it didn’t feel like December in Minnesota this weekend. Here’s a quick time-lapse of sheets of ice floating down the Mississippi River. Video: Sheets of ice by Courtney C",
+  "editor_pick": false,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASheets_of_Ice_on_the_Mississippi_River_%2815405314334%29.webm",
+  "seconds": 33.833,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/72/Sheets_of_Ice_on_the_Mississippi_River_%2815405314334%29.webm/Sheets_of_Ice_on_the_Mississippi_River_%2815405314334%29.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/72/Sheets_of_Ice_on_the_Mississippi_River_%2815405314334%29.webm/Sheets_of_Ice_on_the_Mississippi_River_%2815405314334%29.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Sheets of Ice on the Mississippi River (15405314334).webm"
+ },
+ "Rivers/Narmada": {
+  "artist": "Tanishq pandey",
+  "desc": "A high-definition, real-time video recording capturing a close-up perspective of water waves on the Narmada River at Narmadapuram, Madhya Pradesh, India, during late twilight. The footage highlights t",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ANarmada_River_water_waves_at_twilight%2C_Narmadapura.webm",
+  "seconds": 7.766,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/29/Narmada_River_water_waves_at_twilight%2C_Narmadapura.webm/Narmada_River_water_waves_at_twilight%2C_Narmadapura.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/29/Narmada_River_water_waves_at_twilight%2C_Narmadapura.webm/Narmada_River_water_waves_at_twilight%2C_Narmadapura.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Narmada River water waves at twilight, Narmadapura.webm"
+ },
+ "Rivers/Nile": {
+  "artist": "Chapelle musa",
+  "desc": "A Hippopotamus Sheltering in the shallow water banks of River Nile in Murchision Falls National Park in ,Uganda",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AHipoppotamus_relaxing_in_the_Nile_River.webm",
+  "seconds": 44.683,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cd/Hipoppotamus_relaxing_in_the_Nile_River.webm/Hipoppotamus_relaxing_in_the_Nile_River.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cd/Hipoppotamus_relaxing_in_the_Nile_River.webm/Hipoppotamus_relaxing_in_the_Nile_River.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Hipoppotamus relaxing in the Nile River.webm"
+ },
+ "Rivers/Thames": {
+  "artist": "Joergsam",
+  "desc": "LondonThemse1998Video",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ALondonThemse1998Video.ogv",
+  "seconds": 127.88,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/9/96/LondonThemse1998Video.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/96/LondonThemse1998Video.ogv/LondonThemse1998Video.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:LondonThemse1998Video.ogv"
+ },
+ "Sea/Clownfish": {
+  "artist": "LenaWild",
+  "desc": "Amphirion ocellaris in sea anemone",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAmphirion_ocellaris.ogv",
+  "seconds": 42.87616666666667,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/7/7d/Amphirion_ocellaris.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7d/Amphirion_ocellaris.ogv/Amphirion_ocellaris.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Amphirion ocellaris.ogv"
+ },
+ "Sea/Crab": {
+  "artist": "Aris riyanto",
+  "desc": "yuyu kepiting air tawar",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A%22%2Barya%2B%22_Freshwater_crab_%EA%A6%AA%EA%A6%B8%EA%A6%AA%EA%A6%B8_yuyu_kepiting_air_tawar_pilang_kramat_2019.webm",
+  "seconds": 8.6,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/%22%2Barya%2B%22_Freshwater_crab_%EA%A6%AA%EA%A6%B8%EA%A6%AA%EA%A6%B8_yuyu_kepiting_air_tawar_pilang_kramat_2019.webm/%22%2Barya%2B%22_Freshwater_crab_%EA%A6%AA%EA%A6%B8%EA%A6%AA%EA%A6%B8_yuyu_kepiting_air_tawar_pilang_kramat_2019.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/2f/%22%2Barya%2B%22_Freshwater_crab_%EA%A6%AA%EA%A6%B8%EA%A6%AA%EA%A6%B8_yuyu_kepiting_air_tawar_pilang_kramat_2019.webm/%22%2Barya%2B%22_Freshwater_crab_%EA%A6%AA%EA%A6%B8%EA%A6%AA%EA%A6%B8_yuyu_kepiting_air_tawar_pilang_kramat_2019.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:\"+arya+\" Freshwater crab ꦪꦸꦪꦸ yuyu kepiting air tawar pilang kramat 2019.webm"
+ },
+ "Sea/Dolphin": {
+  "artist": "Cyfoeth Naturiol Cymru Natural Resources Wales",
+  "desc": "NRW work with Whale &amp; Dolphin Conservation to continue a long-term study of the Risso’s dolphins around Bardsey island.",
+  "editor_pick": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ARisso%27s_dolphins_en.webm",
+  "seconds": 107.71300000000001,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/6/63/Risso%27s_dolphins_en.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/6/63/Risso%27s_dolphins_en.webm/Risso%27s_dolphins_en.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Risso's dolphins en.webm"
+ },
+ "Sea/Pufferfish": {
+  "artist": "Kora27",
+  "desc": "Звездчатый аротрон (Arothron stellatus) в Красном море. Египет, коралловый риф у отеля Grand Makadi, Makadi Bay.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A%D0%97%D0%B2%D1%91%D0%B7%D0%B4%D1%87%D0%B0%D1%82%D1%8B%D0%B9_%D0%B0%D1%80%D0%BE%D1%82%D1%80%D0%BE%D0%BD_%28arothron_stellatus%29._Riesenkugelfisch_DSCF3171.webm",
+  "seconds": 99.107,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c2/%D0%97%D0%B2%D1%91%D0%B7%D0%B4%D1%87%D0%B0%D1%82%D1%8B%D0%B9_%D0%B0%D1%80%D0%BE%D1%82%D1%80%D0%BE%D0%BD_%28arothron_stellatus%29._Riesenkugelfisch_DSCF3171.webm/%D0%97%D0%B2%D1%91%D0%B7%D0%B4%D1%87%D0%B0%D1%82%D1%8B%D0%B9_%D0%B0%D1%80%D0%BE%D1%82%D1%80%D0%BE%D0%BD_%28arothron_stellatus%29._Riesenkugelfisch_DSCF3171.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c2/%D0%97%D0%B2%D1%91%D0%B7%D0%B4%D1%87%D0%B0%D1%82%D1%8B%D0%B9_%D0%B0%D1%80%D0%BE%D1%82%D1%80%D0%BE%D0%BD_%28arothron_stellatus%29._Riesenkugelfisch_DSCF3171.webm/%D0%97%D0%B2%D1%91%D0%B7%D0%B4%D1%87%D0%B0%D1%82%D1%8B%D0%B9_%D0%B0%D1%80%D0%BE%D1%82%D1%80%D0%BE%D0%BD_%28arothron_stellatus%29._Riesenkugelfisch_DSCF3171.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Звёздчатый аротрон (arothron stellatus). Riesenkugelfisch DSCF3171.webm"
+ },
+ "Sea/Shark": {
+  "artist": "Bo Mancao",
+  "desc": "Pelagic thresher shark (Alopias pelagicus) in Malapascua Island, Cebu, The Philippines. In this video, the audio has been removed from the original material and sections of it have been removed.",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APelagic_thresher_shark_%28Alopias_pelagicus%29.webm",
+  "seconds": 44.678000000000004,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c7/Pelagic_thresher_shark_%28Alopias_pelagicus%29.webm/Pelagic_thresher_shark_%28Alopias_pelagicus%29.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c7/Pelagic_thresher_shark_%28Alopias_pelagicus%29.webm/Pelagic_thresher_shark_%28Alopias_pelagicus%29.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Pelagic thresher shark (Alopias pelagicus).webm"
+ },
+ "Sky/Cloud": {
+  "artist": "Rubbish computer",
+  "desc": "Arcus cloud passing overhead in Galley Common, Nuneaton, Warwickshire, UK, July 28, 2021",
+  "editor_pick": true,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3AArcus_passing_overhead_28_July_2021_Galley_Common.webm",
+  "seconds": 27.400000000000002,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0d/Arcus_passing_overhead_28_July_2021_Galley_Common.webm/Arcus_passing_overhead_28_July_2021_Galley_Common.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/0d/Arcus_passing_overhead_28_July_2021_Galley_Common.webm/Arcus_passing_overhead_28_July_2021_Galley_Common.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Arcus passing overhead 28 July 2021 Galley Common.webm"
+ },
+ "Sky/Lightning": {
+  "artist": "MrNousia",
+  "desc": "Lightning strike in Muurame, Central Finland, 22.6.2021 @ midnight @ 240 fps. I was admiring a rising thunderstrom from the window in my bed. I wondered what would a lightning strike look like in 240f",
+  "editor_pick": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ALightning_strikes_in_slow_motion_%28240fps%29_in_Muurame%2C_Finland.webm",
+  "seconds": 8.108,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1c/Lightning_strikes_in_slow_motion_%28240fps%29_in_Muurame%2C_Finland.webm/Lightning_strikes_in_slow_motion_%28240fps%29_in_Muurame%2C_Finland.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1c/Lightning_strikes_in_slow_motion_%28240fps%29_in_Muurame%2C_Finland.webm/Lightning_strikes_in_slow_motion_%28240fps%29_in_Muurame%2C_Finland.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Lightning strikes in slow motion (240fps) in Muurame, Finland.webm"
+ },
+ "Sky/Mountain": {
+  "artist": "Upabjojr",
+  "desc": "Around the Großglockner (3,798 m) in 36 seconds",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAround_the_Gro%C3%9Fglockner_%283%2C798_m%29.webm",
+  "seconds": 36.0,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1e/Around_the_Gro%C3%9Fglockner_%283%2C798_m%29.webm/Around_the_Gro%C3%9Fglockner_%283%2C798_m%29.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1e/Around_the_Gro%C3%9Fglockner_%283%2C798_m%29.webm/Around_the_Gro%C3%9Fglockner_%283%2C798_m%29.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Around the Großglockner (3,798 m).webm"
+ },
+ "Sky/Rain": {
+  "artist": "Nicholas Gemini",
+  "desc": "Rain in Rome",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ARain_in_Rome_34.webm",
+  "seconds": 8.943,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/1/18/Rain_in_Rome_34.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/18/Rain_in_Rome_34.webm/Rain_in_Rome_34.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Rain in Rome 34.webm"
+ },
+ "Sky/Saturn": {
+  "artist": "NASA/JPL-Caltech/Space Science Institute",
+  "desc": "NASA's Cassini spacecraft stared at Saturn for nearly 44 hours on April 25 to 27, 2016, to obtain this movie showing just over four Saturn days. With Cassini's orbit being moved closer to the planet i",
+  "editor_pick": false,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3APIA21047_-_Saturn_Rotation_Cassini.ogv",
+  "seconds": 41.666666666666664,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/81/PIA21047_-_Saturn_Rotation_Cassini.ogv/PIA21047_-_Saturn_Rotation_Cassini.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/81/PIA21047_-_Saturn_Rotation_Cassini.ogv/PIA21047_-_Saturn_Rotation_Cassini.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:PIA21047 - Saturn Rotation Cassini.ogv"
+ },
+ "Sky/Snowflake": {
+  "artist": "Secretlondon",
+  "desc": "Snow in Scotland, Jan 2010. Video taken at Samye Ling, Dumfries.",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASnowing_video_samye_ling_1.ogv",
+  "seconds": 21.04,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Snowing_video_samye_ling_1.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c7/Snowing_video_samye_ling_1.ogv/Snowing_video_samye_ling_1.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Snowing video samye ling 1.ogv"
+ },
+ "Sky/Sun": {
+  "artist": "NASA/Goddard Space Flight Center",
+  "desc": "The sun emitted a large flare on July 12, 2012, but earlier in the week it gave a demonstration of how gorgeous solar activity can be. This movie shows the sun from late July 8 to early July 10 shortl",
+  "editor_pick": true,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAR1520_and_Shimmering_Coronal_Loops.ogv",
+  "seconds": 100.8,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/de/AR1520_and_Shimmering_Coronal_Loops.ogv/AR1520_and_Shimmering_Coronal_Loops.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/de/AR1520_and_Shimmering_Coronal_Loops.ogv/AR1520_and_Shimmering_Coronal_Loops.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:AR1520 and Shimmering Coronal Loops.ogv"
+ },
+ "Sky/Volcano": {
+  "artist": "ISS Crew Earth Observations experiment and Image Science &amp; Analysis Laborato",
+  "desc": "A fortuitous orbit of the International Space Station allowed the astronauts this view of Sarychev Volcano (Kuril Islands, Russia northeast of Japan) in an early stage of eruption on June 12, 2009. Sa",
+  "editor_pick": false,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASarychev_Peak_eruption_on_12_June_2009%2C_oblique_satellite_view.ogv",
+  "seconds": 8.0,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/82/Sarychev_Peak_eruption_on_12_June_2009%2C_oblique_satellite_view.ogv/Sarychev_Peak_eruption_on_12_June_2009%2C_oblique_satellite_view.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/82/Sarychev_Peak_eruption_on_12_June_2009%2C_oblique_satellite_view.ogv/Sarychev_Peak_eruption_on_12_June_2009%2C_oblique_satellite_view.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Sarychev Peak eruption on 12 June 2009, oblique satellite view.ogv"
+ },
+ "Sports/Chess": {
+  "artist": "Nederlands Instituut voor Beeld en Geluid",
+  "desc": "Newsreels in which Dutch subjects of a certain week are presented. In the Large Room in the Zoo in The Hague the last rounds of the world chess tournament are played. Contestants are M. Euwe, M. Botwi",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0 nl",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASchaken_om_de_wereldtitel_Weeknummer_48-13_-_Open_Beelden_-_10428.ogv",
+  "seconds": 115.4,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/4/47/Schaken_om_de_wereldtitel_Weeknummer_48-13_-_Open_Beelden_-_10428.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/47/Schaken_om_de_wereldtitel_Weeknummer_48-13_-_Open_Beelden_-_10428.ogv/Schaken_om_de_wereldtitel_Weeknummer_48-13_-_Open_Beelden_-_10428.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Schaken om de wereldtitel Weeknummer 48-13 - Open Beelden - 10428.ogv"
+ },
+ "Sports/Cricket": {
+  "artist": "Edward Fox",
+  "desc": "2 and 1/2 minutes overview of Cricket.",
+  "editor_pick": true,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AThis_is_cricket.ogv",
+  "seconds": 160.68063492063493,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/8/80/This_is_cricket.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/80/This_is_cricket.ogv/This_is_cricket.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:This is cricket.ogv"
+ },
+ "Sports/Football": {
+  "artist": "Polygoon Hollands Nieuws (producent) / Nederlands Instituut voor Beeld en Geluid",
+  "desc": "NEDERLAND WINT DE VOETBALWEDSTIJD VAN BELGIE MET 2-1; Weekjournaal van Polygoon Hollands Nieuws van week 15 uit 1947.; In het Olympisch Stadion te Amsterdam speelt Nederland (witte broek) tegen België",
+  "editor_pick": true,
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File%3ANEDERLAND_WINT_DE_VOETBALWEDSTIJD_VAN_BELGIE_MET_2-1-PGM4011927.webm",
+  "seconds": 195.004,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d0/NEDERLAND_WINT_DE_VOETBALWEDSTIJD_VAN_BELGIE_MET_2-1-PGM4011927.webm/NEDERLAND_WINT_DE_VOETBALWEDSTIJD_VAN_BELGIE_MET_2-1-PGM4011927.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d0/NEDERLAND_WINT_DE_VOETBALWEDSTIJD_VAN_BELGIE_MET_2-1-PGM4011927.webm/NEDERLAND_WINT_DE_VOETBALWEDSTIJD_VAN_BELGIE_MET_2-1-PGM4011927.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:NEDERLAND WINT DE VOETBALWEDSTIJD VAN BELGIE MET 2-1-PGM4011927.webm"
+ },
+ "Sports/Hockey": {
+  "artist": "NaBUru38",
+  "desc": "Youth field hockey match at the 2021 María Noel Quintana Tournament, held at Carrasco Polo Club, Montevideo, Uruguay",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATorneo_Mar%C3%ADa_Noel_Quintana_2021_-_03.webm",
+  "seconds": 73.94,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5d/Torneo_Mar%C3%ADa_Noel_Quintana_2021_-_03.webm/Torneo_Mar%C3%ADa_Noel_Quintana_2021_-_03.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5d/Torneo_Mar%C3%ADa_Noel_Quintana_2021_-_03.webm/Torneo_Mar%C3%ADa_Noel_Quintana_2021_-_03.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Torneo María Noel Quintana 2021 - 03.webm"
+ },
+ "Sports/Tennis": {
+  "artist": "Oleg Yunakov",
+  "desc": "Carlos Alcaraz vs. Wu Yibing at the 2026 US Open",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACarlos_Alcaraz_vs._Wu_Yibing_%282026_US_Open%29_-_45.webm",
+  "seconds": 7.942,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e3/Carlos_Alcaraz_vs._Wu_Yibing_%282026_US_Open%29_-_45.webm/Carlos_Alcaraz_vs._Wu_Yibing_%282026_US_Open%29_-_45.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e3/Carlos_Alcaraz_vs._Wu_Yibing_%282026_US_Open%29_-_45.webm/Carlos_Alcaraz_vs._Wu_Yibing_%282026_US_Open%29_-_45.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Carlos Alcaraz vs. Wu Yibing (2026 US Open) - 45.webm"
+ },
+ "States/Kerala": {
+  "artist": "Bhuvana Meenakshi",
+  "desc": "A video explaining the complete method to make Palada Pradhaman",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATraditional_preparation_method_of_Palada_Pradhaman_%28a_sweet_delicacy_from_Kerala%29.webm",
+  "seconds": 130.885,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Traditional_preparation_method_of_Palada_Pradhaman_%28a_sweet_delicacy_from_Kerala%29.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/7a/Traditional_preparation_method_of_Palada_Pradhaman_%28a_sweet_delicacy_from_Kerala%29.webm/Traditional_preparation_method_of_Palada_Pradhaman_%28a_sweet_delicacy_from_Kerala%29.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Traditional preparation method of Palada Pradhaman (a sweet delicacy from Kerala).webm"
+ },
+ "States/Maharashtra": {
+  "artist": "Subhashish Panigrahi",
+  "desc": "Video of Brown-headed Gulls Chroicocephalus brunnicephalus flying behind a ferry which was coming from Elephanta caves to Gateway of India, Mumbai.",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABirds_flying_behind_a_ferry.webm",
+  "seconds": 44.415,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/00/Birds_flying_behind_a_ferry.webm/Birds_flying_behind_a_ferry.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/00/Birds_flying_behind_a_ferry.webm/Birds_flying_behind_a_ferry.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Birds flying behind a ferry.webm"
+ },
+ "States/Rajasthan": {
+  "artist": "Shubhanshri01",
+  "desc": "Rajasthan's culture is a mesmerizing tapestry woven with vibrant colors, intricate artwork, and timeless traditions. From the majestic forts and palaces to the rhythmic beats of folk music and dance, ",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ARAJASTHAN_Vibes.webm",
+  "seconds": 20.866,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f4/RAJASTHAN_Vibes.webm/RAJASTHAN_Vibes.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f4/RAJASTHAN_Vibes.webm/RAJASTHAN_Vibes.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:RAJASTHAN Vibes.webm"
+ },
+ "States/Tamil Nadu": {
+  "artist": "SL Trades and Crafts Documentation Project (user: Noolaham_TamilWiki)",
+  "desc": "அத்தாங்கு மீன்பிடி - மீன்கள் இருக்கும் இடந்தேடி நீருக்குள் நகரும் பெண்கள்",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A%E0%AE%85%E0%AE%A4%E0%AF%8D%E0%AE%A4%E0%AE%BE%E0%AE%99%E0%AF%8D%E0%AE%95%E0%AF%81_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%AA%E0%AE%BF%E0%AE%9F%E0%AE%BF_-_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D_%E0%AE%87%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%87%E0%AE%9F%E0%AE%A8%E0%AF%8D%E0%AE%A4%E0%AF%87%E0%AE%9F%E0%AE%BF_%E0%AE%A8%E0%AF%80%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%B3%E0%AF%8D_%E0%AE%A8%E0%AE%95%E0%AE%B0%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%AA%E0%AF%86%E0%AE%A3%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D.webm",
+  "seconds": 37.627,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cc/%E0%AE%85%E0%AE%A4%E0%AF%8D%E0%AE%A4%E0%AE%BE%E0%AE%99%E0%AF%8D%E0%AE%95%E0%AF%81_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%AA%E0%AE%BF%E0%AE%9F%E0%AE%BF_-_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D_%E0%AE%87%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%87%E0%AE%9F%E0%AE%A8%E0%AF%8D%E0%AE%A4%E0%AF%87%E0%AE%9F%E0%AE%BF_%E0%AE%A8%E0%AF%80%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%B3%E0%AF%8D_%E0%AE%A8%E0%AE%95%E0%AE%B0%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%AA%E0%AF%86%E0%AE%A3%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D.webm/transcode.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cc/%E0%AE%85%E0%AE%A4%E0%AF%8D%E0%AE%A4%E0%AE%BE%E0%AE%99%E0%AF%8D%E0%AE%95%E0%AF%81_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%AA%E0%AE%BF%E0%AE%9F%E0%AE%BF_-_%E0%AE%AE%E0%AF%80%E0%AE%A9%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D_%E0%AE%87%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%87%E0%AE%9F%E0%AE%A8%E0%AF%8D%E0%AE%A4%E0%AF%87%E0%AE%9F%E0%AE%BF_%E0%AE%A8%E0%AF%80%E0%AE%B0%E0%AF%81%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AF%81%E0%AE%B3%E0%AF%8D_%E0%AE%A8%E0%AE%95%E0%AE%B0%E0%AF%81%E0%AE%AE%E0%AF%8D_%E0%AE%AA%E0%AF%86%E0%AE%A3%E0%AF%8D%E0%AE%95%E0%AE%B3%E0%AF%8D.webm/transcode.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:அத்தாங்கு மீன்பிடி - மீன்கள் இருக்கும் இடந்தேடி நீருக்குள் நகரும் பெண்கள்.webm"
+ },
+ "Travel/Coach": {
+  "artist": "Video: Capricorn4049Audio: Kevin MacLeod",
+  "desc": "Aerial recording of trains crossing the Landwasser Viaduct (1050 m, Schmitten/Filisur, Grisons, Switzerland). There are electric locomotive Ge 4/4 III № 652 with the Glacier Express train and electric",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ALandwasserviadukt%2C_aerial_video.webm",
+  "seconds": 169.752,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/72/Landwasserviadukt%2C_aerial_video.webm/Landwasserviadukt%2C_aerial_video.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/72/Landwasserviadukt%2C_aerial_video.webm/Landwasserviadukt%2C_aerial_video.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Landwasserviadukt, aerial video.webm"
+ },
+ "Travel/Helicopter": {
+  "artist": "Kogo",
+  "desc": "Eurocopter EC 145 flight demonstration",
+  "editor_pick": true,
+  "license": "GFDL",
+  "page": "https://commons.wikimedia.org/wiki/File%3AEC_145.ogv",
+  "seconds": 52.6,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/c/cf/EC_145.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cf/EC_145.ogv/EC_145.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:EC 145.ogv"
+ },
+ "Travel/Railway": {
+  "artist": "WSW-0861",
+  "desc": "Flixtrain-Drehfalttür schließt",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFlixtrain-Drehfaltt%C3%BCr_schliesst.webm",
+  "seconds": 11.474,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/72/Flixtrain-Drehfaltt%C3%BCr_schliesst.webm/Flixtrain-Drehfaltt%C3%BCr_schliesst.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/72/Flixtrain-Drehfaltt%C3%BCr_schliesst.webm/Flixtrain-Drehfaltt%C3%BCr_schliesst.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Flixtrain-Drehfalttür schliesst.webm"
+ },
+ "Travel/Rocket": {
+  "artist": "Nederlands Instituut voor Beeld en Geluid",
+  "desc": "Newsreels in which Dutch subjects of a certain week are presented. Dutch rocket engineers take post rockets they designed themselves to the beach in Katwijk aan Zee. SHOTS: -Men carry a chest onto the",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0 nl",
+  "page": "https://commons.wikimedia.org/wiki/File%3AProeven_met_postraketten_Weeknummer_35-05_-_Open_Beelden_-_22292.ogv",
+  "seconds": 62.28,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/3/36/Proeven_met_postraketten_Weeknummer_35-05_-_Open_Beelden_-_22292.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/36/Proeven_met_postraketten_Weeknummer_35-05_-_Open_Beelden_-_22292.ogv/Proeven_met_postraketten_Weeknummer_35-05_-_Open_Beelden_-_22292.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Proeven met postraketten Weeknummer 35-05 - Open Beelden - 22292.ogv"
+ },
+ "Travel/Sailboat": {
+  "artist": "Don Ramey Logan",
+  "desc": "American Sonder Class boat races in Newport RI, by Don Ramey Logan",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAmerican_Sonder_Class_boat_by_Don_Ramey_Logan.webm",
+  "seconds": 5.839,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/89/American_Sonder_Class_boat_by_Don_Ramey_Logan.webm/American_Sonder_Class_boat_by_Don_Ramey_Logan.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/8/89/American_Sonder_Class_boat_by_Don_Ramey_Logan.webm/American_Sonder_Class_boat_by_Don_Ramey_Logan.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:American Sonder Class boat by Don Ramey Logan.webm"
+ },
+ "Travel/Train": {
+  "artist": "Flykit production",
+  "desc": "Aerial drone chase of a train. DJI FPV Drone Flying Behind a Train.",
+  "editor_pick": true,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAerial_drone_chase_of_a_train.webm",
+  "seconds": 114.16,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9b/Aerial_drone_chase_of_a_train.webm/Aerial_drone_chase_of_a_train.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9b/Aerial_drone_chase_of_a_train.webm/Aerial_drone_chase_of_a_train.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Aerial drone chase of a train.webm"
+ },
+ "Vegetables/Brinjal": {
+  "artist": "Shaai Sattar",
+  "desc": "Learn how to cook traditional Maldivian food with Cook Maldives the cookbook: https://www.amazon.com/dp/B072FTZSFJ This is a healthy Maldivian recipe, and an easy way to add more vegetables into your ",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMaldivian_Healthy_Eggplant_Curry_-_Maldives_Recipes.webm",
+  "seconds": 84.681,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/de/Maldivian_Healthy_Eggplant_Curry_-_Maldives_Recipes.webm/Maldivian_Healthy_Eggplant_Curry_-_Maldives_Recipes.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/de/Maldivian_Healthy_Eggplant_Curry_-_Maldives_Recipes.webm/Maldivian_Healthy_Eggplant_Curry_-_Maldives_Recipes.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Maldivian Healthy Eggplant Curry - Maldives Recipes.webm"
+ },
+ "Vegetables/Chilli": {
+  "artist": "Muktee1494",
+  "desc": "Pepper 🌶️ in pack video",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APepper_%F0%9F%8C%B6%EF%B8%8F_in_pack_video.webm",
+  "seconds": 13.933,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/27/Pepper_%F0%9F%8C%B6%EF%B8%8F_in_pack_video.webm/Pepper_%F0%9F%8C%B6%EF%B8%8F_in_pack_video.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/27/Pepper_%F0%9F%8C%B6%EF%B8%8F_in_pack_video.webm/Pepper_%F0%9F%8C%B6%EF%B8%8F_in_pack_video.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Pepper 🌶️ in pack video.webm"
+ },
+ "Vegetables/Coconut": {
+  "artist": "Vasco Marques",
+  "desc": "Veja o diário completo em http://mktdigital360caboverde.tumblr.com/Informações da próxima semana digital já em janeiro 2016http://web2business.pt/marketingdi...",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABeber_%C3%A1gua_de_coco_na_praia_do_tarrafal_por_400_cve.webm",
+  "seconds": 20.641000000000002,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3b/Beber_%C3%A1gua_de_coco_na_praia_do_tarrafal_por_400_cve.webm/Beber_%C3%A1gua_de_coco_na_praia_do_tarrafal_por_400_cve.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3b/Beber_%C3%A1gua_de_coco_na_praia_do_tarrafal_por_400_cve.webm/Beber_%C3%A1gua_de_coco_na_praia_do_tarrafal_por_400_cve.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Beber água de coco na praia do tarrafal por 400 cve.webm"
+ },
+ "Vegetables/Cucumber": {
+  "artist": "Robin Jakobsson",
+  "desc": "Cucumber moving, searching for a something to climb on. Then sun sets, and it all goes dark.",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ACucumber_Climb.webm",
+  "seconds": 16.917,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Cucumber_Climb.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/cc/Cucumber_Climb.webm/Cucumber_Climb.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Cucumber Climb.webm"
+ },
+ "Vegetables/Garlic": {
+  "artist": "Raimond Spekking",
+  "desc": "Garlic peeler in action",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGarlic_peeler.webm",
+  "seconds": 20.294,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5c/Garlic_peeler.webm/Garlic_peeler.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5c/Garlic_peeler.webm/Garlic_peeler.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Garlic peeler.webm"
+ },
+ "Vegetables/Peas": {
+  "artist": "David Bornand, Gianni Ciprietti, Sébastien Zbinden, Damien Fiorucci, Olivia Rey,",
+  "desc": "Movie of de-etiolation of a pea plant that was cultivated in the dark during 13 days, and then exposed to constant light for 31 hours (1 picture each minute and speed video at 20 frames per second).",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3APea_de-etiolation.ogv",
+  "seconds": 92.6,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/52/Pea_de-etiolation.ogv/Pea_de-etiolation.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/52/Pea_de-etiolation.ogv/Pea_de-etiolation.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Pea de-etiolation.ogv"
+ },
+ "Vegetables/Tomato": {
+  "artist": "FASTILY",
+  "desc": "Solanum lycopersicum",
+  "editor_pick": false,
+  "license": "CC BY-SA 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATomato_1_2013-07-10.ogv",
+  "seconds": 12.544,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/aa/Tomato_1_2013-07-10.ogv/Tomato_1_2013-07-10.ogv.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/aa/Tomato_1_2013-07-10.ogv/Tomato_1_2013-07-10.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Tomato 1 2013-07-10.ogv"
+ },
+ "Vehicles/Ambulance": {
+  "artist": "Free Video Library",
+  "desc": "ambulance video",
+  "editor_pick": false,
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AAmbulance_running_on_road.webm",
+  "seconds": 11.617,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Ambulance_running_on_road.webm/Ambulance_running_on_road.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bd/Ambulance_running_on_road.webm/Ambulance_running_on_road.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Ambulance running on road.webm"
+ },
+ "Vehicles/Auto Rickshaw": {
+  "artist": "Ian and Wendy Sewell",
+  "desc": "Driving around in a Tuk Tuk",
+  "editor_pick": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATukTuk.ogv",
+  "seconds": 18.8,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/9/9e/TukTuk.ogv?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9e/TukTuk.ogv/TukTuk.ogv.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:TukTuk.ogv"
+ },
+ "Vehicles/Bicycle": {
+  "artist": "Koffermejia",
+  "desc": "Señor con Bicicleta en algun lugar de Tlaxcala",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ASe%C3%B1or_con_Bicicleta_en_algun_lugar_de_Tlaxcala.webm",
+  "seconds": 13.433,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5e/Se%C3%B1or_con_Bicicleta_en_algun_lugar_de_Tlaxcala.webm/Se%C3%B1or_con_Bicicleta_en_algun_lugar_de_Tlaxcala.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5e/Se%C3%B1or_con_Bicicleta_en_algun_lugar_de_Tlaxcala.webm/Se%C3%B1or_con_Bicicleta_en_algun_lugar_de_Tlaxcala.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Señor con Bicicleta en algun lugar de Tlaxcala.webm"
+ },
+ "Vehicles/Bus": {
+  "artist": "Artyom Svetlov",
+  "desc": "Moscow bus 10029 at Sokolnicheskaya square",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AMoscow_bus_10029_2008-09_1220270400_Sokolnicheskaya_square_Ikarus_260.webm",
+  "seconds": 9.008000000000001,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/77/Moscow_bus_10029_2008-09_1220270400_Sokolnicheskaya_square_Ikarus_260.webm/Moscow_bus_10029_2008-09_1220270400_Sokolnicheskaya_square_Ikarus_260.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/7/77/Moscow_bus_10029_2008-09_1220270400_Sokolnicheskaya_square_Ikarus_260.webm/Moscow_bus_10029_2008-09_1220270400_Sokolnicheskaya_square_Ikarus_260.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Moscow bus 10029 2008-09 1220270400 Sokolnicheskaya square Ikarus 260.webm"
+ },
+ "Vehicles/Fire Engine": {
+  "artist": "Hillelfrei",
+  "desc": "A Toronto Fire truck speeds to a call",
+  "editor_pick": true,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AToronto_Fire_responding.webm",
+  "seconds": 9.807,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a1/Toronto_Fire_responding.webm/Toronto_Fire_responding.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a1/Toronto_Fire_responding.webm/Toronto_Fire_responding.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Toronto Fire responding.webm"
+ },
+ "Vehicles/Kick Scooter": {
+  "artist": "Andrew Krizhanovsky, incorporates audio: Rizomus - SNARK - Впереди - cc-by 3.0 (",
+  "desc": "Scooter Matvey Demchuk. Karelian Jam 2021 (Extreme sport), Petrozavodsk. June 12 2021.",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3A09_Scooter_Matvey_Demchuk_Karelian_Jam_2021.webm",
+  "seconds": 83.553,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3b/09_Scooter_Matvey_Demchuk_Karelian_Jam_2021.webm/09_Scooter_Matvey_Demchuk_Karelian_Jam_2021.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3b/09_Scooter_Matvey_Demchuk_Karelian_Jam_2021.webm/09_Scooter_Matvey_Demchuk_Karelian_Jam_2021.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:09 Scooter Matvey Demchuk Karelian Jam 2021.webm"
+ },
+ "Vehicles/Police Car": {
+  "artist": "Fmvh",
+  "desc": "Dacia Logan Romanian police vehicle - 2021 - new blue-yellow colors, lightbars on",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ADacia_Logan_Romanian_police_vehicle_-_2021_-_lightbars.webm",
+  "seconds": 5.085,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Dacia_Logan_Romanian_police_vehicle_-_2021_-_lightbars.webm?utm_source=commons.wikimedia.org&utm_campaign=api&utm_content=original",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d3/Dacia_Logan_Romanian_police_vehicle_-_2021_-_lightbars.webm/Dacia_Logan_Romanian_police_vehicle_-_2021_-_lightbars.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Dacia Logan Romanian police vehicle - 2021 - lightbars.webm"
+ },
+ "Vehicles/Racing Car": {
+  "artist": "Maxi-Napo-99",
+  "desc": "Formula 07 5th round, Class B cars passing through the main straight during the Formula 07 guests race at the Autódromo Gálvez.",
+  "editor_pick": false,
+  "license": "CC BY 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFormula_07_5th_round%2C_Class_B_race_at_the_Aut%C3%B3dromo_G%C3%A1lvez_%283%29.webm",
+  "seconds": 17.464,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/be/Formula_07_5th_round%2C_Class_B_race_at_the_Aut%C3%B3dromo_G%C3%A1lvez_%283%29.webm/Formula_07_5th_round%2C_Class_B_race_at_the_Aut%C3%B3dromo_G%C3%A1lvez_%283%29.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/be/Formula_07_5th_round%2C_Class_B_race_at_the_Aut%C3%B3dromo_G%C3%A1lvez_%283%29.webm/Formula_07_5th_round%2C_Class_B_race_at_the_Aut%C3%B3dromo_G%C3%A1lvez_%283%29.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Formula 07 5th round, Class B race at the Autódromo Gálvez (3).webm"
+ },
+ "Vehicles/Tractor": {
+  "artist": "Taurus Media Technik",
+  "desc": "A tractor in a field. Whole sequence contains parts that are very zoomed in and a total view. Camera is following the tractor, chaotic object movement, structure of a harvested field. Very red wheels ",
+  "editor_pick": false,
+  "license": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File%3ATractor_1080p25.webm",
+  "seconds": 27.6,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ae/Tractor_1080p25.webm/Tractor_1080p25.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ae/Tractor_1080p25.webm/Tractor_1080p25.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Tractor 1080p25.webm"
+ },
+ "Vehicles/Truck": {
+  "artist": "Grendelkhan",
+  "desc": "A front-loading garbage truck picks up a dumpster, deposits its contents into the truck, then puts the dumpster back down.",
+  "editor_pick": false,
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFront_loading_garbage_truck_loading_a_dumpster.webm",
+  "seconds": 46.984,
+  "sources": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/37/Front_loading_garbage_truck_loading_a_dumpster.webm/Front_loading_garbage_truck_loading_a_dumpster.webm.480p.vp9.webm",
+    "type": "video/webm"
+   },
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/37/Front_loading_garbage_truck_loading_a_dumpster.webm/Front_loading_garbage_truck_loading_a_dumpster.webm.360p.mpeg4.mov",
+    "type": "video/mp4"
+   }
+  ],
+  "title": "File:Front loading garbage truck loading a dumpster.webm"
+ }
+}

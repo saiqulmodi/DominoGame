@@ -3,3 +3,6 @@ build/
 bin/
 .buildozer/
 *.pyc
+
+# working list from tools/find_videos.py (includes rejected picks)
+tools/videos_review.txt

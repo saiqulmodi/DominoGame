@@ -513,6 +513,27 @@ CATALOG = {
     "Draw": [
         ("Custom Draw", "Draw anything you imagine, in any colour!", ("custom", None)),
     ],
+    # Cartoon friends from stories (OpenMoji characters, free to use)
+    "Cartoons": [
+        ("Superhero", "A superhero is brave and helps people.", ("emoji", "1F9B8")),
+        ("Robot", "A robot is a machine that can move and help.", ("emoji", "1F916")),
+        ("Unicorn", "A magic horse with one horn.", ("emoji", "1F984")),
+        ("Dragon", "A dragon is a big flying creature from stories.", ("emoji", "1F409")),
+        ("Fairy", "A tiny fairy with shiny wings.", ("emoji", "1F9DA")),
+        ("Mermaid", "Half girl, half fish, she lives in the sea.", ("emoji", "1F9DC-200D-2640-FE0F")),
+        ("Genie", "A genie comes out of a lamp to grant wishes.", ("emoji", "1F9DE")),
+        ("Wizard", "A wizard does magic with a wand.", ("emoji", "1F9D9")),
+        ("Prince", "A prince is the son of a king.", ("emoji", "1F934")),
+        ("Princess", "A princess is the daughter of a king.", ("emoji", "1F478")),
+        ("Ninja", "A ninja moves quietly and quickly.", ("emoji", "1F977")),
+        ("Alien", "A friendly visitor from another planet.", ("emoji", "1F47D")),
+        ("Ghost", "A friendly little ghost says Boo!", ("emoji", "1F47B")),
+        ("Teddy Bear", "A soft teddy bear to hug.", ("emoji", "1F9F8")),
+        ("Snowman", "We build a snowman with snow in winter.", ("emoji", "26C4")),
+        ("Santa", "Santa Claus brings gifts at Christmas.", ("emoji", "1F385")),
+        ("Panda", "A cute panda loves to eat bamboo.", ("emoji", "1F43C")),
+        ("Elf", "An elf is a little helper from stories.", ("emoji", "1F9DD")),
+    ],
 }
 
 
@@ -526,7 +547,7 @@ SUBJECTS = {
     "Me & Home": ["Body", "Home", "Buildings", "Helpers"],
     "Travel": ["Vehicles", "Travel", "Bridges"],
     "World": ["Sky", "Countries", "States", "Cities", "Rivers"],
-    "Fun": ["Music", "Sports", "Draw"],
+    "Fun": ["Cartoons", "Music", "Sports", "Draw"],
 }
 
 
@@ -684,6 +705,23 @@ def fetch_thumb_from_hub(shape_name, cat=None):
   if not item or not item.get("thumb"):
     return None
   return os.path.join(HERE, item["thumb"])
+
+
+_VIDEOS = None
+
+
+def fetch_video_from_hub(shape_name, cat=None):
+  """Checked real-life video of the item (videos.json), or None."""
+  global _VIDEOS
+  if _VIDEOS is None:
+    try:
+      with open(os.path.join(HERE, "videos.json"), encoding="utf-8") as fh:
+        _VIDEOS = json.load(fh)
+    except (OSError, ValueError):
+      _VIDEOS = {}
+  if cat is None:
+    cat = next((c for c, items in CATEGORIES_HUB.items() if shape_name in items), None)
+  return _VIDEOS.get(item_key(cat, shape_name))
 
 
 def subjects():

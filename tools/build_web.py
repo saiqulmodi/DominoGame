@@ -14,7 +14,8 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME_FILES = ["main.py", "audio.py", "domino_data.py", "fun.py", "calls.py", "modes.py",
-              "screens.py", "stories.py", "translations.py", "hub_data.json"]
+              "screens.py", "stories.py", "translations.py", "video.py", "hub_data.json",
+              "videos.json"]
 GAME_DIRS = ["pics", "sounds", "fonts"]
 APP = "dominowonderdash"
 

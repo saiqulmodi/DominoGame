@@ -20,7 +20,9 @@ while the name is said, spelled and shown.
 - **Travel** - vehicles, trains, planes, ships, bridges
 - **World** - sky and weather, countries (India's official map), Indian states,
   cities (famous landmarks), rivers
-- **Fun** - music, sports, and free drawing
+- **Fun** - cartoon friends (superhero, robot, unicorn, dragon, fairy, mermaid,
+  genie, wizard, prince, princess, ninja, alien, friendly ghost, teddy bear,
+  snowman, Santa, panda, elf), music, sports, and free drawing
 
 ## More ways to learn (Games button)
 
@@ -37,7 +39,15 @@ while the name is said, spelled and shown.
 - **For parents** - progress per subject, quiz accuracy, words spelled, stories, days played
 - **Full screen** - the game fills the whole screen: in the browser the first tap
   goes full screen (phones stay upright), on a computer it opens full screen
-  (F11 or this button switches, Esc leaves full screen)
+  (F11 or this button switches, Esc leaves full screen). Wide screens (computers,
+  tablets on their side) get a landscape layout with a big tracing area, so there
+  are no empty side bars
+- **Watch the real one** - the red play button next to the speaker shows a short
+  real-life video of the picture (128 pictures: animals, birds, sea life, plants,
+  food, vehicles, bridges, sky, places, rivers, instruments, sports). "Back to
+  play" returns to the game to trace it again. Every video is a free Wikimedia
+  Commons clip checked by a person (`tools/find_videos.py`): no adverts and no
+  "watch next" list
 
 ## Fun that keeps them playing
 
