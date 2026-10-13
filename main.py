@@ -83,6 +83,9 @@ DROP_TIME = 0.32                  # s: one domino dropping onto the picture
 DROP_GAP = 0.06                   # s between dominoes (less for big pictures)
 DROP_ALL = 2.4                    # s: the whole line has dropped by then
 DROP_HEIGHT = 80                  # px it drops from
+LETTER_SPACING = 34               # px between the big letter dominoes
+LETTER_TILE = (30, 46)            # big letter domino (w, h)
+BADGE_R = 15                      # white badge with the letter on it
 # Free drawing: crayons, Undo and Done sit along the top of the play area
 CRAYONS = [(255, 204, 0), (233, 69, 96), (255, 140, 40), (80, 200, 90),
            (60, 160, 255), (170, 110, 255), (255, 255, 255)]
@@ -183,7 +186,7 @@ _TILES = {}
 
 def domino_tile(color, plain=False):
   """A small domino: coloured tile, darker rim, a shine, a middle line and two
-  pips. plain: a slightly bigger tile with no pips, for a letter on top.
+  pips. plain: a big tile with no pips, for a letter badge on top.
   Painted once per colour."""
   key = (*tuple(color)[:3], plain)
   tile = _TILES.get(key)
@@ -191,7 +194,7 @@ def domino_tile(color, plain=False):
     if len(_TILES) > 600:
       _TILES.clear()
     rgb = key[:3]
-    w, h = (16, 32) if plain else (12, 28)
+    w, h = LETTER_TILE if plain else (12, 28)
     tile = pygame.Surface((w, h), pygame.SRCALPHA)
     dark = tuple(int(c * 0.55) for c in rgb)
     light = tuple(min(255, int(c + (255 - c) * 0.45)) for c in rgb)
@@ -409,11 +412,21 @@ class Game:
     self.say(text, f"{text} {word}" if word else None)
 
   def stand_dominoes(self, loops):
-    self.dominoes = dominoes_from_loops(loops, self.loop_closed, self.theme["domino_sat"],
-                                        self.theme["domino_val"])
     # each domino carries the picture's letter (C for Car) and they drop
     # onto the picture one after another
     self.domino_letter = None if self.is_custom else domino_letter_of(self.puzzle)
+    flags = self.loop_closed
+    if self.domino_letter is not None:
+      # big letter dominoes: fewer of them, spaced for a clear letter each
+      big, flags = [], []
+      for lp, closed in zip(loops, self.loop_closed):
+        pts = hub._resample(list(lp), closed and len(lp) > 2, LETTER_SPACING)
+        if pts:
+          big.append(pts)
+          flags.append(closed and len(pts) > 2)
+      loops = big
+    self.dominoes = dominoes_from_loops(loops, flags, self.theme["domino_sat"],
+                                        self.theme["domino_val"])
     now = time.time()
     gap = min(DROP_GAP, DROP_ALL / max(1, len(self.dominoes)))
     for i, d in enumerate(self.dominoes):
@@ -428,21 +441,25 @@ class Game:
     return bool(self.dominoes) and (now or time.time()) < self.dominoes[-1].drop_at + DROP_TIME
 
   def letter_surface(self):
-    """The domino letter, upright, white with a dark rim (cached per item)."""
+    """The domino letter on an upright white badge with a dark rim, so it
+    reads clearly whichever way the domino stands (cached per item)."""
     key = (self.cat, self.puzzle)
     if getattr(self, "_letter_key", None) != key:
       self._letter_key, self._letter_surf = key, None
       item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
       if item.get("hindi") and self.pic_path:       # Hindi letters: the letter picture
-        self._letter_surf = self.native_letter_image()
+        ink = self.native_letter_image()
       elif self.domino_letter:
-        size = 20 if len(self.domino_letter) == 1 else 14
-        ink = self.render_char(self.domino_letter, size, WHITE)
-        rim = self.render_char(self.domino_letter, size, (30, 30, 50))
-        surf = pygame.Surface((ink.get_width() + 2, ink.get_height() + 2), pygame.SRCALPHA)
-        for dx, dy in ((0, 1), (2, 1), (1, 0), (1, 2)):
-          surf.blit(rim, (dx, dy))
-        surf.blit(ink, (1, 1))
+        size = 26 if len(self.domino_letter) == 1 else 18
+        ink = self.render_char(self.domino_letter, size, (25, 30, 70))
+      else:
+        ink = None
+      if ink is not None:
+        d = BADGE_R * 2 + 2
+        surf = pygame.Surface((d, d), pygame.SRCALPHA)
+        pygame.draw.circle(surf, (25, 30, 70), (d // 2, d // 2), BADGE_R + 1)
+        pygame.draw.circle(surf, WHITE, (d // 2, d // 2), BADGE_R - 1)
+        surf.blit(ink, ink.get_rect(center=(d // 2, d // 2 + 1)))
         self._letter_surf = surf
     return self._letter_surf
 
@@ -450,7 +467,8 @@ class Game:
     img = self.image(self.pic_path)
     if img is None:
       return None
-    s = 22 / max(img.get_width(), img.get_height())
+    img = img.subsurface(img.get_bounding_rect())   # just the letter, no margin
+    s = 24 / max(img.get_width(), img.get_height())
     return pygame.transform.smoothscale(
         img, (max(1, int(img.get_width() * s)), max(1, int(img.get_height() * s))))
 
