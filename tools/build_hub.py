@@ -2,6 +2,7 @@
 
 Reads every item from domino_data.CATALOG and makes, for each one:
   - "loops": the real outline (list of point loops) in a 0..1000 space
+  - "parts": a picture's inside lines (wheels, windows, legs), also dotted
   - "pic":   the real picture, lined up exactly with the outline
   - "thumb": a small picture for the item buttons (flag for countries, ...)
   - "context": faint neighbour borders (maps and rivers)
@@ -74,6 +75,24 @@ def download(url, path):
 EMOJI_TRIM = {
     "Cartoons/Mermaid": [(0, 0, 192, 618)],     # the thin trident
 }
+
+
+EMOJI_MIN_FRAC = 0.02
+
+
+def emoji_picture(key, code):
+  """The OpenMoji picture and its filled silhouette mask."""
+  img = Image.open(emoji_png(code)).convert("RGBA")
+  mask = (np.array(img)[:, :, 3] > 100).astype(np.uint8) * 255
+  mask = cv2.morphologyEx(
+      mask, cv2.MORPH_CLOSE,
+      cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9)))
+  for x0, y0, x1, y1 in EMOJI_TRIM.get(key, ()):
+    mask[y0:y1, x0:x1] = 0         # thin props make messy dots
+    arr = np.array(img)
+    arr[y0:y1, x0:x1] = 0
+    img = Image.fromarray(arr)
+  return img, mask
 
 
 def emoji_png(code):
@@ -194,6 +213,139 @@ def outline_from_mask(mask, min_frac=0.04):
   out = [lp for lp in out if len(lp) >= 3]
   pic_frame = frame([(0, 0), (mask.shape[1], mask.shape[0])])
   return out, frame, [round(v, 1) for v in (*pic_frame[0], *pic_frame[1])]
+
+
+# ------------------------------------------------------ inner picture parts
+PART_EDGE = 15        # px: strokes this close to the edge are the outline itself
+PART_MIN = 40         # px: shorter inside lines are specks, not parts
+PARTS_MAX = 1.0       # inside lines may add up to this much of the outline length
+
+
+def thin(img):
+  """Zhang-Suen thinning of a 0/1 image: every stroke becomes a 1-pixel line
+  down its middle."""
+  im = np.pad((img > 0).astype(np.uint8), 1)
+  while True:
+    changed = False
+    for step in (0, 1):
+      p = im
+      p2, p3, p4 = p[:-2, 1:-1], p[:-2, 2:], p[1:-1, 2:]
+      p5, p6, p7 = p[2:, 2:], p[2:, 1:-1], p[2:, :-2]
+      p8, p9 = p[1:-1, :-2], p[:-2, :-2]
+      ring = [p2, p3, p4, p5, p6, p7, p8, p9, p2]
+      count = sum(n.astype(np.int32) for n in ring[:8])
+      turns = sum(((ring[k] == 0) & (ring[k + 1] == 1)).astype(np.int32) for k in range(8))
+      if step == 0:
+        side = (p2 * p4 * p6 == 0) & (p4 * p6 * p8 == 0)
+      else:
+        side = (p2 * p4 * p8 == 0) & (p2 * p6 * p8 == 0)
+      gone = (p[1:-1, 1:-1] == 1) & (count >= 2) & (count <= 6) & (turns == 1) & side
+      if gone.any():
+        im[1:-1, 1:-1][gone] = 0
+        changed = True
+    if not changed:
+      return im[1:-1, 1:-1]
+
+
+_STEPS = [(-1, 0), (0, 1), (1, 0), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)]
+
+
+def trace_lines(sk):
+  """1-pixel lines -> [(points, closed)]: runs between line ends and
+  crossings, then the rings left over (a wheel, an eye)."""
+  ys, xs = np.nonzero(sk)
+  pix = set(zip(ys.tolist(), xs.tolist()))
+
+  def nbrs(p):
+    # a diagonal step only where no straight step joins them, so staircase
+    # lines are not mistaken for crossings
+    out = []
+    for dy, dx in _STEPS:
+      q = (p[0] + dy, p[1] + dx)
+      if q in pix and not (dy and dx and ((p[0] + dy, p[1]) in pix
+                                          or (p[0], p[1] + dx) in pix)):
+        out.append(q)
+    return out
+
+  links = {p: nbrs(p) for p in pix}
+  nodes = {p for p, nb in links.items() if len(nb) != 2}
+  used = set()
+
+  def walk(start, nxt):
+    path = [start, nxt]
+    used.add(frozenset((start, nxt)))
+    prev, cur = start, nxt
+    while cur not in nodes and cur != start:
+      step = [q for q in links[cur] if q != prev and frozenset((cur, q)) not in used]
+      if not step:
+        break
+      used.add(frozenset((cur, step[0])))
+      path.append(step[0])
+      prev, cur = cur, step[0]
+    return path
+
+  lines = []
+  for n in sorted(nodes):
+    for q in links[n]:
+      if frozenset((n, q)) not in used:
+        lines.append((walk(n, q), False))
+  for p in sorted(pix):
+    free = [q for q in links[p] if frozenset((p, q)) not in used]
+    if p not in nodes and len(free) == 2:
+      path = walk(p, free[0])
+      closed = path[-1] == p
+      lines.append((path[:-1] if closed else path, closed))
+  return [([(x, y) for y, x in pts], closed) for pts, closed in lines]
+
+
+def inner_parts(img, mask, frame, loops):
+  """The picture's own inside lines - a car's wheels and windows, a cat's
+  legs, a robot's eyes - as extra dotted lines, taken from the middle of
+  OpenMoji's black strokes. Strokes on the outline are left out (already
+  dotted). Returns [[closed 0/1, points in the 0..1000 space], ...]."""
+  arr = np.array(img)
+  line = (arr[:, :, :3].max(axis=2) < 90) & (arr[:, :, 3] > 100)
+  line = cv2.morphologyEx(line.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+  sk = thin(line)
+  inside = cv2.distanceTransform((mask > 127).astype(np.uint8), cv2.DIST_L2, 5)
+  sk[inside < PART_EDGE] = 0
+  found = []
+  for pts, closed in trace_lines(sk):
+    if len(pts) < 2:
+      continue
+    size = cv2.arcLength(np.array(pts, np.float32).reshape(-1, 1, 2), closed)
+    if size >= PART_MIN:
+      found.append((size * frame.s, pts, closed))
+  found.sort(key=lambda t: -t[0])          # the big parts first
+  budget = PARTS_MAX * sum(cv2.arcLength(np.array(lp, np.float32).reshape(-1, 1, 2), True)
+                           for lp in loops)
+  parts, total = [], 0.0
+  for size, pts, closed in found:
+    if total + size > budget:
+      continue
+    pts = simplify(frame(pts), 2.2, closed)
+    if len(pts) >= (3 if closed else 2):
+      parts.append([1 if closed else 0, pts])
+      total += size
+  return parts
+
+
+def add_parts():
+  """Adds the inside lines to an existing hub_data.json without rebuilding
+  the pictures and maps:  python tools/build_hub.py --parts"""
+  with open(hub.HUB_JSON, encoding="utf-8") as fh:
+    result = json.load(fh)
+  for cat, items in hub.CATALOG.items():
+    for name, _desc, (kind, arg) in items:
+      key = hub.item_key(cat, name)
+      if kind != "emoji" or key not in result:
+        continue
+      img, mask = emoji_picture(key, arg)
+      loops, frame, _ = outline_from_mask(mask, EMOJI_MIN_FRAC)
+      result[key]["parts"] = inner_parts(img, mask, frame, loops)
+      print(f"ok   {key:32s} parts={len(result[key]['parts'])}")
+  with open(hub.HUB_JSON, "w", encoding="utf-8") as fh:
+    json.dump(result, fh, separators=(",", ":"))
 
 
 def save_pic(img, slug, kind="pic", size=PIC_MAX):
@@ -610,18 +762,9 @@ def main():
         entry = {"closed": True}
         if kind in ("emoji", "glyph", "shape", "landmark", "hindi"):
           if kind == "emoji":
-            img = Image.open(emoji_png(arg)).convert("RGBA")
-            mask = (np.array(img)[:, :, 3] > 100).astype(np.uint8) * 255
-            mask = cv2.morphologyEx(
-                mask, cv2.MORPH_CLOSE,
-                cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9)))
-            for x0, y0, x1, y1 in EMOJI_TRIM.get(key, ()):
-              mask[y0:y1, x0:x1] = 0         # thin props make messy dots
-              arr = np.array(img)
-              arr[y0:y1, x0:x1] = 0
-              img = Image.fromarray(arr)
+            img, mask = emoji_picture(key, arg)
             pic = img
-            min_frac = 0.02
+            min_frac = EMOJI_MIN_FRAC
           elif kind == "glyph":
             mask = glyph_mask(arg)
             pic = colour_silhouette(mask, hsv(ii, len(items)))
@@ -645,6 +788,8 @@ def main():
           loops, frame, pic_frame = outline_from_mask(mask, min_frac)
           entry.update(loops=loops, w=round(frame.w, 1), h=round(frame.h, 1),
                        pic=save_pic(pic, slug), pic_frame=pic_frame)
+          if kind == "emoji":
+            entry["parts"] = inner_parts(img, mask, frame, loops)
           entry["thumb"] = save_pic(pic.crop(pic.getbbox()), slug, "thumb", THUMB)
 
         elif kind == "state":
@@ -856,4 +1001,7 @@ def join_segments(segs, tol=0.02):
 
 
 if __name__ == "__main__":
-  main()
+  if "--parts" in sys.argv:
+    add_parts()
+  else:
+    main()

@@ -1005,6 +1005,30 @@ def fetch_path_from_hub(shape_name, box, custom_points=None, cat=None,
   return out
 
 
+def fetch_trace_from_hub(shape_name, box, cat=None, max_dots=110, part_dots=50,
+                         min_spacing=18):
+  """The outline plus the picture's inside parts (a car's wheels and windows)
+  as evenly spaced dots: (loops, closed) with one closed flag per loop. The
+  outline comes first; the parts get up to part_dots more dots."""
+  item = _find(shape_name, cat)
+  if item is None or item["source"] == "custom":
+    return [], []
+  s, ox, oy = _fit(item, box)
+  closed = item.get("closed", True)
+  lines = [(closed, [(ox + x * s, oy + y * s) for x, y in loop]) for loop in item["loops"]]
+  lines += [(bool(c), [(ox + x * s, oy + y * s) for x, y in pts])
+            for c, pts in item.get("parts", [])]
+  total = sum(_length(lp, c) for c, lp in lines)
+  spacing = max(min_spacing, total / (max_dots + (part_dots if item.get("parts") else 0)))
+  loops, flags = [], []
+  for c, lp in lines:
+    dots = _resample(lp, c, spacing)
+    if len(dots) >= (3 if c else 2):
+      loops.append(dots)
+      flags.append(c)
+  return loops, flags
+
+
 def fetch_context_from_hub(shape_name, box, cat=None):
   """Faint background lines (e.g. country borders around a river)."""
   item = _find(shape_name, cat)

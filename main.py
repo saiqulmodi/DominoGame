@@ -79,6 +79,10 @@ GOLD = (255, 215, 0)
 HINT = (170, 180, 210)
 
 CUSTOM = "Custom Draw"
+DROP_TIME = 0.32                  # s: one domino dropping onto the picture
+DROP_GAP = 0.06                   # s between dominoes (less for big pictures)
+DROP_ALL = 2.4                    # s: the whole line has dropped by then
+DROP_HEIGHT = 80                  # px it drops from
 # Free drawing: crayons, Undo and Done sit along the top of the play area
 CRAYONS = [(255, 204, 0), (233, 69, 96), (255, 140, 40), (80, 200, 90),
            (60, 160, 255), (170, 110, 255), (255, 255, 255)]
@@ -152,6 +156,7 @@ class Domino:
     self.current_angle = 0.0
     self.state = "standing"
     self.color = color
+    self.drop_at = 0.0          # when it starts dropping onto the picture
 
 
 _BANDS = {}
@@ -176,32 +181,49 @@ def top_band(theme, width):
 _TILES = {}
 
 
-def domino_tile(color):
+def domino_tile(color, plain=False):
   """A small domino: coloured tile, darker rim, a shine, a middle line and two
-  pips. Painted once per colour."""
-  key = tuple(color)[:3]
+  pips. plain: a slightly bigger tile with no pips, for a letter on top.
+  Painted once per colour."""
+  key = (*tuple(color)[:3], plain)
   tile = _TILES.get(key)
   if tile is None:
     if len(_TILES) > 600:
       _TILES.clear()
-    tile = pygame.Surface((12, 28), pygame.SRCALPHA)
-    dark = tuple(int(c * 0.55) for c in key)
-    light = tuple(min(255, int(c + (255 - c) * 0.45)) for c in key)
-    pygame.draw.rect(tile, dark, (0, 0, 12, 28), border_radius=3)
-    pygame.draw.rect(tile, key, (1, 1, 10, 26), border_radius=3)
-    pygame.draw.line(tile, light, (2, 2), (2, 25), 2)
-    pygame.draw.line(tile, WHITE, (2, 14), (9, 14), 1)
-    pygame.draw.circle(tile, WHITE, (6, 7), 2)
-    pygame.draw.circle(tile, WHITE, (6, 21), 2)
+    rgb = key[:3]
+    w, h = (16, 32) if plain else (12, 28)
+    tile = pygame.Surface((w, h), pygame.SRCALPHA)
+    dark = tuple(int(c * 0.55) for c in rgb)
+    light = tuple(min(255, int(c + (255 - c) * 0.45)) for c in rgb)
+    pygame.draw.rect(tile, dark, (0, 0, w, h), border_radius=3)
+    pygame.draw.rect(tile, rgb, (1, 1, w - 2, h - 2), border_radius=3)
+    pygame.draw.line(tile, light, (2, 2), (2, h - 3), 2)
+    if not plain:
+      pygame.draw.line(tile, WHITE, (2, 14), (9, 14), 1)
+      pygame.draw.circle(tile, WHITE, (6, 7), 2)
+      pygame.draw.circle(tile, WHITE, (6, 21), 2)
     _TILES[key] = tile
   return tile
 
 
+def domino_letter_of(name):
+  """The letter a picture's dominoes carry: C for Car, A for Apple, the letter
+  itself for ABC, abc and numbers."""
+  if len(name) == 1 or name.isdigit():
+    return name
+  for ch in name:
+    if ch.isalnum():
+      return ch.upper()
+  return None
+
+
 def dominoes_from_loops(loops, closed, sat=90, val=85):
+  """closed: one flag for all loops, or a list with one flag per loop."""
   domino_list = []
   total = sum(len(lp) for lp in loops)
+  flags = closed if isinstance(closed, (list, tuple)) else [closed] * len(loops)
   i = 0
-  for lp in loops:
+  for lp, closed in zip(loops, flags):
     for j, p in enumerate(lp):
       if j + 1 < len(lp):
         nxt = lp[j + 1]
@@ -354,12 +376,15 @@ class Game:
     if self.is_custom:
       self.closed = False
       self.loops = []
+      self.loop_closed = []
       self.dots, self.covered = [], []
       self.context = []
       self.pic_path = self.pic_rect = None
     else:
       self.closed = hub.CATEGORIES_HUB[self.cat][self.puzzle].get("closed", True)
-      self.loops = hub.fetch_path_from_hub(self.puzzle, self.box, cat=self.cat)
+      # the outline, then the picture's inside parts (wheels, windows, legs)
+      self.loops, self.loop_closed = hub.fetch_trace_from_hub(
+          self.puzzle, self.box, cat=self.cat)
       self.dots = [p for lp in self.loops for p in lp]
       self.covered = [False] * len(self.dots)
       self.context = hub.fetch_context_from_hub(self.puzzle, self.box, cat=self.cat)
@@ -384,11 +409,50 @@ class Game:
     self.say(text, f"{text} {word}" if word else None)
 
   def stand_dominoes(self, loops):
-    self.dominoes = dominoes_from_loops(loops, self.closed, self.theme["domino_sat"],
+    self.dominoes = dominoes_from_loops(loops, self.loop_closed, self.theme["domino_sat"],
                                         self.theme["domino_val"])
+    # each domino carries the picture's letter (C for Car) and they drop
+    # onto the picture one after another
+    self.domino_letter = None if self.is_custom else domino_letter_of(self.puzzle)
+    now = time.time()
+    gap = min(DROP_GAP, DROP_ALL / max(1, len(self.dominoes)))
+    for i, d in enumerate(self.dominoes):
+      d.drop_at = now + 0.25 + i * gap
+    self.landed = 0
     self.stage = "ready"
     self.strokes = []
     self.sfx.play("switch")
+
+  def dropping(self, now=None):
+    """True while the dominoes are still dropping onto the picture."""
+    return bool(self.dominoes) and (now or time.time()) < self.dominoes[-1].drop_at + DROP_TIME
+
+  def letter_surface(self):
+    """The domino letter, upright, white with a dark rim (cached per item)."""
+    key = (self.cat, self.puzzle)
+    if getattr(self, "_letter_key", None) != key:
+      self._letter_key, self._letter_surf = key, None
+      item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
+      if item.get("hindi") and self.pic_path:       # Hindi letters: the letter picture
+        self._letter_surf = self.native_letter_image()
+      elif self.domino_letter:
+        size = 20 if len(self.domino_letter) == 1 else 14
+        ink = self.render_char(self.domino_letter, size, WHITE)
+        rim = self.render_char(self.domino_letter, size, (30, 30, 50))
+        surf = pygame.Surface((ink.get_width() + 2, ink.get_height() + 2), pygame.SRCALPHA)
+        for dx, dy in ((0, 1), (2, 1), (1, 0), (1, 2)):
+          surf.blit(rim, (dx, dy))
+        surf.blit(ink, (1, 1))
+        self._letter_surf = surf
+    return self._letter_surf
+
+  def native_letter_image(self):
+    img = self.image(self.pic_path)
+    if img is None:
+      return None
+    s = 22 / max(img.get_width(), img.get_height())
+    return pygame.transform.smoothscale(
+        img, (max(1, int(img.get_width() * s)), max(1, int(img.get_height() * s))))
 
   def start_cascade(self):
     if not self.dominoes:
@@ -764,7 +828,8 @@ class Game:
         self.strokes.append([(mx, my)])
         self.cover_along((mx, my), (mx, my))
       elif self.stage == "ready":
-        self.start_cascade()
+        if not self.dropping():
+          self.start_cascade()
       elif self.stage == "finished":
         if self.current_video() and self.watch_rect().collidepoint(mx, my):
           self.watch_video()
@@ -845,6 +910,7 @@ class Game:
       return
     self.user_points = []
     self.loops = loops
+    self.loop_closed = [False] * len(loops)
     self.dots = [p for lp in loops for p in lp]
     self.covered = [True] * len(self.dots)
     self.stand_dominoes(loops)
@@ -936,6 +1002,12 @@ class Game:
       self.calls.play(self.puzzle)
     if self.mode == "quiz" and self.quiz:
       self.quiz.update(now)
+    if self.mode == "trace" and self.stage == "ready" and self.dominoes:
+      landed = sum(1 for d in self.dominoes if now >= d.drop_at + DROP_TIME)
+      if landed > self.landed:
+        if landed // 4 > self.landed // 4 or landed == len(self.dominoes):
+          self.sfx.play("clack", landed)
+        self.landed = landed
     if self.mode != "trace" or self.stage != "running":
       return
     for i, d in enumerate(self.dominoes):
@@ -1149,6 +1221,11 @@ class Game:
     if self.stage == "trace":
       return f"Trace the dots!  {sum(self.covered)} / {len(self.dots)}"
     if self.stage == "ready":
+      if self.dropping():
+        letter = getattr(self, "domino_letter", None)
+        if letter and not hub.CATEGORIES_HUB[self.cat][self.puzzle].get("hindi"):
+          return f"Here come the {letter} dominoes!"
+        return "Here come the dominoes!"
       return "Tap to push the dominoes!"
     if self.stage == "finished":
       if self.story:
@@ -1224,10 +1301,12 @@ class Game:
 
     if self.stage == "trace":
       # Dotted outline: faint guide line, hollow dots, filled when covered
-      for lp_start in self._loop_slices():
+      flags = getattr(self, "loop_closed", [])
+      for k, lp_start in enumerate(self._loop_slices()):
         pts = self.dots[lp_start[0]:lp_start[1]]
         if len(pts) > 1:
-          pygame.draw.lines(screen, self.theme["guide"], self.closed, pts, 1)
+          closed = flags[k] if k < len(flags) else self.closed
+          pygame.draw.lines(screen, self.theme["guide"], closed, pts, 1)
       # Trail grows thicker and glows while a streak is going
       streak = self.streak.active(now)
       width = 4 + min(8, streak // 3)
@@ -1259,17 +1338,25 @@ class Game:
       self.draw_free_drawing(screen, now)
 
     if self.stage in ("ready", "running", "finished"):
-      if self.stage == "ready" and self.dominoes:
+      if self.stage == "ready" and self.dominoes and not self.dropping(now):
         r = 15 + 4 * math.sin(now * 6)
         pygame.draw.circle(screen, YELLOW, (int(self.dominoes[0].x),
                                             int(self.dominoes[0].y)), int(r), 2)
+      letter = self.letter_surface() if not self.is_custom else None
       for d in self.dominoes:
-        surf = domino_tile(d.color)
+        t = (now - d.drop_at) / DROP_TIME
+        if t < 0:
+          continue                     # not dropped yet
+        lift = (1 - min(1.0, t)) ** 2 * DROP_HEIGHT
+        surf = domino_tile(d.color, plain=letter is not None)
         rotated = pygame.transform.rotate(
             surf, math.degrees(-(d.angle + d.current_angle)))
-        if self.stage == "finished":
-          rotated.set_alpha(110)
-        screen.blit(rotated, rotated.get_rect(center=(d.x, d.y)))
+        alpha = 110 if self.stage == "finished" else int(255 * min(1.0, 0.3 + t))
+        rotated.set_alpha(alpha)
+        screen.blit(rotated, rotated.get_rect(center=(d.x, d.y - lift)))
+        if letter is not None:
+          letter.set_alpha(alpha)
+          screen.blit(letter, letter.get_rect(center=(d.x, d.y - lift)))
       if self.is_custom and self.stage == "finished":
         self.draw_free_drawing(screen, now)   # the child's picture is the reward
 
