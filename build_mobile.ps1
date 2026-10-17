@@ -2,6 +2,8 @@
 #
 #   .\build_mobile.ps1            web + installable app (PWA) into docs\, then a local test server
 #   .\build_mobile.ps1 -Android   also builds the Android .apk (WSL Ubuntu) into bin\
+#   .\build_mobile.ps1 -Release   also builds the signed Google Play bundle (.aab) into bin\
+#                                 (see PLAY_STORE.md; the upload key is made the first time)
 #   .\build_mobile.ps1 -NoServe   build only
 #
 # If PowerShell refuses to run scripts, start it with:
@@ -9,6 +11,7 @@
 
 param(
     [switch]$Android,
+    [switch]$Release,
     [switch]$NoServe,
     [int]$Port = 8000
 )
@@ -30,12 +33,24 @@ Write-Host "=== 3. Web game + installable app (pygbag, manifest, offline) ===" -
 python tools\build_web.py
 if ($LASTEXITCODE -ne 0) { throw "build_web.py failed" }
 
+function Invoke-AndroidBuild($mode, $pattern, $label) {
+    # Java prints harmless notes on stderr; "Stop" would treat them as errors
+    $ErrorActionPreference = "Continue"
+    wsl -e bash -l tools/build_android.sh $mode
+    if ($LASTEXITCODE -ne 0) { throw "Android build failed - see the messages above" }
+    Get-ChildItem "bin\$pattern" | Sort-Object LastWriteTime -Descending | Select-Object -First 1 |
+        ForEach-Object { Write-Host "${label}: $($_.FullName)" -ForegroundColor Green }
+}
+
 if ($Android) {
     Write-Host "=== 4. Android app (.apk) in WSL Ubuntu - the first build takes 20-40 minutes ===" -ForegroundColor Cyan
-    wsl -e bash -l tools/build_android.sh
-    if ($LASTEXITCODE -ne 0) { throw "Android build failed - see the messages above" }
-    Get-ChildItem bin\*.apk | Sort-Object LastWriteTime -Descending | Select-Object -First 1 |
-        ForEach-Object { Write-Host "APK: $($_.FullName)" -ForegroundColor Green }
+    Invoke-AndroidBuild "debug" "*.apk" "APK"
+}
+
+if ($Release) {
+    Write-Host "=== 5. Google Play bundle (.aab), signed with the upload key ===" -ForegroundColor Cyan
+    Invoke-AndroidBuild "release" "*.aab" "Play Store bundle"
+    Write-Host "Back up C:\Users\saiqu\DominoWonderDash-signing - every update needs that key." -ForegroundColor Yellow
 }
 
 if ($NoServe) { return }

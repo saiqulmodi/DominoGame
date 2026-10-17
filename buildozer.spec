@@ -12,6 +12,8 @@ source.exclude_dirs = build, bin, .buildozer, __pycache__, tools, venv, docs, ic
 source.exclude_patterns = buildozer.spec*, source.include_exts
 
 version = 1.1
+# Play Store build number: raise it by 1 for every upload
+android.numeric_version = 101
 
 # pygame runs on the SDL2 bootstrap; pyjnius gives access to Android's
 # built-in text-to-speech voice (used to say the names out loud).
@@ -29,14 +31,19 @@ icon.filename = %(source.dir)s/icons/icon-512.png
 presplash.filename = %(source.dir)s/icons/presplash.png
 android.presplash_color = #4A90E2
 
-android.api = 34
+# Google Play wants the newest target level for new apps and updates
+android.api = 36
 android.minapi = 24
 android.archs = arm64-v8a, armeabi-v7a
 android.accept_sdk_license = True
+# Play Store upload: Android App Bundle (tools/build_android.sh release)
+android.release_artifact = aab
+android.debug_artifact = apk
 # keeps the screen on while a child is tracing
 android.wakelock = True
-# no permissions: real-life videos open in the phone's own browser
-android.permissions =
+# no permissions at all: real-life videos open in the phone's own browser.
+# (Do not add an empty "android.permissions =" line: it makes a bogus
+# "android.permission." entry in the app's manifest.)
 android.extra_manifest_xml = ./android_queries.xml
 
 [buildozer]
