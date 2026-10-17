@@ -113,7 +113,10 @@ def main():
   stage = os.path.join(stage_root, APP)
   os.makedirs(stage)
   for f in GAME_FILES:
-    shutil.copy2(os.path.join(ROOT, f), stage)
+    if f == "hub_data.json":             # outline points to whole pixels: smaller download
+      write_compact_hub(os.path.join(stage, f))
+    else:
+      shutil.copy2(os.path.join(ROOT, f), stage)
   for d in GAME_DIRS:
     if d == "pics":                      # only pictures the game uses (old builds
       copy_used_pics(os.path.join(stage, d))   # leave unused ones behind)
@@ -138,6 +141,26 @@ def main():
     print(f"{name:28s} {os.path.getsize(os.path.join(docs, name)) / 1e6:6.2f} MB")
 
 
+def write_compact_hub(dest):
+  """hub_data.json with outline points rounded to whole pixels (the canvas
+  cannot show a tenth of a pixel) and no spaces."""
+  with open(os.path.join(ROOT, "hub_data.json"), encoding="utf-8") as fh:
+    data = json.load(fh)
+
+  def snap(x):
+    if isinstance(x, float):
+      return int(round(x))
+    if isinstance(x, list):
+      return [snap(v) for v in x]
+    if isinstance(x, dict):
+      return {k: (v if k in ("w", "h", "pic_frame") else snap(v)) for k, v in x.items()}
+    return x
+
+  with open(dest, "w", encoding="utf-8") as fh:
+    json.dump({k: snap(v) for k, v in data.items()}, fh, separators=(",", ":"),
+              ensure_ascii=False)
+
+
 def used_pics():
   """Every picture hub_data.json points to (the Stratos copy must stay small)."""
   with open(os.path.join(ROOT, "hub_data.json"), encoding="utf-8") as fh:
@@ -158,12 +181,38 @@ def used_pics():
   return used
 
 
+WEB_PIC_MAX = 448      # px: the game canvas is 450 wide, so bigger is never seen
+WEB_THUMB_MAX = 96     # px: menu and banner thumbnails are shown at most ~90 px
+
+
 def copy_used_pics(dest):
+  """Copies the used pictures; full-size pictures are scaled down to fit the
+  450-wide canvas (keeps the Stratos copy under its 20 MB limit)."""
+  import re
+  from PIL import Image
+  sys.path.insert(0, os.path.join(ROOT, "tools"))
+  from build_hub import compact
   os.makedirs(dest)
   used = used_pics()
   for name in os.listdir(os.path.join(ROOT, "pics")):
-    if name in used:
-      shutil.copy2(os.path.join(ROOT, "pics", name), dest)
+    if name not in used:
+      continue
+    src = os.path.join(ROOT, "pics", name)
+    if re.search(r"_(hi|bn|w|l\d+(_hi|_bn)?)\.png$", name):
+      shutil.copy2(src, dest)            # word pictures stay as they are
+      continue
+    img = Image.open(src)
+    limit = WEB_THUMB_MAX if name.endswith("_t.png") else WEB_PIC_MAX
+    if max(img.size) <= limit:
+      shutil.copy2(src, dest)
+      continue
+    k = limit / max(img.size)
+    img = img.convert("RGBA").resize((round(img.width * k), round(img.height * k)),
+                                      Image.LANCZOS)
+    out = os.path.join(dest, name)
+    compact(img).save(out, optimize=True)         # the hub's own picture packer
+    if os.path.getsize(out) >= os.path.getsize(src):
+      shutil.copy2(src, out)                      # keep whichever is smaller
 
 
 def make_pwa(docs):
