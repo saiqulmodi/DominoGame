@@ -598,7 +598,7 @@ class Game:
     """The item's checked real-life video, only while tracing (not in quizzes)."""
     if self.mode != "trace" or self.banner_override or self.is_custom:
       return None
-    return hub.fetch_video_from_hub(self.puzzle, self.cat)
+    return hub.video_for(self.cat, self.puzzle)
 
   def draw_places(self, screen, now):
     """Maps, once traced: the capital (star), famous places (red dots) and,
@@ -685,7 +685,9 @@ class Game:
     cx, cy = rect.x + 28, rect.centery
     pygame.draw.circle(screen, WHITE, (cx, cy), 15)
     pygame.draw.polygon(screen, (230, 40, 50), [(cx - 5, cy - 8), (cx - 5, cy + 8), (cx + 9, cy)])
-    title = hub.CATEGORIES_HUB[self.cat][self.puzzle].get("label") or self.puzzle
+    word = hub.letter_word(self.cat, self.puzzle)      # a letter: its word's video
+    title = (word[1] if word else
+             hub.CATEGORIES_HUB[self.cat][self.puzzle].get("label") or self.puzzle)
     words = (f"See {title}'s famous places!" if self.current_video().get("places")
              else f"Watch the real {title}!")
     lbl = fit_label(self.hint_font, words, WHITE, rect.w - 64)
@@ -833,6 +835,62 @@ class Game:
     self.sfx.play("click")
     self.load_item()
 
+  def word_card_rect(self):
+    """A free spot for the word card: a corner with none of the letter's dots
+    under it (so tracing is never blocked). None while tracing if no corner is
+    free; after tracing it may sit anywhere."""
+    key = (self.cat, self.puzzle, PLAY_RECT.size, self.stage == "finished")
+    if getattr(self, "_card_key", None) != key:
+      self._card_key = key
+      self._card_rect = None
+      p = PLAY_RECT
+      for w, h in ((104, 120), (84, 98)):
+        spots = [(p.x + 8, p.y + 52), (p.x + 8, p.bottom - 90 - h),
+                 (p.right - 8 - w, p.bottom - 90 - h), (p.right - 8 - w, p.y + 52),
+                 (p.x + 8, p.centery - h // 2), (p.right - 8 - w, p.centery - h // 2)]
+        for x, y in spots:
+          r = pygame.Rect(x, y, w, h)
+          zone = r.inflate(14, 14)
+          if not any(zone.collidepoint(d) for d in self.dots):
+            self._card_rect = r
+            break
+        if self._card_rect:
+          break
+      if self._card_rect is None and self.stage == "finished":
+        self._card_rect = pygame.Rect(p.x + 8, p.y + 52, 84, 98)
+    return self._card_rect
+
+  def draw_word_card(self, screen, now):
+    """Letters: the word's picture (A for Apple -> the apple), so the sound of
+    the letter is joined to a real thing. Tap it to hear the word again."""
+    if self.mode != "trace" or self.is_custom:
+      return
+    word = hub.letter_word(self.cat, self.puzzle)
+    if not word:
+      return
+    r = self.word_card_rect()
+    if r is None:
+      return                               # no free corner while tracing
+    if self.stage == "finished":           # a little bounce of joy at the end
+      r = r.move(0, int(-6 * abs(math.sin((now - self.finished_at) * 4)))
+                 if now - self.finished_at < 2 else 0)
+    card = pygame.Surface(r.size, pygame.SRCALPHA)
+    pygame.draw.rect(card, (255, 255, 255, 225), card.get_rect(), border_radius=16)
+    screen.blit(card, r.topleft)
+    pygame.draw.rect(screen, YELLOW, r, 3, border_radius=16)
+    th = self.thumb(word[1], word[0], int(r.h * 0.62))
+    if th is not None:
+      screen.blit(th, th.get_rect(center=(r.centerx, r.y + int(r.h * 0.4))))
+    native = self.native_image(word[0], word[1], 16) if self.lang != "en" else None
+    lbl = fit_label(self.small_font, word[1], (40, 40, 70), r.w - 10)
+    screen.blit(lbl, lbl.get_rect(center=(r.centerx, r.bottom - (30 if native else 14))))
+    if native is not None:
+      screen.blit(native, native.get_rect(center=(r.centerx, r.bottom - 12)))
+    if self.current_video():                # a red dot: this word has a real video
+      pygame.draw.circle(screen, (230, 40, 50), (r.right - 14, r.y + 14), 9)
+      pygame.draw.polygon(screen, WHITE, [(r.right - 17, r.y + 9), (r.right - 17, r.y + 19),
+                                          (r.right - 9, r.y + 14)])
+
   def peek_next(self):
     """The picture Next would open (for the "What's next?" mystery card)."""
     if self.story or self.mode != "trace":
@@ -957,6 +1015,18 @@ class Game:
         self.say(f"Spell the word: {self.puzzle}.", self.native_word(self.cat, self.puzzle))
       else:
         self.announce()
+    elif (PLAY_RECT.collidepoint(mx, my) and self.mode == "trace"
+          and hub.letter_word(self.cat, self.puzzle)
+          and self.word_card_rect() and self.word_card_rect().collidepoint(mx, my)
+          and self.stage != "draw"):
+      cat, word = hub.letter_word(self.cat, self.puzzle)
+      self.sfx.play("click")
+      if self.current_video() and self.stage == "finished":
+        self.watch_video()                   # the real one
+      else:
+        self.say(f"{self.puzzle} for {word}!" if self.cat in ("ABC", "abc") else f"{word}!",
+                 self.native_word(cat, word))
+        self.calls.play(word)
     elif PLAY_RECT.collidepoint(mx, my):
       if self.mode == "quiz":
         self.quiz.press(pos)
@@ -1598,6 +1668,7 @@ class Game:
       pygame.draw.rect(pill, (20, 24, 50, 170), pill.get_rect(), border_radius=box.h // 2)
       screen.blit(pill, box.topleft)
       screen.blit(surf, surf.get_rect(center=box.center))
+    self.draw_word_card(screen, now)
     howto.draw_idle_hand(self, screen, now, PLAY_RECT)
     if self.sing:
       self.sing.draw(screen, PLAY_RECT, now)
@@ -1824,7 +1895,7 @@ class Game:
       screen.blit(lbl, lbl.get_rect(center=(rect.centerx, rect.bottom - 10)))
       if self.progress.is_done(self.key(name)):  # gold star = already traced
         self.draw_star(screen, (rect.right - 10, rect.top + 10), 8)
-      if self.mode == "trace" and hub.fetch_video_from_hub(name, self.cat):
+      if self.mode == "trace" and hub.video_for(self.cat, name):
         bx, by = rect.x + 11, rect.y + 11          # red badge: has a real video
         pygame.draw.circle(screen, (230, 40, 50), (bx, by), 8)
         pygame.draw.polygon(screen, WHITE, [(bx - 3, by - 4), (bx - 3, by + 4), (bx + 5, by)])

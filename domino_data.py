@@ -1160,6 +1160,58 @@ def fetch_thumb_from_hub(shape_name, cat=None):
 _VIDEOS = None
 
 
+# Letters show their word as a picture (A for Apple -> the apple) and, when that
+# picture has a checked real-life video, the "Watch the real ..." button too.
+# The word comes from the letter's own list; these close matches cover words
+# that have no picture of their own (a dove for the pigeon, a lotus for শাপলা).
+LETTER_CATS = ("ABC", "abc", "Swar", "Vyanjan", "Swarabarna", "Byanjanbarna")
+WORD_MATCH = {
+    "van": "Minibus", "watch": "Clock", "queen": "Princess",
+    "pigeon": "Dove", "flag": "Indian Flag", "small drum": "Drum", "bow": "Bow and Arrow",
+    "water tap": "Drink Water", "fruit": "Apple", "sacred fire": "Fire", "forest": "Tree",
+    "morning": "Sun", "heel": "Foot", "flower pot": "Potted Plant",
+    "python": "Snake", "dawn": "Sun", "indra's elephant": "Elephant", "lips": "Mouth",
+    "green coconut": "Coconut", "paddy": "Rice", "bird": "Sparrow", "flower": "Rose",
+    "water lily": "Lotus", "bull": "Cow", "hill": "Mountain", "a rainy month": "Rain",
+    "festival": "Diya", "colour": "Rainbow", "breath": "Lungs",
+}
+_WORD_ITEMS = {}
+
+
+def letter_word(cat, name):
+  """(category, item) of the picture a letter stands for, or None."""
+  if cat not in LETTER_CATS:
+    return None
+  key = (cat, name)
+  if key not in _WORD_ITEMS:
+    word = None
+    if cat in ("ABC", "abc") and len(name) == 1 and name.isalpha():
+      word = LETTER_WORDS[ord(name.upper()) - 65]
+    else:
+      rows = {"Swar": HINDI_SWAR, "Vyanjan": HINDI_VYANJAN,
+              "Swarabarna": BANGLA_SWAR, "Byanjanbarna": BANGLA_BYANJAN}[cat]
+      row = next((r for r in rows if r[0] == name), None)
+      word = row[4] if row else None
+    found = None
+    if word:
+      target = WORD_MATCH.get(word.lower(), word).lower()
+      hits = [(c, n) for c, items in CATEGORIES_HUB.items()
+              if c not in LETTER_CATS and c not in ("Classic Rhymes", "Desi Rhymes")
+              for n in items if n.lower() == target]
+      with_video = [h for h in hits if fetch_video_from_hub(h[1], h[0])]
+      found = (with_video or hits or [None])[0]
+    _WORD_ITEMS[key] = found
+  return _WORD_ITEMS[key]
+
+
+def video_for(cat, name):
+  """The checked real-life video for a picture; letters use their word's."""
+  word = letter_word(cat, name)
+  if word:
+    return fetch_video_from_hub(word[1], word[0])
+  return fetch_video_from_hub(name, cat)
+
+
 def fetch_video_from_hub(shape_name, cat=None):
   global _VIDEOS
   if _VIDEOS is None:
