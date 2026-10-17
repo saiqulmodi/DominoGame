@@ -85,6 +85,10 @@ def build_item(cat, ci, ii, name, arg):
     mask = bangla_mask(name)
     img = bh.colour_silhouette(mask, bh.hsv(ii, len(items)))
     loops, frame, pic_frame = bh.outline_from_mask(mask, 0.005)
+  elif arg.startswith("drawn:"):         # drawn for the game (tools/drawn.py)
+    import drawn
+    img, mask = drawn.make(arg[len("drawn:"):])
+    loops, frame, pic_frame = bh.outline_from_mask(mask, bh.EMOJI_MIN_FRAC)
   else:
     img, mask = bh.emoji_picture(key, arg)
     loops, frame, pic_frame = bh.outline_from_mask(mask, bh.EMOJI_MIN_FRAC)

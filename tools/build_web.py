@@ -182,7 +182,7 @@ def used_pics():
 
 
 WEB_PIC_MAX = 448      # px: the game canvas is 450 wide, so bigger is never seen
-WEB_THUMB_MAX = 96     # px: menu and banner thumbnails are shown at most ~90 px
+WEB_THUMB_MAX = 88     # px: menu, banner and word-card thumbnails are drawn at most ~74 px
 
 
 def copy_used_pics(dest):

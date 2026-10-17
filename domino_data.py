@@ -1174,6 +1174,8 @@ WORD_MATCH = {
     "green coconut": "Coconut", "paddy": "Rice", "bird": "Sparrow", "flower": "Rose",
     "water lily": "Lotus", "bull": "Cow", "hill": "Mountain", "a rainy month": "Rain",
     "festival": "Diya", "colour": "Rainbow", "breath": "Lungs",
+    "sage": "Yoga", "metal worker": "Mechanic", "snake charmer": "Snake", "warrior": "Shield",
+    "one-string instrument": "Banjo", "yam": "Sweet Potato",
 }
 _WORD_ITEMS = {}
 

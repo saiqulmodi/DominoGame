@@ -275,3 +275,48 @@ NEW_CATEGORIES = {
          "বায়ু শক্তি"),
     ],
 }
+
+# Pictures for the words of letters that had none (J for Jug, अ से अनार,
+# ল-এ লাটিম ...). "drawn:" pictures are drawn by tools/drawn.py (no emoji exists).
+LETTER_WORD_ITEMS = {
+    "Home": [
+        ("Jug", "A jug holds water.", "1F3FA", "जग", "জগ"),
+        ("Spectacles", "Spectacles help us see clearly.", "1F453", "ऐनक", "চশমা"),
+        ("Flask", "A flask keeps tea hot.", "1FAD9", "थरमस", "ফ্লাস্ক"),
+        ("Plate", "We eat our food from a plate.", "1F37D", "थाली", "থালা"),
+        ("Lid", "A lid covers a pot.", "drawn:lid", "ढक्कन", "ঢাকনা"),
+        ("Mortar", "Spices are pounded in a mortar.", "drawn:mortar", "ओखली", "হামানদিস্তা"),
+        ("Grinding Stone", "Grain is ground into flour between two stones.",
+         "drawn:grinding_stone", "चक्की", "যাঁতা"),
+        ("Ink Pot", "Long ago we wrote with a pen and an ink pot.", "drawn:ink_pot", "दवात",
+         "দোয়াত"),
+        ("Spinning Top", "Wind the string and let the top spin!", "drawn:spinning_top", "लट्टू",
+         "লাটিম"),
+        ("Woman", "A woman: a mother, a sister, an aunt, a teacher ...", "1F469", "औरत", "মহিলা"),
+        ("Wise Person", "A wise person knows a lot and helps others.", "1F9D3", "ज्ञानी",
+         "জ্ঞানী"),
+    ],
+    "Fruits": [
+        ("Pomegranate", "A pomegranate is full of juicy red seeds.", "drawn:pomegranate", "अनार",
+         "ডালিম"),
+        ("Tamarind", "Tamarind tastes sweet and sour.", "drawn:tamarind", "इमली", "তেঁতুল"),
+    ],
+    "Vegetables": [
+        ("Turnip", "A turnip grows under the ground.", "drawn:turnip", "शलगम", "শালগম"),
+    ],
+    "Plants": [
+        ("Sugarcane", "Sugar and jaggery are made from sugarcane.", "drawn:sugarcane", "ईख", "আখ"),
+    ],
+    "Food": [
+        ("Curd", "Curd is made from milk.", "1F963", "दही", "দই"),
+    ],
+    "Music": [
+        ("Xylophone", "Hit the bars to play notes.", "drawn:xylophone", "ज़ाइलोफ़ोन", "জাইলোফোন"),
+    ],
+    "Long Ago": [
+        ("Chariot", "Kings rode in chariots long ago.", "drawn:chariot", "रथ", "রথ"),
+        ("Trident", "The trident is a symbol of strength.", "1F531", "त्रिशूल", "ত্রিশূল"),
+    ],
+}
+for _cat, _rows in LETTER_WORD_ITEMS.items():
+    MORE_ITEMS.setdefault(_cat, []).extend(_rows)
