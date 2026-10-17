@@ -33,7 +33,7 @@ class SingAlong:
   def __init__(self, game, cat, name, delay=START_DELAY):
     self.g = game
     self.cat, self.name = cat, name
-    data = hub.rhyme_of(cat, name)
+    data = hub.sing_data(cat, name)
     self.lines = data["lines"]
     self.native = data.get("native")
     self.lang = data.get("lang", "en")

@@ -25,6 +25,7 @@ import os
 
 from translations import TRANSLATIONS
 from rhymes_hub import RHYMES_AND_SCHOOL_HUB, rhyme as rhyme_of
+from catalog_more import MORE_ITEMS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HUB_JSON = os.path.join(HERE, "hub_data.json")
@@ -843,6 +844,15 @@ CATALOG = {
     ],
 }
 
+# More pictures (catalog_more.py) go at the END of their categories, so every
+# older picture keeps its place, saved progress and stickers
+for _cat, _rows in MORE_ITEMS.items():
+    _have = {n for n, _d, _s in CATALOG[_cat]}
+    for _name, _desc, _code, _hi, _bn in _rows:
+        if _name not in _have:
+            CATALOG[_cat].append((_name, _desc, ("emoji", _code)))
+            TRANSLATIONS.setdefault(f"{_cat}/{_name}", (_hi, _bn))
+
 # Merge rhymes and school modules from rhymes_hub into the master catalog
 # (each rhyme brings its own picture to trace and its Hindi / Bengali name)
 for cat_name, items in RHYMES_AND_SCHOOL_HUB.items():
@@ -873,6 +883,28 @@ SUBJECTS = {
     "Social": ["Long Ago", "Earth & Maps", "Our Country"],
     "Safety": ["Road Safety"],
 }
+
+
+def letter_chant(cat, name):
+  """A little sing-along for every letter, sung after it is traced:
+  "A for Apple, A for Apple, Apple starts with A! ..." (singalong.py)."""
+  if cat not in ("ABC", "abc") or len(name) != 1 or not name.isalpha():
+    return None
+  word = LETTER_WORDS[ord(name.upper()) - 65]
+  if cat == "abc":                       # "small a" is said clearly ("a" alone is not)
+    letter, word = f"small {name}", word.lower()
+  else:
+    letter = name
+  return {"lines": [f"{letter} for {word}, {letter} for {word},",
+                    f"{word.capitalize()} starts with {letter}!",
+                    "Clap your hands and sing with me,",
+                    f"{letter}, {letter}, {word}!"],
+          "native": None, "lang": "en"}
+
+
+def sing_data(cat, name):
+  """Words to sing for a picture: a rhyme, or a letter's chant (or None)."""
+  return rhyme_of(cat, name) or letter_chant(cat, name)
 
 
 def spoken_text(name, cat=None):
@@ -945,6 +977,8 @@ for _cat, _items in CATALOG.items():
         _bucket[_name]["tile_text"] = _desc.split(" - ")[0]
       if rhyme_of(_cat, _name):            # sing-along rhyme (singalong.py)
         _bucket[_name]["rhyme"] = True
+      elif _cat in ("ABC", "abc"):         # letters get a sing-along chant too
+        _bucket[_name]["chant"] = True
       _BY_NAME.setdefault(_name, _bucket[_name])
   if _bucket:
     CATEGORIES_HUB[_cat] = _bucket

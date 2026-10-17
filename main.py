@@ -250,6 +250,21 @@ def dominoes_from_loops(loops, closed, sat=90, val=85):
   return domino_list
 
 
+TOPPLE_BASE = 7.2      # rad/s a domino tips over at (the old 0.12 per frame at 60 fps)
+TOPPLE_PUSH = 0.3      # rad: a falling domino pushes the next one at this tilt
+
+
+def topple_speed(i, n):
+  """How fast domino i of n tips over: it starts slowly, speeds up, surges
+  faster and slower like a wave, and eases off for the last few, so the
+  cascade feels alive. Measured in real time, so phones are not slower."""
+  p = i / max(1, n - 1)
+  ramp = min(1.0, p / 0.3)                    # slow start, speeding up
+  wave = 1.0 + 0.3 * math.sin(p * math.pi * 6)  # faster, slower, faster ...
+  ending = 0.7 if p > 0.93 else 1.0           # a little slow-down at the end
+  return TOPPLE_BASE * (0.6 + 2.6 * ramp) * wave * ending
+
+
 def wrap_text(font, text, max_w):
   lines, line = [], ""
   for word in text.split():
@@ -508,9 +523,15 @@ class Game:
   def start_cascade(self):
     if not self.dominoes:
       return
-    for d in self.dominoes:
+    # each domino's push time is worked out in advance from the speed curve
+    # (topple_speed), so the cascade follows it exactly at any frame rate
+    n = len(self.dominoes)
+    at = time.time()
+    for i, d in enumerate(self.dominoes):
       d.state = "standing"
       d.current_angle = 0.0
+      d.fall_at = at
+      at += TOPPLE_PUSH / topple_speed(i, n)   # the next one is pushed from here
     self.stage = "running"
     self.dominoes[0].state = "falling"
     self.sfx.play("tip")
@@ -1096,15 +1117,12 @@ class Game:
         self.landed = landed
     if self.mode != "trace" or self.stage != "running":
       return
+    n = len(self.dominoes)
     for i, d in enumerate(self.dominoes):
+      if d.state == "standing" and now >= getattr(d, "fall_at", now):
+        d.state = "falling"
       if d.state == "falling":
-        d.current_angle += 0.12
-        if (
-            d.current_angle > 0.3
-            and i + 1 < len(self.dominoes)
-            and self.dominoes[i + 1].state == "standing"
-        ):
-          self.dominoes[i + 1].state = "falling"
+        d.current_angle = (now - getattr(d, "fall_at", now)) * topple_speed(i, n)
         if d.current_angle >= math.pi / 2:
           d.current_angle = math.pi / 2
           d.state = "fallen"
@@ -1147,7 +1165,7 @@ class Game:
       praise += (" Tap the red button to see its famous places!" if clip.get("places")
                  else " Tap the red button to watch a real one!")
     item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
-    if item.get("rhyme"):                  # rhymes: now we sing it together
+    if item.get("rhyme") or item.get("chant"):   # rhymes and letters: let's sing
       self.call_at = None
       # the song starts once the praise (sticker, cap colour ...) has been said
       self.sing = singalong.SingAlong(self, self.cat, self.puzzle,

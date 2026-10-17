@@ -329,6 +329,22 @@ CLASSIC_RHYMES = {
         "Hi-ho, the derry-o,",
         "The farmer takes a cow.",
     ]),
+    "A Was an Apple Pie": _rhyme("1F967", [
+        "A was an apple pie,",
+        "B bit it, C cut it,",
+        "D dealt it, E ate it,",
+        "F fought for it, G got it,",
+        "H had it, I inspected it,",
+        "J jumped for it, K kept it,",
+        "L longed for it, M mourned for it,",
+        "N nodded at it, O opened it,",
+        "P peeped in it, Q quartered it,",
+        "R ran for it, S sang for it,",
+        "T took it, U upset it,",
+        "V viewed it, W wanted it,",
+        "X, Y, Z and ampersand",
+        "All wished for a piece in hand!",
+    ]),
 }
 
 # Hindi and Bengali traditional rhymes: shown in their own script (drawn as

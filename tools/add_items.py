@@ -7,6 +7,8 @@ inside parts, pictures, thumbs and Hindi/Bengali word pictures as build_hub.
 Run:  python tools/add_items.py "Road Safety"
       python tools/add_items.py "Classic Rhymes" "Desi Rhymes"
 Rhymes with Hindi or Bengali words also get one picture per line of words.
+Only pictures not yet in hub_data.json are built (so new rows added to a
+category, e.g. from catalog_more.py, take seconds); --all rebuilds them all.
 A picture that cannot be built is reported and left out (the game hides it).
 """
 
@@ -20,11 +22,13 @@ import build_hub as bh  # noqa: E402  (also puts the game folder on sys.path)
 hub = bh.hub
 
 
-def build(cat):
+def build(cat, have=(), rebuild=False):
   ci = list(hub.CATALOG).index(cat)
   items = hub.CATALOG[cat]
   out = {}
   for ii, (name, _desc, (kind, arg)) in enumerate(items):
+    if not rebuild and hub.item_key(cat, name) in have:
+      continue                         # already built
     if kind != "emoji":
       raise SystemExit(f"{cat}/{name}: only emoji pictures here; use build_hub.py for {kind}")
     try:
@@ -64,8 +68,9 @@ def build_item(cat, ci, ii, name, arg):
 def main(cats):
   with open(hub.HUB_JSON, encoding="utf-8") as fh:
     data = json.load(fh)
-  for cat in cats:
-    data.update(build(cat))
+  rebuild = "--all" in cats
+  for cat in [c for c in cats if c != "--all"]:
+    data.update(build(cat, set(data), rebuild))
   with open(hub.HUB_JSON, "w", encoding="utf-8") as fh:
     json.dump(data, fh, separators=(",", ":"))
   print(f"{len(data)} items in hub_data.json")

@@ -47,7 +47,7 @@ Learn while you play! Domino Wonder Dash turns learning into a game for children
 TRACE, TOPPLE, LEARN
 Trace the dotted outline of a real picture with your finger. Dominoes stand up on your line, you tap, they topple, and the real picture appears. The name is spoken, spelled letter by letter and shown in English with Hindi or Bengali.
 
-500+ PICTURES ACROSS EVERY SUBJECT
+700+ PICTURES ACROSS EVERY SUBJECT
 - English: ABC and abc with A for Apple
 - Hindi: Swar and Vyanjan with real Hindi voice
 - Maths: numbers, shapes, signs, angles and solids
