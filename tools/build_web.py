@@ -145,6 +145,11 @@ def make_pwa(docs):
   with open(os.path.join(docs, "sw.js"), "w", encoding="utf-8") as fh:
     fh.write(SW % {"stamp": time.strftime("%Y%m%d%H%M%S"),
                    "icons": ", ".join(f"'{n}'" for n in ICONS)})
+  # the phone app's video player page (video.player_url opens it in Chrome)
+  sys.path.insert(0, ROOT)
+  import video
+  with open(os.path.join(docs, "play.html"), "w", encoding="utf-8") as fh:
+    fh.write(video.player_page())
   page = os.path.join(docs, "index.html")
   html = open(page, encoding="utf-8").read()
   if 'rel="manifest"' not in html:

@@ -13,6 +13,7 @@ play a list of their famous places (one button per place).
   Android:          the phone's own video player opens.
 """
 
+import base64
 import html
 import json
 import os
@@ -145,7 +146,7 @@ class VideoPlayer:
       if IS_WEB:
         self._show_web(video, title)
       elif IS_ANDROID:
-        self._show_android(video)
+        self._show_android(video, title)
       else:
         self._show_desktop(video, title)
     except Exception as exc:
@@ -208,12 +209,56 @@ class VideoPlayer:
       fh.write(page)
     webbrowser.open("file:///" + path.replace("\\", "/"))
 
-  def _show_android(self, video):
+  def _show_android(self, video, title):
+    """The game's own player page (play.html on the game's website) in Chrome:
+    it plays at once, shows every famous place of a state, and the phone's
+    Back button returns to the game. (Opening the video file itself made
+    Chrome download it and the phone ask "Open with...".)"""
     from jnius import autoclass, cast
     Intent = autoclass("android.content.Intent")
     Uri = autoclass("android.net.Uri")
     activity = autoclass("org.kivy.android.PythonActivity").mActivity
-    src = next((s for s in video["sources"] if s["type"] == "video/mp4"), video["sources"][0])
-    intent = Intent(Intent.ACTION_VIEW)
-    intent.setDataAndType(Uri.parse(src["src"]), "video/*")
-    cast("android.app.Activity", activity).startActivity(intent)
+    act = cast("android.app.Activity", activity)
+    intent = Intent(Intent.ACTION_VIEW, Uri.parse(player_url(video, title)))
+    try:
+      intent.setPackage("com.android.chrome")
+      act.startActivity(intent)
+    except Exception:                        # no Chrome: any browser
+      act.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(player_url(video, title))))
+
+
+# The player page on the game's website (written by tools/build_web.py). The
+# clips travel in the address after "#", so nothing is sent to any server.
+PLAYER_URL = "https://saiqulmodi.github.io/DominoGame/play.html"
+
+
+def player_url(video, title):
+  data = json.dumps({"title": title, "clips": playlist(video, title)}, separators=(",", ":"))
+  return PLAYER_URL + "#" + base64.urlsafe_b64encode(data.encode("utf-8")).decode("ascii")
+
+
+def player_page():
+  """docs/play.html: the same player as the web game, filled in from the address."""
+  body = BODY.format(heading="", sources="", places="", credit="")
+  loader = """(function(){try{var h=location.hash.slice(1).replace(/-/g,'+').replace(/_/g,'/');
+ var bin=atob(h),bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+ var d=JSON.parse(new TextDecoder('utf-8').decode(bytes));document.title=d.title+' - Domino Wonder Dash';
+ window.dwdPlaylist=d.clips;var c=d.clips[0];document.getElementById('dwd-head').textContent=c.heading;
+ document.getElementById('dwd-credit').textContent=c.credit;
+ document.getElementById('dwd-player').innerHTML=c.sources;
+ if(d.clips.length>1){var p=document.getElementById('dwd-places');
+  d.clips.forEach(function(x,i){var b=document.createElement('button');
+   b.className='place'+(i?'':' on');b.textContent=x.name;p.appendChild(b);});}
+ }catch(e){document.getElementById('dwd-head').textContent='Video not found';}})();
+window.addEventListener('hashchange',function(){location.reload();});
+document.getElementById('dwd-back').onclick=function(){
+ document.getElementById('dwd-bye').style.display='block';
+ try{history.length>1?history.back():window.close();}catch(e){}};
+"""
+  page = PAGE.replace("{title}", "Real video").replace("{css}", CSS + PLACE_CSS)
+  page = page.replace("{body}", body).replace(
+      "document.getElementById('dwd-back').onclick=function(){{window.close();\n"
+      " document.getElementById('dwd-bye').style.display='block';}};\n", "")
+  page = page.replace("{script}", loader + SCRIPT)
+  return page.replace("Close this tab to go back to the game.",
+                      "Press the phone's Back button to go back to the game.")

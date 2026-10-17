@@ -1,0 +1,72 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Real video - Domino Wonder Dash</title>
+<style>
+#dwd-video{position:fixed;inset:0;z-index:2147483647;background:#0d0d1a;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ font-family:Arial,sans-serif;color:#fff;gap:12px;padding:12px;box-sizing:border-box}
+#dwd-video h1{margin:0;font-size:30px;color:#ffcc00;text-align:center}
+#dwd-video video{width:100%;max-width:900px;max-height:62vh;border-radius:14px;
+ background:#000;border:3px solid #ffcc00}
+#dwd-video .credit{font-size:11px;color:#aab;text-align:center;max-width:900px}
+#dwd-video .msg{display:none;font-size:18px;color:#ffcc00;text-align:center}
+#dwd-video .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+#dwd-video button{font-size:24px;font-weight:bold;border:3px solid #fff;
+ border-radius:16px;padding:14px 26px;color:#fff;cursor:pointer}
+#dwd-back{background:#3cb45a} #dwd-again{background:#4682e6;display:none}
+#dwd-bye{display:none;font-size:18px;color:#ffcc00}
+
+#dwd-video .place{font-size:17px;padding:8px 14px;border-radius:22px;
+ background:#2b2b4a;border:2px solid #ffcc00;color:#ffcc00}
+#dwd-video .place.on{background:#ffcc00;color:#0d0d1a}
+</style></head><body><div id="dwd-video">
+<h1 id="dwd-head"></h1>
+<video id="dwd-player" controls autoplay playsinline preload="auto"></video>
+<div class="msg" id="dwd-msg">This video needs the internet. Try again later!</div>
+<div class="row" id="dwd-places"></div>
+<div class="row"><button id="dwd-again">&#8635; Watch again</button>
+<button id="dwd-back">&#9664; Back to play</button></div>
+<div id="dwd-bye">Press the phone's Back button to go back to the game.</div>
+<div class="credit" id="dwd-credit"></div></div>
+<script>
+(function(){try{var h=location.hash.slice(1).replace(/-/g,'+').replace(/_/g,'/');
+ var bin=atob(h),bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+ var d=JSON.parse(new TextDecoder('utf-8').decode(bytes));document.title=d.title+' - Domino Wonder Dash';
+ window.dwdPlaylist=d.clips;var c=d.clips[0];document.getElementById('dwd-head').textContent=c.heading;
+ document.getElementById('dwd-credit').textContent=c.credit;
+ document.getElementById('dwd-player').innerHTML=c.sources;
+ if(d.clips.length>1){var p=document.getElementById('dwd-places');
+  d.clips.forEach(function(x,i){var b=document.createElement('button');
+   b.className='place'+(i?'':' on');b.textContent=x.name;p.appendChild(b);});}
+ }catch(e){document.getElementById('dwd-head').textContent='Video not found';}})();
+window.addEventListener('hashchange',function(){location.reload();});
+document.getElementById('dwd-back').onclick=function(){
+ document.getElementById('dwd-bye').style.display='block';
+ try{history.length>1?history.back():window.close();}catch(e){}};
+(function(){var v=document.getElementById('dwd-player');
+ var again=document.getElementById('dwd-again');
+ var list=window.dwdPlaylist||[];var at=0;
+ function say(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);
+   u.rate=0.9;speechSynthesis.speak(u);}catch(e){}}
+ function start(){var p=v.play();if(p&&p.catch)p.catch(function(){v.muted=true;v.play();});}
+ function show(i){if(!list.length)return;at=i;var c=list[i];
+   document.getElementById('dwd-head').textContent=c.heading;
+   document.getElementById('dwd-credit').textContent=c.credit;
+   var b=document.querySelectorAll('#dwd-places .place');
+   for(var k=0;k<b.length;k++)b[k].className='place'+(k==i?' on':'');
+   v.innerHTML=c.sources;v.style.display='';
+   document.getElementById('dwd-msg').style.display='none';hook();v.load();start();
+   if(list.length>1)say(c.name);}
+ function hook(){var srcs=v.getElementsByTagName('source');
+   if(srcs.length)srcs[srcs.length-1].onerror=function(){
+     if(at+1<list.length){show(at+1);return;}
+     document.getElementById('dwd-msg').style.display='block';v.style.display='none';};}
+ var b=document.querySelectorAll('#dwd-places .place');
+ for(var k=0;k<b.length;k++)(function(i){b[i].onclick=function(){
+   again.style.display='none';show(i);};})(k);
+ v.onended=function(){if(at+1<list.length){show(at+1);}
+   else{again.style.display='inline-block';}};
+ again.onclick=function(){again.style.display='none';
+   if(list.length>1){show(0);}else{v.currentTime=0;start();}};
+ hook();if(list.length>1)say(list[0].name);start();})();
+</script></body></html>

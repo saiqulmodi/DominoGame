@@ -702,6 +702,8 @@ class Game:
   def start_rename(self):
     self.rename_text = self.progress.data["name"]
     self.overlay = "rename"
+    if IS_ANDROID:     # the phone's keyboard would cover the game's big letters
+      return
     try:
       pygame.key.start_text_input()
     except Exception:

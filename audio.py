@@ -241,6 +241,8 @@ class Speaker:
         activity = autoclass("org.kivy.android.PythonActivity").mActivity
         self._tts_cls = autoclass("android.speech.tts.TextToSpeech")
         self._locale = autoclass("java.util.Locale")
+        self._jstring = autoclass("java.lang.String")
+        self._bundle = autoclass("android.os.Bundle")
         self._tts = self._tts_cls(activity, None)
         self.mode = "android"
       elif os.name == "nt":
@@ -296,7 +298,11 @@ class Speaker:
             self._tts.setLanguage(self._locale.US)
         else:
           self._tts.setLanguage(self._locale.US)
-        self._tts.speak(speak, self._tts_cls.QUEUE_FLUSH, None, "domino")
+        # speak(CharSequence, int, Bundle, String): a plain Python str and None
+        # match no Java method, so the text goes in as a Java CharSequence
+        from jnius import cast
+        words = cast("java.lang.CharSequence", self._jstring(speak))
+        self._tts.speak(words, self._tts_cls.QUEUE_FLUSH, self._bundle(), "domino")
       elif self.mode in ("say", "espeak"):
         self._stop_child()
         if self.mode == "say":
