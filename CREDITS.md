@@ -23,5 +23,7 @@
 - **Bengali words:** drawn with Noto Sans Bengali (SIL Open Font License); only the pictures ship.
 - **Game font:** Sniglet by Haley Fiege (SIL Open Font License), `fonts/Sniglet-ExtraBold.ttf`,
   licence in `fonts/Sniglet-OFL.txt`.
+- **Rhymes:** traditional nursery rhymes in the public domain (`rhymes_hub.py`); no recordings
+  or videos of other people's performances are used. The device's own voice sings them.
 - **Sounds:** animal calls, vehicles, instruments and weather are made in code (`calls.py`).
 - **Landmarks, bridges, shapes, letters and numbers:** drawn for this game.

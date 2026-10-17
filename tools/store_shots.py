@@ -146,11 +146,29 @@ def main_shots():
   caption_shot(draw(), "Easy for little ones", "Moving pictures show how to play", "6_guide.png")
   g.overlay = None
 
+  # 8. sing-along rhyme (saved as 8_rhymes.png)
+  g.set_mode("trace")
+  g.subject, g.cat, g.puzzle = "Rhymes", "Classic Rhymes", "Twinkle Twinkle"
+  g.load_item(announce=False)
+  g.covered = [True] * len(g.dots)
+  g.stand_dominoes(g.loops)
+  for d in g.dominoes:
+    d.state, d.current_angle = "fallen", 1.57
+  g.stage = "running"
+  g.update()
+  g.celebration = g.cap_won = None
+  g.sing.restart(delay=0.0)
+  run(4.2)
+  g.particles.texts = []
+  rhyme_canvas = draw().copy()
+
   # 7. Find it! quiz
   g.subject, g.cat, g.puzzle = "Nature", "Animals", "Cat"
   g.set_mode("quiz")
   run(0.3)
   caption_shot(draw(), "Find it!", "Listen, then tap the right picture", "7_quiz.png")
+  caption_shot(rhyme_canvas, "Sing-along rhymes", "47 rhymes in English, Hindi, Bangla",
+               "8_rhymes.png")
 
   feature_graphic(g)
 

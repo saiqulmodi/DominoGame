@@ -21,7 +21,7 @@ import time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME_FILES = ["main.py", "audio.py", "domino_data.py", "fun.py", "calls.py", "modes.py",
               "screens.py", "scenery.py", "howto.py", "stories.py", "town3d.py", "translations.py",
-              "video.py", "rhymes_hub.py", "roadsafety.py",
+              "video.py", "rhymes_hub.py", "roadsafety.py", "singalong.py",
               "world.py", "hub_data.json", "videos.json"]
 GAME_DIRS = ["pics", "sounds", "fonts"]
 APP = "dominowonderdash"

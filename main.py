@@ -30,6 +30,7 @@ import modes
 import roadsafety
 import scenery
 import screens
+import singalong
 import stories
 import video
 import world
@@ -401,6 +402,7 @@ class Game:
     self.celebration = None
     self.call_at = None
     self.last_progress_at = time.time()   # the helping hand waits from here
+    self.sing = None                      # sing-along card of a rhyme (singalong.py)
     self.nudged = self.tap_nudged = False
     if hasattr(self, "particles"):
       self.particles.texts = []
@@ -871,6 +873,8 @@ class Game:
         self.quiz.ask()
       elif self.mode == "road":
         self.road.say_hint()
+      elif self.sing and not self.sing.singing:
+        self.sing.restart()
       elif self.mode == "spell" and self.spell.done_at is None:
         self.say(f"Spell the word: {self.puzzle}.", self.native_word(self.cat, self.puzzle))
       else:
@@ -898,6 +902,12 @@ class Game:
         if not self.dropping():
           self.start_cascade()
       elif self.stage == "finished":
+        if self.sing:                     # rhyme: tap the words to sing again
+          if self.sing.card_rect(PLAY_RECT).collidepoint(mx, my) or self.sing.singing:
+            if not self.sing.singing:
+              self.sfx.play("click")
+              self.sing.restart()
+            return
         if self.current_video() and self.watch_rect().collidepoint(mx, my):
           self.watch_video()
         elif self.story:
@@ -1074,6 +1084,8 @@ class Game:
       self.quiz.update(now)
     if self.mode == "road" and self.road:
       self.road.update(now)
+    if self.mode == "trace" and getattr(self, "sing", None):
+      self.sing.update(now)
     if self.mode == "trace" and self.stage == "ready" and self.dominoes:
       landed = sum(1 for d in self.dominoes if now >= d.drop_at + DROP_TIME)
       if landed > self.landed:
@@ -1133,6 +1145,11 @@ class Game:
       praise += (" Tap the red button to see its famous places!" if clip.get("places")
                  else " Tap the red button to watch a real one!")
     item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
+    if item.get("rhyme"):                  # rhymes: now we sing it together
+      self.call_at = None
+      # the song starts once the praise (sticker, cap colour ...) has been said
+      self.sing = singalong.SingAlong(self, self.cat, self.puzzle,
+                                      delay=max(singalong.START_DELAY, len(praise) / 13))
     if item.get("hindi"):
       self.say(praise, hub.hindi_speech(self.puzzle, self.cat, praise=True), "hi")
     else:
@@ -1309,6 +1326,9 @@ class Game:
         return "Here come the dominoes!"
       return "Tap to push the dominoes!"
     if self.stage == "finished":
+      if self.sing:
+        return ("Sing along!" if self.sing.singing
+                else "Tap the words to sing again, or Next")
       if self.story:
         last = self.story["step"] == len(self.story["story"]["steps"]) - 1
         return "The end! Pick another story" if last else "Tap for the next part!"
@@ -1468,6 +1488,8 @@ class Game:
       screen.blit(pill, box.topleft)
       screen.blit(surf, surf.get_rect(center=box.center))
     howto.draw_idle_hand(self, screen, now, PLAY_RECT)
+    if self.sing:
+      self.sing.draw(screen, PLAY_RECT, now)
     if self.celebration:
       self.draw_celebration(screen, now)
     self.draw_cap_won(screen, now)

@@ -38,11 +38,11 @@ TIPS = [
     ((90, 210, 240), "Walk with the arrows (or arrow keys / W A S D)."),
     ((255, 220, 60), "Tap any building to fly there and go in."),
     ((255, 120, 120), "Magic tools: WEB to swing, ZIP onto a roof, BOOTS to jump high, CAPE to float."),
-    ((140, 230, 140), "Press E (or GO IN) at a door. The house button in a game brings you back here."),
+    ((140, 230, 140), "Follow the yellow arrows to a door and tap GO IN. The house button in a game brings you back here."),
 ]
 ROAD_GAME = "Cross the Road"      # the Road Safety Park also offers the road game
 TOUR = ["english", "nature", "maths", "food", "story", "hindi", "home", "science", "social", "travel",
-        "world", "safety", "india", "fun", "studio", "museum", "family", "arcade"]
+        "world", "safety", "rhymes", "india", "fun", "studio", "museum", "family", "arcade"]
 
 
 def _mix(a, b, k):
@@ -106,6 +106,8 @@ class WorldScene:
         ("zip", "ZIP", (240, 120, 40), "zip"), ("boots", "BOOTS", (60, 140, 230), "boots"),
         ("cape", "CAPE", (150, 80, 220), "cape"))}
     self.buttons = {}             # top-row buttons: name -> rect
+    self._signs = {}              # building name boards painted on the walls
+    self.door_marks = []          # (screen rect, building) of the "GO IN" arrows
 
   # --- layout ----------------------------------------------------------------------
   def fit(self, size):
@@ -314,6 +316,10 @@ class WorldScene:
         p.held = True
         self.pad_down(key)
         return
+    for rect, b in self.door_marks:         # the bouncing "GO IN" arrow at a door
+      if rect.collidepoint(pos):
+        self.fly_to(b)
+        return
     b = self.pick_box_at(pos)
     if b is not None and b.kind is not None:
       self.fly_to(b)
@@ -509,6 +515,7 @@ class WorldScene:
         self.draw_lamp(s, obj, dist)
       else:
         self.draw_player(s)
+    self.draw_door_marks(s)
     self.draw_anchor(s)
     self.draw_hud(s)
 
@@ -617,6 +624,8 @@ class WorldScene:
       polys.append(poly)
       if n[0] != "roof" and n[1] == 0 and len(pts) == 4 and b.windows and dist < 90:
         self.draw_windows(s, b, pts, dist)
+      if n[0] != "roof" and n[1] == 0 and len(pts) == 4 and b.kind is not None and dist < 120:
+        self.draw_wall_sign(s, b, pts)
     if self.target is b and polys:
       for poly in polys:
         pygame.draw.polygon(s, (255, 236, 120), poly, 3)
@@ -633,6 +642,7 @@ class WorldScene:
     dx, _, dz = b.door()
     mid = ((p0[0] + p1[0]) / 2, (p0[2] + p1[2]) / 2)
     door_face = math.hypot(mid[0] - dx, mid[1] - dz) < 4.0
+    vmax = 0.68 if b.kind is not None else 1.0     # the name board sits above the windows
 
     def at(u, v):
       return tuple(p0[i] + (p1[i] - p0[i]) * u + (p3[i] - p0[i]) * v for i in range(3))
@@ -642,7 +652,7 @@ class WorldScene:
         if door_face and r == 0 and abs((c + 0.5) / cols - 0.5) < 0.6 / cols:
           continue
         u0, u1 = (c + 0.22) / cols, (c + 0.78) / cols
-        v0, v1 = (r + 0.3) / rows, (r + 0.78) / rows
+        v0, v1 = (r + 0.3) / rows * vmax, (r + 0.78) / rows * vmax
         pr = cam.project_poly([at(u0, v0), at(u1, v0), at(u1, v1), at(u0, v1)])
         if pr:
           pygame.draw.polygon(s, self.fog((255, 250, 235), dist), pr[0])
@@ -654,6 +664,115 @@ class WorldScene:
       if pr:
         pygame.draw.polygon(s, self.fog((140, 80, 50), dist), pr[0])
         pygame.draw.polygon(s, self.fog((255, 220, 120), dist), pr[0], 2)
+
+  def sign_surface(self, b):
+    """The building's name board: white board, coloured frame, big letters."""
+    sign = self._signs.get(b.key)
+    if sign is None:
+      text = self.g.font_at(44).render(b.label, True, (40, 40, 70))
+      sign = pygame.Surface((text.get_width() + 40, text.get_height() + 16))
+      sign.fill((255, 255, 255))
+      pygame.draw.rect(sign, b.colour, sign.get_rect(), 7)
+      sign.blit(text, (20, 8))
+      self._signs[b.key] = sign
+    return sign
+
+  def draw_wall_sign(self, s, b, pts):
+    """The name painted on every wall near the top, in perspective, so it reads
+    clearly from the street and from all around the building."""
+    cam = self.cam
+    p0, p1, _, p3 = pts
+    width = math.dist((p0[0], p0[2]), (p1[0], p1[2]))
+    height = b.h - b.y0
+    sign = self.sign_surface(b)
+    aspect = sign.get_width() / sign.get_height()
+    sh = min(4.2, 0.27 * height)
+    sw = min(width * 0.94, sh * aspect)
+    sh = sw / aspect
+    u0, u1 = 0.5 - sw / width / 2, 0.5 + sw / width / 2
+    vt = 0.975
+    vb = vt - sh / height
+
+    def at(u, v):
+      return tuple(p0[i] + (p1[i] - p0[i]) * u + (p3[i] - p0[i]) * v for i in range(3))
+
+    left, right = cam.project(at(u0, (vt + vb) / 2)), cam.project(at(u1, (vt + vb) / 2))
+    if not left or not right or abs(right[0] - left[0]) < 18:
+      return                                    # seen edge-on or too small to read
+    flip = right[0] < left[0]
+    n = 16
+    tw, th = sign.get_size()
+    for k in range(n):
+      ua, ub = u0 + (u1 - u0) * k / n, u0 + (u1 - u0) * (k + 1) / n
+      ta, ba, tb, bb = (cam.project(at(ua, vt)), cam.project(at(ua, vb)),
+                        cam.project(at(ub, vt)), cam.project(at(ub, vb)))
+      if not (ta and ba and tb and bb):
+        continue
+      x, w = min(ta[0], tb[0]), abs(tb[0] - ta[0])
+      y = min(ta[1], tb[1])
+      hgt = max(ba[1], bb[1]) - y
+      if w < 0.5 or hgt < 2:
+        continue
+      col = n - 1 - k if flip else k            # keep the words reading left to right
+      c0, c1 = int(tw * col / n), int(tw * (col + 1) / n)
+      piece = pygame.transform.scale(sign.subsurface((c0, 0, max(1, c1 - c0), th)),
+                                     (int(w) + 1, int(hgt) + 1))
+      s.blit(piece, (int(x), int(y)))
+
+  def draw_door_marks(self, s):
+    """Near a building: arrows on the path lead to its door, and a big bouncing
+    "GO IN" arrow above the door (tap it to go there and in)."""
+    self.door_marks = []
+    if self.g.overlay or self.picker is not None:
+      return
+    px, _, pz = self.player.pos
+    near = sorted(((math.hypot(b.door()[0] - px, b.door()[2] - pz), i, b)
+                   for i, b in enumerate(self.boxes) if b.kind is not None))
+    for rank, (d, _i, b) in enumerate(near[:3]):
+      if d > 45:
+        break
+      dx, _, dz = b.door()
+      arcade = b.key == "arcade"
+      street_x = dx if arcade else (-4.0 if dx < 0 else 4.0)
+      span = dx - street_x
+      sgn = 1 if span >= 0 else -1
+      for k in range(4):                        # chevrons moving towards the door
+        f = (k + (self.t * 1.5) % 1.0) / 4.0
+        if arcade:
+          cx, cz, fx, fz = dx, dz - 8 + 8 * f, 0.0, 1.0
+        else:
+          cx, cz, fx, fz = street_x + span * f, dz, float(sgn), 0.0
+        qx, qz = -fz, fx
+        pts = [(cx + fx * 0.9, cz + fz * 0.9), (cx - fx * 0.5 + qx * 1.1, cz - fz * 0.5 + qz * 1.1),
+               (cx - fx * 0.1, cz - fz * 0.1), (cx - fx * 0.5 - qx * 1.1, cz - fz * 0.5 - qz * 1.1)]
+        pr = self.cam.project_poly([(x, 0.06, z) for x, z in pts])
+        if pr:
+          pygame.draw.polygon(s, YELLOW, pr[0])
+          pygame.draw.polygon(s, (200, 120, 0), pr[0], 1)
+      bob = 0.5 * math.sin(self.t * 4 + rank)   # the bouncing arrow above the door
+      tip = self.cam.project((dx, 5.2 + bob, dz))
+      if not tip or tip[2] > 70:
+        continue
+      k = max(0.5, min(1.6, 22.0 / tip[2]))
+      w, h = 26 * k, 30 * k
+      x, y = tip[0], tip[1]
+
+      def arrow(grow):
+        return [(x - w * 0.6 - grow, y - h - grow), (x + w * 0.6 + grow, y - h - grow),
+                (x + w * 0.6 + grow, y - h * 0.45), (x + w + grow, y - h * 0.45),
+                (x, y + grow), (x - w - grow, y - h * 0.45), (x - w * 0.6 - grow, y - h * 0.45)]
+
+      pygame.draw.polygon(s, (200, 120, 0), arrow(3))
+      pygame.draw.polygon(s, YELLOW, arrow(0))
+      if rank == 0:
+        lbl = self.g.font_at(max(14, int(16 * k))).render("GO IN", True, WHITE)
+        box = lbl.get_rect(midbottom=(int(x), int(y - h - 6))).inflate(16, 8)
+        pygame.draw.rect(s, (60, 170, 90), box, border_radius=box.h // 2)
+        pygame.draw.rect(s, WHITE, box, 2, border_radius=box.h // 2)
+        s.blit(lbl, lbl.get_rect(center=box.center))
+      hit = pygame.Rect(0, 0, int(w * 2.4), int(h * 2.6))
+      hit.midbottom = (int(x), int(y + 6))
+      self.door_marks.append((hit, b))
 
   def draw_tree(self, s, t, dist):
     x, z, h = t
@@ -787,6 +906,8 @@ class WorldScene:
       cx, _, cz = b.centre
       p = cam.project((cx, b.top + 2.0, cz))
       if not p or p[2] > 200 or not (-40 < p[0] < self.size[0] + 40):
+        continue
+      if p[2] < 60:                    # near: the name is painted on the walls instead
         continue
       size = int(max(13, min(26, 1300 / p[2])))
       icon = size + 14 if p[2] < 120 else 0

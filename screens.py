@@ -320,10 +320,63 @@ class Parents:
       screen.blit(b, b.get_rect(topright=(430, y)))
       y += 28
     tip = g.small_font.render("Tap anywhere to go back", True, HINT)
+    screen.blit(tip, tip.get_rect(midleft=(20, AREA_BOTTOM - 14)))
+    button(screen, g, CREDITS_BTN, "Credits", (90, 110, 170))
+
+  def press(self, g, pos):
+    if CREDITS_BTN.collidepoint(pos):
+      g.sfx.play("switch")
+      g.overlay = "credits"
+      return
+    g.overlay = None
+
+
+# --------------------------------------------------------------------------
+CREDITS_BTN = pygame.Rect(300, AREA_BOTTOM - 36, 134, 32)
+CREDITS = [
+    ("Pictures", "OpenMoji, the open-source emoji project (openmoji.org), "
+                 "licence CC BY-SA 4.0. The game's pictures and outlines are adapted "
+                 "from OpenMoji and shared under the same licence."),
+    ("Real-life videos", "Wikimedia Commons (CC BY, CC BY-SA, CC0, public domain), "
+                         "Pexels and Pixabay. Each video shows its author and licence."),
+    ("Maps", "Natural Earth (public domain), India's official boundaries."),
+    ("Hindi and Bengali words", "drawn with Noto Sans Devanagari and Noto Sans Bengali "
+                                "(SIL Open Font License)."),
+    ("Game font", "Sniglet by Haley Fiege (SIL Open Font License)."),
+    ("Rhymes", "traditional nursery rhymes, free for everyone (public domain)."),
+    ("Made by", "Saiqul Modi, for children everywhere."),
+]
+
+
+class Credits:
+  """Who made the pictures, maps, fonts and videos (licences need this)."""
+
+  def draw(self, screen, g, now):
+    shade(screen, g.theme, 250)
+    title(screen, g, "Credits & thanks")
+    y = 60
+    for head, text in CREDITS:
+      h = g.hint_font.render(head, True, YELLOW)
+      screen.blit(h, (20, y))
+      y += 24
+      words, line = text.split(), ""
+      for word in words:
+        trial = f"{line} {word}".strip()
+        if g.font.size(trial)[0] > 410 and line:
+          screen.blit(g.font.render(line, True, WHITE), (20, y))
+          y += 20
+          line = word
+        else:
+          line = trial
+      if line:
+        screen.blit(g.font.render(line, True, WHITE), (20, y))
+        y += 20
+      y += 10
+    tip = g.small_font.render("Tap anywhere to go back", True, HINT)
     screen.blit(tip, tip.get_rect(center=(225, AREA_BOTTOM - 12)))
 
   def press(self, g, pos):
-    g.overlay = None
+    g.overlay = "parents"
 
 
 # --------------------------------------------------------------------------
@@ -356,4 +409,5 @@ class StoryList:
 
 
 PANELS = {"menu": Menu(), "players": Players(), "rename": Rename(),
-          "parents": Parents(), "stories": StoryList(), "howto": howto.GUIDE}
+          "parents": Parents(), "stories": StoryList(), "howto": howto.GUIDE,
+          "credits": Credits()}

@@ -24,7 +24,7 @@ import math
 import os
 
 from translations import TRANSLATIONS
-from rhymes_hub import RHYMES_AND_SCHOOL_HUB
+from rhymes_hub import RHYMES_AND_SCHOOL_HUB, rhyme as rhyme_of
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HUB_JSON = os.path.join(HERE, "hub_data.json")
@@ -844,15 +844,20 @@ CATALOG = {
 }
 
 # Merge rhymes and school modules from rhymes_hub into the master catalog
+# (each rhyme brings its own picture to trace and its Hindi / Bengali name)
 for cat_name, items in RHYMES_AND_SCHOOL_HUB.items():
     CATALOG[cat_name] = [
-        (name, data["desc"], ("emoji", "1F3A4" if "Rhymes" in cat_name else "1F4DA"))
+        (name, data["desc"],
+         ("emoji", data.get("emoji") or ("1F3A4" if "Rhymes" in cat_name else "1F4DA")))
         for name, data in items.items()
     ]
+    for name, data in items.items():
+        if data.get("hi") and data.get("bn"):
+            TRANSLATIONS.setdefault(f"{cat_name}/{name}", (data["hi"], data["bn"]))
 
 # Subject tabs (top row of the game) -> categories (second row)
 SUBJECTS = {
-    "Rhymes": ["Classic Rhymes"],
+    "Rhymes": ["Classic Rhymes", "Desi Rhymes"],
     "School": ["NCERT Class 1-5"],
     "English": ["ABC", "abc"],
     "Hindi": ["Swar", "Vyanjan"],
@@ -873,6 +878,8 @@ SUBJECTS = {
 def spoken_text(name, cat=None):
   item = _find(name, cat)
   src = item["source"] if item else ""
+  if item and item.get("rhyme"):       # rhymes: no spelling, an invitation to sing
+    return f"{name}! Trace the picture, then we will sing together."
   if src == "custom":
     return "Draw anything you imagine! Pick a colour, draw, then tap Done."
   if src in ("glyph", "hindi"):
@@ -900,6 +907,8 @@ def hindi_speech(name, cat=None, praise=False):
 
 def praise_text(name, cat=None):
   item = _find(name, cat)
+  if item and item.get("rhyme"):
+    return f"Well done! Now let's sing {name}!"
   if item and item["source"] == "custom":
     return "Wonderful drawing!"
   if item and item["source"] in ("glyph", "hindi"):
@@ -934,6 +943,8 @@ for _cat, _items in CATALOG.items():
         _bucket[_name]["hi"], _bucket[_name]["bn"] = TRANSLATIONS[item_key(_cat, _name)]
       if _src[0] == "glyph" and not _name.isalnum():
         _bucket[_name]["tile_text"] = _desc.split(" - ")[0]
+      if rhyme_of(_cat, _name):            # sing-along rhyme (singalong.py)
+        _bucket[_name]["rhyme"] = True
       _BY_NAME.setdefault(_name, _bucket[_name])
   if _bucket:
     CATEGORIES_HUB[_cat] = _bucket

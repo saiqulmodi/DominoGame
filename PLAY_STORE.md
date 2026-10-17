@@ -7,7 +7,7 @@
 | App bundle | `bin\dominowonderdash-1.1-....aab` (signed release, Android 7.0+, targets Android 16 / API 36) |
 | App icon 512 x 512 | `store\icon_512.png` |
 | Feature graphic 1024 x 500 | `store\feature_graphic.png` |
-| Phone screenshots (2-8) | `store\1_town.png` ... `store\7_quiz.png` (1080 x 1920) |
+| Phone screenshots (2-8) | `store\1_town.png` ... `store\8_rhymes.png` (1080 x 1920) |
 | Privacy policy | https://saiqulmodi.github.io/DominoGame/privacy.html |
 
 Remake them after changes: `.\build_mobile.ps1 -Release` (bundle) and `python tools\store_shots.py` (graphics).
@@ -54,6 +54,9 @@ Trace the dotted outline of a real picture with your finger. Dominoes stand up o
 - India: the India map, all 28 states and 8 union territories with capitals, monuments
 - Nature, food, home, travel, the world, sky and space
 - Science and Social Studies for Class 6 and 7 (NCERT aligned)
+
+SING-ALONG RHYMES
+47 rhymes to trace and sing: Twinkle Twinkle, Baa Baa Black Sheep, Johny Johny, Humpty Dumpty, Jack and Jill, Old MacDonald, Head Shoulders Knees and Toes and many more, plus Machli Jal Ki Rani, Aloo Kachaloo and Ay Ay Chand Mama. The words light up one by one while they are sung, so children read along.
 
 ROAD SAFETY
 Cross the Road: wait for the green man, look right, look left, look right again, and walk over the zebra crossing. Learn traffic lights (red STOP, yellow WAIT, green GO), road signs, helmets and seat belts by playing.
