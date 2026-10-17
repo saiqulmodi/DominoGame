@@ -83,6 +83,12 @@ PAGES = {
          "शब्द बनाने के लिए अक्षरों को सही क्रम में टैप करो।",
          "শব্দ বানাতে অক্ষরগুলো ঠিক ক্রমে টোকা দাও।"),
     ],
+    "road": [
+        ("road", "Cross the Road",
+         "Wait while the man is red. When the man turns green, tap Walk.",
+         "जब तक आदमी लाल है, रुको। आदमी हरा हो जाए तो वॉक दबाओ।",
+         "মানুষটা লাল থাকলে অপেক্ষা করো। সবুজ হলে ওয়াক টিপো।"),
+    ],
     "draw": [
         ("draw", "Draw my own",
          "Pick a crayon and draw with your finger. Tap Done to make dominoes.",
@@ -100,7 +106,7 @@ TAP_NUDGE = ("Tap the screen to push the dominoes!",
 
 def guide_key(g):
   """Which guide fits what the child is doing now."""
-  if g.mode in ("quiz", "spell"):
+  if g.mode in ("quiz", "spell", "road"):
     return g.mode
   return "draw" if g.is_custom else "trace"
 
@@ -570,6 +576,42 @@ class Guide:
     else:
       lb = g.font_at(30).render("CAT!", True, YELLOW)
       screen.blit(lb, lb.get_rect(center=(STAGE.centerx, STAGE.bottom - 30)))
+
+  def anim_road(self, screen, g, t):
+    """The walk signal turns green, the hand taps Walk, the child crosses."""
+    import roadsafety as rs
+    t %= 7.0
+    s = STAGE
+    road = pygame.Rect(s.x + 4, s.y + 150, s.w - 8, 120)
+    pygame.draw.rect(screen, rs.PATH, (s.x + 4, s.y + 110, s.w - 8, 40))
+    pygame.draw.rect(screen, rs.PATH, (s.x + 4, road.bottom, s.w - 8, 50))
+    pygame.draw.rect(screen, rs.ROAD, road)
+    for k in range(5):
+      pygame.draw.rect(screen, WHITE, (s.centerx - 60, road.y + 8 + k * 23, 120, 12))
+    green = t > 2.0
+    box = pygame.Rect(s.right - 80, s.y + 16, 56, 76)
+    pygame.draw.rect(screen, (35, 35, 40), box, border_radius=8)
+    rs.draw_person(screen, box.center, 60, rs.GREEN_LAMP if green else rs.RED_LAMP, green, t)
+    lbl = g.font_at(16).render("WALK" if green else "WAIT", True,
+                               rs.GREEN_LAMP if green else rs.RED_LAMP)
+    screen.blit(lbl, lbl.get_rect(midtop=(box.centerx, box.bottom + 4)))
+    btn = pygame.Rect(s.x + 20, s.bottom - 70, 130, 56)
+    pygame.draw.rect(screen, (40, 170, 80) if green else (120, 130, 150), btn, border_radius=16)
+    pygame.draw.rect(screen, WHITE, btn, 3, border_radius=16)
+    w = g.font_at(22).render("Walk", True, WHITE)
+    screen.blit(w, w.get_rect(center=btn.center))
+    k = min(1.0, max(0.0, (t - 3.6) / 2.4))
+    kid = (s.centerx, road.bottom + 44 - k * (road.h + 70))
+    look = 0
+    if 2.8 < t < 3.6:
+      look = 1 if t < 3.2 else -1
+    rs.draw_child(screen, kid, 70, 0 < k < 1, t, look, g.cap_colours(), cheer=k >= 1)
+    if t < 2.9:
+      tip = (btn.centerx + 10, btn.centery + 6)
+      pressed = 2.3 < t < 2.9
+      if pressed:
+        tap_rings(screen, btn.center, t)
+      draw_hand(screen, tip, pressed)
 
   def anim_draw(self, screen, g, t):
     t %= 6.5

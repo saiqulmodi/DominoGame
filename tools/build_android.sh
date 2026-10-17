@@ -21,6 +21,12 @@ if [ ! -x "$ENV/bin/buildozer" ]; then
   uv venv -p 3.11 --seed "$ENV"
   "$ENV/bin/pip" install -q "cython==0.29.37" buildozer setuptools wheel
 fi
+# a modern Cython for pygame's C code (p4a-recipes/pygame), kept apart from
+# the old Cython 0.29 that buildozer needs
+if [ ! -x "$HOME/dwd-cython/bin/cython" ]; then
+  uv venv -p 3.11 --seed "$HOME/dwd-cython"
+  "$HOME/dwd-cython/bin/pip" install -q "cython>=3.1,<3.2" setuptools
+fi
 . "$ENV/bin/activate"
 
 echo "=== copying game files to $WORK"

@@ -76,6 +76,7 @@ class Menu:
         ("quiz", "Find it!", ("Home", "Bulb"), "Hear a name, tap the picture"),
         ("spell", "Spell it", ("ABC", "A"), "Put the letters in order"),
         ("draw", "Draw my own", ("Home", "Pencil"), "Draw anything you imagine"),
+        ("road", "Cross the Road", ("Road Safety", "Traffic Light"), "Red stop, green go: road safety"),
         ("story", "Story of the day", (today["steps"][0][0], today["steps"][0][1]),
          today["title"]),
         ("stories", "All stories", ("Sky", "Rainbow"), f"{len(stories.STORIES)} adventures"),
@@ -101,7 +102,7 @@ class Menu:
     title(screen, g, "Play & Learn")
     drawing = g.mode == "trace" and not g.story and g.is_custom
     for rect, (key, text, icon, sub) in self.rows(g):
-      active = (key == g.mode and key in ("trace", "quiz", "spell") and not g.story
+      active = (key == g.mode and key in ("trace", "quiz", "spell", "road") and not g.story
                 and not (key == "trace" and drawing))
       if key == "story" and g.story:
         active = True
@@ -121,7 +122,7 @@ class Menu:
     for rect, (key, *_rest) in self.rows(g):
       if rect.collidepoint(pos):
         g.sfx.play("click")
-        if key in ("trace", "quiz", "spell"):
+        if key in ("trace", "quiz", "spell", "road"):
           g.set_mode(key)
           g.overlay = None
         elif key == "draw":
@@ -305,6 +306,7 @@ class Parents:
         ("Words spelled", f"{len(s['words'])} different, {s['right']} times"),
         ("Stories finished", f"{len(p['stories'])} of {len(stories.STORIES)}"),
         ("Stickers", f"{len(p['stickers'])}"),
+        ("Safe road crossings", f"{p.get('road', {}).get('safe', 0)}"),
         ("Rainbow cap colours", f"{min(7, len(fun.cap_subjects(p['done'], g.subjects)))} of 7"),
         ("Best trace streak", f"{p.get('best_streak', 0)} dots"),
         ("Days played", f"{len(p['days'])}"),

@@ -40,8 +40,9 @@ TIPS = [
     ((255, 120, 120), "Magic tools: WEB to swing, ZIP onto a roof, BOOTS to jump high, CAPE to float."),
     ((140, 230, 140), "Press E (or GO IN) at a door. The house button in a game brings you back here."),
 ]
+ROAD_GAME = "Cross the Road"      # the Road Safety Park also offers the road game
 TOUR = ["english", "nature", "maths", "food", "story", "hindi", "home", "science", "social", "travel",
-        "world", "india", "fun", "studio", "museum", "family", "arcade"]
+        "world", "safety", "india", "fun", "studio", "museum", "family", "arcade"]
 
 
 def _mix(a, b, k):
@@ -210,7 +211,9 @@ class WorldScene:
     g.sfx.play("chime")
     kind = b.kind
     if kind == "subject":
-      cats = g.subjects[b.payload]
+      cats = list(g.subjects[b.payload])
+      if b.key == "safety":
+        cats.append(ROAD_GAME)
       self.picker = (b, cats)
     elif kind == "story":
       g.start_story(g.story_of_today())
@@ -226,6 +229,9 @@ class WorldScene:
   def pick_category(self, b, cat):
     g = self.g
     self.picker = None
+    if cat == ROAD_GAME:
+      g.set_mode("road")
+      return
     if g.subject != b.payload:
       g.subject = b.payload
     g.select_category(cat)
@@ -996,8 +1002,11 @@ class WorldScene:
     for r, cat in cells:
       pygame.draw.rect(s, _shade(b.colour, 1.1), r, border_radius=14)
       pygame.draw.rect(s, WHITE, r, 3, border_radius=14)
-      first = next(iter(hub.CATEGORIES_HUB[cat]))
-      pic = self.g.thumb(first, cat, r.h - 46)
+      if cat == ROAD_GAME:
+        pic = self.g.thumb("Children Crossing", "Road Safety", r.h - 46)
+      else:
+        first = next(iter(hub.CATEGORIES_HUB[cat]))
+        pic = self.g.thumb(first, cat, r.h - 46)
       if pic is not None:
         s.blit(pic, pic.get_rect(center=(r.centerx, r.y + (r.h - 30) // 2 + 4)))
       self.text(s, cat, (r.centerx, r.bottom - 16), 17)

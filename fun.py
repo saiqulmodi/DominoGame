@@ -218,7 +218,8 @@ def new_profile(n):
   return {"name": f"Player {n + 1}", "avatar": n % len(AVATARS), "done": [],
           "stickers": [], "theme": 0, "theme_v": 2, "best_streak": 0, "lang": "hi",
           "quiz": {"right": 0, "asked": 0}, "spell": {"right": 0, "words": []},
-          "stories": [], "days": [], "guides": []}
+          "stories": [], "days": [], "guides": [],
+          "road": {"safe": 0, "waited": 0}}
 
 
 class Progress:

@@ -8,7 +8,7 @@ package.domain = org.saiqul
 source.dir = .
 source.include_exts = py,png,json,ogg,ttf
 # venv/ and docs/ (the web build and its videos) must never go into the app
-source.exclude_dirs = build, bin, .buildozer, __pycache__, tools, venv, docs, icons, .git
+source.exclude_dirs = build, bin, .buildozer, __pycache__, tools, venv, docs, icons, .git, p4a-recipes
 source.exclude_patterns = buildozer.spec*, source.include_exts
 
 version = 1.1
@@ -17,6 +17,8 @@ version = 1.1
 # built-in text-to-speech voice (used to say the names out loud).
 requirements = python3,pygame,pyjnius
 p4a.bootstrap = sdl2
+# pygame 2.6.1 instead of p4a's old 2.1.0 (see p4a-recipes/pygame)
+p4a.local_recipes = ./p4a-recipes
 
 # Portrait 9:16 phone layout, full screen
 orientation = portrait

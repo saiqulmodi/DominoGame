@@ -94,6 +94,18 @@ POP_FREQS = [523, 587, 659, 784, 880, 1047, 1175, 1319, 1568, 1760, 2093, 2349]
 _CHIME_NOTES =[(0.0, 523.25), (0.12, 659.25), (0.24, 783.99), (0.36, 1046.5)]
 
 
+def _horn(t, p):
+  """Beep-beep: a friendly two-tone car horn (Cross the Road)."""
+  on = (t % 0.22) < 0.15
+  tone = 0.6 * _sin(392, t) + 0.5 * _sin(494, t) + 0.25 * _sin(784, t)
+  return tone if on else 0.0
+
+
+def _beep(t, p):
+  """The walk signal's tick-tock beep."""
+  return _sin(1250, t) * (1 - p) ** 0.5
+
+
 def _chime(t, p):
   total = 0.0
   for start, freq in _CHIME_NOTES:
@@ -130,6 +142,8 @@ class SoundBank:
       ]
       self.sounds["chime"] = [_render(1.4, _chime, 0.6)]
       self.sounds["pop"] = [_render(0.07, _make_pop(f), 0.35) for f in POP_FREQS]
+      self.sounds["horn"] = [_render(0.40, _horn, 0.45)]
+      self.sounds["beep"] = [_render(0.06, _beep, 0.3)]
       self.ok = True
     except Exception as exc:  # no audio device, unsupported platform, ...
       print(f"[audio] sound effects disabled: {exc}")

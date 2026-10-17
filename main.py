@@ -27,6 +27,7 @@ import domino_data as hub
 import fun
 import howto
 import modes
+import roadsafety
 import scenery
 import screens
 import stories
@@ -309,6 +310,7 @@ class Game:
     self.last_tick = time.time()
     self.mode = "trace"          # "trace", "quiz" or "spell"
     self.quiz = self.spell = None
+    self.road = None             # Cross the Road (roadsafety.py)
     self.story = None            # {"story": dict, "step": int}
     self.banner_override = None
     self.call_at = None
@@ -518,11 +520,14 @@ class Game:
     self.particles.texts = []
     self.mode = mode
     self.banner_override = None
-    self.quiz = self.spell = None
+    self.quiz = self.spell = self.road = None
     if mode == "quiz":
       self.quiz = modes.QuizMode(self, (self.cat, self.puzzle))
     elif mode == "spell":
       self.spell = modes.SpellMode(self, self.puzzle)
+    elif mode == "road":
+      self.road = roadsafety.RoadGame(self)
+      self.banner_override = "ROAD SAFETY"
     else:
       self.load_item()
 
@@ -747,6 +752,8 @@ class Game:
     self.refresh_mode(name)
 
   def refresh_mode(self, name=None):
+    if self.mode == "road":            # a picture picked from the menu: trace it
+      self.mode, self.road, self.banner_override = "trace", None, None
     if self.mode == "quiz":
       self.quiz = modes.QuizMode(self, (self.cat, name) if name else None)
     elif self.mode == "spell":
@@ -770,6 +777,11 @@ class Game:
     if self.mode == "spell":
       self.sfx.play("click")
       self.spell.start()
+      return
+    if self.mode == "road":
+      self.sfx.play("click")
+      if self.road.kid in ("wait", "arrived"):
+        self.road.new_round()
       return
     order = [(s, c, n) for s, cats in self.subjects.items() for c in cats
              for n in hub.CATEGORIES_HUB[c]]
@@ -857,6 +869,8 @@ class Game:
         return                   # tap the little picture to hear its sound
       if self.mode == "quiz":
         self.quiz.ask()
+      elif self.mode == "road":
+        self.road.say_hint()
       elif self.mode == "spell" and self.spell.done_at is None:
         self.say(f"Spell the word: {self.puzzle}.", self.native_word(self.cat, self.puzzle))
       else:
@@ -867,6 +881,9 @@ class Game:
         return
       if self.mode == "spell":
         self.spell.press(pos)
+        return
+      if self.mode == "road":
+        self.road.press(pos)
         return
       if (self.stage == "finished" and self.celebration
           and time.time() - self.celebration[1] < 0.8):
@@ -1055,6 +1072,8 @@ class Game:
       self.calls.play(self.puzzle)
     if self.mode == "quiz" and self.quiz:
       self.quiz.update(now)
+    if self.mode == "road" and self.road:
+      self.road.update(now)
     if self.mode == "trace" and self.stage == "ready" and self.dominoes:
       landed = sum(1 for d in self.dominoes if now >= d.drop_at + DROP_TIME)
       if landed > self.landed:
@@ -1340,6 +1359,10 @@ class Game:
       return
     if self.mode == "spell" and self.spell:
       self.spell.draw(screen, now)
+      screen.set_clip(None)
+      return
+    if self.mode == "road" and self.road:
+      self.road.draw(screen, now)
       screen.set_clip(None)
       return
 

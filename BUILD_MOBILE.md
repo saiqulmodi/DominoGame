@@ -106,3 +106,11 @@ web version (section 2) and **Add to Home Screen**.
   stripe of the hero's cap: violet, indigo, blue, green, yellow, orange, red. The cap shows on the
   hero, in the town's top bar (tap it to hear how many colours), on each player card and in
   the parents' report.
+- **Road safety** (`roadsafety.py`, Safety subject, Road Safety Park in Wonder Town, Games >
+  Cross the Road): a street in the child's theme with cars, buses and autos, a zebra crossing,
+  the cars' traffic light (red STOP, yellow WAIT, green GO) and the walk signal (red man,
+  green man, blinking = don't start). The child taps Walk; on the green man the child looks
+  right, left and right again (India keeps left) and crosses; on red a car goes beep-beep and
+  the voice explains why we wait. Every safe crossing gives a star and a spoken tip (helmet,
+  seat belt, footpath, bus stop ...). 13 road signs to trace: `python toolsdd_items.py "Road Safety"`
+  builds just that category into the hub.

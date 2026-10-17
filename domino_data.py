@@ -822,6 +822,25 @@ CATALOG = {
         ("Recycle", "Reduce, reuse and recycle to protect our planet.", ("emoji", "267B")),
         ("Dustbin", "Put waste in the dustbin to keep India clean.", ("emoji", "1F5D1")),
     ],
+    # Road safety: signals and signs a child meets every day (the Cross the
+    # Road game in roadsafety.py teaches the lights by playing)
+    "Road Safety": [
+        ("Traffic Light", "Red means STOP. Yellow means WAIT. Green means GO.", ("emoji", "1F6A6")),
+        ("Stop Sign", "STOP! Look right, look left, then right again.", ("emoji", "1F6D1")),
+        ("Footpath", "Walk on the footpath, away from the cars.", ("emoji", "1F6B6")),
+        ("Children Crossing", "This sign tells drivers: slow down, children cross here.",
+         ("emoji", "1F6B8")),
+        ("Traffic Police", "The traffic police help us cross the road safely.", ("emoji", "1F46E")),
+        ("Helmet", "Always wear a helmet on a bicycle, bike or scooter.", ("emoji", "26D1")),
+        ("Bus Stop", "Wait for the bus on the footpath. Get on only when it stops.",
+         ("emoji", "1F68F")),
+        ("No Entry", "No entry! We must not go this way.", ("emoji", "26D4")),
+        ("No Walking", "No walking here. Use the zebra crossing.", ("emoji", "1F6B7")),
+        ("No Cycling", "Bicycles are not allowed on this road.", ("emoji", "1F6B3")),
+        ("Warning Sign", "A warning sign: be careful, danger ahead!", ("emoji", "26A0")),
+        ("Road Work", "Road work ahead. Go slowly and stay away.", ("emoji", "1F6A7")),
+        ("Safety Vest", "Bright clothes help drivers see you.", ("emoji", "1F9BA")),
+    ],
 }
 
 # Merge rhymes and school modules from rhymes_hub into the master catalog
@@ -847,6 +866,7 @@ SUBJECTS = {
     "Fun": ["Cartoons", "Music", "Sports", "Draw"],
     "Science": ["Lab Tools", "Inside Body", "Materials", "Space"],
     "Social": ["Long Ago", "Earth & Maps", "Our Country"],
+    "Safety": ["Road Safety"],
 }
 
 
