@@ -23,7 +23,17 @@
 - **Bengali words:** drawn with Noto Sans Bengali (SIL Open Font License); only the pictures ship.
 - **Game font:** Sniglet by Haley Fiege (SIL Open Font License), `fonts/Sniglet-ExtraBold.ttf`,
   licence in `fonts/Sniglet-OFL.txt`.
-- **Rhymes:** traditional nursery rhymes in the public domain (`rhymes_hub.py`); no recordings
-  or videos of other people's performances are used. The device's own voice sings them.
+- **Rhymes:** traditional nursery rhymes and folk rhymes in the public domain, poems by
+  poets whose work is now in the public domain in India (Rabindranath Tagore, Sukumar Ray,
+  Yogindranath Sarkar, Subhadra Kumari Chauhan, Maithili Sharan Gupt), and new learning
+  rhymes written for this game (counting, colours, road safety, cleanliness)
+  (`rhymes_hub.py`). No recordings or videos of other people's performances are used;
+  the device's own voice sings them. Songs that still belong to someone (Baby Shark,
+  Wheels on the Bus, film songs) are not included.
+- **Drawn pictures:** xylophone, pomegranate, tamarind, sugarcane, lid, mortar, grinding
+  stone, ink pot, spinning top, turnip and chariot were drawn for this game in the
+  OpenMoji style (`tools/drawn.py`), because no emoji exists for them.
+- **Music:** the domino melodies (bell notes in ragas and scales), the horn and walk
+  signal are made in code (`audio.py`, `magic.py`).
 - **Sounds:** animal calls, vehicles, instruments and weather are made in code (`calls.py`).
 - **Landmarks, bridges, shapes, letters and numbers:** drawn for this game.

@@ -87,7 +87,27 @@ Copy `bin\dominowonderdash-*.apk` to the phone and install it (allow "install un
 `buildozer.spec` sets portrait, full screen, the app icon and start-up picture (`icons\`),
 keeps the screen on while a child plays, and asks for no permissions. `pyjnius` gives the
 phone's text-to-speech voice; `android_queries.xml` declares that service (Android 11+).
-Real-life videos open in the phone's browser. The phone's Back button closes the game.
+Real-life videos open the game's own player page (`docs/play.html`, written by
+`tools/build_web.py`) in Chrome; the phone's Back button returns to the game. In the game,
+the phone's Back button closes the game.
+
+Fixes the Android build needs (already in place):
+- `p4a-recipes/pygame`: pygame 2.6.1 with its C code made by Cython 3.1 (`~/dwd-cython`),
+  plus the SIMD blitter files added to the surface module (without them 64-bit phones
+  closed at once: "cannot locate symbol alphablit_alpha_sse2_argb_surf_alpha").
+- Speech: Android's `speak()` needs the text as a Java CharSequence and a Bundle (`audio.py`).
+- Names are typed with the game's own big letters; the phone keyboard is not opened.
+
+### Test on a real phone over USB (adb)
+
+1. On the phone: Settings > About phone > Software information > tap **Build number** 7
+   times; Settings > **Developer options** > **USB debugging** on; plug in the cable and
+   tap **Allow**.
+2. Install and start: `adb install -r bin\dominowonderdash-1.1-...-debug.apk` and
+   `adb shell am start -n org.saiqul.dominowonderdash/org.kivy.android.PythonActivity`.
+3. The game's messages and any error: `adb logcat -d | findstr python`.
+   (adb comes with Google's platform-tools. If `adb devices` is empty, run
+   `adb kill-server`, unplug and replug, and allow the phone again.)
 
 iOS: pygame cannot be packaged as a native iOS app with these tools. On iPhone/iPad, use the
 web version (section 2) and **Add to Home Screen**.
@@ -114,3 +134,23 @@ web version (section 2) and **Add to Home Screen**.
   the voice explains why we wait. Every safe crossing gives a star and a spoken tip (helmet,
   seat belt, footpath, bus stop ...). 13 road signs to trace: `python toolsdd_items.py "Road Safety"`
   builds just that category into the hub.
+
+## Where the game is published
+
+The game is shared on GitHub and Stratos (the Play Store kit in `PLAY_STORE.md` is kept
+for later but not used). After every change:
+
+1. `python tools\build_web.py`, then commit and push to both GitHub remotes
+   (`dominogame` = github.com/saiqulmodi/DominoGame, `origin` = DominoWonderDash).
+   GitHub Pages updates https://saiqulmodi.github.io/DominoGame/ by itself.
+2. `python tools\make_stratos_box.py`, then in the stratos-games-site folder commit
+   **only** `games/saiqulmodi-domino-wonder-dash`, pull with rebase and push.
+   Stratos asks for the box to stay **under 20 MB (20,000,000 bytes)**; the script prints
+   MiB, so check the real byte count. The web build keeps it small: only pictures the game
+   uses, pictures sized to the 450-wide canvas, 88 px thumbnails, outline points rounded.
+3. Build the Android app (`.\build_mobile.ps1 -Android`), attach it to the GitHub release
+   **v1.1-test** (the download link stays the same), and install it on a test phone.
+
+**Sharing:** https://saiqulmodi.github.io/DominoGame/share.html has a *Share on WhatsApp*
+button with a ready message asking friends what their child liked, what was hard, what did
+not work and what to add.
