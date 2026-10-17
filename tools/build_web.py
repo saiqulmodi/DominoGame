@@ -115,7 +115,10 @@ def main():
   for f in GAME_FILES:
     shutil.copy2(os.path.join(ROOT, f), stage)
   for d in GAME_DIRS:
-    shutil.copytree(os.path.join(ROOT, d), os.path.join(stage, d))
+    if d == "pics":                      # only pictures the game uses (old builds
+      copy_used_pics(os.path.join(stage, d))   # leave unused ones behind)
+    else:
+      shutil.copytree(os.path.join(ROOT, d), os.path.join(stage, d))
   for f in GAME_FILES:
     if f.endswith(".py"):
       subprocess.run([sys.executable, "-m", "py_compile", os.path.join(stage, f)], check=True)
@@ -133,6 +136,34 @@ def main():
   shutil.rmtree(stage_root, ignore_errors=True)
   for name in sorted(os.listdir(docs)):
     print(f"{name:28s} {os.path.getsize(os.path.join(docs, name)) / 1e6:6.2f} MB")
+
+
+def used_pics():
+  """Every picture hub_data.json points to (the Stratos copy must stay small)."""
+  with open(os.path.join(ROOT, "hub_data.json"), encoding="utf-8") as fh:
+    data = json.load(fh)
+  used = set()
+
+  def walk(x):
+    if isinstance(x, dict):
+      for v in x.values():
+        walk(v)
+    elif isinstance(x, list):
+      for v in x:
+        walk(v)
+    elif isinstance(x, str) and x.startswith("pics/"):
+      used.add(x[len("pics/"):])
+
+  walk(data)
+  return used
+
+
+def copy_used_pics(dest):
+  os.makedirs(dest)
+  used = used_pics()
+  for name in os.listdir(os.path.join(ROOT, "pics")):
+    if name in used:
+      shutil.copy2(os.path.join(ROOT, "pics", name), dest)
 
 
 def make_pwa(docs):
