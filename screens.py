@@ -9,7 +9,9 @@ import pygame
 
 import domino_data as hub
 import fun
+import howto
 import stories
+import world
 from translations import LANGUAGES
 
 WHITE = (255, 255, 255)
@@ -80,6 +82,7 @@ class Menu:
         ("players", f"Player: {player['name']}", fun.AVATARS[player["avatar"]],
          "Tap to change or add a player"),
         ("lang", "Language", ("Countries", "India"), LANGUAGES[g.lang] + "  (tap to change)"),
+        ("howto", "How to play", None, "Pictures show you what to do"),
         ("parents", "For parents", ("Helpers", "Teacher"), "See what your child learned"),
     ]
     full = getattr(g, "fullscreen", None)
@@ -104,7 +107,12 @@ class Menu:
         active = True
       if key == "draw":
         active = drawing
-      pic = crayon_icon(44) if key == "draw" else g.thumb(icon[1], icon[0], 44)
+      if key == "draw":
+        pic = crayon_icon(44)
+      elif key == "howto":
+        pic = howto.help_icon(44)
+      else:
+        pic = g.thumb(icon[1], icon[0], 44)
       button(screen, g, rect, text, g.theme["subject"], pic, sub, active)
     tip = g.small_font.render("Tap outside a button to close", True, HINT)
     screen.blit(tip, tip.get_rect(center=(225, AREA_BOTTOM - 12)))
@@ -128,6 +136,8 @@ class Menu:
           g.overlay = "players"
         elif key == "lang":
           g.next_language()
+        elif key == "howto":
+          g.open_guide()
         elif key == "parents":
           g.overlay = "parents"
         elif key == "screen":
@@ -174,6 +184,9 @@ class Players:
       th = g.thumb(name, cat, 70)
       if th is not None:
         screen.blit(th, th.get_rect(center=(card.centerx, card.top + 50)))
+      caps = len(fun.cap_subjects(p["done"], g.subjects))     # each child's own cap
+      world.WorldScene.draw_rainbow_cap(screen, (card.right - 30, card.top + 30), 14,
+                                        (card.right - 8, card.top + 32), fun.cap_colours(caps))
       nm = g.hint_font.render(p["name"], True, WHITE)
       screen.blit(nm, nm.get_rect(center=(card.centerx, card.top + 104)))
       info = g.small_font.render(f"{len(p['done'])} traced, {len(p['stickers'])} stickers",
@@ -292,6 +305,7 @@ class Parents:
         ("Words spelled", f"{len(s['words'])} different, {s['right']} times"),
         ("Stories finished", f"{len(p['stories'])} of {len(stories.STORIES)}"),
         ("Stickers", f"{len(p['stickers'])}"),
+        ("Rainbow cap colours", f"{min(7, len(fun.cap_subjects(p['done'], g.subjects)))} of 7"),
         ("Best trace streak", f"{p.get('best_streak', 0)} dots"),
         ("Days played", f"{len(p['days'])}"),
         ("Language", LANGUAGES[p.get("lang", "hi")]),
@@ -340,4 +354,4 @@ class StoryList:
 
 
 PANELS = {"menu": Menu(), "players": Players(), "rename": Rename(),
-          "parents": Parents(), "stories": StoryList()}
+          "parents": Parents(), "stories": StoryList(), "howto": howto.GUIDE}

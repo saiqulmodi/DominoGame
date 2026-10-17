@@ -218,7 +218,7 @@ def new_profile(n):
   return {"name": f"Player {n + 1}", "avatar": n % len(AVATARS), "done": [],
           "stickers": [], "theme": 0, "theme_v": 2, "best_streak": 0, "lang": "hi",
           "quiz": {"right": 0, "asked": 0}, "spell": {"right": 0, "words": []},
-          "stories": [], "days": []}
+          "stories": [], "days": [], "guides": []}
 
 
 class Progress:
@@ -376,6 +376,31 @@ class Progress:
 
 
 STORY_TITLES = {}   # filled by main.py from stories.py
+
+# The rainbow cap: every subject a child discovers (first picture finished in
+# English, Maths, Hindi ...) paints the next stripe of the cap, in rainbow
+# order, until all seven colours are on it. Worked out from the pictures
+# already done, so children who played before get their colours too.
+RAINBOW = [(148, 0, 211), (75, 0, 130), (0, 90, 255), (0, 180, 60), (255, 220, 0),
+           (255, 127, 0), (230, 20, 20)]
+RAINBOW_NAMES = ["violet", "indigo", "blue", "green", "yellow", "orange", "red"]
+CAP_PLAIN = (225, 225, 235)
+
+
+def cap_subjects(done_keys, subjects):
+  """Subjects in the order the child first finished a picture in them."""
+  cat_subject = {c: s for s, cats in subjects.items() for c in cats}
+  out = []
+  for key in done_keys:
+    subj = cat_subject.get(key.split("/", 1)[0])
+    if subj and subj not in out:
+      out.append(subj)
+  return out
+
+
+def cap_colours(count):
+  """Seven stripes: earned ones in rainbow colours, the rest still plain."""
+  return [RAINBOW[k] if k < count else CAP_PLAIN for k in range(len(RAINBOW))]
 
 
 def sticker_title(sid):

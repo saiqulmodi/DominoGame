@@ -25,6 +25,7 @@ import pygame
 import calls
 import domino_data as hub
 import fun
+import howto
 import modes
 import scenery
 import screens
@@ -60,6 +61,7 @@ BANK_COLS, BANK_ROWS = 4, 7
 MENU_BTN = pygame.Rect(6, 10, 50, 54)
 TOWN_BTN = pygame.Rect(6, 68, 50, 40)     # back to Wonder Town (the 3D front door)
 NEXT_BTN = pygame.Rect(PANEL_W - 56, 10, 50, 54)
+HELP_BTN = pygame.Rect(PANEL_W - 56, 68, 50, 40)  # "?": the picture guide (howto.py)
 BANNER_RECT = pygame.Rect(68, 8, PANEL_W - 136, 62)
 SPEAKER_R = 21
 VIDEO_R = 19
@@ -109,9 +111,10 @@ def layout_size(window_size):
 def set_layout(width, height=PANEL_H):
   """Fits the top row, play area, drawing tools and menu panel to the canvas."""
   global WIDTH, HEIGHT, PLAY_RECT, BANNER_RECT, SPEAKER_CENTER, VIDEO_CENTER
-  global NEXT_BTN, NAV_X, NAV_Y, CRAYON_Y, UNDO_RECT, DONE_RECT, TOOLBAR_BOTTOM
+  global NEXT_BTN, HELP_BTN, NAV_X, NAV_Y, CRAYON_Y, UNDO_RECT, DONE_RECT, TOOLBAR_BOTTOM
   WIDTH, HEIGHT = width, height
   NEXT_BTN = pygame.Rect(width - 56, 10, 50, 54)
+  HELP_BTN = pygame.Rect(width - 56, 68, 50, 40)
   BANNER_RECT = pygame.Rect(0, 8, min(width - 120, 660), 62)
   BANNER_RECT.centerx = width // 2
   SPEAKER_CENTER = (BANNER_RECT.right - 28, BANNER_RECT.centery)
@@ -358,6 +361,29 @@ class Game:
   def key(self, name=None, cat=None):
     return hub.item_key(cat or self.cat, name or self.puzzle)
 
+  # ------------------------------------------------------------ rainbow cap, guides
+  def cap_count(self):
+    """Subjects discovered so far (each paints one stripe of the cap)."""
+    return len(fun.cap_subjects(self.progress.data["done"], self.subjects))
+
+  def cap_colours(self):
+    return fun.cap_colours(self.cap_count())
+
+  def open_guide(self, key=None, page=0):
+    key = key or howto.guide_key(self)
+    seen = self.progress.data.setdefault("guides", [])
+    if key not in seen:
+      seen.append(key)
+      self.progress.save()
+    howto.GUIDE.open(self, key, page)
+
+  def guide_first_time(self):
+    """The first time a child plays each way, its picture guide opens."""
+    if self.overlay or self.in_world:
+      return
+    if howto.guide_key(self) not in self.progress.data.setdefault("guides", []):
+      self.open_guide()
+
   # ------------------------------------------------------------ item state
   def load_item(self, announce=True):
     """(Re)start the current item at the tracing stage."""
@@ -372,6 +398,8 @@ class Game:
     self.praised_at = -10.0
     self.celebration = None
     self.call_at = None
+    self.last_progress_at = time.time()   # the helping hand waits from here
+    self.nudged = self.tap_nudged = False
     if hasattr(self, "particles"):
       self.particles.texts = []
     box = PLAY_RECT.inflate(-16, -40)
@@ -412,6 +440,7 @@ class Game:
     self.say(text, f"{text} {word}" if word else None)
 
   def stand_dominoes(self, loops):
+    self.last_progress_at = time.time()
     # each domino carries the picture's letter (C for Car) and they drop
     # onto the picture one after another
     self.domino_letter = None if self.is_custom else domino_letter_of(self.puzzle)
@@ -815,6 +844,9 @@ class Game:
       self.overlay = "nav"
     elif NEXT_BTN.collidepoint(mx, my):
       self.next_item()
+    elif HELP_BTN.collidepoint(mx, my):
+      self.sfx.play("switch")
+      self.open_guide()
     elif BANNER_RECT.collidepoint(mx, my):
       self.sfx.play("click")
       if (self.current_video() and
@@ -986,6 +1018,7 @@ class Game:
           self.covered[i] = True
           newly.append(i)
     if newly:
+      self.last_progress_at = time.time()
       done = sum(self.covered)
       # Streak: quick pops in a row climb a musical scale and grow the trail
       now = time.time()
@@ -1013,6 +1046,8 @@ class Game:
     self.particles.update(dt)
     if self.in_world:
       self.world.update(dt)
+    else:
+      self.guide_first_time()
     if self.celebration and now - self.celebration[1] > 3.5:
       self.celebration = None
     if self.call_at and now >= self.call_at:
@@ -1052,7 +1087,9 @@ class Game:
     self.call_at = time.time() + CALL_DELAY
     self.particles.confetti(PLAY_RECT)
     cat_keys = [self.key(n) for n in hub.CATEGORIES_HUB[self.cat]]
+    caps_before = self.cap_count()
     new = self.progress.complete(self.key(), cat_keys, self.cat)
+    cap_new = self.cap_count() > caps_before and caps_before < len(fun.RAINBOW)
     praise = hub.praise_text(self.puzzle, self.cat)
     if self.story:
       steps = self.story["story"]["steps"]
@@ -1065,6 +1102,13 @@ class Game:
       self.celebration = (new[-1], time.time())
       self.particles.burst(PLAY_RECT.centerx, PLAY_RECT.centery, n=60)
       praise += " You got a new sticker!"
+    if cap_new:                  # a new subject paints the next stripe of the cap
+      self.cap_won = time.time()
+      colour = fun.RAINBOW_NAMES[caps_before]
+      praise += (f" You found {self.subject}! Your cap is now {colour}!" if caps_before == 0
+                 else f" You found {self.subject}! Your cap got {colour}!")
+      if caps_before + 1 == len(fun.RAINBOW):
+        praise += " All seven rainbow colours!"
     clip = self.current_video()
     if clip and not self.story:
       praise += (" Tap the red button to see its famous places!" if clip.get("places")
@@ -1400,9 +1444,28 @@ class Game:
       pygame.draw.rect(pill, (20, 24, 50, 170), pill.get_rect(), border_radius=box.h // 2)
       screen.blit(pill, box.topleft)
       screen.blit(surf, surf.get_rect(center=box.center))
+    howto.draw_idle_hand(self, screen, now, PLAY_RECT)
     if self.celebration:
       self.draw_celebration(screen, now)
+    self.draw_cap_won(screen, now)
     screen.set_clip(None)
+
+  def draw_cap_won(self, screen, now):
+    """A big rainbow cap pops up when a new subject adds a colour."""
+    won = getattr(self, "cap_won", None)
+    if won is None or now - won > 4.0:
+      return
+    t = now - won
+    grow = min(1.0, t / 0.4)
+    r = int(64 * grow)
+    if r < 4:
+      return
+    c = (PLAY_RECT.centerx, PLAY_RECT.y + 120)
+    world.WorldScene.draw_rainbow_cap(screen, (c[0], c[1] + r * 0.2), r / 1.12,
+                                      (c[0] + r * 1.4, c[1] + r * 0.2), self.cap_colours())
+    count = self.cap_count()
+    lbl = fit_label(self.big_font, f"Rainbow cap {min(count, 7)} / 7", YELLOW, PLAY_RECT.w - 40)
+    screen.blit(lbl, lbl.get_rect(center=(c[0], c[1] + r * 0.2 + 30)))
 
   def sticker_picture(self, sid, size):
     """Category stickers show the category's first picture; story stickers
@@ -1551,6 +1614,11 @@ class Game:
     pygame.draw.rect(screen, WHITE, NEXT_BTN, 2, border_radius=12)
     cx, cy = NEXT_BTN.center
     pygame.draw.polygon(screen, WHITE, [(cx - 8, cy - 13), (cx + 10, cy), (cx - 8, cy + 13)])
+    # Help: "?" opens the picture guide for what the child is doing
+    pygame.draw.rect(screen, (150, 80, 200), HELP_BTN, border_radius=12)
+    pygame.draw.rect(screen, WHITE, HELP_BTN, 2, border_radius=12)
+    q = self.font_at(30).render("?", True, WHITE)
+    screen.blit(q, q.get_rect(center=HELP_BTN.center))
 
   def draw_menu_panel(self, screen, now):
     """The menu: subjects, categories, every picture of the category and the

@@ -40,54 +40,69 @@ This writes the outlines to `hub_data.json` and the pictures to `pics\`. It need
 the first time (downloads are cached in `%LOCALAPPDATA%\DominoWonderDash\downloads`).
 It needs `pip install pillow numpy opencv-python-headless`, and those are needed only for building, not for playing.
 
-## 2. Play in a phone or desktop browser (pygbag)
+## One click: `build_mobile.ps1`
 
 ```
-python -m pip install pygbag
-cd C:\Users\saiqu
-python -m pygbag DominoGame
+cd C:\Users\saiqu\DominoGame
+.\build_mobile.ps1            # web game + installable app into docs\, then a local test server
+.\build_mobile.ps1 -Android   # also the Android .apk into bin\ (WSL Ubuntu)
+.\build_mobile.ps1 -NoServe   # build only
 ```
 
-Open http://localhost:8000. The first load downloads the Python runtime, so it takes about 30 seconds.
-Then **tap the page** when it says "Ready to start". Browsers allow sound only after a real tap.
-If port 8000 is busy, add `--port 8765`.
+If Windows refuses to run scripts: `powershell -ExecutionPolicy Bypass -File .\build_mobile.ps1`.
+It picks a free port (8000, 8001, ...) and prints the address to open on a phone on the same Wi-Fi.
 
-To get files you can put online (itch.io, GitHub Pages and so on):
+## 2. Play in a phone or desktop browser, and install it like an app (PWA)
 
-```
-python -m pygbag --build DominoGame
-```
+`python tools\build_web.py` builds the browser version into `docs\` (GitHub Pages):
+only the game files go in (never `venv\`, `tools\` or `docs\` itself). It also adds:
 
-The upload folder is `DominoGame\build\web` (index.html + dominogame.apk). Phones then open it
-by URL. Names are spoken by the browser's own voice (speechSynthesis).
+- `manifest.json` + app icons (`icons\`, painted by `tools\make_icons.py`): phones offer
+  **Install app** / **Add to Home Screen**; it opens full screen, upright, with its own icon.
+- `sw.js`: keeps the game and the Python engine on the phone, so it opens again without
+  internet (videos still need internet).
+
+Open https://saiqulmodi.github.io/DominoGame/ on the phone, tap the page when it says
+"Ready to start", then use the browser menu > **Install app** (Android Chrome) or
+Share > **Add to Home Screen** (iPhone Safari). Installing and offline play need https, so a
+local `http://192.168.x.x:8000` test plays fine but does not install.
 
 ## 3. Android app (.apk) with Buildozer
 
-Buildozer runs only on Linux. On Windows, use WSL (Ubuntu):
+Buildozer runs only on Linux, so it runs in WSL Ubuntu (already set up on this laptop).
+`tools/build_android.sh` copies the game files to `~/DominoGame` on the Linux disk (much faster
+than `/mnt/c`), builds with buildozer in its own Python 3.11 (`~/dwd-buildenv`; Ubuntu's own
+Python is too new and blocks pip), and copies the .apk back to `bin\`:
 
 ```
-wsl --install -d Ubuntu          # once, then restart Windows
+wsl -e bash -l tools/build_android.sh       # or .\build_mobile.ps1 -Android
 ```
 
-Inside Ubuntu:
+New machine: `wsl --install -d Ubuntu`, then inside Ubuntu
+`sudo apt install -y git zip unzip openjdk-17-jdk autoconf automake libtool pkg-config zlib1g-dev
+libncurses-dev cmake libffi-dev libssl-dev build-essential rsync`. The script installs the rest.
+The first build downloads the Android SDK/NDK and takes 20-40 minutes.
 
-```
-sudo apt update
-sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config \
-    zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev
-pip3 install --user buildozer cython
-cp -r /mnt/c/Users/saiqu/DominoGame ~/DominoGame
-cd ~/DominoGame
-~/.local/bin/buildozer android debug
-```
-
-The first build downloads the Android SDK/NDK and takes 20-40 minutes. The app appears in `bin/`
-as `dominowonderdash-1.0-arm64-v8a_armeabi-v7a-debug.apk`. Copy it to the phone and install it
-(allow "install unknown apps").
-
-`buildozer.spec` already sets portrait, fullscreen, pygame on the SDL2 bootstrap, and
-`pyjnius` for the phone's built-in text-to-speech voice. `android_queries.xml` declares the TTS
-service, which Android 11+ requires. The phone's Back button closes the game.
+Copy `bin\dominowonderdash-*.apk` to the phone and install it (allow "install unknown apps").
+`buildozer.spec` sets portrait, full screen, the app icon and start-up picture (`icons\`),
+keeps the screen on while a child plays, and asks for no permissions. `pyjnius` gives the
+phone's text-to-speech voice; `android_queries.xml` declares that service (Android 11+).
+Real-life videos open in the phone's browser. The phone's Back button closes the game.
 
 iOS: pygame cannot be packaged as a native iOS app with these tools. On iPhone/iPad, use the
-pygbag web version (section 2) in Safari, then use "Add to Home Screen" for an app-like icon.
+web version (section 2) and **Add to Home Screen**.
+
+## How children learn to play (no reading needed)
+
+- **Picture guides** (`howto.py`): the first time a child traces, plays Find it!, Spell it or
+  Draw my own, a short guide opens: a moving hand shows each step on a real picture, and one
+  short line is said aloud in the child's language (English, Hindi, Bengali). Big Back /
+  Hear / Next buttons. The purple **?** button (under Next) and Games > **How to play** open it again.
+- **Helping hand**: if a child stops tracing for 6 seconds, a hand slides over the next dots
+  (and new players hear "Put your finger on the dots and slide!"); standing dominoes get a
+  tapping hand; an empty drawing page gets a drawing hand.
+- **Wonder Town** says its welcome tips aloud, and **Guide me** says each building's name.
+- **Rainbow cap**: each subject a child discovers (first picture finished in it) paints the next
+  stripe of the hero's cap: violet, indigo, blue, green, yellow, orange, red. The cap shows on the
+  hero, in the town's top bar (tap it to hear how many colours), on each player card and in
+  the parents' report.

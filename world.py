@@ -133,7 +133,8 @@ class WorldScene:
         P[key].rect.y = h - 12 - 2 * pad - gap
     bw = min(150, (w - 40) // 3)
     self.buttons = {"guide": pygame.Rect(10, 8, bw, 38),
-                    "pictures": pygame.Rect(18 + bw, 8, bw, 38)}
+                    "pictures": pygame.Rect(18 + bw, 8, bw, 38),
+                    "cap": pygame.Rect(26 + 2 * bw, 8, min(bw, 104), 38)}
     mw = 170 if w >= 700 else 120
     self.map_rect = pygame.Rect(w - mw - 10, 56, mw, int(mw * 1.35))
 
@@ -173,11 +174,26 @@ class WorldScene:
     self.g.progress.data["town_seen"] = True
     self.g.progress.save()
 
+  def speak_welcome(self):
+    """First visit: the tips are also said out loud, for children who
+    cannot read yet (after the first tap on the web, so sound may play)."""
+    if not self.show_tips or getattr(self, "welcomed", False) or self.t < 1.0:
+      return
+    full = getattr(self.g, "fullscreen", None)
+    if full is not None and full.first_tap:
+      return
+    self.welcomed = True
+    self.g.say("Welcome to Wonder Town! Tap a building to go inside and learn. "
+               "Tap Let's go to start.",
+               {"hi": "वंडर टाउन में स्वागत है! सीखने के लिए किसी भी इमारत पर टैप करो।",
+                "bn": "ওয়ান্ডার টাউনে স্বাগতম! শিখতে যেকোনো বাড়িতে টোকা দাও।"}.get(self.g.lang))
+
   def next_tour(self):
     self.g.sfx.play("click")
     self.target = self.by_key[TOUR[self.tour_k % len(TOUR)]]
     self.tour_k += 1
     self.say(f"{self.target.label}: {self.target.sub}", 4.0)
+    self.g.say(f"{self.target.label}. {self.target.sub}")   # said too, for young children
 
   def fly_to(self, b, enter=True):
     """Fly to a building's door (and go in when we land)."""
@@ -273,6 +289,16 @@ class WorldScene:
     if self.buttons["pictures"].collidepoint(pos):
       self.g.sfx.play("switch")
       self.g.overlay = "nav"
+      return
+    if self.buttons["cap"].collidepoint(pos):
+      self.g.sfx.play("click")
+      n = min(7, self.g.cap_count())
+      self.say(f"Rainbow cap: {n} of 7 colours", 4.0)
+      self.g.say(f"Your rainbow cap has {n} of 7 colours. Learn a new subject to add a colour!",
+                 {"hi": f"तुम्हारी इंद्रधनुष टोपी में सात में से {n} रंग हैं। "
+                        "नया विषय सीखो और नया रंग पाओ!",
+                  "bn": f"তোমার রামধনু টুপিতে সাতটার মধ্যে {n}টা রং আছে। "
+                        "নতুন বিষয় শিখে নতুন রং পাও!"}.get(self.g.lang))
       return
     if self.target is not None and self.zip_rect.collidepoint(pos) and self.player.zip is None:
       self.fly_to(self.target)
@@ -388,6 +414,7 @@ class WorldScene:
     self.t += dt
     msg, ttl = self.toast
     self.toast = (msg, max(0.0, ttl - dt))
+    self.speak_welcome()
     if self.g.overlay or self.picker is not None:
       return
     try:
@@ -705,11 +732,35 @@ class WorldScene:
     pygame.draw.circle(s, SUIT, (int(head[0]), int(head[1])), hr)        # the hero's mask
     for ex in (-0.35, 0.35):
       pygame.draw.ellipse(s, WHITE, (head[0] + ex * hr * 1.6 - hr * 0.3, head[1] - hr * 0.35, hr * 0.6, hr * 0.45))
+    self.draw_rainbow_cap(s, head, hr, P(0, 1.74, 0.42), self.g.cap_colours())
     if p.splash > 0:
       for k in range(6):
         a = k / 6 * math.tau + self.t * 3
         q = P(math.cos(a) * 0.9, 0.3 + 0.8 * p.splash / 2.5, math.sin(a) * 0.9)
         pygame.draw.circle(s, (190, 225, 255), (int(q[0]), int(q[1])), max(2, int(0.1 * sc)))
+
+  @staticmethod
+  def draw_rainbow_cap(s, head, hr, peak, colours):
+    """The hero's cap: seven stripes that turn violet, indigo, blue, green,
+    yellow, orange and red as the child discovers subjects (fun.cap_colours),
+    a peak pointing the way the hero faces and a white pom-pom."""
+    cx, cy = head[0], head[1] - hr * 0.2
+    r = hr * 1.12
+    for k, colour in enumerate(colours):
+      a0 = math.pi + k * math.pi / 7
+      a1 = math.pi + (k + 1) * math.pi / 7
+      pts = [(cx, cy)] + [(cx + r * math.cos(a0 + (a1 - a0) * j / 4),
+                           cy + r * math.sin(a0 + (a1 - a0) * j / 4)) for j in range(5)]
+      pygame.draw.polygon(s, colour, pts)
+      if hr >= 8:                                  # the seven slots stay visible
+        pygame.draw.line(s, (120, 120, 140), (cx, cy), pts[-1], 1)
+    if hr >= 8:
+      pygame.draw.arc(s, (90, 90, 110), (cx - r, cy - r, 2 * r, 2 * r), 0, math.pi, 2)
+    band = max(1, int(hr * 0.22))
+    pygame.draw.line(s, WHITE, (cx - r, cy), (cx + r, cy), band)
+    pygame.draw.polygon(s, colours[0], [(cx - r * 0.7, cy), (cx + r * 0.7, cy),
+                                        (peak[0], peak[1] - hr * 0.1)])
+    pygame.draw.circle(s, WHITE, (int(cx), int(cy - r)), max(2, int(hr * 0.28)))
 
   def draw_anchor(self, s):
     if self.anchor is None or self.g.overlay or self.picker is not None:
@@ -850,6 +901,13 @@ class WorldScene:
     s.blit(bar, (0, 0))
     self.draw_button(s, self.buttons["guide"], "Guide me", (150, 80, 200))
     self.draw_button(s, self.buttons["pictures"], "Pictures", (60, 160, 90))
+    cap = self.buttons["cap"]                   # the rainbow cap earned so far
+    pygame.draw.rect(s, (255, 255, 255), cap, border_radius=12)
+    pygame.draw.rect(s, YELLOW, cap, 2, border_radius=12)
+    self.draw_rainbow_cap(s, (cap.x + 26, cap.centery + 6), 14, (cap.x + 48, cap.centery + 7),
+                          self.g.cap_colours())
+    self.text(s, f"{min(7, self.g.cap_count())}/7", (cap.right - 8, cap.centery), 18,
+              (60, 40, 120), anchor="midright")
     if w >= 560:
       self.text(s, "Wonder Town", (w - self.map_rect.w - 30, 27), 22, YELLOW, anchor="midright")
     self.draw_map(s)

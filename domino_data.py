@@ -24,6 +24,7 @@ import math
 import os
 
 from translations import TRANSLATIONS
+from rhymes_hub import RHYMES_AND_SCHOOL_HUB
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HUB_JSON = os.path.join(HERE, "hub_data.json")
@@ -78,7 +79,7 @@ BURJ_KHALIFA = [
 ]
 
 # Monuments of India (right half, mirrored like the landmarks above)
-WAR_MEMORIAL = [                     # National War Memorial: the eternal-flame pillar
+WAR_MEMORIAL = [
     (50, 0), (51.6, 5), (52.6, 12), (54, 70), (60, 70), (60, 78), (72, 78),
     (72, 86), (86, 86), (86, 93), (100, 93), (100, 100), (50, 100),
 ]
@@ -88,7 +89,7 @@ QUTUB_MINAR = [
     (63.5, 60), (63.5, 63), (61.5, 63), (63, 78), (66, 78), (66, 81), (64, 81),
     (65.5, 94), (72, 94), (72, 100), (50, 100),
 ]
-RED_FORT = [                         # Lahori Gate: gateway between two towers
+RED_FORT = [
     (50, 22), (52, 24), (53, 28), (56, 28), (56, 34), (64, 34), (64, 26), (66, 22),
     (66, 18), (68, 13), (70, 10), (72, 13), (74, 18), (74, 22), (76, 26), (76, 50),
     (84, 50), (84, 46), (87, 46), (87, 50), (92, 50), (92, 46), (95, 46), (95, 50),
@@ -105,7 +106,7 @@ GOLDEN_TEMPLE = [
     (78, 35), (84, 35), (84, 39), (80, 39), (80, 58), (86, 58), (86, 62), (82, 62),
     (82, 90), (100, 90), (100, 100), (50, 100),
 ]
-HAWA_MAHAL = [                       # Jaipur's palace of winds: stepped front
+HAWA_MAHAL = [
     (50, 2), (52, 0), (54, 2), (54, 10), (57, 10), (58, 8), (60, 10), (60, 22),
     (63, 22), (64, 20), (66, 22), (66, 36), (70, 36), (71, 34), (73, 36), (73, 52),
     (78, 52), (79, 50), (81, 52), (81, 66), (86, 66), (87, 64), (89, 66), (89, 100),
@@ -117,7 +118,7 @@ MYSURU_PALACE = [
     (74, 46), (84, 46), (84, 40), (86, 36), (88, 40), (88, 46), (96, 46), (96, 54),
     (100, 54), (100, 100), (50, 100),
 ]
-MEENAKSHI_GOPURAM = [                # tall temple gateway tower of Madurai
+MEENAKSHI_GOPURAM = [
     (50, 2), (52, 2), (52, 6), (58, 6), (60, 2), (62, 6), (62, 12), (60.5, 12),
     (62, 24), (64, 24), (65, 36), (67, 36), (68, 48), (70, 48), (71, 60), (73, 60),
     (74, 72), (76, 72), (77, 84), (80, 84), (80, 100), (50, 100),
@@ -136,7 +137,7 @@ GOL_GUMBAZ = (
     + [(84, 46), (84, 30), (86, 26), (88, 22), (90, 26), (92, 30), (92, 100), (50, 100)],
     [],
 )
-KONARK_WHEEL = (                     # wheel of the Sun Temple chariot, 8 spokes
+KONARK_WHEEL = (
     [(50 + 48 * math.sin(math.radians(a)), 50 - 48 * math.cos(math.radians(a)))
      for a in range(0, 181, 10)],
     [
@@ -147,7 +148,6 @@ KONARK_WHEEL = (                     # wheel of the Sun Temple chariot, 8 spokes
     ],
 )
 
-# Bridges: (right half, optional hole loops in full 0..100 coordinates)
 ARCH_BRIDGE = [
     (50, 40), (100, 40), (100, 100), (92, 100), (90.6, 89.1), (86.4, 79),
     (79.7, 70.3), (71, 63.6), (60.9, 59.4), (50, 58),
@@ -178,7 +178,6 @@ TOWER_BRIDGE = (
     [[(38, 28), (62, 28), (62, 62), (38, 62)]],
 )
 
-# Letter words (A for Apple ...) and number words
 LETTER_WORDS = [
     "Apple", "Ball", "Cat", "Dog", "Elephant", "Fish", "Grapes", "House",
     "Ice cream", "Jug", "Kite", "Lion", "Mango", "Nest", "Owl", "Parrot",
@@ -190,9 +189,6 @@ NUMBER_WORDS = [
     "Nine", "Ten",
 ]
 
-# India, state by state: (name in the game, Natural Earth name, capital,
-# capital (lat, lon), famous places shown on the map [(name, lat, lon)],
-# what it is famous for). The maps follow India's official boundaries.
 INDIA_STATES = [
     ("Andhra Pradesh", "Andhra Pradesh", "Amaravati", (16.51, 80.52),
      [("Tirupati", 13.63, 79.42), ("Visakhapatnam", 17.69, 83.22)],
@@ -299,7 +295,7 @@ INDIA_UTS = [
      [("Auroville", 12.01, 79.81), ("Karaikal", 10.92, 79.84)],
      "French-style streets, beaches and Auroville."),
 ]
-# Short names for the India map when a full name does not fit inside a state
+
 INDIA_SHORT = {
     "Uttar Pradesh": "UP", "Madhya Pradesh": "MP", "Andhra Pradesh": "AP", "Tamil Nadu": "TN",
     "West Bengal": "WB", "Himachal Pradesh": "HP", "Arunachal Pradesh": "Arunachal",
@@ -311,13 +307,9 @@ INDIA_SHORT = {
     "Ladakh": "LA", "Delhi": "DL", "Goa": "Goa", "Puducherry": "PY", "Lakshadweep": "LD",
     "Chandigarh": "CH", "Daman & Diu": "DD",
 }
-# game name -> capital, used for speech
 INDIA_CAPITALS = {n: cap for n, _ne, cap, *_rest in INDIA_STATES + INDIA_UTS}
-# Natural Earth name -> (capital, (lat, lon), places) for the map builder
 INDIA_PLACES = {ne: (cap, at, places) for _n, ne, cap, at, places, _f in INDIA_STATES + INDIA_UTS}
 
-# Hindi varnamala: (letter, word, letter in English letters, word in English
-# letters, meaning). Letters with no common word just say themselves.
 HINDI_SWAR = [
     ("अ", "अनार", "a", "anaar", "pomegranate"),
     ("आ", "आम", "aa", "aam", "mango"),
@@ -372,7 +364,6 @@ HINDI_VYANJAN = [
     ("ज्ञ", "ज्ञानी", "gya", "gyaanee", "wise person"),
 ]
 
-
 def _hindi_items(rows):
   items = []
   for letter, word, roman, word_roman, meaning in rows:
@@ -383,7 +374,6 @@ def _hindi_items(rows):
       phrase, desc = letter, f"{roman} - a nasal sound"
     items.append((letter, desc, ("hindi", (phrase, roman))))
   return items
-
 
 # --------------------------------------------------------------------------
 # The catalog: category -> list of (name, description, source)
@@ -647,7 +637,6 @@ CATALOG = {
         ("Brazil", "Home of the Amazon forest. Capital: Brasilia.", ("country", "Brazil")),
         ("Egypt", "Land of the pyramids. Capital: Cairo.", ("country", "Egypt")),
     ],
-    # India: the whole map, all 28 states, 8 union territories, monuments
     "India Map": [
         ("India Map", "India: 28 states and 8 union territories. Capital: New Delhi.",
          ("india_map", None)),
@@ -724,7 +713,6 @@ CATALOG = {
     "Draw": [
         ("Custom Draw", "Draw anything you imagine, in any colour!", ("custom", None)),
     ],
-    # Cartoon friends from stories (OpenMoji characters, free to use)
     "Cartoons": [
         ("Superhero", "A superhero is brave and helps people.", ("emoji", "1F9B8")),
         ("Robot", "A robot is a machine that can move and help.", ("emoji", "1F916")),
@@ -745,7 +733,6 @@ CATALOG = {
         ("Panda", "A cute panda loves to eat bamboo.", ("emoji", "1F43C")),
         ("Elf", "An elf is a little helper from stories.", ("emoji", "1F9DD")),
     ],
-    # ---------------------------------------------------------------- NCERT Class 6-7
     "Angles & Solids": [
         ("Right Angle", "A right angle is exactly 90 degrees, like the corner of a book.", ("shape", "right_angle")),
         ("Acute Angle", "An acute angle is smaller than a right angle.", ("shape", "acute_angle")),
@@ -837,9 +824,17 @@ CATALOG = {
     ],
 }
 
+# Merge rhymes and school modules from rhymes_hub into the master catalog
+for cat_name, items in RHYMES_AND_SCHOOL_HUB.items():
+    CATALOG[cat_name] = [
+        (name, data["desc"], ("emoji", "1F3A4" if "Rhymes" in cat_name else "1F4DA"))
+        for name, data in items.items()
+    ]
 
 # Subject tabs (top row of the game) -> categories (second row)
 SUBJECTS = {
+    "Rhymes": ["Classic Rhymes"],
+    "School": ["NCERT Class 1-5"],
     "English": ["ABC", "abc"],
     "Hindi": ["Swar", "Vyanjan"],
     "Maths": ["123", "Shapes", "Signs", "Angles & Solids"],
@@ -850,13 +845,12 @@ SUBJECTS = {
     "Travel": ["Vehicles", "Travel", "Bridges"],
     "World": ["Sky", "Countries", "Cities", "Rivers"],
     "Fun": ["Cartoons", "Music", "Sports", "Draw"],
-    "Science": ["Lab Tools", "Inside Body", "Materials", "Space"],      # NCERT Class 6-7
-    "Social": ["Long Ago", "Earth & Maps", "Our Country"],              # NCERT Class 6-7
+    "Science": ["Lab Tools", "Inside Body", "Materials", "Space"],
+    "Social": ["Long Ago", "Earth & Maps", "Our Country"],
 }
 
 
 def spoken_text(name, cat=None):
-  """What the voice says when an item is picked."""
   item = _find(name, cat)
   src = item["source"] if item else ""
   if src == "custom":
@@ -868,7 +862,6 @@ def spoken_text(name, cat=None):
 
 
 def _capital_line(name, src):
-  """States and union territories also say their capital."""
   if src == "india_map":
     return " India has 28 states and 8 union territories. Our capital is New Delhi."
   if src != "state" or name not in INDIA_CAPITALS:
@@ -879,7 +872,6 @@ def _capital_line(name, src):
 
 
 def hindi_speech(name, cat=None, praise=False):
-  """Hindi words to say for Hindi letters (None for other items)."""
   item = _find(name, cat)
   if not item or "hindi" not in item:
     return None
@@ -905,12 +897,9 @@ if os.path.exists(HUB_JSON):
 
 
 def item_key(cat, name):
-  """Hub key; letters like 'a' and 'A' need the category to stay distinct."""
   return f"{cat}/{name}"
 
 
-# category -> {item name -> {"desc", "source", ...outline data}}; only items
-# whose outline was built are listed, so the game never shows a blank item.
 CATEGORIES_HUB = {}
 _BY_NAME = {}
 for _cat, _items in CATALOG.items():
@@ -924,7 +913,6 @@ for _cat, _items in CATALOG.items():
       if item_key(_cat, _name) in TRANSLATIONS:
         _bucket[_name]["hi"], _bucket[_name]["bn"] = TRANSLATIONS[item_key(_cat, _name)]
       if _src[0] == "glyph" and not _name.isalnum():
-        # maths signs: the title spells the word ("Plus", "Rupee")
         _bucket[_name]["tile_text"] = _desc.split(" - ")[0]
       _BY_NAME.setdefault(_name, _bucket[_name])
   if _bucket:
@@ -938,7 +926,6 @@ def _find(name, cat=None):
 
 
 def _fit(item, box, margin=0.9):
-  """Scale factor + offset that fit an item's 0..w x 0..h space into box."""
   bx, by, bw, bh = box
   w, h = item["w"], item["h"]
   s = min(bw * margin / w, bh * margin / h)
@@ -977,18 +964,12 @@ def _length(pts, closed):
 
 def fetch_path_from_hub(shape_name, box, custom_points=None, cat=None,
                         max_dots=110, min_spacing=14):
-  """Outline of an item as evenly spaced dots in screen coordinates.
-
-  Returns a list of loops (each a list of (x, y)). Dominoes follow the loops
-  one after another.
-  """
   item = _find(shape_name, cat)
   if item is None:
     return []
   if item["source"] == "custom":
     if not custom_points or len(custom_points) < 2:
       return []
-    # evenly spaced along the child's line, however fast it was drawn
     dots = _resample(list(custom_points), False, min_spacing)
     return [dots] if len(dots) >= 2 else []
 
@@ -1007,9 +988,6 @@ def fetch_path_from_hub(shape_name, box, custom_points=None, cat=None,
 
 def fetch_trace_from_hub(shape_name, box, cat=None, max_dots=110, part_dots=50,
                          min_spacing=18):
-  """The outline plus the picture's inside parts (a car's wheels and windows)
-  as evenly spaced dots: (loops, closed) with one closed flag per loop. The
-  outline comes first; the parts get up to part_dots more dots."""
   item = _find(shape_name, cat)
   if item is None or item["source"] == "custom":
     return [], []
@@ -1030,7 +1008,6 @@ def fetch_trace_from_hub(shape_name, box, cat=None, max_dots=110, part_dots=50,
 
 
 def fetch_context_from_hub(shape_name, box, cat=None):
-  """Faint background lines (e.g. country borders around a river)."""
   item = _find(shape_name, cat)
   if not item or not item.get("context"):
     return []
@@ -1039,9 +1016,6 @@ def fetch_context_from_hub(shape_name, box, cat=None):
 
 
 def fetch_places_from_hub(shape_name, box, cat=None):
-  """Capital, famous places (and state names on the India map) as
-  [(label, x, y, kind, room)] in screen coordinates; kind is "capital",
-  "place" or "state"; room is how far a state's middle is from its edge."""
   item = _find(shape_name, cat)
   if not item or not item.get("places"):
     return []
@@ -1051,7 +1025,6 @@ def fetch_places_from_hub(shape_name, box, cat=None):
 
 
 def fetch_thumb_from_hub(shape_name, cat=None):
-  """Small picture for item buttons and the title banner."""
   item = _find(shape_name, cat)
   if not item or not item.get("thumb"):
     return None
@@ -1062,7 +1035,6 @@ _VIDEOS = None
 
 
 def fetch_video_from_hub(shape_name, cat=None):
-  """Checked real-life video of the item (videos.json), or None."""
   global _VIDEOS
   if _VIDEOS is None:
     try:
@@ -1086,8 +1058,6 @@ def subjects():
 
 
 def fetch_picture_from_hub(shape_name, box=None, cat=None):
-  """(path, screen_rect) of the item's real picture. The rect lines the
-  picture up exactly over the traced outline (None if box not given)."""
   item = _find(shape_name, cat)
   if not item or not item.get("pic"):
     return None, None
