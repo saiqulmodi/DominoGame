@@ -65,12 +65,32 @@ def build_item(cat, ci, ii, name, arg):
   return out
 
 
+def add_lyrics(data, cat, rebuild=False):
+  """Sing-along words in Hindi / Bengali script as pictures, one per line,
+  for every picture of the category that has them (rhymes, Hindi letters)."""
+  ci = list(hub.CATALOG).index(cat)
+  for ii, (name, _desc, _src) in enumerate(hub.CATALOG[cat]):
+    key = hub.item_key(cat, name)
+    sing = hub.sing_data(cat, name)
+    if key not in data or not sing or not sing.get("native"):
+      continue
+    if data[key].get("lyric_imgs") and not rebuild:
+      continue
+    slug = bh.slugify(ci, ii, name)
+    # the Bengali font has no comma or danda (they would show as empty boxes)
+    clean = (lambda t: t.replace(",", "").replace("।", "")) if sing["lang"] == "bn" else str
+    data[key]["lyric_imgs"] = [bh.native_word_image(clean(line), f"{slug}_l{n}", sing["lang"])
+                               for n, line in enumerate(sing["native"])]
+    print(f"words {key}")
+
+
 def main(cats):
   with open(hub.HUB_JSON, encoding="utf-8") as fh:
     data = json.load(fh)
   rebuild = "--all" in cats
   for cat in [c for c in cats if c != "--all"]:
     data.update(build(cat, set(data), rebuild))
+    add_lyrics(data, cat, rebuild)
   with open(hub.HUB_JSON, "w", encoding="utf-8") as fh:
     json.dump(data, fh, separators=(",", ":"))
   print(f"{len(data)} items in hub_data.json")

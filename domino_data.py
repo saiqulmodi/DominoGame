@@ -902,9 +902,34 @@ def letter_chant(cat, name):
           "native": None, "lang": "en"}
 
 
+def hindi_chant(cat, name):
+  """A Hindi sing-along for every Swar and Vyanjan letter, in Devanagari
+  (drawn as pictures by tools/add_items.py) with English-letter lines that
+  the voice reads when the device has no Hindi voice:
+  "क से कबूतर, क से कबूतर, कबूतर में आता क! ..." """
+  rows = {"Swar": HINDI_SWAR, "Vyanjan": HINDI_VYANJAN}.get(cat)
+  row = next((r for r in rows or [] if r[0] == name), None)
+  if row is None:
+    return None
+  letter, word, roman, word_roman, _meaning = row
+  clap, clap_r = "ताली बजाओ, साथ में गाओ,", "Taali bajaao, saath mein gaao,"
+  if word:
+    native = [f"{letter} से {word}, {letter} से {word},", f"{word} में आता {letter}!",
+              clap, f"{letter}, {letter}, {word}!"]
+    lines = [f"{roman} se {word_roman}, {roman} se {word_roman},",
+             f"{word_roman.capitalize()} mein aata {roman}!", clap_r,
+             f"{roman}, {roman}, {word_roman}!"]
+  else:                                  # nasal letters with no common word
+    native = [f"{letter}, {letter}, {letter} बोलो,", "नाक से निकले मीठी आवाज़!", clap,
+              f"{letter}, {letter}, {letter}!"]
+    lines = [f"{roman}, {roman}, {roman} bolo,", "Naak se nikle meethi aawaaz!", clap_r,
+             f"{roman}, {roman}, {roman}!"]
+  return {"lines": [l[0].upper() + l[1:] for l in lines], "native": native, "lang": "hi"}
+
+
 def sing_data(cat, name):
   """Words to sing for a picture: a rhyme, or a letter's chant (or None)."""
-  return rhyme_of(cat, name) or letter_chant(cat, name)
+  return rhyme_of(cat, name) or letter_chant(cat, name) or hindi_chant(cat, name)
 
 
 def spoken_text(name, cat=None):
@@ -977,7 +1002,7 @@ for _cat, _items in CATALOG.items():
         _bucket[_name]["tile_text"] = _desc.split(" - ")[0]
       if rhyme_of(_cat, _name):            # sing-along rhyme (singalong.py)
         _bucket[_name]["rhyme"] = True
-      elif _cat in ("ABC", "abc"):         # letters get a sing-along chant too
+      elif _cat in ("ABC", "abc", "Swar", "Vyanjan"):   # letters get a chant too
         _bucket[_name]["chant"] = True
       _BY_NAME.setdefault(_name, _bucket[_name])
   if _bucket:
