@@ -1,5 +1,5 @@
 // Domino Wonder Dash - keeps the game on the device so it opens offline
-const CACHE = 'dwd-20261017172831';
+const CACHE = 'dwd-20261017181119';
 const START = ['./', 'index.html', 'manifest.json', 'favicon.png', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {

@@ -26,6 +26,7 @@ import calls
 import domino_data as hub
 import fun
 import howto
+import magic
 import modes
 import roadsafety
 import scenery
@@ -214,6 +215,30 @@ def domino_tile(color, plain=False):
   return tile
 
 
+_TOPPLED = {}
+
+
+def toppled_tile(surf, fall):
+  """A domino part-way down: shorter (seen from above it lies flat), a bit
+  wider, with a soft shadow. Cached in 6 steps per tile, so it stays fast."""
+  step = min(5, int(fall * 6))
+  key = (id(surf), step)
+  out = _TOPPLED.get(key)
+  if out is None:
+    if len(_TOPPLED) > 900:
+      _TOPPLED.clear()
+    k = step / 5
+    w, h = surf.get_size()
+    nw, nh = max(2, int(w * (1 + 0.15 * k))), max(2, int(h * (1 - 0.45 * k)))
+    out = pygame.Surface((nw + 3, nh + 3), pygame.SRCALPHA)
+    shadow = pygame.Surface((nw, nh), pygame.SRCALPHA)
+    pygame.draw.rect(shadow, (0, 0, 0, int(90 * k)), shadow.get_rect(), border_radius=3)
+    out.blit(shadow, (3, 3))
+    out.blit(pygame.transform.smoothscale(surf, (nw, nh)), (0, 0))
+    _TOPPLED[key] = out
+  return out
+
+
 def domino_letter_of(name):
   """The letter a picture's dominoes carry: C for Car, A for Apple, the letter
   itself for ABC, abc and numbers."""
@@ -250,19 +275,7 @@ def dominoes_from_loops(loops, closed, sat=90, val=85):
   return domino_list
 
 
-TOPPLE_BASE = 7.2      # rad/s a domino tips over at (the old 0.12 per frame at 60 fps)
 TOPPLE_PUSH = 0.3      # rad: a falling domino pushes the next one at this tilt
-
-
-def topple_speed(i, n):
-  """How fast domino i of n tips over: it starts slowly, speeds up, surges
-  faster and slower like a wave, and eases off for the last few, so the
-  cascade feels alive. Measured in real time, so phones are not slower."""
-  p = i / max(1, n - 1)
-  ramp = min(1.0, p / 0.3)                    # slow start, speeding up
-  wave = 1.0 + 0.3 * math.sin(p * math.pi * 6)  # faster, slower, faster ...
-  ending = 0.7 if p > 0.93 else 1.0           # a little slow-down at the end
-  return TOPPLE_BASE * (0.6 + 2.6 * ramp) * wave * ending
 
 
 def wrap_text(font, text, max_w):
@@ -418,6 +431,7 @@ class Game:
     self.call_at = None
     self.last_progress_at = time.time()   # the helping hand waits from here
     self.sing = None                      # sing-along card of a rhyme (singalong.py)
+    self.show = None                      # the domino show (magic.py)
     self.nudged = self.tap_nudged = False
     if hasattr(self, "particles"):
       self.particles.texts = []
@@ -523,15 +537,18 @@ class Game:
   def start_cascade(self):
     if not self.dominoes:
       return
-    # each domino's push time is worked out in advance from the speed curve
-    # (topple_speed), so the cascade follows it exactly at any frame rate
+    # every cascade is a new little show (magic.py): its own music, twists,
+    # magic and finale. Each push time is worked out in advance, so the show
+    # runs the same at any frame rate.
     n = len(self.dominoes)
+    self.show = magic.Show(n)
     at = time.time()
     for i, d in enumerate(self.dominoes):
       d.state = "standing"
       d.current_angle = 0.0
       d.fall_at = at
-      at += TOPPLE_PUSH / topple_speed(i, n)   # the next one is pushed from here
+      d.spin = self.show.tip_speed(i, TOPPLE_PUSH)
+      at += self.show.gaps[i]                  # the next one is pushed from here
     self.stage = "running"
     self.dominoes[0].state = "falling"
     self.sfx.play("tip")
@@ -816,6 +833,44 @@ class Game:
     self.sfx.play("click")
     self.load_item()
 
+  def peek_next(self):
+    """The picture Next would open (for the "What's next?" mystery card)."""
+    if self.story or self.mode != "trace":
+      return None
+    order = [(c, n) for s, cats in self.subjects.items() for c in cats
+             for n in hub.CATEGORIES_HUB[c]]
+    try:
+      i = order.index((self.cat, self.puzzle))
+    except ValueError:
+      return None
+    return order[(i + 1) % len(order)]
+
+  def whats_next_rect(self):
+    return pygame.Rect(PLAY_RECT.right - 104, PLAY_RECT.y + 52, 96, 112)
+
+  def draw_whats_next(self, screen, now):
+    """After a finish: the next picture as a dark mystery shape with a "?",
+    so children want to find out what comes next. Tap it to go there."""
+    if self.stage != "finished" or now - self.finished_at < 1.5 or self.is_custom:
+      return
+    nxt = self.peek_next()
+    if not nxt:
+      return
+    r = self.whats_next_rect().move(0, int(4 * math.sin(now * 3)))
+    card = pygame.Surface(r.size, pygame.SRCALPHA)
+    pygame.draw.rect(card, (25, 30, 70, 215), card.get_rect(), border_radius=16)
+    screen.blit(card, r.topleft)
+    pygame.draw.rect(screen, YELLOW, r, 3, border_radius=16)
+    th = self.thumb(nxt[1], nxt[0], 62)
+    if th is not None:
+      shadow = th.copy()
+      shadow.fill((70, 60, 140, 255), special_flags=pygame.BLEND_RGB_MIN)
+      screen.blit(shadow, shadow.get_rect(center=(r.centerx, r.y + 44)))
+    q = self.font_at(34).render("?", True, YELLOW)
+    screen.blit(q, q.get_rect(center=(r.centerx + 26, r.y + 22)))
+    lbl = fit_label(self.small_font, "What's next?", WHITE, r.w - 8)
+    screen.blit(lbl, lbl.get_rect(center=(r.centerx, r.bottom - 14)))
+
   def per_page(self):
     cells = BANK_COLS * BANK_ROWS
     return cells if len(self.items()) <= cells else cells - 1
@@ -925,6 +980,10 @@ class Game:
         if not self.dropping():
           self.start_cascade()
       elif self.stage == "finished":
+        if (time.time() - self.finished_at >= 1.5 and not self.is_custom
+            and self.peek_next() and self.whats_next_rect().collidepoint(mx, my)):
+          self.next_item()                   # the mystery picture
+          return
         if self.sing:                     # rhyme: tap the words to sing again
           if self.sing.card_rect(PLAY_RECT).collidepoint(mx, my) or self.sing.singing:
             if not self.sing.singing:
@@ -1109,6 +1168,10 @@ class Game:
       self.road.update(now)
     if self.mode == "trace" and getattr(self, "sing", None):
       self.sing.update(now)
+    if getattr(self, "show", None):
+      self.show.update(dt)
+    if self.stage != "running" and int(now * 20) % 3 == 0:
+      self.sfx.warm()                      # bell notes made ahead, a few at a time
     if self.mode == "trace" and self.stage == "ready" and self.dominoes:
       landed = sum(1 for d in self.dominoes if now >= d.drop_at + DROP_TIME)
       if landed > self.landed:
@@ -1117,16 +1180,25 @@ class Game:
         self.landed = landed
     if self.mode != "trace" or self.stage != "running":
       return
-    n = len(self.dominoes)
+    show = self.show
     for i, d in enumerate(self.dominoes):
       if d.state == "standing" and now >= getattr(d, "fall_at", now):
         d.state = "falling"
+        if show:
+          note = show.note(i)
+          if note is not None:
+            self.sfx.note(note)                # the show's own melody
+          show.pushed(i, d.x, d.y)             # its magic rises from the line
+          if show.is_twist(i) and not show.teased:
+            show.teased.add(i)
+            self.particles.text(d.x, d.y - 34, "...?", YELLOW)   # will it fall?
       if d.state == "falling":
-        d.current_angle = (now - getattr(d, "fall_at", now)) * topple_speed(i, n)
+        d.current_angle = (now - getattr(d, "fall_at", now)) * getattr(d, "spin", 7.2)
         if d.current_angle >= math.pi / 2:
           d.current_angle = math.pi / 2
           d.state = "fallen"
-          self.sfx.play("clack", i)
+          if i % 2 == 0:
+            self.sfx.play("clack", i)
     if all(d.state == "fallen" for d in self.dominoes):
       self.finish_item()
 
@@ -1134,6 +1206,9 @@ class Game:
     self.stage = "finished"
     self.finished_at = time.time()
     self.sfx.play("chime")
+    if self.show:                          # the butterfly effect
+      area = pygame.Rect(self.pic_rect) if self.pic_rect else PLAY_RECT
+      self.show.finale(area)
     self.praised_at = time.time()
     self.call_at = time.time() + CALL_DELAY
     self.particles.confetti(PLAY_RECT)
@@ -1476,9 +1551,15 @@ class Game:
           continue                     # not dropped yet
         lift = (1 - min(1.0, t)) ** 2 * DROP_HEIGHT
         surf = domino_tile(d.color, plain=letter is not None)
+        fall = d.current_angle / (math.pi / 2)     # 0 standing .. 1 lying down
+        if fall > 0:                               # it tips over: flatter, with a shadow
+          surf = toppled_tile(surf, fall)
         rotated = pygame.transform.rotate(
             surf, math.degrees(-(d.angle + d.current_angle)))
         alpha = 110 if self.stage == "finished" else int(255 * min(1.0, 0.3 + t))
+        since = now - getattr(d, "fall_at", -9) if d.state != "standing" else -1
+        if 0 <= since < 0.2 and self.stage == "running":   # flash as it is pushed
+          pygame.draw.circle(screen, WHITE, (int(d.x), int(d.y)), int(16 - 40 * since))
         rotated.set_alpha(alpha)
         screen.blit(rotated, rotated.get_rect(center=(d.x, d.y - lift)))
         if letter is not None:
@@ -1486,6 +1567,14 @@ class Game:
           screen.blit(letter, letter.get_rect(center=(d.x, d.y - lift)))
       if self.is_custom and self.stage == "finished":
         self.draw_free_drawing(screen, now)   # the child's picture is the reward
+      if self.show and self.stage == "running":   # suspense: the teetering domino glows
+        front = next((d for d in reversed(self.dominoes) if d.state == "falling"), None)
+        if front is not None and self.show.is_twist(self.dominoes.index(front)):
+          r = 18 + 6 * math.sin(now * 12)
+          pygame.draw.circle(screen, YELLOW, (int(front.x), int(front.y)), int(r), 3)
+      if self.show:
+        self.show.draw(screen, now)
+    self.draw_whats_next(screen, now)
 
     if self.story:                      # story progress dots
       steps = len(self.story["story"]["steps"])

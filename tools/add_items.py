@@ -104,7 +104,7 @@ def build_item(cat, ci, ii, name, arg):
   rhyme = hub.rhyme_of(cat, name)
   if rhyme and rhyme.get("native"):     # the words in Hindi / Bengali script
     # the Bengali font has no comma or danda (they would show as empty boxes)
-    clean = (lambda t: t.replace(",", "").replace("।", "")) if rhyme["lang"] == "bn" else str
+    clean = (lambda t: fit_font(bh.beng_font(72), t)) if rhyme["lang"] == "bn" else str
     entry["lyric_imgs"] = [bh.native_word_image(clean(line), f"{slug}_l{n}", rhyme["lang"])
                            for n, line in enumerate(rhyme["native"])]
   out[key] = entry

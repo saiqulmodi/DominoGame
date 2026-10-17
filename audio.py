@@ -101,6 +101,19 @@ def _horn(t, p):
   return tone if on else 0.0
 
 
+def _make_bell(freq):
+  """A soft glockenspiel note: bright attack, two overtones, quick fade."""
+  def fn(t, p):
+    attack = min(1.0, t / 0.004)
+    return attack * (math.sin(2 * math.pi * freq * t) * math.exp(-t * 6)
+                     + 0.35 * math.sin(4 * math.pi * freq * t) * math.exp(-t * 9)
+                     + 0.12 * math.sin(2 * math.pi * 4.07 * freq * t) * math.exp(-t * 16))
+  return fn
+
+
+NOTE_LOW, NOTE_HIGH = 55, 91        # MIDI notes the domino music may use
+
+
 def _beep(t, p):
   """The walk signal's tick-tock beep."""
   return _sin(1250, t) * (1 - p) ** 0.5
@@ -147,6 +160,31 @@ class SoundBank:
       self.ok = True
     except Exception as exc:  # no audio device, unsupported platform, ...
       print(f"[audio] sound effects disabled: {exc}")
+
+  def note(self, midi):
+    """Plays a bell note (MIDI number); made the first time it is needed."""
+    if not self.ok:
+      return
+    midi = max(NOTE_LOW, min(NOTE_HIGH, int(midi)))
+    notes = self.sounds.setdefault("notes", {})
+    snd = notes.get(midi)
+    if snd is None:
+      snd = notes[midi] = _render(0.55, _make_bell(440 * 2 ** ((midi - 69) / 12)), 0.33)
+    try:
+      snd.play()
+    except Exception:
+      pass
+
+  def warm(self):
+    """Makes one more bell note ahead of time (called while the game is idle,
+    so the domino music never has to wait)."""
+    if not self.ok:
+      return
+    notes = self.sounds.setdefault("notes", {})
+    for midi in range(NOTE_LOW, NOTE_HIGH + 1):
+      if midi not in notes:
+        notes[midi] = _render(0.55, _make_bell(440 * 2 ** ((midi - 69) / 12)), 0.33)
+        return
 
   def play(self, name, variant=None):
     if not self.ok:

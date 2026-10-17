@@ -25,7 +25,7 @@ import os
 
 from translations import TRANSLATIONS
 from rhymes_hub import RHYMES_AND_SCHOOL_HUB, rhyme as rhyme_of
-from catalog_more import MORE_ITEMS
+from catalog_more import MORE_ITEMS, NEW_CATEGORIES
 from bangla import BANGLA_SWAR, BANGLA_BYANJAN, bangla_items
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -869,6 +869,11 @@ for cat_name, items in RHYMES_AND_SCHOOL_HUB.items():
 # Bangla barnamala (bangla.py), at the very end so older pictures keep their names
 CATALOG["Swarabarna"] = bangla_items(BANGLA_SWAR)
 CATALOG["Byanjanbarna"] = bangla_items(BANGLA_BYANJAN)
+# New class-level categories (catalog_more.NEW_CATEGORIES), also at the end
+for _cat, _rows in NEW_CATEGORIES.items():
+    CATALOG[_cat] = [(_n, _d, ("emoji", _c)) for _n, _d, _c, _hi, _bn in _rows]
+    for _n, _d, _c, _hi, _bn in _rows:
+        TRANSLATIONS.setdefault(f"{_cat}/{_n}", (_hi, _bn))
 
 # Subject tabs (top row of the game) -> categories (second row)
 SUBJECTS = {
@@ -881,11 +886,11 @@ SUBJECTS = {
     "India": ["India Map", "States", "UTs", "Monuments"],
     "Nature": ["Animals", "Birds", "Sea", "Reptiles", "Insects", "Plants"],
     "Food": ["Fruits", "Vegetables", "Food"],
-    "Me & Home": ["Body", "Home", "Buildings", "Helpers"],
+    "Me & Home": ["Body", "Home", "Buildings", "Helpers", "Feelings", "Good Habits"],
     "Travel": ["Vehicles", "Travel", "Bridges"],
     "World": ["Sky", "Countries", "Cities", "Rivers"],
     "Fun": ["Cartoons", "Music", "Sports", "Draw"],
-    "Science": ["Lab Tools", "Inside Body", "Materials", "Space"],
+    "Science": ["Lab Tools", "Inside Body", "Materials", "Space", "Energy"],
     "Social": ["Long Ago", "Earth & Maps", "Our Country"],
     "Safety": ["Road Safety"],
 }

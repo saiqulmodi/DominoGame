@@ -390,6 +390,193 @@ DESI_RHYMES = {
         "দুধ খাবার বাটি দেব,",
         "চাঁদের কপালে চাঁদ, টিপ দিয়ে যা।",
     ]),
+    # ---- more Hindi: folk rhymes, public-domain poets, and new learning rhymes
+    "Akkad Bakkad": _rhyme("1F522", [
+        "Akkad bakkad bambe bo,",
+        "Assi nabbe poore sau,",
+        "Sau mein laga dhaaga,",
+        "Chor nikal ke bhaaga!",
+    ], hi="अक्कड़ बक्कड़", bn="আক্কড় বাক্কড়", lang="hi", native=[
+        "अक्कड़ बक्कड़ बंबे बो,",
+        "अस्सी नब्बे पूरे सौ,",
+        "सौ में लगा धागा,",
+        "चोर निकल के भागा!",
+    ]),
+    "Gol Gol Rani": _rhyme("1F4A7", [
+        "Gol gol rani,",
+        "Itta itta paani,",
+        "Gol gol rani,",
+        "Itta itta paani!",
+    ], hi="गोल गोल रानी", bn="গোল গোল রানি", lang="hi", native=[
+        "गोल गोल रानी,",
+        "इत्ता इत्ता पानी,",
+        "गोल गोल रानी,",
+        "इत्ता इत्ता पानी!",
+    ]),
+    "Yah Kadamb Ka Ped": _rhyme("1FA88", [      # Subhadra Kumari Chauhan (public domain)
+        "Yah kadamb ka ped agar maa hota Yamuna teere,",
+        "Main bhi us par baith Kanhaiya banta dheere-dheere.",
+        "Le deteen yadi mujhe baansuri tum do paise waali,",
+        "Kisi tarah neechi ho jaati yah kadamb ki daali.",
+    ], hi="यह कदंब का पेड़", bn="এই কদম গাছ", lang="hi", native=[
+        "यह कदंब का पेड़ अगर माँ होता यमुना तीरे,",
+        "मैं भी उस पर बैठ कन्हैया बनता धीरे-धीरे।",
+        "ले देतीं यदि मुझे बाँसुरी तुम दो पैसे वाली,",
+        "किसी तरह नीची हो जाती यह कदंब की डाली।",
+    ]),
+    "Nar Ho Na Nirash Karo": _rhyme("1F4AA", [   # Maithili Sharan Gupt (public domain)
+        "Nar ho, na niraash karo man ko,",
+        "Kuchh kaam karo, kuchh kaam karo,",
+        "Jag mein rah kar kuchh naam karo.",
+    ], hi="नर हो, न निराश करो", bn="নিরাশ হয়ো না", lang="hi", native=[
+        "नर हो, न निराश करो मन को,",
+        "कुछ काम करो, कुछ काम करो,",
+        "जग में रह कर कुछ नाम करो।",
+    ]),
+    "Ginti Geet": _rhyme("1F9EE", [
+        "Ek, do, teen, chaar,",
+        "Ginti seekhen baarambaar.",
+        "Paanch, chhah, saat, aath,",
+        "Roz padhen ham apna paath.",
+        "Nau aur das, bas-bas-bas,",
+        "Ginti aa gayi, khoob hans!",
+    ], hi="गिनती गीत", bn="গুনতির গান", lang="hi", native=[
+        "एक, दो, तीन, चार,",
+        "गिनती सीखें बारंबार।",
+        "पाँच, छह, सात, आठ,",
+        "रोज़ पढ़ें हम अपना पाठ।",
+        "नौ और दस, बस-बस-बस,",
+        "गिनती आ गई, खूब हँस!",
+    ]),
+    "Sadak Ke Niyam": _rhyme("1F6A6", [
+        "Laal batti, gaadi ruk jaaye,",
+        "Peeli batti, dheere ho jaaye,",
+        "Hara aadmi jab dikh jaaye,",
+        "Zebra se sadak paar kar jaayen!",
+    ], hi="सड़क के नियम", bn="রাস্তার নিয়ম", lang="hi", native=[
+        "लाल बत्ती, गाड़ी रुक जाए,",
+        "पीली बत्ती, धीरे हो जाए,",
+        "हरा आदमी जब दिख जाए,",
+        "ज़ेबरा से सड़क पार कर जाएँ!",
+    ]),
+    "Rangon Ka Geet": _rhyme("1F3A8", [
+        "Laal tamatar, peela kela,",
+        "Hara tota, neela aasmaan,",
+        "Safed baadal, kaali raat,",
+        "Rangon se bhara saara jahaan!",
+    ], hi="रंगों का गीत", bn="রঙের গান", lang="hi", native=[
+        "लाल टमाटर, पीला केला,",
+        "हरा तोता, नीला आसमान,",
+        "सफ़ेद बादल, काली रात,",
+        "रंगों से भरा सारा जहान!",
+    ]),
+    "Saaf Safai": _rhyme("1F9FC", [
+        "Subah uthkar daant malo,",
+        "Saabun se tum haath dho lo,",
+        "Naha-dhokar saaf raho,",
+        "Hanste-khelte khush raho!",
+    ], hi="साफ़-सफ़ाई", bn="পরিষ্কার থাকো", lang="hi", native=[
+        "सुबह उठकर दाँत मलो,",
+        "साबुन से तुम हाथ धो लो,",
+        "नहा-धोकर साफ़ रहो,",
+        "हँसते-खेलते खुश रहो!",
+    ]),
+    # ---- more Bengali: chhora, Tagore, Sukumar Ray (all public domain) and new rhymes
+    "Hattimatim Tim": _rhyme("1F95A", [          # Yogindranath Sarkar
+        "Hattimatim tim,",
+        "Tara mathe pare dim,",
+        "Tader khara duto shing,",
+        "Tara hattimatim tim.",
+    ], hi="हाट्टिमाटिम टिम", bn="হাট্টিমাটিম টিম", lang="bn", native=[
+        "হাট্টিমাটিম টিম,",
+        "তারা মাঠে পাড়ে ডিম,",
+        "তাদের খাড়া দুটো শিং,",
+        "তারা হাট্টিমাটিম টিম।",
+    ]),
+    "Amader Chhoto Nodi": _rhyme("1F30A", [      # Rabindranath Tagore
+        "Amader chhoto nodi chole banke banke,",
+        "Boishakh mashe tar hantu jol thake.",
+        "Par hoye jay goru, par hoy gari,",
+        "Dui dhar unchu tar, dhalu tar pari.",
+    ], hi="हमारी छोटी नदी", bn="আমাদের ছোট নদী", lang="bn", native=[
+        "আমাদের ছোট নদী চলে বাঁকে বাঁকে,",
+        "বৈশাখ মাসে তার হাঁটু জল থাকে।",
+        "পার হয়ে যায় গরু, পার হয় গাড়ি,",
+        "দুই ধার উঁচু তার, ঢালু তার পাড়ি।",
+    ]),
+    "Megher Kole Rod": _rhyme("26C5", [           # Rabindranath Tagore
+        "Megher kole rod hesechhe,",
+        "Badol gechhe tuti.",
+        "Aaj amader chhuti o bhai,",
+        "Aaj amader chhuti.",
+    ], hi="बादल में धूप", bn="মেঘের কোলে রোদ", lang="bn", native=[
+        "মেঘের কোলে রোদ হেসেছে,",
+        "বাদল গেছে টুটি।",
+        "আজ আমাদের ছুটি ও ভাই,",
+        "আজ আমাদের ছুটি।",
+    ]),
+    "Noton Noton Payra": _rhyme("1F54A", [
+        "Noton noton payraguli,",
+        "Jhoton bendhechhe,",
+        "Oparete chhelemeye",
+        "Naite nemechhe.",
+    ], hi="नोटन नोटन पायरा", bn="নোটন নোটন পায়রা", lang="bn", native=[
+        "নোটন নোটন পায়রাগুলি,",
+        "ঝোটন বেঁধেছে,",
+        "ওপারেতে ছেলেমেয়ে",
+        "নাইতে নেমেছে।",
+    ]),
+    "Hanshjaru": _rhyme("1F994", [               # Sukumar Ray
+        "Hansh chhilo sojaru, byakoron mani na,",
+        "Hoye gelo hanshjaru kemone ta jani na.",
+    ], hi="हाँसजारु", bn="হাঁসজারু", lang="bn", native=[
+        "হাঁস ছিল সজারু ব্যাকরণ মানি না,",
+        "হয়ে গেল হাঁসজারু কেমনে তা জানি না।",
+    ]),
+    "Ata Gachhe Tota": _rhyme("1F99C", [
+        "Ata gachhe tota pakhi, dalim gachhe mou,",
+        "Eto daki tobu kotha kao na keno bou?",
+    ], hi="आता गाछे तोता", bn="আতা গাছে তোতা", lang="bn", native=[
+        "আতা গাছে তোতা পাখি, ডালিম গাছে মৌ,",
+        "এত ডাকি তবু কথা কও না কেন বউ?",
+    ]),
+    "Gunti Gaan": _rhyme("1F522", [
+        "Ek dui tin char,",
+        "Gunte shikhi barbar.",
+        "Panch chhoy saat aat,",
+        "Roj pori nijer path.",
+        "Noy aar dosh,",
+        "Gona shikhe khushi shobai besh!",
+    ], hi="गिनती गीत (बांग्ला)", bn="গুনতির গান", lang="bn", native=[
+        "এক দুই তিন চার,",
+        "গুনতে শিখি বারবার।",
+        "পাঁচ ছয় সাত আট,",
+        "রোজ পড়ি নিজের পাঠ।",
+        "নয় আর দশ,",
+        "গোনা শিখে খুশি সবাই বেশ!",
+    ]),
+    "Rong Er Gaan": _rhyme("1F308", [
+        "Lal tometo, holud kola,",
+        "Sobuj tiya, neel akash,",
+        "Shada megh, kalo raat,",
+        "Ronge ronge bhora charpash!",
+    ], hi="रंगों का गाना", bn="রঙের গান", lang="bn", native=[
+        "লাল টমেটো, হলুদ কলা,",
+        "সবুজ টিয়া, নীল আকাশ,",
+        "সাদা মেঘ, কালো রাত,",
+        "রঙে রঙে ভরা চারপাশ!",
+    ]),
+    "Rasta Parapar": _rhyme("1F6B8", [
+        "Lal aloy gari thame,",
+        "Holud aloy dhire name,",
+        "Sobuj manush jolle pore,",
+        "Zebra diye par hao dhire!",
+    ], hi="सड़क पार", bn="রাস্তা পারাপার", lang="bn", native=[
+        "লাল আলোয় গাড়ি থামে,",
+        "হলুদ আলোয় ধীরে নামে,",
+        "সবুজ মানুষ জ্বললে পরে,",
+        "জেব্রা দিয়ে পার হও ধীরে!",
+    ]),
 }
 
 RHYMES_AND_SCHOOL_HUB = {
