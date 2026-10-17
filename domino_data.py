@@ -857,9 +857,9 @@ for cat_name, items in RHYMES_AND_SCHOOL_HUB.items():
 
 # Subject tabs (top row of the game) -> categories (second row)
 SUBJECTS = {
+    "English": ["ABC", "abc"],
     "Rhymes": ["Classic Rhymes", "Desi Rhymes"],
     "School": ["NCERT Class 1-5"],
-    "English": ["ABC", "abc"],
     "Hindi": ["Swar", "Vyanjan"],
     "Maths": ["123", "Shapes", "Signs", "Angles & Solids"],
     "India": ["India Map", "States", "UTs", "Monuments"],
