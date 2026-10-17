@@ -100,6 +100,9 @@ SUBJECT_HOUSES = [
     ("world", 1, 168, 16, 16, 24, (60, 190, 200), "Globe Tower", "Sky, countries, cities", "World", None),
     ("india", -1, 200, 22, 16, 12, (255, 153, 51), "India Park", "Map, states, monuments", "India", None),
     ("fun", 1, 200, 20, 16, 12, (220, 90, 190), "Fun Park", "Cartoons, music, sports", "Fun", None),
+    # Bangla barnamala
+    ("bangla", 1, 152, 18, 11, 11, (60, 170, 120), "Bangla Pathshala", "Swarabarna, Byanjanbarna",
+     "Bangla", None),
     # Sing-along rhymes (English, Hindi, Bengali)
     ("rhymes", 1, 184, 18, 11, 11, (255, 150, 60), "Rhyme Stage", "Sing-along rhymes",
      "Rhymes", ("Classic Rhymes", "Twinkle Twinkle")),

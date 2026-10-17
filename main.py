@@ -452,8 +452,8 @@ class Game:
     item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
     if self.story and self.mode == "trace":
       text = self.story_line() + " " + text
-    if item.get("hindi"):                     # Hindi letters speak Hindi
-      self.say(text, item["hindi"], "hi")
+    if item.get("hindi"):                     # Hindi / Bangla letters speak their language
+      self.say(text, item["hindi"], item.get("say_lang", "hi"))
       return
     word = self.native_word(self.cat, self.puzzle)
     self.say(text, f"{text} {word}" if word else None)
@@ -1171,7 +1171,9 @@ class Game:
       self.sing = singalong.SingAlong(self, self.cat, self.puzzle,
                                       delay=max(singalong.START_DELAY, len(praise) / 13))
     if item.get("hindi"):
-      self.say(praise, hub.hindi_speech(self.puzzle, self.cat, praise=True), "hi")
+      lang = item.get("say_lang", "hi")
+      well = "দারুণ!" if lang == "bn" else "शाबाश!"
+      self.say(praise, f"{well} {item['hindi']}", lang)
     else:
       word = self.native_word(self.cat, self.puzzle)
       self.say(praise, f"{praise} {word}" if word else None)

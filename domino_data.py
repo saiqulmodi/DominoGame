@@ -26,6 +26,7 @@ import os
 from translations import TRANSLATIONS
 from rhymes_hub import RHYMES_AND_SCHOOL_HUB, rhyme as rhyme_of
 from catalog_more import MORE_ITEMS
+from bangla import BANGLA_SWAR, BANGLA_BYANJAN, bangla_items
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HUB_JSON = os.path.join(HERE, "hub_data.json")
@@ -865,12 +866,17 @@ for cat_name, items in RHYMES_AND_SCHOOL_HUB.items():
         if data.get("hi") and data.get("bn"):
             TRANSLATIONS.setdefault(f"{cat_name}/{name}", (data["hi"], data["bn"]))
 
+# Bangla barnamala (bangla.py), at the very end so older pictures keep their names
+CATALOG["Swarabarna"] = bangla_items(BANGLA_SWAR)
+CATALOG["Byanjanbarna"] = bangla_items(BANGLA_BYANJAN)
+
 # Subject tabs (top row of the game) -> categories (second row)
 SUBJECTS = {
     "English": ["ABC", "abc"],
     "Rhymes": ["Classic Rhymes", "Desi Rhymes"],
     "School": ["NCERT Class 1-5"],
     "Hindi": ["Swar", "Vyanjan"],
+    "Bangla": ["Swarabarna", "Byanjanbarna"],
     "Maths": ["123", "Shapes", "Signs", "Angles & Solids"],
     "India": ["India Map", "States", "UTs", "Monuments"],
     "Nature": ["Animals", "Birds", "Sea", "Reptiles", "Insects", "Plants"],
@@ -927,9 +933,33 @@ def hindi_chant(cat, name):
   return {"lines": [l[0].upper() + l[1:] for l in lines], "native": native, "lang": "hi"}
 
 
+def bangla_chant(cat, name):
+  """The same sing-along for the Bangla letters, in Bengali:
+  "ক-এ কলা, ক-এ কলা, কলা শব্দে আছে ক! হাততালি দাও, সঙ্গে গাও, ক, ক, কলা!" """
+  rows = {"Swarabarna": BANGLA_SWAR, "Byanjanbarna": BANGLA_BYANJAN}.get(cat)
+  row = next((r for r in rows or [] if r[0] == name), None)
+  if row is None:
+    return None
+  letter, word, roman, word_roman, _meaning = row
+  clap, clap_r = "হাততালি দাও, সঙ্গে গাও,", "Haattaali dao, shonge gao,"
+  if word:
+    native = [f"{letter}-এ {word}, {letter}-এ {word},", f"{word} শব্দে আছে {letter}!",
+              clap, f"{letter}, {letter}, {word}!"]
+    lines = [f"{roman}-e {word_roman}, {roman}-e {word_roman},",
+             f"{word_roman.capitalize()} shobde achhe {roman}!", clap_r,
+             f"{roman}, {roman}, {word_roman}!"]
+  else:
+    native = [f"{letter}, {letter}, {letter} বলো,", "নাকের সুরে মিষ্টি আওয়াজ!", clap,
+              f"{letter}, {letter}, {letter}!"]
+    lines = [f"{roman}, {roman}, {roman} bolo,", "Naaker shure mishti aawaj!", clap_r,
+             f"{roman}, {roman}, {roman}!"]
+  return {"lines": [l[0].upper() + l[1:] for l in lines], "native": native, "lang": "bn"}
+
+
 def sing_data(cat, name):
   """Words to sing for a picture: a rhyme, or a letter's chant (or None)."""
-  return rhyme_of(cat, name) or letter_chant(cat, name) or hindi_chant(cat, name)
+  return (rhyme_of(cat, name) or letter_chant(cat, name) or hindi_chant(cat, name)
+          or bangla_chant(cat, name))
 
 
 def spoken_text(name, cat=None):
@@ -939,7 +969,7 @@ def spoken_text(name, cat=None):
     return f"{name}! Trace the picture, then we will sing together."
   if src == "custom":
     return "Draw anything you imagine! Pick a colour, draw, then tap Done."
-  if src in ("glyph", "hindi"):
+  if src in ("glyph", "hindi", "bangla"):
     return item["desc"].replace(" - ", ". ") + "!"
   letters = ", ".join(ch for ch in name.upper() if ch.isalpha())
   return f"{name}. {letters}. {name}!" + _capital_line(name, src)
@@ -968,7 +998,7 @@ def praise_text(name, cat=None):
     return f"Well done! Now let's sing {name}!"
   if item and item["source"] == "custom":
     return "Wonderful drawing!"
-  if item and item["source"] in ("glyph", "hindi"):
+  if item and item["source"] in ("glyph", "hindi", "bangla"):
     return f"Well done! {item['desc'].split(' - ')[0]}!"
   return f"Well done! {name}!" + (_capital_line(name, item["source"]) if item else "")
 
@@ -994,15 +1024,16 @@ for _cat, _items in CATALOG.items():
     _data = _OUTLINES.get(item_key(_cat, _name))
     if _src[0] == "custom" or _data:
       _bucket[_name] = dict(desc=_desc, source=_src[0], **(_data or {}))
-      if _src[0] == "hindi":
+      if _src[0] in ("hindi", "bangla"):   # letter + its phrase, said in its language
         _bucket[_name]["hindi"], _bucket[_name]["label"] = _src[1]
+        _bucket[_name]["say_lang"] = "bn" if _src[0] == "bangla" else "hi"
       if item_key(_cat, _name) in TRANSLATIONS:
         _bucket[_name]["hi"], _bucket[_name]["bn"] = TRANSLATIONS[item_key(_cat, _name)]
       if _src[0] == "glyph" and not _name.isalnum():
         _bucket[_name]["tile_text"] = _desc.split(" - ")[0]
       if rhyme_of(_cat, _name):            # sing-along rhyme (singalong.py)
         _bucket[_name]["rhyme"] = True
-      elif _cat in ("ABC", "abc", "Swar", "Vyanjan"):   # letters get a chant too
+      elif _cat in ("ABC", "abc", "Swar", "Vyanjan", "Swarabarna", "Byanjanbarna"):
         _bucket[_name]["chant"] = True
       _BY_NAME.setdefault(_name, _bucket[_name])
   if _bucket:

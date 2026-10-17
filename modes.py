@@ -78,7 +78,8 @@ class QuizMode:
     native = g.native_word(cat, name)
     lang = g.lang
     if hub.CATEGORIES_HUB[cat][name].get("hindi"):
-      native, lang = hub.CATEGORIES_HUB[cat][name]["hindi"], "hi"
+      native = hub.CATEGORIES_HUB[cat][name]["hindi"]
+      lang = hub.CATEGORIES_HUB[cat][name].get("say_lang", "hi")
     g.say(f"Find the {word}!",
           native and (f"{native} कहाँ है?" if lang == "hi" else f"{native} কোথায়?"), lang)
 
@@ -156,7 +157,7 @@ class QuizMode:
 # --------------------------------------------------------------------------
 def spellable(cat, name):
   item = hub.CATEGORIES_HUB[cat][name]
-  return (item["source"] not in ("glyph", "hindi", "custom") and name.isalpha()
+  return (item["source"] not in ("glyph", "hindi", "bangla", "custom") and name.isalpha()
           and 2 <= len(name) <= 9)
 
 

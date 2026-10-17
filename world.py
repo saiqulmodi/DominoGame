@@ -41,7 +41,7 @@ TIPS = [
     ((140, 230, 140), "Follow the yellow arrows to a door and tap GO IN. The house button in a game brings you back here."),
 ]
 ROAD_GAME = "Cross the Road"      # the Road Safety Park also offers the road game
-TOUR = ["english", "nature", "maths", "food", "story", "hindi", "home", "science", "social", "travel",
+TOUR = ["english", "nature", "maths", "food", "story", "hindi", "home", "bangla", "science", "social", "travel",
         "world", "safety", "rhymes", "india", "fun", "studio", "museum", "family", "arcade"]
 
 
