@@ -119,8 +119,11 @@ def main():
   for f in GAME_FILES:
     if f.endswith(".py"):
       subprocess.run([sys.executable, "-m", "py_compile", os.path.join(stage, f)], check=True)
+  # pygbag reads the game files with Windows' default code page unless told
+  # otherwise; Bengali text has bytes that code page cannot decode
+  env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
   subprocess.run([sys.executable, "-m", "pygbag", "--build", "--title", "Domino Wonder Dash",
-                  stage], check=True)
+                  stage], check=True, env=env)
   docs = os.path.join(ROOT, "docs")
   os.makedirs(docs, exist_ok=True)
   for name in os.listdir(os.path.join(stage, "build", "web")):
