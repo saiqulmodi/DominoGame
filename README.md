@@ -56,14 +56,22 @@ picture.
 - **Spell it** - put the letter tiles in order
 - **Cross the Road** - wait for the green man, look right, left, right, and cross the
   zebra crossing; every safe crossing gives a road safety tip
-- **Maths Play** (Class 1-7, `mathsgame.py`) - numbers with the dominoes' own dots, in
-  seven levels: counting, more / fewer, before / after, adding the two halves, dominoes
-  toppling as take-away, number bonds, tens and ones, times tables as groups of dominoes,
-  sharing laddoos (division), factor gates (common multiples), the Fibonacci spiral trail,
-  integers with blue anti-dominoes on a number line, prime shields, ratio gates and balance
-  puzzles (x + 5 = 12). Every answer is shown as adding: 4 × 3 = 4 + 4 + 4, 9 − 3 =
-  9 + (−3), 12 ÷ 3 = 12 − 3 − 3 − 3 − 3; the dominoes fall in a chain with the running
-  total over each. Five right in a row moves up a level; the level chips pick any class.
+- **Maths Play** (the whole NCERT Class 1-7 maths syllabus; `maths_bank.py` questions,
+  `mathsgame.py` screen) - pick a class, then a chapter (79 chapters, plus mixed practice
+  per class). 60 kinds of question, each with its own picture: counting dots, number names,
+  place value (Indian commas), rounding, Roman numerals, column sums with carrying and
+  borrowing, times tables as groups of dominoes, long division with remainders, factors,
+  HCF, primes and factor trees, fractions (pies, bars, equivalent, compare, add, of a
+  number), decimals, percent, clocks and durations, calendars, coins, notes and bills,
+  rulers and unit conversion, 2D and 3D shapes, angles with a protractor, lines,
+  triangles, circles, symmetry, perimeter, area and volume, tally marks, picture graphs,
+  bar graphs, mean, median and mode, number and shape patterns (Fibonacci spiral),
+  integers with blue anti-dominoes on a number line, order of operations, exponents,
+  algebra (evaluate, like terms, balance puzzles), ratio gates, unitary method, profit and
+  loss, simple interest. Every answer is shown as adding: 4 × 3 = 4 + 4 + 4, 9 − 3 =
+  9 + (−3), 12 ÷ 3 = 12 − 3 − 3 − 3 − 3; dominoes fall in a chain with running totals.
+  Spoken in English, Hindi or Bangla. Three difficulty steps per chapter (five right in a
+  row = harder, three misses = easier) and a gold star per chapter after ten right answers.
   Also in the Number House in Wonder Town.
 - **Draw my own** - draw anything; the drawing becomes dominoes
 - **Story of the day** and 14 stories, **How to play** picture guides, up to 6 players,

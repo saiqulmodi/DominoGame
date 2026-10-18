@@ -1,34 +1,31 @@
-"""Maths Play: numbers learned with the dominoes' own dots (NCERT Class 1-7).
+"""Maths Play: the whole NCERT Class 1-7 maths syllabus, learned with dominoes.
 
-Every operation is shown as adding, the way the whole of arithmetic is built:
-  take away  = adding a negative       9 - 3 = 9 + (-3) = 6
-  times      = adding again and again  4 x 3 = 4 + 4 + 4 = 12
-  sharing    = taking away again and again (12 - 3 - 3 - 3 - 3 = 0, so 4)
-The answers are worked out that way too (add_all / times_by_adding /
-share_by_taking_away), and after a right answer the dominoes fall one by one
-in a cascade with the running total floating over each one.
+The questions come from maths_bank.py (CHAPTERS: every class's chapters and the
+kinds of question in them; 60 generators). This file is the screen: a class +
+chapter picker, the question with its picture (scene_<name>), up to four big
+answer buttons (numbers or words), the sum and its breakdown into adding after
+the answer, and the falling-domino cascades with running totals.
 
-Seven levels, one per class:
-  1 Class 1    count the dots, which domino has more, what comes after
-  2 Class 1-2  add two halves, dominoes topple = take away, before / after
-  3 Class 2    number bonds (5 = 3 + ?), tens and ones, which has fewer
-  4 Class 3    groups of dominoes (times as adding), sharing laddoos (division)
-  5 Class 4-5  tables to 10, common multiples ("factor gates"), the Fibonacci trail
-  6 Class 6    integers with blue anti-dominoes on a number line, prime shields
-  7 Class 7    ratio gates (a domino grows or shrinks), balance puzzles (x + 5 = 12)
+Every operation is shown as adding, the way arithmetic is built:
+  take away = adding a negative, times = adding again and again,
+  sharing = taking away again and again.
 
-The voice asks in the child's language (English, Hindi or Bengali); the child
-taps one of four big number buttons (or one of two dominoes). Wrong: a shake and
-a hint; after two tries the answer and its reason. Five right first time in a
-row moves up a level; three misses in a row moves one down; the chips at the
-bottom let a child or parent pick any level. A wrong tap is just a lesson.
+The voice asks in the child's language (English, Hindi or Bengali). A wrong tap
+shakes and gives a hint; after two tries the answer and its reason are shown.
+Each chapter has three steps of difficulty: five right first time in a row moves
+up a step, three misses in a row moves one down. Stars count right answers per
+chapter; ten earn the chapter's gold star. A wrong tap is just a lesson.
 """
 
 import math
 import random
+import re
 import time
 
 import pygame
+
+import maths_bank as mb
+from maths_bank import add_all, factor_pair, is_prime, num
 
 WHITE = (255, 255, 255)
 YELLOW = (255, 204, 0)
@@ -38,198 +35,39 @@ INK = (40, 40, 70)
 ANTI = (70, 140, 255)         # anti-dominoes (negative numbers)
 SHIELD = (120, 230, 255)
 LADDOO = (255, 165, 40)
-LEVELS = 7
-LEVEL_UP_RUN = 5         # right first time in a row to move up
+PAPER = (255, 250, 230)
+CLASSES = 7
+STEP_UP_RUN = 5          # right first time in a row to make the chapter harder
 NEXT_AFTER = 3.4         # s after a right answer before the next question
 CASCADE_STEP = 0.32      # s between falling dominoes in the cascade
+CHAPTER_STAR = 10        # right answers that earn a chapter its gold star
+MIX = -1                 # "chapter" index for mixed practice of a whole class
 TILE_COLOURS = [(255, 120, 90), (90, 170, 255), (120, 210, 120), (255, 190, 60),
                 (190, 130, 255), (255, 120, 190), (60, 200, 200), (240, 150, 60)]
-PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+SHAPE_COLOURS = {"Circle": (255, 120, 90), "Triangle": (90, 170, 255), "Square": (120, 210, 120),
+                 "Rectangle": (255, 190, 60), "Pentagon": (190, 130, 255), "Hexagon": (255, 120, 190),
+                 "Oval": (60, 200, 200), "Star": (255, 204, 0)}
 
-KINDS = {
-    1: ["count", "more", "after"],
-    2: ["count", "add", "topple", "after", "before"],
-    3: ["add", "topple", "bonds", "tens", "fewer"],
-    4: ["times", "share", "bonds", "tens"],
-    5: ["times", "share", "multiple", "fib", "tens"],
-    6: ["integer", "prime", "topple", "times", "integer"],
-    7: ["ratio", "balance", "integer", "fib", "prime"],
-}
-LEVEL_NAMES = {1: "Counting (Class 1)", 2: "Add & take away (Class 1-2)",
-               3: "Bonds, tens & ones (Class 2)", 4: "Groups & sharing (Class 3)",
-               5: "Tables & patterns (Class 4-5)", 6: "Integers & primes (Class 6)",
-               7: "Ratios & balance (Class 7)"}
-
-# Lines: (English shown + said, Hindi, Bengali). {a} {b} {c} are numbers.
-ASK = {
-    "count": ("How many dots on this domino?", "इस डोमिनो पर कितने बिंदु हैं?",
-              "এই ডোমিনোতে কতগুলো বিন্দু আছে?"),
-    "more": ("Which domino has more dots?", "किस डोमिनो पर ज़्यादा बिंदु हैं?",
-             "কোন ডোমিনোতে বেশি বিন্দু আছে?"),
-    "fewer": ("Which domino has fewer dots?", "किस डोमिनो पर कम बिंदु हैं?",
-              "কোন ডোমিনোতে কম বিন্দু আছে?"),
-    "after": ("What number comes after {a}?", "{a} के बाद कौन-सी संख्या आती है?",
-              "{a}-এর পরে কোন সংখ্যা আসে?"),
-    "before": ("What number comes before {a}?", "{a} से पहले कौन-सी संख्या आती है?",
-               "{a}-এর আগে কোন সংখ্যা আসে?"),
-    "add": ("Count the dots: {a} and {b}. How many in all?", "बिंदु गिनो: {a} और {b}। कुल कितने बिंदु?",
-            "বিন্দু গোনো: {a} আর {b}। মোট কতগুলো বিন্দু?"),
-    "topple": ("{a} dominoes stand in a row. {b} fall down. How many are still standing?",
-               "{a} डोमिनो खड़े हैं। {b} गिर गए। कितने अब भी खड़े हैं?",
-               "{a}টা ডোমিনো দাঁড়িয়ে আছে। {b}টা পড়ে গেল। কতগুলো এখনও দাঁড়িয়ে আছে?"),
-    "bonds": ("{a} and how many more make {c}?", "{a} और कितने मिलकर {c} बनते हैं?",
-              "{a} আর কত মিলে {c} হয়?"),
-    "tens": ("{a} rows of ten and {b} more. How many dominoes?",
-             "दस-दस की {a} पंक्तियाँ और {b} और। कुल कितने डोमिनो?",
-             "দশটা করে {a} সারি আর আরও {b}টা। মোট কতগুলো ডোমিনো?"),
-    "times": ("{a} dominoes with {b} dots each. How many dots in all?",
-              "{a} डोमिनो, हर एक पर {b} बिंदु। कुल कितने बिंदु?",
-              "{a}টা ডোমিনো, প্রতিটিতে {b}টা বিন্দু। মোট কতগুলো বিন্দু?"),
-    "share": ("{a} laddoos shared equally by {b} friends. How many does each friend get?",
-              "{a} लड्डू {b} दोस्तों में बराबर बाँटे। हर दोस्त को कितने मिलेंगे?",
-              "{a}টা লাড্ডু {b} বন্ধুর মধ্যে সমান ভাগ করা হল। প্রত্যেকে কতগুলো পাবে?"),
-    "multiple": ("Factor gate! Which number is in both the {a} table and the {b} table?",
-                 "फ़ैक्टर गेट! कौन-सी संख्या {a} और {b} दोनों के पहाड़े में है?",
-                 "ফ্যাক্টর গেট! কোন সংখ্যা {a} আর {b} দুটো নামতাতেই আছে?"),
-    "fib": ("Spiral trail! Each domino is the two before it added. What comes next?",
-            "घुमावदार रास्ता! हर डोमिनो पिछले दो का जोड़ है। आगे क्या आएगा?",
-            "প্যাঁচানো পথ! প্রতিটি ডোমিনো আগের দুটোর যোগফল। এরপর কী আসবে?"),
-    "prime": ("Prime shield! Which number is a prime number?",
-              "प्राइम शील्ड! इनमें अभाज्य संख्या कौन-सी है?",
-              "প্রাইম শিল্ড! এর মধ্যে মৌলিক সংখ্যা কোনটা?"),
-    "int_plus": ("{a} plus negative {b}. Where do we land?",
-                 "{a} में ऋण {b} जोड़ो। हम कहाँ पहुँचेंगे?",
-                 "{a}-এর সাথে ঋণাত্মক {b} যোগ করো। আমরা কোথায় পৌঁছাব?"),
-    "int_minus": ("{a} minus {b}. Where do we land?", "{a} में से {b} घटाओ। हम कहाँ पहुँचेंगे?",
-                  "{a} থেকে {b} বিয়োগ করো। আমরা কোথায় পৌঁছাব?"),
-    "int_minus_neg": ("{a} minus negative {b}. Where do we land?",
-                      "{a} में से ऋण {b} घटाओ। हम कहाँ पहुँचेंगे?",
-                      "{a} থেকে ঋণাত্মক {b} বিয়োগ করো। আমরা কোথায় পৌঁছাব?"),
-    "ratio_up": ("A {a}-dot domino goes through a 1 to {b} ratio gate. How many dots now?",
-                 "{a} बिंदु वाला डोमिनो 1 अनुपात {b} गेट से गुज़रा। अब कितने बिंदु?",
-                 "{a} বিন্দুর ডোমিনো 1 অনুপাত {b} গেট পেরোল। এখন কতগুলো বিন্দু?"),
-    "ratio_down": ("A {a}-dot domino goes through a {b} to 1 ratio gate. How many dots now?",
-                   "{a} बिंदु वाला डोमिनो {b} अनुपात 1 गेट से गुज़रा। अब कितने बिंदु?",
-                   "{a} বিন্দুর ডোমিনো {b} অনুপাত 1 গেট পেরোল। এখন কতগুলো বিন্দু?"),
-    "balance": ("Balance it! x plus {a} equals {c}. What is x?",
-                "तराज़ू बराबर करो! x और {a} मिलकर {c}। x क्या है?",
-                "দাঁড়িপাল্লা সমান করো! x যোগ {a} সমান {c}। x কত?"),
-    "balance2": ("Balance it! x plus x equals {c}. What is x?",
-                 "तराज़ू बराबर करो! x और x मिलकर {c}। x क्या है?",
-                 "দাঁড়িপাল্লা সমান করো! x যোগ x সমান {c}। x কত?"),
-}
-# The reason, said after a right answer (or after two tries)
-EXPLAIN = {
-    "count": ("{c} dots!", "{c} बिंदु!", "{c}টা বিন্দু!"),
-    "more": ("{a} is more than {b}.", "{a}, {b} से ज़्यादा है।", "{a}, {b}-এর চেয়ে বেশি।"),
-    "fewer": ("{a} is less than {b}.", "{a}, {b} से कम है।", "{a}, {b}-এর চেয়ে কম।"),
-    "after": ("{c} comes after {a}.", "{a} के बाद {c} आता है।", "{a}-এর পরে আসে {c}।"),
-    "before": ("{c} comes before {a}.", "{a} से पहले {c} आता है।", "{a}-এর আগে আসে {c}।"),
-    "add": ("{a} plus {b} is {c}.", "{a} और {b} मिलकर {c}।", "{a} যোগ {b} সমান {c}।"),
-    "topple": ("{a} take away {b} is {c}.", "{a} में से {b} गए, बचे {c}।",
-               "{a} থেকে {b} গেলে থাকে {c}।"),
-    "bonds": ("{a} and {b} make {c}.", "{a} और {b} मिलकर {c}।", "{a} আর {b} মিলে {c}।"),
-    "tens": ("{a} tens and {b} ones make {c}.", "{a} दहाई और {b} इकाई मिलकर {c}।",
-             "{a} দশক আর {b} একক মিলে {c}।"),
-    "times": ("{b} added {a} times is {c}.", "{b} को {a} बार जोड़ो तो {c}।",
-              "{b} কে {a} বার যোগ করলে {c}।"),
-    "share": ("{a} shared by {b} is {c} each.", "{a} को {b} में बाँटो तो हर एक को {c}।",
-              "{a} কে {b} জনে ভাগ করলে প্রত্যেকে {c}টা।"),
-    "multiple": ("{c} is in the {a} table and in the {b} table.",
-                 "{c}, {a} और {b} दोनों के पहाड़े में है।", "{c}, {a} আর {b} দুটো নামতাতেই আছে।"),
-    "fib": ("{a} plus {b} is {c}.", "{a} और {b} मिलकर {c}।", "{a} যোগ {b} সমান {c}।"),
-    "prime": ("{c} is prime. Only 1 times {c} makes it.", "{c} अभाज्य है। सिर्फ़ 1 गुणा {c} से बनता है।",
-              "{c} মৌলিক। শুধু 1 গুণ {c} দিয়েই হয়।"),
-    "integer": ("We land on {c}.", "हम {c} पर पहुँचे।", "আমরা {c}-এ পৌঁছালাম।"),
-    "ratio": ("The domino now has {c} dots.", "अब डोमिनो पर {c} बिंदु हैं।",
-              "এখন ডোমিনোতে {c}টা বিন্দু।"),
-    "balance": ("x is {c}. Now both sides are equal.", "x बराबर {c}। अब दोनों तरफ़ बराबर।",
-                "x সমান {c}। এখন দুই দিক সমান।"),
-}
 PRAISE = [("Yes!", "शाबाश!", "দারুণ!"), ("Well done!", "बहुत अच्छे!", "খুব ভালো!"),
           ("Super!", "बढ़िया!", "চমৎকার!"), ("You got it!", "सही जवाब!", "ঠিক উত্তর!")]
 TRY_AGAIN = ("Not {x}. Try again!", "{x} नहीं। फिर से कोशिश करो!", "{x} নয়। আবার চেষ্টা করো!")
 TRY_OTHER = ("Look again. Try the other one!", "ध्यान से देखो। दूसरा वाला चुनो!",
              "আবার দেখো। অন্যটা বেছে নাও!")
 SHOW = ("The answer is {c}.", "सही जवाब है {c}।", "ঠিক উত্তর {c}।")
-LEVEL_UP = ("Level {a}! You are a Maths Star!", "लेवल {a}! तुम मैथ्स स्टार हो!",
-            "লেভেল {a}! তুমি অঙ্কের তারকা!")
-START = ("Let's play with numbers! Listen, then tap the answer.",
-         "चलो संख्याओं से खेलें! सुनो, फिर सही जवाब पर टैप करो।",
-         "চলো সংখ্যা নিয়ে খেলি! শোনো, তারপর ঠিক উত্তরে টোকা দাও।")
+HARDER = ("Great! Now a little harder!", "बहुत बढ़िया! अब थोड़ा कठिन!", "দারুণ! এবার একটু কঠিন!")
+STAR = ("You earned the {n} star!", "तुमने {n} का सितारा जीता!", "তুমি {n}-এর তারা জিতলে!")
+START = ("Let's play with numbers! Pick your class, then a chapter.",
+         "चलो संख्याओं से खेलें! अपनी कक्षा चुनो, फिर एक अध्याय।",
+         "চলো সংখ্যা নিয়ে খেলি! তোমার শ্রেণি বেছে নাও, তারপর একটা অধ্যায়।")
+CHOSEN = ("Class {c}: {n}.", "कक्षा {c}: {n}।", "শ্রেণি {c}: {n}।")
+MIX_NAME = ("Mixed practice", "मिली-जुली अभ्यास", "মিশ্র অনুশীলন")
 
 
 def fmt(line, **kw):
   return tuple(s.format(**kw) for s in line)
 
 
-def neg(n):
-  """-3 written with a real minus sign, in brackets: (−3)."""
-  return f"(−{abs(n)})" if n < 0 else str(n)
-
-
-def num(n):
-  return f"−{abs(n)}" if n < 0 else str(n)
-
-
-# ---------------------------------------------------------------- the addition engine
-def add_all(terms):
-  """Every answer in this game is worked out by adding (the unified view)."""
-  total = 0
-  for t in terms:
-    total += t
-  return total
-
-
-def take_away_by_adding(a, b):
-  """a - b = a + (-b): the additive inverse."""
-  return add_all([a, -b])
-
-
-def times_by_adding(group, size):
-  """group x size = size + size + ... (group times)."""
-  return add_all([size] * group)
-
-
-def share_by_taking_away(n, parts):
-  """n / parts: take one round away from every friend until nothing is left;
-  the number of rounds is each friend's share."""
-  rounds, left = 0, n
-  while left >= parts:
-    left = add_all([left, -parts])
-    rounds = add_all([rounds, 1])
-  return rounds
-
-
-def lcm(a, b):
-  m = a
-  while m % b:
-    m = add_all([m, a])
-  return m
-
-
-def is_prime(n):
-  return n > 1 and all(n % d for d in range(2, int(n ** 0.5) + 1))
-
-
-def factor_pair(n):
-  for d in range(int(n ** 0.5), 1, -1):
-    if n % d == 0:
-      return d, n // d
-  return 1, n
-
-
-def split_dots(n, max_half=6):
-  """Two halves of a domino that add up to n (each half 0..9)."""
-  if n <= max_half:
-    a = random.randint(0, n) if n > 1 else n
-    return a, n - a
-  lo, hi = max(0, n - 9), min(9, n)
-  a = random.randint(lo, hi)
-  return a, n - a
-
-
-# Pip spots in a half (unit square), standard dice layouts, 3x3 for 7-9
+# ---------------------------------------------------------------- dominoes and helpers
 _SPOTS = {
     0: [], 1: [(0.5, 0.5)], 2: [(0.27, 0.27), (0.73, 0.73)],
     3: [(0.25, 0.25), (0.5, 0.5), (0.75, 0.75)],
@@ -245,7 +83,6 @@ _SPOTS = {
 
 
 def pip_spots(rect, a, b):
-  """Screen points of every pip (top half a, bottom half b; left/right when wide)."""
   out = []
   wide = rect.w > rect.h
   for k, n in enumerate((a, b)):
@@ -257,13 +94,12 @@ def pip_spots(rect, a, b):
       half = pygame.Rect(rect.x, rect.y + k * rect.h // 2, rect.w, rect.h // 2)
     side = min(half.w, half.h) * 0.86
     ox, oy = half.centerx - side / 2, half.centery - side / 2
-    out += [(ox + fx * side, oy + fy * side) for fx, fy in _SPOTS[n]]
+    out += [(ox + fx * side, oy + fy * side) for fx, fy in _SPOTS[min(9, n)]]
   return out
 
 
 def draw_domino(s, rect, a, b, colour=(250, 250, 245), lit=0, pip=INK, font=None):
-  """A domino face with pips; the first `lit` pips glow (counting aloud).
-  A half given as None shows a big "?"."""
+  """A domino face with pips; the first `lit` pips glow. A half given as None shows "?"."""
   r = max(4, min(rect.w, rect.h) // 6)
   pygame.draw.rect(s, (30, 30, 50), rect.move(3, 4), border_radius=r)
   pygame.draw.rect(s, colour, rect, border_radius=r)
@@ -290,15 +126,14 @@ def draw_domino(s, rect, a, b, colour=(250, 250, 245), lit=0, pip=INK, font=None
 
 
 def fall_blit(s, surf, foot, fall):
-  """Blits an upright piece standing on `foot` (its bottom centre), tipped right
-  by fall 0..1 round its bottom-right corner."""
+  """Blits an upright piece standing on foot (bottom centre), tipped right by fall 0..1."""
   if fall <= 0:
     s.blit(surf, surf.get_rect(midbottom=foot))
     return
   w, h = surf.get_size()
   ang = math.radians(86 * min(1.0, fall))
   rot = pygame.transform.rotate(surf, -math.degrees(ang))
-  px, py = foot[0] + w / 2, foot[1]                  # pivot: bottom-right corner
+  px, py = foot[0] + w / 2, foot[1]
   cx = px + (h / 2) * math.sin(ang) - (w / 2) * math.cos(ang)
   cy = py - (h / 2) * math.cos(ang) - (w / 2) * math.sin(ang)
   s.blit(rot, rot.get_rect(center=(int(cx), int(cy))))
@@ -308,8 +143,6 @@ _SMALL = {}
 
 
 def small_domino(h, colour, label=None, font=None, anti=False):
-  """A little standing domino (cached), optionally with a number on it.
-  anti: a translucent blue anti-domino (a negative one)."""
   key = (h, colour, label, anti)
   surf = _SMALL.get(key)
   if surf is None:
@@ -370,6 +203,58 @@ def draw_shield(s, centre, r, colour=SHIELD, glow=0.0):
   pygame.draw.polygon(s, WHITE, pts, 3)
 
 
+def shape_points(name, rect):
+  """Outline points of a flat shape inside rect (None for round shapes)."""
+  cx, cy = rect.center
+  r = min(rect.w, rect.h) / 2
+
+  def poly(n, rot=-90, rr=r):
+    return [(cx + rr * math.cos(math.radians(rot + 360 * k / n)), cy + rr * math.sin(math.radians(rot + 360 * k / n)))
+            for k in range(n)]
+  if name == "Triangle":
+    return poly(3, rr=r * 1.05)
+  if name == "Square":
+    return poly(4, rot=45, rr=r * 1.1)
+  if name == "Rectangle":
+    w, h = r * 1.8, r * 1.0
+    return [(cx - w / 2, cy - h / 2), (cx + w / 2, cy - h / 2), (cx + w / 2, cy + h / 2), (cx - w / 2, cy + h / 2)]
+  if name == "Pentagon":
+    return poly(5)
+  if name == "Hexagon":
+    return poly(6, rot=0)
+  if name == "Star":
+    return [(cx + (r if k % 2 == 0 else r * 0.45) * math.cos(math.radians(-90 + 36 * k)),
+             cy + (r if k % 2 == 0 else r * 0.45) * math.sin(math.radians(-90 + 36 * k))) for k in range(10)]
+  return None
+
+
+def draw_shape(s, name, rect, colour=None, width=0):
+  colour = colour or SHAPE_COLOURS.get(name, (255, 190, 60))
+  pts = shape_points(name, rect)
+  if name == "Circle":
+    r = min(rect.w, rect.h) // 2
+    pygame.draw.circle(s, colour, rect.center, r, width)
+    pygame.draw.circle(s, WHITE, rect.center, r, 3)
+  elif name == "Oval":
+    e = pygame.Rect(0, 0, rect.w, int(rect.h * 0.62))
+    e.center = rect.center
+    pygame.draw.ellipse(s, colour, e, width)
+    pygame.draw.ellipse(s, WHITE, e, 3)
+  elif pts:
+    pygame.draw.polygon(s, colour, pts, width)
+    pygame.draw.polygon(s, WHITE, pts, 3)
+
+
+def dashed(s, colour, a, b, dash=8, width=2):
+  dx, dy = b[0] - a[0], b[1] - a[1]
+  length = math.hypot(dx, dy) or 1
+  n = max(2, int(length / dash))
+  for k in range(0, n, 2):
+    p = (a[0] + dx * k / n, a[1] + dy * k / n)
+    q = (a[0] + dx * min(n, k + 1) / n, a[1] + dy * min(n, k + 1) / n)
+    pygame.draw.line(s, colour, p, q, width)
+
+
 def wrap(font, text, max_w):
   words, lines, cur = text.split(), [], ""
   for w in words:
@@ -384,6 +269,24 @@ def wrap(font, text, max_w):
   return lines
 
 
+def render_expr(g, text, size, colour=WHITE, max_w=None):
+  """Text with powers written small and raised: "2^4" shows a little 4 up high."""
+  parts = re.split(r"\^(\d+)", text)
+  big, small = g.font_at(size), g.font_at(max(10, size * 3 // 5))
+  pieces = [(small if i % 2 else big).render(p, True, colour) for i, p in enumerate(parts) if p]
+  w = sum(p.get_width() for p in pieces) or 1
+  h = big.get_height()
+  surf = pygame.Surface((w, h), pygame.SRCALPHA)
+  x = 0
+  for piece in pieces:
+    surf.blit(piece, (x, 0))
+    x += piece.get_width()
+  if max_w and surf.get_width() > max_w:
+    surf = pygame.transform.smoothscale(surf, (max_w, max(2, int(h * max_w / surf.get_width()))))
+  return surf
+
+
+# ---------------------------------------------------------------- the game
 class MathsGame:
   """Maths Play; draws inside the play area like Find it! and Cross the Road."""
 
@@ -391,17 +294,52 @@ class MathsGame:
     self.g = game
     self.q = None
     self._cascade = []
-    self.new_question(first=True)
+    self.picker_cls = None
+    self.wrong, self.shake = set(), {}
+    self.solved_at = self.revealed_at = self.level_up_at = None
+    self.ask_after = None
+    self.badge = None
+    d = self.data
+    self.picking = not d["chosen"]
+    game.banner_override = "MATHS PLAY"
+    if self.picking:
+      self.picker_cls = d["cls"]
+      self.say(START)
+    else:
+      self.new_question()
 
   # ------------------------------------------------------------ progress
   @property
   def data(self):
     d = self.g.progress.data.setdefault("maths", {})
-    for k, v in (("level", 1), ("right", 0), ("asked", 0), ("run", 0), ("miss", 0),
-                 ("best", 1), ("solved", 0)):
+    for k, v in (("cls", 1), ("ch", 0), ("chosen", False), ("right", 0), ("asked", 0), ("run", 0),
+                 ("miss", 0), ("best", 1), ("solved", 0)):
       d.setdefault(k, v)
-    d["level"] = max(1, min(LEVELS, d["level"]))
+    d.setdefault("diff", {})
+    d.setdefault("stars", {})
+    d["cls"] = max(1, min(CLASSES, d["cls"]))
+    if d["ch"] != MIX and d["ch"] >= len(mb.CHAPTERS[d["cls"]]):
+      d["ch"] = 0
     return d
+
+  @property
+  def key(self):
+    return f"{self.data['cls']}-{self.data['ch']}"
+
+  def chapter_name(self, cls=None, ch=None):
+    d = self.data
+    cls = d["cls"] if cls is None else cls
+    ch = d["ch"] if ch is None else ch
+    if ch == MIX:
+      return MIX_NAME
+    return mb.CHAPTERS[cls][ch][0]
+
+  def kinds(self):
+    d = self.data
+    chs = mb.CHAPTERS[d["cls"]]
+    if d["ch"] == MIX:
+      return sorted({k for _n, ks in chs for k in ks})
+    return chs[d["ch"]][1]
 
   def say(self, line, extra=None):
     en, hi, bn = line
@@ -411,268 +349,212 @@ class MathsGame:
     self.g.say(en, native)
 
   # ------------------------------------------------------------ questions
-  def make(self, kind, level):
-    """A question: kind, numbers, the right answer c, choices, the sum (eq)
-    and its breakdown into adding (steps)."""
-    q = {"kind": kind, "level": level, "steps": None, "show": None, "neg_ok": False}
-    if kind == "count":
-      c = random.randint(1, 6 if level == 1 else 12)
-      a, b = split_dots(c, 6)
-      q.update(a=a, b=b, c=add_all([a, b]), ask=ASK["count"], explain=fmt(EXPLAIN["count"], c=c),
-               eq=f"{a} + {b} = {c}" if a and b else str(c))
-    elif kind in ("more", "fewer"):
-      top = 6 if level == 1 else 12
-      x, y = random.sample(range(1, top + 1), 2)
-      want = max(x, y) if kind == "more" else min(x, y)
-      other = y if want == x else x
-      q.update(totals=(x, y), halves=[split_dots(x, 6), split_dots(y, 6)],
-               c=0 if want == x else 1, ask=ASK[kind],
-               explain=fmt(EXPLAIN[kind], a=want, b=other),
-               eq=f"{want} {'>' if kind == 'more' else '<'} {other}")
-    elif kind in ("after", "before"):
-      top = 10 if level == 1 else 20
-      a = random.randint(1, top - 1) if kind == "after" else random.randint(2, top)
-      c = add_all([a, 1 if kind == "after" else -1])
-      q.update(a=a, c=c, ask=fmt(ASK[kind], a=a), explain=fmt(EXPLAIN[kind], a=a, c=c),
-               eq=f"{a} + 1 = {c}" if kind == "after" else f"{a} − 1 = {c}")
-    elif kind == "add":
-      c = random.randint(2, 10 if level <= 2 else 18)
-      a, b = split_dots(c, 9)
-      if a == 0 or b == 0:
-        a, b = c - 1, 1
-      q.update(a=a, b=b, c=add_all([a, b]), ask=fmt(ASK["add"], a=a, b=b),
-               explain=fmt(EXPLAIN["add"], a=a, b=b, c=c), eq=f"{a} + {b} = {c}")
-    elif kind == "topple":
-      n = random.randint(3, 10 if level <= 2 else 18)
-      k = random.randint(1, n - 1)
-      c = take_away_by_adding(n, k)
-      q.update(a=n, b=k, c=c, falls=sorted(random.sample(range(n), k)),
-               ask=fmt(ASK["topple"], a=n, b=k), explain=fmt(EXPLAIN["topple"], a=n, b=k, c=c),
-               eq=f"{n} − {k} = {c}")
-      if level >= 6:
-        q["steps"] = f"{n} − {k} = {n} + (−{k}) = {c}"
-    elif kind == "bonds":
-      c = random.randint(5, 10)
-      a = random.randint(1, c - 1)
-      b = take_away_by_adding(c, a)
-      q.update(a=a, b=b, c=b, total=c, ask=fmt(ASK["bonds"], a=a, c=c),
-               explain=fmt(EXPLAIN["bonds"], a=a, b=b, c=c), eq=f"{a} + {b} = {c}")
-    elif kind == "tens":
-      t = random.randint(1, 4 if level <= 3 else 9)
-      o = random.randint(1, 9)
-      c = add_all([10] * t + [o])
-      q.update(a=t, b=o, c=c, ask=fmt(ASK["tens"], a=t, b=o),
-               explain=fmt(EXPLAIN["tens"], a=t, b=o, c=c), eq=f"{t} tens + {o} ones = {c}",
-               steps=" + ".join(["10"] * t + ([str(o)] if o else [])) + f" = {c}")
-    elif kind == "times":
-      top = 5 if level <= 4 else 10
-      g = random.randint(2, top if level <= 5 else 9)
-      p = random.randint(1, top)
-      c = times_by_adding(g, p)
-      q.update(a=g, b=p, c=c, halves=split_dots(p, 6), ask=fmt(ASK["times"], a=g, b=p),
-               explain=fmt(EXPLAIN["times"], a=g, b=p, c=c), eq=f"{g} × {p} = {c}",
-               steps=" + ".join([str(p)] * g) + f" = {c}")
-    elif kind == "share":
-      g = random.randint(2, 4 if level <= 4 else 5)
-      each = random.randint(1, 5 if level <= 4 else 6)
-      n = times_by_adding(g, each)
-      c = share_by_taking_away(n, g)
-      q.update(a=n, b=g, c=c, ask=fmt(ASK["share"], a=n, b=g),
-               explain=fmt(EXPLAIN["share"], a=n, b=g, c=c), eq=f"{n} ÷ {g} = {c}",
-               steps=f"{n} " + " ".join([f"− {g}"] * c) + f" = 0, so {c} rounds")
-    elif kind == "multiple":
-      a, b = random.choice([(2, 3), (2, 5), (3, 4), (3, 5), (2, 7), (4, 5), (4, 6), (3, 6),
-                            (2, 9), (5, 6), (3, 8)])
-      c = lcm(a, b)
-      pool = [n for n in range(2, c + 12) if n != c and not (n % a == 0 and n % b == 0)]
-      near = sorted(pool, key=lambda n: (n % a != 0 and n % b != 0, abs(n - c)))[:6]
-      choices = random.sample(near, 3) + [c]
-      random.shuffle(choices)
-      q.update(a=a, b=b, c=c, choices=choices, ask=fmt(ASK["multiple"], a=a, b=b),
-               explain=fmt(EXPLAIN["multiple"], a=a, b=b, c=c),
-               eq=f"{a} × {c // a} = {c} = {b} × {c // b}")
-    elif kind == "fib":
-      x, y = random.choice([(1, 1), (1, 2), (2, 3), (1, 3), (2, 2)])
-      seq = [x, y]
-      while len(seq) < 6:
-        seq.append(add_all(seq[-2:]))
-      q.update(seq=seq, a=seq[3], b=seq[4], c=seq[5], ask=ASK["fib"],
-               explain=fmt(EXPLAIN["fib"], a=seq[3], b=seq[4], c=seq[5]),
-               eq=f"{seq[3]} + {seq[4]} = {seq[5]}")
-    elif kind == "prime":
-      p = random.choice(PRIMES[1:] if level >= 7 else PRIMES[:8])
-      comps = [n for n in range(4, 31) if not is_prime(n) and abs(n - p) <= 12]
-      choices = random.sample(comps, 3) + [p]
-      random.shuffle(choices)
-      q.update(c=p, choices=choices, ask=ASK["prime"], explain=fmt(EXPLAIN["prime"], c=p),
-               eq=f"{p} = 1 × {p}  (prime shield)")
-    elif kind == "integer":
-      form = random.choice(["int_plus", "int_minus", "int_minus_neg"])
-      if form == "int_plus":
-        a, b = random.randint(-3, 8), random.randint(1, 9)
-        c = add_all([a, -b])
-        show = f"{num(a)} + (−{b}) = ?"
-        steps = f"{num(a)} + (−{b}) = {num(c)}"
-      elif form == "int_minus":
-        a, b = random.randint(0, 6), random.randint(1, 9)
-        c = take_away_by_adding(a, b)
-        show = f"{a} − {b} = ?"
-        steps = f"{a} − {b} = {a} + (−{b}) = {num(c)}"
-      else:
-        a, b = random.randint(-6, 5), random.randint(1, 5)
-        c = add_all([a, b])
-        show = f"{num(a)} − (−{b}) = ?"
-        steps = f"{num(a)} − (−{b}) = {num(a)} + {b} = {num(c)}"
-      q.update(a=a, b=b, c=c, form=form, ask=fmt(ASK[form], a=a, b=b), neg_ok=True,
-               explain=fmt(EXPLAIN["integer"], c=c), show=show, eq=steps.split(" = ")[0] + f" = {num(c)}",
-               steps=steps)
-    elif kind == "ratio":
-      if random.random() < 0.5:
-        v, k = random.randint(1, 5), random.randint(2, 4)
-        c = times_by_adding(k, v)
-        q.update(a=v, b=k, c=c, up=True, ask=fmt(ASK["ratio_up"], a=v, b=k),
-                 show=f"1 : {k}", eq=f"{v} × {k} = {c}",
-                 steps=" + ".join([str(v)] * k) + f" = {c}")
-      else:
-        k, m = random.randint(2, 4), random.randint(1, 5)
-        v = times_by_adding(k, m)
-        c = share_by_taking_away(v, k)
-        q.update(a=v, b=k, c=c, up=False, ask=fmt(ASK["ratio_down"], a=v, b=k),
-                 show=f"{k} : 1", eq=f"{v} ÷ {k} = {c}",
-                 steps=f"{v} " + " ".join([f"− {k}"] * c) + f" = 0, so {c}")
-      q["explain"] = fmt(EXPLAIN["ratio"], c=c)
-    elif kind == "balance":
-      if random.random() < 0.6:
-        a, x = random.randint(1, 9), random.randint(1, 9)
-        c = add_all([x, a])
-        q.update(a=a, c=x, total=c, two=False, ask=fmt(ASK["balance"], a=a, c=c),
-                 show=f"x + {a} = {c}", eq=f"x = {x}",
-                 steps=f"x = {c} + (−{a}) = {x}")
-      else:
-        x = random.randint(2, 9)
-        c = add_all([x, x])
-        q.update(a=0, c=x, total=c, two=True, ask=fmt(ASK["balance2"], c=c),
-                 show=f"x + x = {c}", eq=f"x = {x}", steps=f"{x} + {x} = {c}")
-      q["explain"] = fmt(EXPLAIN["balance"], c=q["c"])
-    if "choices" not in q and kind not in ("more", "fewer"):
-      q["choices"] = self.choices(q["c"], q["neg_ok"])
-    return q
-
-  def choices(self, c, neg_ok=False):
-    near = [c - 1, c + 1, c - 2, c + 2]
-    random.shuffle(near)
-    picks = []
-    for x in near + [c + 3, c - 3, c + 10, c + 4, c + 5]:
-      if (neg_ok or x >= 0) and x != c and x not in picks:
-        picks.append(x)
-      if len(picks) == 3:
-        break
-    out = picks + [c]
-    random.shuffle(out)
-    return out
-
-  def new_question(self, first=False):
+  def new_question(self, lead=None):
     g = self.g
-    lvl = self.data["level"]
+    d = self.data
     last = self.q["kind"] if self.q else None
-    kinds = [k for k in KINDS[lvl] if k != last] or KINDS[lvl]
-    self.q = self.make(random.choice(kinds), lvl)
-    self.wrong = set()
-    self.shake = {}
-    self.solved_at = None
-    self.revealed_at = None
+    kinds = [k for k in self.kinds() if k != last] or self.kinds()
+    self.q = mb.make(random.choice(kinds), d["diff"].get(self.key, 0))
+    self.wrong, self.shake = set(), {}
+    self.solved_at = self.revealed_at = self.level_up_at = None
+    self.badge = None
     self.asked_at = time.time()
-    self.level_up_at = None
     self._lit = 0
     self._cascade = []
     self._fired = set()
-    g.particles.texts = []          # the last question's running totals
+    self._rh = self._ro = None
+    g.particles.texts = []
     g.banner_override = "MATHS PLAY"
     g.announced_at = time.time()
     self.ask_after = None
-    if first and "maths_start" not in g.progress.data.setdefault("guides", []):
-      self.say(START)
-      g.progress.data["guides"].append("maths_start")
-      g.progress.save()
-      self.ask_after = time.time() + 3.6
-    else:
-      self.ask()
+    self.say(self.q["ask"], lead)
 
   def ask(self):
-    self.say(self.q["ask"])
+    if self.picking or not self.q:
+      self.say(START)
+    else:
+      self.say(self.q["ask"])
 
-  def set_level(self, lvl):
-    lvl = max(1, min(LEVELS, lvl))
+  def choose(self, cls, ch):
     d = self.data
-    if lvl != d["level"]:
-      d["level"] = lvl
-      d["run"] = d["miss"] = 0
-      self.g.progress.save()
+    d["cls"], d["ch"], d["chosen"] = cls, ch, True
+    d["run"] = d["miss"] = 0
+    self.g.progress.save()
+    self.picking = False
     self.g.sfx.play("switch")
-    self.new_question()
+    name = self.chapter_name(cls, ch)
+    self.q = None
+    self.new_question(lead=tuple(CHOSEN[k].format(c=cls, n=name[k]) for k in range(3)))
 
   @property
   def shown(self):
-    """True once the answer is on screen (solved, or shown after two tries)."""
     return self.solved_at is not None or self.revealed_at is not None
 
   @property
   def done_at(self):
     return self.solved_at if self.solved_at is not None else self.revealed_at
 
+  def speak_label(self, label):
+    sp = (self.q.get("speak") or {}).get(label)
+    return sp if sp else (label, label, label)
+
   # ------------------------------------------------------------ layout
   def area(self):
     import modes
     return modes.g_area()
+
+  def answer_rects(self, bottom, a):
+    """Up to 4 answer buttons: one row for short answers, 2 x 2 for long ones."""
+    q = self.q
+    n = len(q["choices"])
+    longest = max(len(c) for c in q["choices"])
+    two_rows = n > 2 and (longest > 6 or a.w < 330)
+    gap = 12
+    if two_rows:
+      per = 2
+      bw = min(230, (a.w - 16 - gap) // 2)
+      bh = int(min(60, a.h * 0.085))
+    else:
+      per = n
+      bw = min(130 if n > 2 else 180, (a.w - 16 - (n - 1) * gap) // n)
+      bh = int(min(84, a.h * 0.12))
+    rows = math.ceil(n / per)
+    top = bottom - rows * bh - (rows - 1) * 10
+    out = []
+    for i in range(n):
+      r, c = divmod(i, per)
+      in_row = min(per, n - r * per)
+      row_w = in_row * bw + (in_row - 1) * gap
+      out.append(pygame.Rect(a.centerx - row_w // 2 + c * (bw + gap), top + r * (bh + 10), bw, bh))
+    return out, top
 
   def layout(self):
     a = self.area()
     lay = {"area": a}
     foot_h = 46
     lay["foot"] = pygame.Rect(a.x + 8, a.bottom - foot_h - 6, a.w - 16, foot_h)
-    cw = min(48, (min(lay["foot"].w, 520) - 150) // LEVELS - 5)
-    lay["chips"] = [pygame.Rect(lay["foot"].x + 4 + i * (cw + 5), lay["foot"].y + 5, cw,
-                                foot_h - 10) for i in range(LEVELS)]
-    bh = int(min(84, a.h * 0.12))
-    bw = min(120, (a.w - 16 - 3 * 12) // 4)
-    row_w = 4 * bw + 3 * 12
-    top = lay["foot"].y - bh - 12
-    lay["answers"] = [pygame.Rect(a.centerx - row_w // 2 + i * (bw + 12), top, bw, bh)
-                      for i in range(4)]
+    lay["chapter_btn"] = pygame.Rect(lay["foot"].x, lay["foot"].y + 3, min(300, int(lay["foot"].w * 0.68)),
+                                     foot_h - 6)
+    top = lay["foot"].y - 12
+    if self.q and not self.q.get("tap2"):
+      lay["answers"], top = self.answer_rects(top, a)
+    else:
+      lay["answers"] = []
     lay["prompt_y"] = a.y + 12
     lay["eq_y"] = top - 26
     lay["steps_y"] = top - 60
     scene_top = a.y + 92
-    lay["scene"] = pygame.Rect(a.x + 10, scene_top, a.w - 20, top - 82 - scene_top)
+    lay["scene"] = pygame.Rect(a.x + 10, scene_top, a.w - 20, max(60, top - 82 - scene_top))
     return lay
 
   def domino_rects(self, lay):
-    """The two dominoes of a more/fewer question."""
     sc = lay["scene"].copy()
-    sc.h += 60                      # these questions have no number buttons
+    sc.h += 60
     h = int(min(sc.h * 0.85, 320))
     w = h // 2
     gap = max(40, sc.w // 6)
     return [pygame.Rect(sc.centerx - gap // 2 - w, sc.centery - h // 2, w, h),
             pygame.Rect(sc.centerx + gap // 2, sc.centery - h // 2, w, h)]
 
+  # ------------------------------------------------------------ the class + chapter picker
+  def picker_layout(self):
+    a = self.area()
+    cls = self.picker_cls or self.data["cls"]
+    chips_y = a.y + 54
+    cw = min(56, (a.w - 24) // CLASSES - 6)
+    x0 = a.centerx - (CLASSES * (cw + 6) - 6) // 2
+    chips = [pygame.Rect(x0 + i * (cw + 6), chips_y, cw, 44) for i in range(CLASSES)]
+    chapters = list(range(len(mb.CHAPTERS[cls]))) + [MIX]
+    cols = 2 if a.w < 700 else 3
+    rows = math.ceil(len(chapters) / cols)
+    top, bottom = chips_y + 58, a.bottom - 64
+    ch_h = max(34, min(62, (bottom - top) // rows - 8))
+    cell_w = (a.w - 24 - (cols - 1) * 8) // cols
+    cells = []
+    for i, ch in enumerate(chapters):
+      r, c = divmod(i, cols)
+      cells.append((pygame.Rect(a.x + 12 + c * (cell_w + 8), top + r * (ch_h + 8), cell_w, ch_h), ch))
+    back = pygame.Rect(0, 0, 150, 46)
+    back.midbottom = (a.centerx, a.bottom - 10)
+    return cls, chips, cells, back
+
+  def picker_press(self, pos):
+    cls, chips, cells, back = self.picker_layout()
+    for i, r in enumerate(chips):
+      if r.collidepoint(pos):
+        self.picker_cls = i + 1
+        self.g.sfx.play("click")
+        self.say((f"Class {i + 1}", f"कक्षा {i + 1}", f"শ্রেণি {i + 1}"))
+        return
+    for r, ch in cells:
+      if r.collidepoint(pos):
+        self.choose(cls, ch)
+        return
+    if back.collidepoint(pos) and self.data["chosen"]:
+      self.g.sfx.play("click")
+      self.picking = False
+      if self.q is None:
+        self.new_question()
+      else:
+        self.ask()
+
+  def draw_picker(self, s, now):
+    g = self.g
+    a = self.area()
+    d = self.data
+    cls, chips, cells, back = self.picker_layout()
+    self.text(s, "Pick your class and a chapter", (a.centerx, a.y + 26), 22, YELLOW, a.w - 20)
+    f = g.font_at(18)
+    for i, r in enumerate(chips):
+      on = cls == i + 1
+      pygame.draw.rect(s, YELLOW if on else (90, 110, 160), r, border_radius=12)
+      pygame.draw.rect(s, WHITE, r, 2, border_radius=12)
+      lab = f.render(str(i + 1), True, INK if on else WHITE)
+      s.blit(lab, lab.get_rect(center=(r.centerx, r.centery - 5)))
+      cl = g.small_font.render("Class", True, INK if on else WHITE)
+      s.blit(cl, cl.get_rect(center=(r.centerx, r.bottom - 9)))
+    cf = g.font_at(16)
+    for r, ch in cells:
+      name = self.chapter_name(cls, ch)[0]
+      current = d["chosen"] and d["cls"] == cls and d["ch"] == ch
+      colour = (255, 140, 70) if ch == MIX else TILE_COLOURS[(ch * 3) % len(TILE_COLOURS)]
+      pygame.draw.rect(s, (20, 20, 40), r.move(2, 3), border_radius=12)
+      pygame.draw.rect(s, colour, r, border_radius=12)
+      pygame.draw.rect(s, YELLOW if current else WHITE, r, 4 if current else 2, border_radius=12)
+      lines = wrap(cf, name, r.w - 56)[:2]
+      for n_, line in enumerate(lines):
+        lt = cf.render(line, True, WHITE)
+        s.blit(lt, lt.get_rect(midleft=(r.x + 10, r.centery + (n_ - (len(lines) - 1) / 2) * 18)))
+      stars = d["stars"].get(f"{cls}-{ch}", 0)
+      if stars:
+        gold = stars >= CHAPTER_STAR
+        g.draw_star(s, (r.right - 30, r.centery - (0 if gold else 6)), 13 if gold else 9)
+        if not gold:
+          st = g.small_font.render(f"{stars}/{CHAPTER_STAR}", True, WHITE)
+          s.blit(st, st.get_rect(center=(r.right - 30, r.centery + 12)))
+    if d["chosen"]:
+      pygame.draw.rect(s, (90, 110, 170), back, border_radius=14)
+      pygame.draw.rect(s, WHITE, back, 2, border_radius=14)
+      self.text(s, "Back", back.center, 18)
+
   # ------------------------------------------------------------ input
   def press(self, pos):
     g = self.g
+    if self.picking or not self.q:
+      self.picker_press(pos)
+      return
     lay = self.layout()
-    for i, chip in enumerate(lay["chips"]):
-      if chip.collidepoint(pos):
-        self.set_level(i + 1)
-        return
+    if lay["chapter_btn"].collidepoint(pos):
+      g.sfx.play("click")
+      self.picking = True
+      self.picker_cls = self.data["cls"]
+      return
     if self.shown:
       if time.time() - self.done_at > 0.8:
         g.sfx.play("click")
         self.new_question()
       return
-    if self.q["kind"] in ("more", "fewer"):
-      targets = self.domino_rects(lay)
-    else:
-      targets = lay["answers"]
+    targets = self.domino_rects(lay) if self.q.get("tap2") else lay["answers"]
     for i, r in enumerate(targets):
       if r.collidepoint(pos) and i not in self.wrong:
         self.answer(i, r)
@@ -682,7 +564,8 @@ class MathsGame:
     g = self.g
     q = self.q
     d = self.data
-    picked = i if q["kind"] in ("more", "fewer") else q["choices"][i]
+    tap2 = q.get("tap2")
+    picked = i if tap2 else q["choices"][i]
     if picked == q["c"]:
       first = not self.wrong
       self.solved_at = time.time()
@@ -692,19 +575,25 @@ class MathsGame:
         d["right"] += 1
         d["run"] += 1
         d["miss"] = 0
+        d["stars"][self.key] = d["stars"].get(self.key, 0) + 1
       g.sfx.play("chime")
       g.particles.burst(rect.centerx, rect.centery, n=40)
       g.particles.confetti(self.area(), n=90)
       extra = random.choice(PRAISE)
-      if first and d["run"] >= LEVEL_UP_RUN and d["level"] < LEVELS:
-        d["level"] += 1
-        d["best"] = max(d["best"], d["level"])
+      line = q["explain"]
+      diff = d["diff"].get(self.key, 0)
+      if first and d["stars"][self.key] == CHAPTER_STAR:
+        self.level_up_at = time.time()
+        self.badge = ("Chapter star!", self.chapter_name()[0])
+        line = tuple(f"{e} {s_}" for e, s_ in zip(line, fmt(STAR, n=self.chapter_name()[0])))
+      elif first and d["run"] >= STEP_UP_RUN and diff < 2:
+        d["diff"][self.key] = diff + 1
+        d["best"] = max(d["best"], d["cls"])
         d["run"] = 0
         self.level_up_at = time.time()
-        ex = q["explain"]
-        self.say(fmt(LEVEL_UP, a=d["level"]), tuple(f"{p} {e}" for p, e in zip(extra, ex)))
-      else:
-        self.say(q["explain"], extra)
+        self.badge = ("Harder!", f"Step {diff + 2} of 3")
+        line = tuple(f"{e} {h}" for e, h in zip(line, HARDER))
+      self.say(line, extra)
       g.progress.save()
       return
     self.wrong.add(i)
@@ -713,25 +602,27 @@ class MathsGame:
     if len(self.wrong) == 1:
       d["run"] = 0
       d["miss"] += 1
-      if d["miss"] >= 3 and d["level"] > 1:      # three misses in a row: a gentler level
-        d["level"] -= 1
+      diff = d["diff"].get(self.key, 0)
+      if d["miss"] >= 3 and diff > 0:           # three misses in a row: a gentler step
+        d["diff"][self.key] = diff - 1
         d["miss"] = 0
       g.progress.save()
-    if q["kind"] in ("more", "fewer"):
+    if tap2:
       self.say(TRY_OTHER)
-    elif len(self.wrong) >= 2:
+    elif len(self.wrong) >= 2 or len(q["choices"]) - len(self.wrong) <= 1:
       d["asked"] += 1
       self.revealed_at = time.time()
-      self.say(q["explain"], fmt(SHOW, c=q["c"]))
+      sp = self.speak_label(q["c"])
+      self.say(q["explain"], tuple(SHOW[k].format(c=sp[k]) for k in range(3)))
       g.progress.save()
     else:
-      self.say(fmt(TRY_AGAIN, x=picked))
+      sp = self.speak_label(picked)
+      self.say(tuple(TRY_AGAIN[k].format(x=sp[k]) for k in range(3)))
 
   # ------------------------------------------------------------ update
   def update(self, now):
-    if self.ask_after and now >= self.ask_after:
-      self.ask_after = None
-      self.ask()
+    if self.picking or not self.q:
+      return
     if not self.shown:
       return
     t = now - self.done_at
@@ -740,10 +631,9 @@ class MathsGame:
       if t > wait:
         self.new_question()
         return
-    q = self.q
-    if q["kind"] in ("count", "add", "bonds"):           # count the dots aloud
+    top = self.q.get("lit_to")
+    if top:                                   # count the dots aloud
       k = int(t / 0.16)
-      top = q["c"] if q["kind"] != "bonds" else q["total"]
       if k > self._lit and self._lit < top:
         self._lit = min(top, k)
         self.g.sfx.play("pop", min(11, self._lit))
@@ -755,7 +645,6 @@ class MathsGame:
           self.g.particles.text(x, y, label, YELLOW)
 
   def cascade_fall(self, i, now):
-    """0..1: how far domino i of the cascade has fallen."""
     if not self.shown:
       return 0.0
     t = now - self.done_at - 0.3 - i * CASCADE_STEP
@@ -764,37 +653,41 @@ class MathsGame:
   # ------------------------------------------------------------ drawing
   def draw(self, s, now):
     g = self.g
-    lay = self.layout()
-    a = lay["area"]
+    a = self.area()
     veil = pygame.Surface(a.size, pygame.SRCALPHA)
     veil.fill((*g.theme["bg"], 215))
     s.blit(veil, a.topleft)
+    if self.picking or not self.q:
+      self.draw_picker(s, now)
+      return
+    lay = self.layout()
     q = self.q
     font = g.font_at(21)
     for n, line in enumerate(wrap(font, q["ask"][0], a.w - 30)[:3]):
       t = font.render(line, True, YELLOW)
       s.blit(t, t.get_rect(center=(a.centerx, lay["prompt_y"] + 13 + n * 25)))
     self._cascade = []
-    getattr(self, "scene_" + {"fewer": "more", "before": "after"}.get(q["kind"], q["kind"]))(
-        s, lay, now)
+    scene = getattr(self, "scene_" + q["scene"], self.scene_expr)
+    clip = s.get_clip()
+    s.set_clip(lay["scene"].inflate(20, 40).clip(clip))
+    scene(s, lay, now)
+    s.set_clip(clip)
     if self.shown:
       self.draw_sums(s, lay, now)
-    if q["kind"] not in ("more", "fewer"):
+    if not q.get("tap2"):
       self.draw_answers(s, lay, now)
     self.draw_footer(s, lay, now)
     if self.level_up_at and now - self.level_up_at < 3.5:
-      self.draw_level_badge(s, lay, now)
+      self.draw_badge(s, lay, now)
 
   def draw_sums(self, s, lay, now):
-    """The sum, then its breakdown into adding, written out term by term."""
     g = self.g
     q = self.q
     a = lay["area"]
-    eq_font = g.font_at(30 if len(q["eq"]) < 22 else 22)
-    eq = eq_font.render(q["eq"], True, GREEN if self.solved_at is not None else WHITE)
-    if eq.get_width() > a.w - 20:
-      eq = pygame.transform.smoothscale(eq, (a.w - 20, int(eq.get_height() * (a.w - 20) / eq.get_width())))
-    s.blit(eq, eq.get_rect(center=(a.centerx, lay["eq_y"])))
+    if q["eq"]:
+      eq = render_expr(g, q["eq"], 30 if len(q["eq"]) < 22 else 22,
+                       GREEN if self.solved_at is not None else WHITE, a.w - 20)
+      s.blit(eq, eq.get_rect(center=(a.centerx, lay["eq_y"])))
     steps = q.get("steps")
     if steps and steps != q["eq"]:
       tokens = steps.split(" ")
@@ -819,71 +712,76 @@ class MathsGame:
       if i in self.shake and now - self.shake[i] < 0.4:
         dx = int(8 * math.sin((now - self.shake[i]) * 50))
       rr = r.move(dx, 0)
-      val = q["choices"][i]
-      good = val == q["c"] and self.shown
+      label = q["choices"][i]
+      good = label == q["c"] and self.shown
       if good:
         col = GREEN
       elif i in self.wrong:
         col = RED
       else:
-        col = TILE_COLOURS[(i * 3 + abs(q["c"])) % len(TILE_COLOURS)]
+        col = TILE_COLOURS[(i * 3 + len(q["c"])) % len(TILE_COLOURS)]
       if good and self.solved_at is not None:
         p = int(6 * math.sin(now * 8))
         rr = rr.inflate(p, p)
       pygame.draw.rect(s, (20, 20, 40), rr.move(3, 4), border_radius=18)
       pygame.draw.rect(s, col, rr, border_radius=18)
       pygame.draw.rect(s, WHITE, rr, 3, border_radius=18)
-      label = num(val)
-      font = g.font_at(36 if len(label) <= 2 else 28)
-      o = font.render(label, True, INK)
-      t = font.render(label, True, WHITE)
+      size = 36
+      while size > 14 and g.font_at(size).size(label)[0] > rr.w - 14:
+        size -= 2
+      o = render_expr(g, label, size, INK)
+      t = render_expr(g, label, size, WHITE)
       s.blit(o, o.get_rect(center=(rr.centerx + 2, rr.centery + 2)))
       s.blit(t, t.get_rect(center=rr.center))
-      if q["kind"] == "prime" and self.shown:     # show why the others are not prime
-        if is_prime(val):
+      if q["kind"] == "prime" and self.shown:
+        v = int(label.replace(",", ""))
+        if is_prime(v):
           draw_shield(s, (rr.right - 12, rr.y + 12), 9, glow=0.6)
         else:
-          x, y = factor_pair(val)
+          x, y = factor_pair(v)
           sm = g.small_font.render(f"{x} × {y}", True, WHITE)
           s.blit(sm, sm.get_rect(center=(rr.centerx, rr.bottom - 10)))
 
   def draw_footer(self, s, lay, now):
     g = self.g
     d = self.data
-    f = g.font_at(19)
-    for i, chip in enumerate(lay["chips"]):
-      on = d["level"] == i + 1
-      pygame.draw.rect(s, YELLOW if on else (90, 110, 160), chip, border_radius=11)
-      pygame.draw.rect(s, WHITE, chip, 2, border_radius=11)
-      t = f.render(str(i + 1), True, INK if on else WHITE)
-      s.blit(t, t.get_rect(center=chip.center))
+    btn = lay["chapter_btn"]
+    pygame.draw.rect(s, (90, 110, 170), btn, border_radius=12)
+    pygame.draw.rect(s, WHITE, btn, 2, border_radius=12)
+    t = g.font_at(15).render(f"Class {d['cls']}: {self.chapter_name()[0]}", True, WHITE)
+    if t.get_width() > btn.w - 16:
+      t = pygame.transform.smoothscale(t, (btn.w - 16, t.get_height()))
+    s.blit(t, t.get_rect(midleft=(btn.x + 8, btn.centery - 8)))
+    sub = g.small_font.render("Tap to change class or chapter", True, (220, 230, 255))
+    s.blit(sub, sub.get_rect(midleft=(btn.x + 8, btn.centery + 11)))
     right = lay["foot"].right
-    score = g.font_at(19).render(str(d["right"]), True, YELLOW)
+    score = g.font_at(19).render(str(d["stars"].get(self.key, 0)), True, YELLOW)
     sr = score.get_rect(midright=(right - 4, lay["foot"].centery - 9))
     s.blit(score, sr)
     g.draw_star(s, (sr.x - 12, sr.centery), 8)
-    name = g.small_font.render(LEVEL_NAMES[d["level"]], True, WHITE)
-    max_w = right - lay["chips"][-1].right - 8
-    if name.get_width() > max_w:
-      name = pygame.transform.smoothscale(name, (max_w, name.get_height()))
-    s.blit(name, name.get_rect(midright=(right - 4, lay["foot"].centery + 11)))
+    diff = d["diff"].get(self.key, 0)
+    for k in range(3):                         # difficulty: three steps per chapter
+      pygame.draw.circle(s, YELLOW if k <= diff else (90, 110, 160), (right - 40 + k * 14, lay["foot"].centery + 12), 5)
 
-  def draw_level_badge(self, s, lay, now):
+  def draw_badge(self, s, lay, now):
     g = self.g
     a = lay["area"]
     k = min(1.0, (now - self.level_up_at) / 0.4)
-    r = pygame.Rect(0, 0, int(280 * k), int(96 * k))
+    r = pygame.Rect(0, 0, int(300 * k), int(96 * k))
     r.center = (a.centerx, a.y + a.h // 3)
-    if r.w < 20:
+    if r.w < 20 or not self.badge:
       return
     pygame.draw.rect(s, (255, 120, 60), r, border_radius=24)
     pygame.draw.rect(s, WHITE, r, 4, border_radius=24)
-    t = g.font_at(34).render(f"Level {self.data['level']}!", True, WHITE)
-    s.blit(t, t.get_rect(center=(r.centerx, r.centery - 10)))
-    sub = g.small_font.render(LEVEL_NAMES[self.data["level"]], True, WHITE)
+    self.text(s, self.badge[0], (r.centerx, r.centery - 10), 32)
+    sub = g.small_font.render(self.badge[1], True, WHITE)
     s.blit(sub, sub.get_rect(center=(r.centerx, r.centery + 22)))
 
-  # --- the pictures for each kind of question ---------------------------------------
+  # ================================================================ pictures
+  def text(self, s, txt, centre, size, colour=WHITE, max_w=None):
+    t = render_expr(self.g, txt, size, colour, max_w)
+    s.blit(t, t.get_rect(center=(int(centre[0]), int(centre[1]))))
+
   def big_domino_rect(self, sc, wide=False):
     if wide:
       w = int(min(sc.w * 0.8, sc.h * 1.6, 360))
@@ -891,35 +789,90 @@ class MathsGame:
     h = int(min(sc.h * 0.95, 320))
     return pygame.Rect(sc.centerx - h // 4, sc.centery - h // 2, h // 2, h)
 
+  def scene_expr(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    show = q.get("show")
+    if not show:
+      draw_domino(s, pygame.Rect(sc.centerx - 30, sc.centery - 60, 60, 120), 3, 4)
+      return
+    size = 40
+    while size > 18 and self.g.font_at(size).size(show)[0] > sc.w - 30:
+      size -= 2
+    card = pygame.Rect(0, 0, min(sc.w, self.g.font_at(size).size(show)[0] + 50), size + 44)
+    card.center = sc.center
+    pygame.draw.rect(s, (30, 40, 80), card, border_radius=16)
+    pygame.draw.rect(s, YELLOW, card, 3, border_radius=16)
+    self.text(s, show, card.center, size, WHITE, sc.w - 30)
+
+  def scene_words(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    f = self.g.font_at(30)
+    lines = wrap(f, f'"{q["words"]}"', sc.w - 40)
+    for n, line in enumerate(lines):
+      self.text(s, line, (sc.centerx, sc.centery + (n - (len(lines) - 1) / 2) * 38), 30, YELLOW)
+
+  def scene_column(self, s, lay, now):
+    """A written sum in columns (Th H T O); carries appear over the columns after the answer."""
+    q = self.q
+    sc = lay["scene"]
+    a, b, op = q["a"], q["b"], q["op"]
+    c = q["val"]
+    digits = max(len(str(a)), len(str(b)), len(str(c)))
+    cw = int(min(48, (sc.w - 80) / (digits + 1)))
+    size = int(cw * 0.8)
+    right = sc.centerx + (digits + 1) * cw // 2
+    row_h = int(min(46, sc.h / 4.6))
+    y0 = sc.y + row_h
+    names = ["O", "T", "H", "Th", "TTh"]
+    for k in range(digits):
+      x = right - (k + 0.5) * cw
+      lbl = self.g.small_font.render(names[k] if k < len(names) else "", True, (180, 200, 240))
+      s.blit(lbl, lbl.get_rect(center=(int(x), sc.y + 6)))
+
+    def row(n, y, colour=WHITE):
+      for k, ch in enumerate(reversed(str(n))):
+        self.text(s, ch, (right - (k + 0.5) * cw, y), size, colour)
+    row(a, y0)
+    row(b, y0 + row_h)
+    self.text(s, op, (right - (digits + 0.5) * cw, y0 + row_h), size, YELLOW)
+    line_y = y0 + row_h + row_h * 0.6
+    pygame.draw.line(s, WHITE, (right - (digits + 1) * cw, line_y), (right, line_y), 3)
+    if self.shown:
+      row(c, y0 + row_h * 2.2, GREEN)
+      if op == "+":                                 # the carries, small, above each column
+        carry, k = 0, 0
+        while a or b or carry:
+          col = a % 10 + b % 10 + carry
+          carry = col // 10
+          a, b, k = a // 10, b // 10, k + 1
+          if carry:
+            self.text(s, "1", (right - (k + 0.5) * cw + cw * 0.15, y0 - row_h * 0.62), max(12, size // 2), YELLOW)
+    else:
+      self.text(s, "?", (right - cw * 0.5, y0 + row_h * 2.2), size, YELLOW)
+
   def scene_count(self, s, lay, now):
     q = self.q
     draw_domino(s, self.big_domino_rect(lay["scene"]), q["a"], q["b"], lit=self._lit)
 
   def scene_add(self, s, lay, now):
     q = self.q
-    g = self.g
     r = self.big_domino_rect(lay["scene"], wide=True)
     draw_domino(s, r, q["a"], q["b"], lit=self._lit)
-    f = g.font_at(30)
     for k, n in enumerate((q["a"], q["b"])):
-      t = f.render(str(n), True, WHITE)
-      s.blit(t, t.get_rect(center=(r.x + r.w * (0.25 + 0.5 * k), r.bottom + 24)))
-    plus = f.render("+", True, YELLOW)
-    s.blit(plus, plus.get_rect(center=(r.centerx, r.bottom + 24)))
+      self.text(s, str(n), (r.x + r.w * (0.25 + 0.5 * k), r.bottom + 24), 30)
+    self.text(s, "+", (r.centerx, r.bottom + 24), 30, YELLOW)
 
   def scene_bonds(self, s, lay, now):
     q = self.q
-    g = self.g
     r = self.big_domino_rect(lay["scene"], wide=True)
     b = q["b"] if self.shown else None
-    draw_domino(s, r, q["a"], b, lit=self._lit, font=g.font_at(int(r.h * 0.6)))
-    f = g.font_at(28)
-    t = f.render(f"{q['a']} + {q['b'] if self.shown else '?'} = {q['total']}", True, WHITE)
-    s.blit(t, t.get_rect(center=(r.centerx, r.bottom + 26)))
+    draw_domino(s, r, q["a"], b, lit=self._lit, font=self.g.font_at(int(r.h * 0.6)))
+    self.text(s, f"{q['a']} + {q['b'] if self.shown else '?'} = {q['total']}", (r.centerx, r.bottom + 26), 28)
 
   def scene_more(self, s, lay, now):
     q = self.q
-    g = self.g
     for i, r in enumerate(self.domino_rects(lay)):
       a, b = q["halves"][i]
       dx = 0
@@ -930,41 +883,44 @@ class MathsGame:
         pygame.draw.rect(s, GREEN, rr.inflate(18, 18), border_radius=18)
       draw_domino(s, rr, a, b, colour=(255, 225, 225) if i in self.wrong else (250, 250, 245))
       if self.solved_at is not None or i in self.wrong:
-        t = g.font_at(30).render(str(q["totals"][i]), True, WHITE)
-        s.blit(t, t.get_rect(center=(rr.centerx, rr.bottom + 24)))
+        self.text(s, str(q["totals"][i]), (rr.centerx, rr.bottom + 24), 30)
 
-  def scene_after(self, s, lay, now):
-    """A number line of domino tiles with one empty tile."""
-    q = self.q
-    g = self.g
-    sc = lay["scene"]
-    if q["kind"] == "after":
-      nums = [n for n in (q["a"] - 2, q["a"] - 1, q["a"]) if n >= 0] + [None]
-    else:
-      nums = [None, q["a"], q["a"] + 1, q["a"] + 2]
+  def tiles_row(self, s, sc, nums, answer, label_under=None):
     w = min(84, (sc.w - 20) // len(nums) - 10)
-    h = int(w * 1.5)
+    h = int(w * 1.4)
     x0 = sc.centerx - (len(nums) * (w + 10) - 10) // 2
-    f = g.font_at(int(w * 0.5))
     for k, n in enumerate(nums):
       r = pygame.Rect(x0 + k * (w + 10), sc.centery - h // 2, w, h)
       empty = n is None
-      show = q["c"] if empty and self.shown else n
+      show = answer if empty and self.shown else n
       col = (255, 250, 220) if not empty else ((200, 255, 210) if show is not None else (90, 100, 140))
       pygame.draw.rect(s, (20, 20, 40), r.move(3, 4), border_radius=12)
       pygame.draw.rect(s, col, r, border_radius=12)
       pygame.draw.rect(s, YELLOW if empty else INK, r, 3, border_radius=12)
-      t = f.render("?" if show is None else str(show), True, YELLOW if show is None else INK)
-      s.blit(t, t.get_rect(center=r.center))
+      txt = "?" if show is None else (num(show) if isinstance(show, int) else str(show))
+      sz = int(w * 0.5)
+      while sz > 10 and self.g.font_at(sz).size(txt)[0] > w - 6:
+        sz -= 2
+      self.text(s, txt, r.center, sz, YELLOW if show is None else INK)
     y = sc.centery + h // 2 + 22
     end = x0 + len(nums) * (w + 10) - 10
     pygame.draw.line(s, WHITE, (x0, y), (end, y), 3)
     pygame.draw.polygon(s, WHITE, [(end + 10, y), (end - 4, y - 8), (end - 4, y + 8)])
-    lbl = g.small_font.render("+1 each step", True, WHITE)
-    s.blit(lbl, lbl.get_rect(midtop=(sc.centerx, y + 6)))
+    if label_under:
+      lbl = self.g.small_font.render(label_under, True, WHITE)
+      s.blit(lbl, lbl.get_rect(midtop=(sc.centerx, y + 6)))
+
+  def scene_after(self, s, lay, now):
+    q = self.q
+    a = q["a"]
+    nums = [None, a, a + 1, a + 2] if q["before"] else [n for n in (a - 2, a - 1, a) if n >= 0] + [None]
+    self.tiles_row(s, lay["scene"], nums, q["val"], "+1 each step")
+
+  def scene_seq(self, s, lay, now):
+    q = self.q
+    self.tiles_row(s, lay["scene"], q["seq"], q["val"])
 
   def scene_topple(self, s, lay, now):
-    """n dominoes in a row; the red ones fall (take away)."""
     q = self.q
     sc = lay["scene"]
     n = q["a"]
@@ -972,7 +928,7 @@ class MathsGame:
     rows = 1 if n <= 10 else 2
     gap = min(36, (sc.w - 20) // per_row)
     h = min(int(gap * 1.9), int(sc.h / rows * 0.6))
-    t = now - self.asked_at - 1.0          # they fall a moment after the question
+    t = now - self.asked_at - 1.0
     nf = len(q["falls"])
     for i in range(n):
       row, col = divmod(i, per_row)
@@ -988,16 +944,13 @@ class MathsGame:
         self.g.draw_star(s, (x, foot_y - h - 12), 7)
 
   def scene_tens(self, s, lay, now):
-    """t rows of ten small dominoes and o more."""
     q = self.q
-    g = self.g
     sc = lay["scene"]
     rows = q["a"] + (1 if q["b"] else 0)
     gap = min(30, (sc.w - 70) // 10)
     rh = min(int(gap * 1.6), (sc.h - 10) // max(1, rows))
     h = int(rh * 0.8)
     y0 = sc.centery - rows * rh // 2 + h
-    f = g.font_at(max(12, min(20, rh - 4)))
     total = 0
     for r in range(rows):
       count = 10 if r < q["a"] else q["b"]
@@ -1008,13 +961,11 @@ class MathsGame:
         x = sc.x + 30 + c * gap + gap // 2
         colour = (90, 170, 255) if r < q["a"] else (255, 160, 60)
         fall_blit(s, small_domino(h, colour), (int(x), y), fall_row * min(1, (c + 1) / 10 + 0.2))
-      lbl = f.render("10" if r < q["a"] else str(q["b"]), True, WHITE)
       lx = sc.x + 30 + 10 * gap + 8
-      s.blit(lbl, lbl.get_rect(midleft=(lx, y - h // 2)))
+      self.text(s, "10" if r < q["a"] else str(q["b"]), (lx + 12, y - h // 2), max(12, min(20, rh - 4)))
       self._cascade.append((lx + 30, y - h, f"= {total}"))
 
   def scene_times(self, s, lay, now):
-    """g dominoes with the same dots: a times table is adding them up."""
     q = self.q
     sc = lay["scene"]
     gnum = q["a"]
@@ -1032,16 +983,16 @@ class MathsGame:
       x0 = sc.centerx - (n_in_row * (w + gap) - gap) // 2
       foot_y = sc.centery + h // 2 + (0 if rows == 1 else int((row - 0.5) * (h + 14)))
       x = x0 + col * (w + gap) + w // 2
-      lean = 0.42 if i < gnum - 1 else 0.3          # each one leans on the next
+      lean = 0.42 if i < gnum - 1 else 0.3
       fall_blit(s, surf, (x, foot_y), self.cascade_fall(i, now) * lean)
       total = add_all([total, q["b"]])
       self._cascade.append((x, foot_y - h - 8, f"+{q['b']} = {total}"))
 
   def scene_share(self, s, lay, now):
-    """A pile of laddoos; round by round, each friend gets one."""
     q = self.q
     sc = lay["scene"]
-    n, gnum, each = q["a"], q["b"], q["c"]
+    n, gnum = q["a"], q["b"]
+    each = n // gnum
     cell = min(110, (sc.w - 20) // gnum)
     lr = max(6, min(12, cell // 9))
     t = (now - self.done_at) if self.shown else -1
@@ -1057,49 +1008,41 @@ class MathsGame:
         rr, cc = divmod(j, 3)
         draw_laddoo(s, (fx - lr * 2 + cc * lr * 2, plate.centery - 6 - rr * lr * 2), lr)
     left = n - rounds * gnum
-    for j in range(left):                       # what is still in the pile
+    for j in range(left):
       ring, pos = divmod(j, 8)
       ang = pos * math.pi / 4 + ring * 0.4
       rad = 0 if j == 0 else lr * 2.1 * (ring + 1)
       draw_laddoo(s, (int(sc.centerx + rad * math.cos(ang)), int(sc.centery + rad * math.sin(ang))), lr)
-    if self.shown:
-      for r in range(each):
-        self._cascade.append((sc.centerx, sc.centery - 30, f"{n - (r + 1) * gnum} left"))
 
   def scene_multiple(self, s, lay, now):
-    """Two factor gates listing each table; the common number opens both."""
     q = self.q
-    g = self.g
     sc = lay["scene"]
-    f = g.font_at(19)
+    f = self.g.font_at(19)
+    c = q["val"]
     for k, base in enumerate((q["a"], q["b"])):
       y = sc.y + int(sc.h * (0.28 + 0.44 * k))
       gate = pygame.Rect(sc.x + 4, y - 24, 64, 48)
       pygame.draw.rect(s, (150, 100, 60), gate, border_radius=8)
       pygame.draw.rect(s, WHITE, gate, 2, border_radius=8)
-      t = g.font_at(24).render(f"{base}×", True, WHITE)
-      s.blit(t, t.get_rect(center=gate.center))
+      self.text(s, f"{base}×", gate.center, 24)
       x = gate.right + 8
       m = base
-      while x < sc.right - 30 and m <= q["c"] + base * 2:
-        hit = m == q["c"] and self.shown
-        label = str(m) if (m != q["c"] or self.shown) else "?"
+      while x < sc.right - 30 and m <= c + base * 2:
+        hit = m == c and self.shown
+        label = str(m) if (m != c or self.shown) else "?"
         tw = max(34, f.size(label)[0] + 12)
         tile = pygame.Rect(x, y - 18, tw, 36)
         pygame.draw.rect(s, GREEN if hit else (255, 250, 220), tile, border_radius=8)
         pygame.draw.rect(s, YELLOW if hit else INK, tile, 2, border_radius=8)
-        tt = f.render(label, True, INK)
-        s.blit(tt, tt.get_rect(center=tile.center))
+        self.text(s, label, tile.center, 19, INK)
         x += tw + 6
         m = add_all([m, base])
 
   def scene_fib(self, s, lay, now):
-    """A row of numbered dominoes; when solved they fall along a spiral."""
     q = self.q
     g = self.g
     sc = lay["scene"]
     seq = q["seq"]
-    f = g.font_at(20)
     if not self.shown:
       w = min(60, (sc.w - 20) // 6 - 8)
       h = int(w * 1.5)
@@ -1109,17 +1052,15 @@ class MathsGame:
         last = k == 5
         pygame.draw.rect(s, (90, 100, 140) if last else TILE_COLOURS[k], r, border_radius=10)
         pygame.draw.rect(s, YELLOW if last else WHITE, r, 3, border_radius=10)
-        t = f.render("?" if last else str(n), True, YELLOW if last else WHITE)
-        s.blit(t, t.get_rect(center=r.center))
+        self.text(s, "?" if last else str(n), r.center, 20, YELLOW if last else WHITE)
         if 2 <= k <= 4:
           plus = g.small_font.render(f"{seq[k - 2]}+{seq[k - 1]}", True, WHITE)
           s.blit(plus, plus.get_rect(midtop=(r.centerx, r.bottom + 6)))
       return
-    # the spiral (golden ratio): dominoes grow and fall one after another
     cx, cy = sc.centerx - sc.w * 0.05, sc.centery + sc.h * 0.05
     r_max = min(sc.w / 2, sc.h / 2) - 45
     pts = []
-    for k in range(6):                    # the spiral opens outwards, like a snail shell
+    for k in range(6):
       ang = 0.4 + k * 1.25
       rad = 34 + (r_max - 34) * (k / 5) ** 1.15
       pts.append((cx + rad * math.cos(ang), cy + rad * math.sin(ang)))
@@ -1133,15 +1074,12 @@ class MathsGame:
                             str(n) if k < 2 else f"{seq[k - 2]}+{seq[k - 1]}={n}"))
 
   def scene_prime(self, s, lay, now):
-    """Dots in equal rows: a prime number can only make one long row."""
     q = self.q
     g = self.g
     sc = lay["scene"]
-    p = q["c"]
-    comp = next((c for c in q["choices"] if not is_prime(c)), 12)
+    p = q["val"]
+    comp = next((int(c) for c in q["choices"] if not is_prime(int(c))), 12)
     r1, c1 = factor_pair(comp)
-    f = g.small_font
-    # left: a composite number as a rectangle of dots
     box = pygame.Rect(sc.x + 6, sc.y + 6, sc.w // 2 - 12, sc.h - 12)
     dot = max(4, min(10, min(box.w // (c1 + 1), (box.h - 40) // (r1 + 1)) // 2))
     for rr in range(r1):
@@ -1149,42 +1087,36 @@ class MathsGame:
         x = box.centerx - (c1 - 1) * dot * 1.3 + cc * dot * 2.6
         y = box.y + 20 + rr * dot * 2.6 + dot
         pygame.draw.circle(s, (255, 200, 90), (int(x), int(y)), dot)
-    t = f.render(f"{comp} = {r1} rows of {c1}: can split", True, WHITE)
+    t = g.small_font.render(f"{comp} = {r1} rows of {c1}: can split", True, WHITE)
     s.blit(t, t.get_rect(midbottom=(box.centerx, box.bottom)))
-    # right: a shield with "?" until solved, then the prime as one row
     right = pygame.Rect(sc.centerx + 6, sc.y + 6, sc.w // 2 - 12, sc.h - 12)
     glow = 0.5 + 0.5 * math.sin(now * 4) if self.shown else 0.0
     draw_shield(s, (right.centerx, right.centery - 10), 34, glow=glow)
-    big = g.font_at(30).render(str(p) if self.shown else "?", True, INK)
-    s.blit(big, big.get_rect(center=(right.centerx, right.centery - 10)))
+    self.text(s, str(p) if self.shown else "?", (right.centerx, right.centery - 10), 30, INK)
     msg = f"{p}: only 1 row of {p}" if self.shown else "Prime: no equal rows"
-    t = f.render(msg, True, WHITE)
+    t = g.small_font.render(msg, True, WHITE)
     s.blit(t, t.get_rect(midbottom=(right.centerx, right.bottom)))
 
   def scene_integer(self, s, lay, now):
-    """A number line from -10 to 10; blue anti-dominoes pull to the left."""
     q = self.q
     g = self.g
     sc = lay["scene"]
-    big = g.font_at(30).render(q["show"], True, WHITE)
-    s.blit(big, big.get_rect(center=(sc.centerx, sc.y + 18)))
+    self.text(s, q["show"], (sc.centerx, sc.y + 18), 30)
     y = sc.y + int(sc.h * 0.72)
     left, right = sc.x + 14, sc.right - 14
     step = (right - left) / 20
 
     def xat(v):
-      return int(left + (v + 10) * step)
+      return int(left + (max(-10, min(10, v)) + 10) * step)
     pygame.draw.line(s, WHITE, (left, y), (right, y), 3)
-    f = g.small_font
     for v in range(-10, 11):
       tick = 8 if v % 5 else 12
       pygame.draw.line(s, WHITE, (xat(v), y - tick), (xat(v), y + tick), 2)
       if v % 2 == 0 or step > 22:
-        t = f.render(num(v), True, (140, 190, 255) if v < 0 else WHITE)
+        t = g.small_font.render(num(v), True, (140, 190, 255) if v < 0 else WHITE)
         s.blit(t, t.get_rect(midtop=(xat(v), y + 14)))
-    a, b, c = q["a"], q["b"], q["c"]
-    # the tiles that make the move: anti-dominoes (negative) or normal ones
-    anti = q["form"] in ("int_plus", "int_minus")
+    a, b, c = q["a"], q["b"], q["val"]
+    anti = q["form"] in ("plus", "minus")
     th = int(min(46, sc.h * 0.28))
     tf = g.font_at(max(12, th // 3))
     for k in range(b):
@@ -1193,9 +1125,8 @@ class MathsGame:
       s.blit(tile, tile.get_rect(midbottom=(int(x), y - 46)))
     hint = ("Blue anti-dominoes: each one takes you 1 to the left" if anti
             else "Taking away anti-dominoes moves you right")
-    t = f.render(hint, True, (170, 210, 255))
+    t = g.small_font.render(hint, True, (170, 210, 255))
     s.blit(t, t.get_rect(midbottom=(sc.centerx, y - 46 - th - 4)))
-    # the walker: starts at a, hops to c once the answer is shown
     pos = a
     if self.shown:
       hops = int((now - self.done_at) / 0.35)
@@ -1207,66 +1138,740 @@ class MathsGame:
     pygame.draw.polygon(s, (255, 120, 60), [(xat(pos) - 6, y - 13), (xat(pos) + 6, y - 13), (xat(pos), y - 3)])
 
   def scene_ratio(self, s, lay, now):
-    """A ratio gate: the domino goes in small and comes out bigger (or smaller)."""
     q = self.q
-    g = self.g
     sc = lay["scene"]
-    v, c = q["a"], q["c"]
+    v, c = q["a"], q["val"]
     gate = pygame.Rect(0, 0, 90, int(sc.h * 0.8))
     gate.center = sc.center
     pygame.draw.rect(s, (160, 90, 220), gate, border_radius=40)
-    inner = gate.inflate(-26, -26)
-    pygame.draw.rect(s, (40, 20, 70), inner, border_radius=30)
-    t = g.font_at(24).render(q["show"], True, YELLOW)
-    s.blit(t, t.get_rect(center=(gate.centerx, gate.y - 14 if gate.y - 14 > sc.y else gate.centery)))
+    pygame.draw.rect(s, (40, 20, 70), gate.inflate(-26, -26), border_radius=30)
+    self.text(s, q["show"], (gate.centerx, max(sc.y + 12, gate.y - 14)), 24, YELLOW)
     h_in = int(sc.h * 0.42)
-    k = 0.0
-    if self.shown:
-      k = min(1.0, (now - self.done_at) / 1.2)
-    ha, hb = split_dots(v, 6) if v <= 12 else (None, None)
+    k = min(1.0, (now - self.done_at) / 1.2) if self.shown else 0.0
     small = pygame.Rect(0, 0, h_in // 2, h_in)
     small.center = (int(sc.x + sc.w * 0.18 + k * sc.w * 0.32), sc.centery)
     if k < 0.5:
-      if ha is not None:
-        draw_domino(s, small, ha, hb)
-      lbl = g.font_at(24).render(str(v), True, WHITE)
-      s.blit(lbl, lbl.get_rect(midtop=(small.centerx, small.bottom + 6)))
-    out_h = int(min(sc.h * 0.95, h_in * (1.5 if q["up"] else 0.6)))
-    if k >= 0.5:
+      if v <= 12:
+        self._rh = self._rh or mb.split_dots(v, 6)
+        draw_domino(s, small, *self._rh)
+      self.text(s, str(v), (small.centerx, small.bottom + 18), 24)
+    else:
+      out_h = int(min(sc.h * 0.95, h_in * (1.5 if q["up"] else 0.6)))
       big = pygame.Rect(0, 0, out_h // 2, out_h)
       big.center = (int(sc.right - sc.w * 0.18), sc.centery)
-      oa, ob = split_dots(c, 9) if c <= 18 else (None, None)
-      if oa is not None:
-        draw_domino(s, big, oa, ob, colour=(255, 245, 210))
-      lbl = g.font_at(28).render(str(c), True, GREEN)
-      s.blit(lbl, lbl.get_rect(midtop=(big.centerx, min(sc.bottom - 30, big.bottom + 6))))
+      if c <= 18:
+        self._ro = self._ro or mb.split_dots(c, 9)
+        draw_domino(s, big, *self._ro, colour=(255, 245, 210))
+      self.text(s, str(c), (big.centerx, min(sc.bottom - 16, big.bottom + 18)), 28, GREEN)
 
   def scene_balance(self, s, lay, now):
-    """A balance: x and some dots on one pan, the total on the other."""
     q = self.q
-    g = self.g
     sc = lay["scene"]
-    show = g.font_at(30).render(q["show"], True, WHITE)
-    s.blit(show, show.get_rect(center=(sc.centerx, sc.y + 18)))
+    self.text(s, q["show"], (sc.centerx, sc.y + 18), 30)
     base_y = sc.bottom - 8
     top_y = sc.y + int(sc.h * 0.42)
     pygame.draw.polygon(s, (180, 140, 90), [(sc.centerx - 40, base_y), (sc.centerx + 40, base_y),
                                             (sc.centerx, top_y)])
-    tilt = 0.0 if self.shown else 0.08 * math.sin(now * 2.5)   # wobbles until solved
+    tilt = 0.0 if self.shown else 0.08 * math.sin(now * 2.5)
     half = min(170, sc.w // 2 - 70)
     lx, ly = sc.centerx - half, top_y + half * tilt
     rx, ry = sc.centerx + half, top_y - half * tilt
     pygame.draw.line(s, (220, 190, 140), (lx, ly), (rx, ry), 6)
     pygame.draw.circle(s, WHITE, (sc.centerx, top_y), 7)
-    f = g.font_at(26)
-    for (px, py), label, colour in (((lx, ly), q["show"].split(" = ")[0], (90, 170, 255)),
+    left_label = q["show"].split(" = ")[0]
+    if self.shown:
+      m = re.match(r"^(\d+)x$", left_label)
+      left_label = f"{m.group(1)} × {q['val']}" if m else left_label.replace("x", str(q["val"]))
+    for (px, py), label, colour in (((lx, ly), left_label, (90, 170, 255)),
                                     ((rx, ry), str(q["total"]), (255, 160, 60))):
       pygame.draw.line(s, WHITE, (px, py), (px, py + 40), 2)
       pan = pygame.Rect(0, 0, 120, 26)
       pan.center = (px, py + 52)
       pygame.draw.ellipse(s, colour, pan)
       pygame.draw.ellipse(s, WHITE, pan, 2)
-      if self.shown and "x" in label:
-        label = label.replace("x", str(q["c"]))
-      t = f.render(label, True, WHITE)
-      s.blit(t, t.get_rect(midbottom=(px, pan.y - 2)))
+      self.text(s, label, (px, pan.y - 16), 26)
+
+  # --- numbers ----------------------------------------------------------------------
+  def scene_pairs(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    n = q["value"]
+    if n <= 20:
+      pairs, odd = divmod(n, 2)
+      cols = pairs + odd
+      gap = min(40, (sc.w - 40) // max(1, cols))
+      x0 = sc.centerx - (cols - 1) * gap / 2
+      for k in range(cols):
+        x = int(x0 + k * gap)
+        for j in range(2 if k < pairs else 1):
+          col = (255, 120, 90) if k == pairs else (90, 170, 255)
+          pygame.draw.circle(s, col, (x, sc.centery - 16 + j * 32), 12)
+          pygame.draw.circle(s, WHITE, (x, sc.centery - 16 + j * 32), 12, 2)
+      if self.shown:
+        self.text(s, "one dot has no partner" if odd else "every dot has a partner",
+                  (sc.centerx, sc.centery + 60), 18, YELLOW)
+    else:
+      t = num(n)
+      head = t[:-1]
+      w = self.g.font_at(44).size(head)[0]
+      self.text(s, head, (sc.centerx - 22, sc.centery), 44)
+      last = (sc.centerx - 22 + w // 2 + 24, sc.centery)
+      pygame.draw.circle(s, YELLOW, last, 28, 3)
+      self.text(s, t[-1], last, 44, YELLOW)
+      self.text(s, "Look at the last digit", (sc.centerx, sc.centery + 52), 18)
+
+  def scene_queue(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    n = q["kids"]
+    gap = min(60, (sc.w - 50) // n)
+    x0 = sc.x + 40
+    for k in range(n):
+      x = x0 + k * gap + gap // 2
+      y = sc.centery + 10
+      pygame.draw.circle(s, (240, 190, 140), (x, y - 30), gap // 4)
+      pygame.draw.rect(s, TILE_COLOURS[k % len(TILE_COLOURS)],
+                       (x - gap // 4, y - 30 + gap // 4, gap // 2, gap // 2 + 10), border_radius=6)
+      if k + 1 == q["pos"]:
+        self.g.draw_star(s, (x, y - 30 - gap // 4 - 16), 11)
+      if self.shown:
+        self.text(s, str(k + 1), (x, y + gap // 2 + 10), 16)
+    self.text(s, "front", (x0 + 18, sc.centery + 70), 16, YELLOW)
+    pygame.draw.polygon(s, YELLOW, [(x0 - 14, sc.centery + 70), (x0 - 2, sc.centery + 62), (x0 - 2, sc.centery + 78)])
+
+  def scene_place(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    digits = str(q["value"])
+    names = ["O", "T", "H", "Th", "TTh", "L", "TL"]
+    w = min(54, (sc.w - 20) // len(digits) - 6)
+    x0 = sc.centerx - (len(digits) * (w + 6) - 6) // 2
+    for i, ch in enumerate(digits):
+      r = pygame.Rect(x0 + i * (w + 6), sc.centery - w, w, int(w * 1.3))
+      hit = i == q["digit_index"]
+      pygame.draw.rect(s, YELLOW if hit else (255, 250, 220), r, border_radius=8)
+      pygame.draw.rect(s, INK, r, 2, border_radius=8)
+      self.text(s, ch, r.center, int(w * 0.6), INK)
+      lbl = self.g.small_font.render(names[len(digits) - 1 - i], True, WHITE)
+      s.blit(lbl, lbl.get_rect(midtop=(r.centerx, r.bottom + 4)))
+
+  def scene_numline(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    to, v = q["to"], q["value"]
+    lo = v // to * to
+    hi = lo + to
+    y = sc.centery + 10
+    left, right = sc.x + 30, sc.right - 30
+
+    def xat(x):
+      return int(left + (x - lo) / to * (right - left))
+    pygame.draw.line(s, WHITE, (left, y), (right, y), 3)
+    for k in range(11):
+      x = left + (right - left) * k / 10
+      big = k in (0, 5, 10)
+      pygame.draw.line(s, WHITE, (x, y - (12 if big else 6)), (x, y + (12 if big else 6)), 2)
+    self.text(s, num(lo), (left, y + 26), 18)
+    self.text(s, num(hi), (right, y + 26), 18)
+    self.text(s, "half way", ((left + right) / 2, y + 26), 14, (200, 210, 240))
+    pygame.draw.circle(s, YELLOW, (xat(v), y), 9)
+    self.text(s, num(v), (xat(v), y - 26), 20, YELLOW)
+    if self.shown:
+      tgt = xat(q["val"])
+      pygame.draw.line(s, GREEN, (xat(v), y - 44), (tgt, y - 44), 4)
+      pygame.draw.circle(s, GREEN, (tgt, y), 11, 3)
+
+  # --- time and money --------------------------------------------------------------------
+  def draw_clock(self, s, centre, r, h, m, colour=(255, 250, 235)):
+    pygame.draw.circle(s, (30, 30, 50), (centre[0] + 3, centre[1] + 4), r)
+    pygame.draw.circle(s, colour, centre, r)
+    pygame.draw.circle(s, INK, centre, r, 4)
+    f = max(12, r // 5)
+    for k in range(1, 13):
+      ang = math.radians(k * 30 - 90)
+      self.text(s, str(k), (centre[0] + r * 0.78 * math.cos(ang), centre[1] + r * 0.78 * math.sin(ang)), f, INK)
+    for k in range(60):
+      ang = math.radians(k * 6 - 90)
+      inner = r * (0.9 if k % 5 else 0.86)
+      pygame.draw.line(s, INK, (centre[0] + inner * math.cos(ang), centre[1] + inner * math.sin(ang)),
+                       (centre[0] + r * 0.95 * math.cos(ang), centre[1] + r * 0.95 * math.sin(ang)), 1)
+    ha = math.radians((h % 12 + m / 60) * 30 - 90)
+    ma = math.radians(m * 6 - 90)
+    pygame.draw.line(s, (220, 60, 60), centre, (centre[0] + r * 0.5 * math.cos(ha), centre[1] + r * 0.5 * math.sin(ha)), 7)
+    pygame.draw.line(s, INK, centre, (centre[0] + r * 0.75 * math.cos(ma), centre[1] + r * 0.75 * math.sin(ma)), 4)
+    pygame.draw.circle(s, INK, centre, 6)
+
+  def scene_clock(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    self.draw_clock(s, sc.center, int(min(sc.w, sc.h) * 0.45), q["h"], q["m"])
+
+  def scene_clock2(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    r = int(min(sc.w / 4.6, sc.h * 0.4))
+    self.draw_clock(s, (sc.centerx - int(r * 1.3), sc.centery - 10), r, q["h"], q["m"])
+    self.draw_clock(s, (sc.centerx + int(r * 1.3), sc.centery - 10), r, q["h2"], q["m2"], (220, 245, 255))
+    self.text(s, "start", (sc.centerx - int(r * 1.3), sc.centery + r + 4), 16, YELLOW)
+    self.text(s, "end", (sc.centerx + int(r * 1.3), sc.centery + r + 4), 16, YELLOW)
+
+  def scene_calendar(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    if "month" in q:
+      card = pygame.Rect(0, 0, min(260, sc.w - 20), int(sc.h * 0.9))
+      card.center = sc.center
+      pygame.draw.rect(s, PAPER, card, border_radius=12)
+      pygame.draw.rect(s, (220, 60, 60), (card.x, card.y, card.w, 36), border_top_left_radius=12,
+                       border_top_right_radius=12)
+      self.text(s, q["month"], (card.centerx, card.y + 18), 20)
+      cw = (card.w - 20) / 7
+      rh = min(22, (card.h - 50) / 5)
+      for k in range(q["val"] if self.shown else 28):
+        r_, c_ = divmod(k, 7)
+        self.text(s, str(k + 1), (card.x + 10 + cw * (c_ + 0.5), card.y + 50 + r_ * rh), 13, INK)
+      if not self.shown:
+        self.text(s, "...?", (card.centerx, card.bottom - 12), 18, (220, 60, 60))
+      return
+    w = min(58, (sc.w - 20) // 7 - 4)
+    x0 = sc.centerx - (7 * (w + 4) - 4) // 2
+    for k, day in enumerate(mb.DAYS):
+      r = pygame.Rect(x0 + k * (w + 4), sc.centery - 30, w, 60)
+      today = k == q["day"]
+      ans = self.shown and day == q["c"]
+      pygame.draw.rect(s, GREEN if ans else (YELLOW if today else PAPER), r, border_radius=8)
+      pygame.draw.rect(s, INK, r, 2, border_radius=8)
+      self.text(s, day[:3], r.center, 16, INK)
+      if today:
+        self.text(s, "today", (r.centerx, r.bottom + 12), 13, YELLOW)
+
+  def draw_coin(self, s, centre, value, r):
+    if value >= 20:
+      note = pygame.Rect(0, 0, int(r * 3.2), int(r * 1.6))
+      note.center = centre
+      colours = {20: (255, 200, 120), 50: (120, 210, 230), 100: (190, 170, 240), 200: (255, 190, 90),
+                 500: (200, 200, 190), 2000: (240, 130, 190)}
+      pygame.draw.rect(s, colours.get(value, (200, 230, 200)), note, border_radius=6)
+      pygame.draw.rect(s, INK, note, 2, border_radius=6)
+      pygame.draw.circle(s, WHITE, (note.right - r // 2 - 4, note.centery), r // 2, 2)
+      self.text(s, f"Rs.{value}", (note.centerx - 6, note.centery), max(12, r // 2 + 4), INK)
+    else:
+      pygame.draw.circle(s, (150, 120, 50), (centre[0] + 2, centre[1] + 3), r)
+      pygame.draw.circle(s, (230, 195, 90) if value != 10 else (220, 220, 225), centre, r)
+      pygame.draw.circle(s, (170, 130, 40), centre, r, 3)
+      self.text(s, str(value), centre, max(12, int(r * 0.9)), INK)
+
+  def scene_money(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    coins = q["coins"]
+    per = 3 if len(coins) > 3 else len(coins)
+    rows = math.ceil(len(coins) / per)
+    r = int(min(30, sc.w / (per * 3.6), sc.h / (rows * 2.6)))
+    total = 0
+    for i, v in enumerate(coins):
+      row, col = divmod(i, per)
+      n_in = min(per, len(coins) - row * per)
+      x = sc.centerx + (col - (n_in - 1) / 2) * r * 3.6
+      y = sc.centery + (row - (rows - 1) / 2) * r * 2.4
+      self.draw_coin(s, (int(x), int(y)), v, r)
+      total = add_all([total, v])
+      self._cascade.append((int(x), int(y - r - 6), f"= {total}"))
+
+  def scene_bill(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    r = int(min(34, sc.h / 4))
+    self.draw_coin(s, (sc.centerx - int(sc.w * 0.22), sc.centery), q["n"], r)
+    tag = pygame.Rect(0, 0, 110, 56)
+    tag.center = (sc.centerx + int(sc.w * 0.22), sc.centery)
+    pygame.draw.rect(s, PAPER, tag, border_radius=10)
+    pygame.draw.rect(s, (220, 60, 60), tag, 3, border_radius=10)
+    self.text(s, f"Rs. {q['a']}", tag.center, 22, INK)
+    self.text(s, "you pay", (sc.centerx - int(sc.w * 0.22), sc.centery + r + 18), 15, YELLOW)
+    self.text(s, "price", (tag.centerx, tag.bottom + 14), 15, YELLOW)
+
+  def scene_billlist(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    lines = q["lines"]
+    card = pygame.Rect(0, 0, min(320, sc.w - 20), min(sc.h - 6, 40 + 32 * (len(lines) + 1)))
+    card.center = sc.center
+    pygame.draw.rect(s, PAPER, card, border_radius=10)
+    pygame.draw.rect(s, INK, card, 2, border_radius=10)
+    step = (card.h - 30) / (len(lines) + 1)
+    y = card.y + 20
+    for name, price, qty in lines:
+      self.text(s, name, (card.x + 64, y), 17, INK)
+      self.text(s, f"{qty} × Rs. {price}", (card.right - 80, y), 17, INK)
+      y += step
+    pygame.draw.line(s, INK, (card.x + 12, y - step / 2), (card.right - 12, y - step / 2), 2)
+    self.text(s, "Total", (card.x + 64, y), 17, INK)
+    self.text(s, f"Rs. {q['c']}" if self.shown else "Rs. ?", (card.right - 80, y), 17, (220, 60, 60))
+
+  # --- fractions ---------------------------------------------------------------------
+  def draw_fraction(self, s, rect, n, den, shape="bar", colour=(255, 150, 60)):
+    if shape == "pie":
+      r = min(rect.w, rect.h) // 2
+      c = rect.center
+      pygame.draw.circle(s, (250, 250, 245), c, r)
+      for k in range(n):
+        a0, a1 = -math.pi / 2 + 2 * math.pi * k / den, -math.pi / 2 + 2 * math.pi * (k + 1) / den
+        pts = [c] + [(c[0] + r * math.cos(a0 + (a1 - a0) * t / 12), c[1] + r * math.sin(a0 + (a1 - a0) * t / 12))
+                     for t in range(13)]
+        pygame.draw.polygon(s, colour, pts)
+      for k in range(den):
+        a = -math.pi / 2 + 2 * math.pi * k / den
+        pygame.draw.line(s, INK, c, (c[0] + r * math.cos(a), c[1] + r * math.sin(a)), 2)
+      pygame.draw.circle(s, INK, c, r, 3)
+    else:
+      w = rect.w / den
+      for k in range(den):
+        cell = pygame.Rect(int(rect.x + k * w), rect.y, int(w) + 1, rect.h)
+        pygame.draw.rect(s, colour if k < n else (250, 250, 245), cell)
+        pygame.draw.rect(s, INK, cell, 2)
+
+  def scene_fraction(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    if q["shape"] == "pie":
+      d = int(min(sc.h * 0.9, 220))
+      self.draw_fraction(s, pygame.Rect(sc.centerx - d // 2, sc.centery - d // 2, d, d), q["num"], q["den"], "pie")
+    else:
+      w = int(min(sc.w * 0.85, 380))
+      self.draw_fraction(s, pygame.Rect(sc.centerx - w // 2, sc.centery - 40, w, 80), q["num"], q["den"], "bar")
+
+  def scene_fraction2(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    w = int(min(sc.w * 0.75, 360))
+    for k, (n, d) in enumerate(q["fracs"]):
+      y = sc.y + int(sc.h * (0.3 + 0.4 * k))
+      bar = pygame.Rect(sc.centerx - w // 2 + 34, y - 24, w - 34, 48)
+      self.draw_fraction(s, bar, n, d, "bar", (90, 170, 255) if k else (255, 150, 60))
+      self.text(s, f"{n}/{d}", (bar.x - 34, y), 24)
+
+  def scene_percent(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    side = int(min(sc.h * 0.9, 220, sc.w * 0.5))
+    cell = side / 10
+    x0, y0 = sc.centerx - side // 2 - 60, sc.centery - side // 2
+    for k in range(100):
+      r, c = divmod(k, 10)
+      rect = pygame.Rect(int(x0 + c * cell), int(y0 + r * cell), int(cell) + 1, int(cell) + 1)
+      pygame.draw.rect(s, (255, 150, 60) if k < q["p"] else (250, 250, 245), rect)
+      pygame.draw.rect(s, (180, 180, 190), rect, 1)
+    self.text(s, f"{q['p']} of 100", (x0 + side + 74, sc.centery - 14), 20, YELLOW)
+    self.text(s, f"= {q['p']}%", (x0 + side + 74, sc.centery + 14), 20, YELLOW)
+
+  # --- measurement -------------------------------------------------------------------
+  def scene_ruler(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    cm = (sc.w - 40) / 13
+    x0 = sc.x + 24
+    ruler = pygame.Rect(int(x0 - 8), sc.centery + 10, int(cm * 12 + 16), 54)
+    pygame.draw.rect(s, (250, 215, 120), ruler, border_radius=6)
+    pygame.draw.rect(s, INK, ruler, 2, border_radius=6)
+    for k in range(13):
+      x = x0 + k * cm
+      pygame.draw.line(s, INK, (x, ruler.y), (x, ruler.y + 22), 2)
+      self.text(s, str(k), (x, ruler.y + 36), 14, INK)
+      if k < 12:
+        pygame.draw.line(s, INK, (x + cm / 2, ruler.y), (x + cm / 2, ruler.y + 12), 1)
+    self.text(s, "cm", (ruler.right - 14, ruler.y + 36), 12, INK)
+    st, ln = q["start"], q["length"]
+    left, right = x0 + st * cm, x0 + (st + ln) * cm
+    y = sc.centery - 26
+    tip = cm * 0.6
+    pygame.draw.rect(s, (240, 130, 160), (left, y, cm * 0.35, 22))
+    pygame.draw.rect(s, (255, 190, 60), (left + cm * 0.35, y, right - left - cm * 0.35 - tip, 22))
+    pygame.draw.polygon(s, (240, 210, 160), [(right - tip, y), (right, y + 11), (right - tip, y + 22)])
+    pygame.draw.circle(s, INK, (int(right - 2), y + 11), 3)
+    for x in (left, right):
+      dashed(s, WHITE, (x, y + 22), (x, ruler.y), 5)
+
+  # --- geometry ---------------------------------------------------------------------
+  def scene_shape(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    side = int(min(sc.h * 0.85, 220))
+    rect = pygame.Rect(sc.centerx - side // 2, sc.centery - side // 2, side, side)
+    draw_shape(s, q["shape"], rect)
+    if q.get("count_corners") and self.shown:
+      for k, p in enumerate(shape_points(q["shape"], rect) or []):
+        pygame.draw.circle(s, YELLOW, (int(p[0]), int(p[1])), 10)
+        self.text(s, str(k + 1), p, 13, INK)
+
+  def scene_symmetry(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    side = int(min(sc.h * 0.85, 220))
+    rect = pygame.Rect(sc.centerx - side // 2, sc.centery - side // 2, side, side)
+    draw_shape(s, q["shape"], rect)
+    if not self.shown:
+      return
+    c = rect.center
+    r = side * 0.62
+    n = q["val"]
+    if q["shape"] == "Rectangle":
+      angles = [0, 90]
+    elif q["shape"] == "Square":
+      angles = [0, 45, 90, 135]
+    else:
+      start = {"Triangle": 90, "Pentagon": 90, "Star": 90, "Hexagon": 0}.get(q["shape"], 0)
+      angles = [start + 180 * k / n for k in range(n)]
+    shown = int((now - self.done_at) / 0.4) + 1
+    for a in angles[:shown]:
+      rad = math.radians(a)
+      dashed(s, YELLOW, (c[0] - r * math.cos(rad), c[1] - r * math.sin(rad)),
+             (c[0] + r * math.cos(rad), c[1] + r * math.sin(rad)), 9, 3)
+
+  def scene_solid(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    name = q["solid"]
+    cx, cy = sc.center
+    k = int(min(sc.h * 0.36, 90))
+    front, top, side = (120, 190, 255), (180, 220, 255), (80, 140, 220)
+    if name in ("Cube", "Cuboid"):
+      w = k * (1.6 if name == "Cuboid" else 1.0)
+      h = k
+      dx, dy = k * 0.5, -k * 0.4
+      f = [(cx - w / 2, cy - h / 2 + 10), (cx + w / 2, cy - h / 2 + 10), (cx + w / 2, cy + h / 2 + 10),
+           (cx - w / 2, cy + h / 2 + 10)]
+      t = [f[0], f[1], (f[1][0] + dx, f[1][1] + dy), (f[0][0] + dx, f[0][1] + dy)]
+      r = [f[1], f[2], (f[2][0] + dx, f[2][1] + dy), (f[1][0] + dx, f[1][1] + dy)]
+      for poly, col in ((f, front), (t, top), (r, side)):
+        pygame.draw.polygon(s, col, poly)
+        pygame.draw.polygon(s, WHITE, poly, 3)
+      if self.shown:
+        for p in f + [t[2], t[3], r[2]]:
+          pygame.draw.circle(s, YELLOW, (int(p[0]), int(p[1])), 6)
+    elif name == "Cylinder":
+      e = pygame.Rect(int(cx - k * 0.7), int(cy - k - 12), int(k * 1.4), int(k * 0.5))
+      pygame.draw.rect(s, front, (e.x, e.centery, e.w, int(k * 1.6)))
+      b = e.move(0, int(k * 1.6))
+      pygame.draw.ellipse(s, side, b)
+      pygame.draw.ellipse(s, top, e)
+      pygame.draw.ellipse(s, WHITE, e, 3)
+      pygame.draw.line(s, WHITE, (e.x, e.centery), (b.x, b.centery), 3)
+      pygame.draw.line(s, WHITE, (e.right, e.centery), (b.right, b.centery), 3)
+      pygame.draw.arc(s, WHITE, b, math.pi, 2 * math.pi, 3)
+    elif name == "Cone":
+      b = pygame.Rect(int(cx - k * 0.8), int(cy + k * 0.6), int(k * 1.6), int(k * 0.5))
+      pygame.draw.polygon(s, front, [(cx, cy - k), (b.x, b.centery), (b.right, b.centery)])
+      pygame.draw.ellipse(s, side, b)
+      pygame.draw.polygon(s, WHITE, [(cx, cy - k), (b.x, b.centery), (b.right, b.centery)], 3)
+      pygame.draw.arc(s, WHITE, b, math.pi, 2 * math.pi, 3)
+    elif name == "Sphere":
+      pygame.draw.circle(s, front, (cx, cy), k)
+      pygame.draw.circle(s, top, (cx - k // 3, cy - k // 3), k // 3)
+      pygame.draw.circle(s, WHITE, (cx, cy), k, 3)
+      pygame.draw.ellipse(s, WHITE, (cx - k, cy - k // 4, 2 * k, k // 2), 1)
+    else:   # square pyramid
+      base = [(cx - k, cy + k * 0.5), (cx + k * 0.6, cy + k * 0.5), (cx + k, cy + k * 0.1), (cx - k * 0.6, cy + k * 0.1)]
+      apex = (cx, cy - k)
+      for i, col in ((0, front), (1, side)):
+        pygame.draw.polygon(s, col, [base[i], base[i + 1], apex])
+        pygame.draw.polygon(s, WHITE, [base[i], base[i + 1], apex], 3)
+      dashed(s, WHITE, base[3], apex, 6, 2)
+      dashed(s, WHITE, base[2], base[3], 6, 2)
+      dashed(s, WHITE, base[0], base[3], 6, 2)
+
+  def draw_angle(self, s, vertex, r, deg, label=None, colour=YELLOW):
+    pygame.draw.line(s, WHITE, vertex, (vertex[0] + r, vertex[1]), 4)
+    rad = math.radians(deg)
+    end = (vertex[0] + r * math.cos(rad), vertex[1] - r * math.sin(rad))
+    pygame.draw.line(s, WHITE, vertex, end, 4)
+    ar = r * 0.3
+    if abs(deg - 90) < 0.5:
+      sq = ar * 0.6
+      pygame.draw.lines(s, colour, False, [(vertex[0] + sq, vertex[1]), (vertex[0] + sq, vertex[1] - sq),
+                                           (vertex[0], vertex[1] - sq)], 3)
+    else:
+      pts = [(vertex[0] + ar * math.cos(math.radians(a)), vertex[1] - ar * math.sin(math.radians(a)))
+             for a in range(0, int(deg) + 1, 3)]
+      if len(pts) > 1:
+        pygame.draw.lines(s, colour, False, pts, 3)
+    if label:
+      mid = math.radians(deg / 2)
+      self.text(s, label, (vertex[0] + ar * 1.9 * math.cos(mid), vertex[1] - ar * 1.9 * math.sin(mid)), 20, colour)
+
+  def scene_angle(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    deg = q["deg"]
+    if deg <= 180:
+      r = int(min(sc.w * 0.4, sc.h * 0.85))
+      vertex = (sc.centerx, sc.bottom - 16)
+    else:
+      r = int(min(sc.w * 0.3, sc.h * 0.45))
+      vertex = (sc.centerx, sc.centery)
+    if q.get("protractor"):
+      pygame.draw.circle(s, (230, 240, 255), vertex, r, draw_top_left=True, draw_top_right=True)
+      pygame.draw.circle(s, INK, vertex, r, 2, draw_top_left=True, draw_top_right=True)
+      for a in range(0, 181, 10):
+        rad = math.radians(a)
+        inner = r * (0.88 if a % 30 else 0.8)
+        pygame.draw.line(s, INK, (vertex[0] + inner * math.cos(rad), vertex[1] - inner * math.sin(rad)),
+                         (vertex[0] + r * math.cos(rad), vertex[1] - r * math.sin(rad)), 2)
+        if a % 30 == 0:
+          self.text(s, str(a), (vertex[0] + r * 0.68 * math.cos(rad), vertex[1] - r * 0.68 * math.sin(rad)), 13, INK)
+    self.draw_angle(s, vertex, r, deg, f"{deg}°" if self.shown else None)
+
+  def scene_vertical(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    c = sc.center
+    r = int(min(sc.w * 0.42, sc.h * 0.48))
+    deg = q["deg"]
+    for a in (0, deg):
+      rad = math.radians(a)
+      pygame.draw.line(s, WHITE, (c[0] - r * math.cos(rad), c[1] + r * math.sin(rad)),
+                       (c[0] + r * math.cos(rad), c[1] - r * math.sin(rad)), 4)
+    mid = math.radians(deg / 2)
+    self.text(s, f"{deg}°", (c[0] + r * 0.4 * math.cos(mid), c[1] - r * 0.4 * math.sin(mid)), 20, YELLOW)
+    self.text(s, f"{deg}°" if self.shown else "?", (c[0] - r * 0.4 * math.cos(mid), c[1] + r * 0.4 * math.sin(mid)),
+              22, GREEN if self.shown else YELLOW)
+
+  def scene_angle_pair(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    total, a = q["total"], q["deg"]
+    r = int(min(sc.w * 0.4, sc.h * 0.8))
+    vertex = (sc.centerx, sc.bottom - 16)
+    pygame.draw.line(s, WHITE, vertex, (vertex[0] + r, vertex[1]), 4)
+    et = math.radians(total)
+    pygame.draw.line(s, WHITE, vertex, (vertex[0] + r * math.cos(et), vertex[1] - r * math.sin(et)), 4)
+    mid = math.radians(a)
+    pygame.draw.line(s, (120, 200, 255), vertex, (vertex[0] + r * math.cos(mid), vertex[1] - r * math.sin(mid)), 4)
+    self.text(s, f"{a}°", (vertex[0] + r * 0.45 * math.cos(mid / 2), vertex[1] - r * 0.45 * math.sin(mid / 2)), 20, YELLOW)
+    m2 = math.radians((a + total) / 2)
+    self.text(s, f"{q['val']}°" if self.shown else "?",
+              (vertex[0] + r * 0.45 * math.cos(m2), vertex[1] - r * 0.45 * math.sin(m2)), 22,
+              GREEN if self.shown else YELLOW)
+    self.text(s, f"together {total}°", (sc.centerx, sc.y + 14), 18)
+
+  def scene_lines(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    c = sc.center
+    L = min(sc.w * 0.4, 170)
+    kind = q["line_kind"]
+    if kind == "Parallel":
+      for dy in (-40, 40):
+        pygame.draw.line(s, WHITE, (c[0] - L, c[1] + dy - 20), (c[0] + L, c[1] + dy + 20), 5)
+    elif kind == "Perpendicular":
+      pygame.draw.line(s, WHITE, (c[0] - L, c[1] + 40), (c[0] + L, c[1] + 40), 5)
+      pygame.draw.line(s, WHITE, (c[0], c[1] + 40), (c[0], c[1] - L * 0.6), 5)
+      if self.shown:
+        pygame.draw.lines(s, YELLOW, False, [(c[0] + 18, c[1] + 40), (c[0] + 18, c[1] + 22), (c[0], c[1] + 22)], 3)
+    else:
+      pygame.draw.line(s, WHITE, (c[0] - L, c[1] + 50), (c[0] + L, c[1] - 30), 5)
+      pygame.draw.line(s, WHITE, (c[0] - L, c[1] - 40), (c[0] + L, c[1] + 30), 5)
+      if self.shown:
+        pygame.draw.circle(s, YELLOW, (int(c[0] + L * 0.06), int(c[1] + 4)), 8)
+
+  def scene_triangle(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    w = int(min(sc.w * 0.7, 300))
+    h = int(min(sc.h * 0.8, w * 0.75))
+    p = [(sc.centerx - w // 2, sc.centery + h // 2), (sc.centerx + w // 2, sc.centery + h // 2),
+         (sc.centerx - w // 8, sc.centery - h // 2)]
+    pygame.draw.polygon(s, (90, 170, 255), p)
+    pygame.draw.polygon(s, WHITE, p, 3)
+    if "angles" in q:
+      a, b, c = q["angles"]
+      self.text(s, f"{a}°", (p[0][0] + 34, p[0][1] - 16), 18, YELLOW)
+      self.text(s, f"{b}°", (p[1][0] - 34, p[1][1] - 16), 18, YELLOW)
+      self.text(s, f"{c}°" if self.shown else "?", (p[2][0] + 4, p[2][1] + 30), 20, GREEN if self.shown else YELLOW)
+    else:
+      sa, sb, sc_ = q["sides"]
+      self.text(s, f"{sa} cm", ((p[0][0] + p[1][0]) / 2, p[0][1] + 16), 17, YELLOW)
+      self.text(s, f"{sb} cm", ((p[1][0] + p[2][0]) / 2 + 30, (p[1][1] + p[2][1]) / 2), 17, YELLOW)
+      self.text(s, f"{sc_} cm", ((p[0][0] + p[2][0]) / 2 - 32, (p[0][1] + p[2][1]) / 2), 17, YELLOW)
+
+  def scene_circle(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    r = int(min(sc.h * 0.45, 110))
+    c = sc.center
+    pygame.draw.circle(s, (120, 190, 255), c, r)
+    pygame.draw.circle(s, WHITE, c, r, 3)
+    pygame.draw.circle(s, INK, c, 5)
+    if q["diam"] or self.shown:                 # the radius is given (or shown)
+      pygame.draw.line(s, YELLOW, c, (c[0] + r, c[1]), 4)
+      self.text(s, f"r = {q['r']}", (c[0] + r // 2, c[1] - 16), 18, YELLOW)
+    if not q["diam"] or self.shown:             # the diameter is given (or shown)
+      y = c[1] + r // 3
+      half = int(math.sqrt(max(0, r * r - (r // 3) ** 2)))
+      pygame.draw.line(s, (255, 150, 60), (c[0] - half, y), (c[0] + half, y), 4)
+      self.text(s, f"d = {2 * q['r']}", (c[0], y + 18), 18, (255, 150, 60))
+
+  # --- area, perimeter, volume ------------------------------------------------------------
+  def scene_grid(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    w, h = q["w"], q["h"]
+    cell = int(min((sc.w - 60) / w, (sc.h - 40) / h, 36))
+    x0 = sc.centerx - w * cell // 2
+    y0 = sc.centery - h * cell // 2
+    lit_n = int((now - self.done_at) / 0.05) if self.shown and q["what"] == "area" else 0
+    for r in range(h):
+      for c in range(w):
+        rect = pygame.Rect(x0 + c * cell, y0 + r * cell, cell, cell)
+        pygame.draw.rect(s, (255, 190, 60) if r * w + c < lit_n else (120, 190, 255), rect)
+        pygame.draw.rect(s, WHITE, rect, 1)
+    outline = pygame.Rect(x0, y0, w * cell, h * cell)
+    pygame.draw.rect(s, YELLOW if q["what"] == "perimeter" else WHITE, outline, 4 if q["what"] == "perimeter" else 2)
+    self.text(s, str(w), (outline.centerx, outline.y - 14), 18, YELLOW)
+    self.text(s, str(h), (outline.x - 16, outline.centery), 18, YELLOW)
+
+  def scene_cubes(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    l, w, h = q["l"], q["w"], q["h"]
+    k = int(min(sc.w / (l + w * 0.6 + 2), sc.h / (h + w * 0.5 + 1), 34))
+    dx, dy = k * 0.6, -k * 0.5
+    ox = sc.centerx - (l * k + w * dx) / 2
+    oy = sc.centery + (h * k - w * dy) / 2 - 10
+    for z in range(h):
+      layer_col = TILE_COLOURS[z % len(TILE_COLOURS)]
+      for y in range(w - 1, -1, -1):
+        for x in range(l):
+          bx, by = ox + x * k + y * dx, oy - z * k + y * dy
+          f = [(bx, by), (bx + k, by), (bx + k, by - k), (bx, by - k)]
+          t = [(bx, by - k), (bx + k, by - k), (bx + k + dx, by - k + dy), (bx + dx, by - k + dy)]
+          r = [(bx + k, by), (bx + k + dx, by + dy), (bx + k + dx, by - k + dy), (bx + k, by - k)]
+          for poly, shade in ((r, 0.7), (t, 1.15), (f, 1.0)):
+            col = tuple(max(0, min(255, int(c * shade))) for c in layer_col)
+            pygame.draw.polygon(s, col, poly)
+            pygame.draw.polygon(s, (30, 30, 50), poly, 1)
+    for z in range(h):
+      self._cascade.append((int(ox + l * k + w * dx + 26), int(oy - z * k - k // 2), f"+{l * w} = {l * w * (z + 1)}"))
+
+  # --- data --------------------------------------------------------------------------
+  def scene_tally(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    n = q["value"]
+    groups = math.ceil(n / 5)
+    gw = 70
+    x0 = sc.centerx - groups * gw // 2
+    for g_ in range(groups):
+      count = min(5, n - g_ * 5)
+      bx = x0 + g_ * gw + 8
+      for k in range(min(4, count)):
+        pygame.draw.line(s, WHITE, (bx + k * 12, sc.centery - 34), (bx + k * 12, sc.centery + 34), 5)
+      if count == 5:
+        pygame.draw.line(s, YELLOW, (bx - 8, sc.centery + 26), (bx + 46, sc.centery - 26), 5)
+
+  def fruit_icon(self, name, size):
+    return self.g.thumb(name, "Fruits", size)
+
+  def scene_picto(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    counts, key = q["counts"], q["key"]
+    rows = list(counts)
+    rh = min(54, (sc.h - 30) // len(rows))
+    icon = rh - 8
+    for i, f in enumerate(rows):
+      y = sc.y + 10 + i * rh
+      self.text(s, f, (sc.x + 50, y + rh // 2), 16, YELLOW if f == q["fruit"] else WHITE)
+      pic = self.fruit_icon(f, icon)
+      for k in range(counts[f] // key):
+        x = sc.x + 100 + k * (icon + 4)
+        if pic is not None:
+          s.blit(pic, (x, y + 4))
+        else:
+          pygame.draw.circle(s, LADDOO, (x + icon // 2, y + rh // 2), icon // 2)
+    if key > 1:
+      self.text(s, f"each picture = {key}", (sc.centerx, sc.bottom - 10), 16, YELLOW)
+
+  def scene_bars(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    counts = q["counts"]
+    top = max(counts.values())
+    n = len(counts)
+    bw = min(60, (sc.w - 70) // n - 14)
+    x0 = sc.x + 50
+    base = sc.bottom - 40
+    hmax = sc.h - 60
+    for v in range(0, top + 1, 2 if top > 8 else 1):
+      y = base - v * hmax / top
+      pygame.draw.line(s, (90, 110, 160), (x0 - 6, y), (sc.right - 10, y), 1)
+      self.text(s, str(v), (x0 - 20, y), 13)
+    for i, (f, v) in enumerate(counts.items()):
+      x = x0 + 10 + i * (bw + 14)
+      h = v * hmax / top
+      pygame.draw.rect(s, TILE_COLOURS[i], (x, base - h, bw, h), border_top_left_radius=6, border_top_right_radius=6)
+      pygame.draw.rect(s, WHITE, (x, base - h, bw, h), 2, border_top_left_radius=6, border_top_right_radius=6)
+      pic = self.fruit_icon(f, 30)
+      if pic is not None:
+        s.blit(pic, pic.get_rect(midtop=(x + bw // 2, base + 4)))
+      if self.shown:
+        self.text(s, str(v), (x + bw // 2, base - h - 12), 16, YELLOW)
+
+  def scene_array(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    n = q["value"]
+    if self.shown:
+      rows, cols = q["rows"], q["cols"]
+    else:
+      cols = min(n, 12)
+      rows = math.ceil(n / cols)
+    dot = int(min((sc.w - 40) / (cols * 2.4), (sc.h - 30) / (rows * 2.4), 14))
+    for k in range(n):
+      r, c = divmod(k, cols)
+      x = sc.centerx + (c - (cols - 1) / 2) * dot * 2.4
+      y = sc.centery + 8 + (r - (rows - 1) / 2) * dot * 2.4
+      pygame.draw.circle(s, (255, 190, 60) if self.shown else (120, 190, 255), (int(x), int(y)), dot)
+    self.text(s, f"{n} dots" + (f" = {rows} rows of {cols}" if self.shown else ""), (sc.centerx, sc.y + 10), 16)
+
+  def scene_tree(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    n, fs = q["value"], q["factors"]
+    x, y = sc.centerx - 40, sc.y + 24
+    self.text(s, str(n), (x, y), 24)
+    if not self.shown:
+      self.text(s, "?  ×  ?", (x, y + 50), 22, YELLOW)
+      return
+    rest = n
+    step_y = min(46, (sc.h - 30) // max(1, len(fs)))
+    for i, p in enumerate(fs[:-1]):
+      rest //= p
+      ny = y + (i + 1) * step_y
+      pygame.draw.line(s, WHITE, (x, y + i * step_y + 12), (x - 40, ny - 12), 2)
+      pygame.draw.line(s, WHITE, (x, y + i * step_y + 12), (x + 40, ny - 12), 2)
+      pygame.draw.circle(s, SHIELD, (x - 40, ny), 16)
+      self.text(s, str(p), (x - 40, ny), 18, INK)
+      last = i == len(fs) - 2
+      if last:
+        pygame.draw.circle(s, SHIELD, (x + 40, ny), 16)
+      self.text(s, str(rest), (x + 40, ny), 18 if last else 20, INK if last else WHITE)
+      x += 40
+
+  def scene_shape_seq(self, s, lay, now):
+    q = self.q
+    sc = lay["scene"]
+    seq = q["seq"]
+    w = min(64, (sc.w - 20) // len(seq) - 6)
+    x0 = sc.centerx - (len(seq) * (w + 6) - 6) // 2
+    for k, name in enumerate(seq):
+      rect = pygame.Rect(x0 + k * (w + 6), sc.centery - w // 2, w, w)
+      if name is None:
+        if self.shown:
+          draw_shape(s, q["c"], rect.inflate(-8, -8))
+        else:
+          pygame.draw.rect(s, (90, 100, 140), rect, border_radius=10)
+          pygame.draw.rect(s, YELLOW, rect, 3, border_radius=10)
+          self.text(s, "?", rect.center, 26, YELLOW)
+      else:
+        draw_shape(s, name, rect.inflate(-8, -8))

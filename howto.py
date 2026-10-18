@@ -90,6 +90,10 @@ PAGES = {
          "মানুষটা লাল থাকলে অপেক্ষা করো। সবুজ হলে ওয়াক টিপো।"),
     ],
     "maths": [
+        ("maths0", "Pick your class",
+         "Tap your class, then a chapter. Every chapter of Class 1 to 7 is here.",
+         "अपनी कक्षा पर टैप करो, फिर एक अध्याय चुनो। कक्षा 1 से 7 के सारे अध्याय यहाँ हैं।",
+         "তোমার শ্রেণিতে টোকা দাও, তারপর একটা অধ্যায় বেছে নাও। শ্রেণি 1 থেকে 7-এর সব অধ্যায় এখানে।"),
         ("maths", "Maths Play",
          "Listen to the question, count the dots, then tap the right number.",
          "सवाल सुनो, बिंदु गिनो, फिर सही संख्या पर टैप करो।",
@@ -624,6 +628,46 @@ class Guide:
       if pressed:
         tap_rings(screen, btn.center, t)
       draw_hand(screen, tip, pressed)
+
+  def anim_maths0(self, screen, g, t):
+    import maths_bank as mb
+    t %= 5.0
+    cls = 1 if t < 1.6 else 3
+    for i in range(7):
+      r = pygame.Rect(STAGE.x + 20 + i * 55, STAGE.y + 24, 48, 44)
+      on = i + 1 == cls
+      pygame.draw.rect(screen, YELLOW if on else (90, 110, 160), r, border_radius=10)
+      pygame.draw.rect(screen, WHITE, r, 2, border_radius=10)
+      s = g.font_at(20).render(str(i + 1), True, (40, 40, 70) if on else WHITE)
+      screen.blit(s, s.get_rect(center=r.center))
+    target = (STAGE.x + 20 + 2 * 55 + 24, STAGE.y + 46)
+    picked = t > 3.6
+    for k, (names, _kinds) in enumerate(mb.CHAPTERS[cls][:6]):
+      r = pygame.Rect(STAGE.x + 20 + (k % 2) * 194, STAGE.y + 90 + (k // 2) * 62, 184, 52)
+      hot = picked and k == 2
+      pygame.draw.rect(screen, (60, 210, 110) if hot else (90, 170, 255), r, border_radius=12)
+      pygame.draw.rect(screen, WHITE, r, 3 if hot else 2, border_radius=12)
+      size = 17
+      while size > 11 and g.font_at(size).size(names[0])[0] > r.w - 16:
+        size -= 1
+      s = g.font_at(size).render(names[0], True, WHITE)
+      screen.blit(s, s.get_rect(midleft=(r.x + 8, r.centery)))
+      if k == 2:
+        chapter = r.center
+    if t < 1.6:
+      tip = (STAGE.centerx, STAGE.bottom - 20)
+    elif t < 2.2:
+      k = (t - 1.6) / 0.6
+      tip = (STAGE.centerx + (target[0] - STAGE.centerx) * k, STAGE.bottom - 20 + (target[1] - STAGE.bottom + 20) * k)
+    elif t < 3.0:
+      tip = target
+    else:
+      k = min(1.0, (t - 3.0) / 0.6)
+      tip = (target[0] + (chapter[0] - target[0]) * k, target[1] + (chapter[1] - target[1]) * k)
+    pressing = 1.9 < t < 2.4 or 3.5 < t < 4.0
+    if pressing:
+      tap_rings(screen, tip, t)
+    draw_hand(screen, tip, pressing)
 
   def anim_maths(self, screen, g, t):
     import mathsgame as mg

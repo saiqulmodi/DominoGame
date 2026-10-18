@@ -66,11 +66,12 @@ def crayon_icon(size):
 
 # --------------------------------------------------------------------------
 def maths_line(p):
-  """Maths Play for the parents report: right first time and the best level."""
+  """Maths Play for the parents report: right first time and chapters with a gold star."""
   m = p.get("maths") or {}
   if not m.get("asked"):
     return "-"
-  return f"{m.get('right', 0)} of {m['asked']}, level {m.get('best', 1)}"
+  gold = sum(1 for v in (m.get("stars") or {}).values() if v >= 10)
+  return f"{m.get('right', 0)} of {m['asked']}, {gold} chapter stars"
 
 
 class Menu:
