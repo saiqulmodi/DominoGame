@@ -219,7 +219,9 @@ def new_profile(n):
           "stickers": [], "theme": 0, "theme_v": 2, "best_streak": 0, "lang": "hi",
           "quiz": {"right": 0, "asked": 0}, "spell": {"right": 0, "words": []},
           "stories": [], "days": [], "guides": [],
-          "road": {"safe": 0, "waited": 0}}
+          "road": {"safe": 0, "waited": 0},
+          "maths": {"level": 1, "right": 0, "asked": 0, "run": 0, "miss": 0, "best": 1,
+                    "solved": 0}}
 
 
 class Progress:

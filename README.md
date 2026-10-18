@@ -56,6 +56,15 @@ picture.
 - **Spell it** - put the letter tiles in order
 - **Cross the Road** - wait for the green man, look right, left, right, and cross the
   zebra crossing; every safe crossing gives a road safety tip
+- **Maths Play** (Class 1-7, `mathsgame.py`) - numbers with the dominoes' own dots, in
+  seven levels: counting, more / fewer, before / after, adding the two halves, dominoes
+  toppling as take-away, number bonds, tens and ones, times tables as groups of dominoes,
+  sharing laddoos (division), factor gates (common multiples), the Fibonacci spiral trail,
+  integers with blue anti-dominoes on a number line, prime shields, ratio gates and balance
+  puzzles (x + 5 = 12). Every answer is shown as adding: 4 × 3 = 4 + 4 + 4, 9 − 3 =
+  9 + (−3), 12 ÷ 3 = 12 − 3 − 3 − 3 − 3; the dominoes fall in a chain with the running
+  total over each. Five right in a row moves up a level; the level chips pick any class.
+  Also in the Number House in Wonder Town.
 - **Draw my own** - draw anything; the drawing becomes dominoes
 - **Story of the day** and 14 stories, **How to play** picture guides, up to 6 players,
   Hindi or Bangla names, a **parents' report** and **Credits**

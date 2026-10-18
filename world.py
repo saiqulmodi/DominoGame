@@ -41,6 +41,7 @@ TIPS = [
     ((140, 230, 140), "Follow the yellow arrows to a door and tap GO IN. The house button in a game brings you back here."),
 ]
 ROAD_GAME = "Cross the Road"      # the Road Safety Park also offers the road game
+MATHS_GAME = "Maths Play"         # the Number House also offers the maths game
 TOUR = ["english", "nature", "maths", "food", "story", "hindi", "home", "bangla", "science", "social", "travel",
         "world", "safety", "rhymes", "india", "fun", "studio", "museum", "family", "arcade"]
 
@@ -216,6 +217,8 @@ class WorldScene:
       cats = list(g.subjects[b.payload])
       if b.key == "safety":
         cats.append(ROAD_GAME)
+      if b.key == "maths":
+        cats.insert(0, MATHS_GAME)
       self.picker = (b, cats)
     elif kind == "story":
       g.start_story(g.story_of_today())
@@ -233,6 +236,9 @@ class WorldScene:
     self.picker = None
     if cat == ROAD_GAME:
       g.set_mode("road")
+      return
+    if cat == MATHS_GAME:
+      g.set_mode("maths")
       return
     if g.subject != b.payload:
       g.subject = b.payload
@@ -1125,6 +1131,8 @@ class WorldScene:
       pygame.draw.rect(s, WHITE, r, 3, border_radius=14)
       if cat == ROAD_GAME:
         pic = self.g.thumb("Children Crossing", "Road Safety", r.h - 46)
+      elif cat == MATHS_GAME:
+        pic = self.g.thumb("7", "123", r.h - 46)
       else:
         first = next(iter(hub.CATEGORIES_HUB[cat]))
         pic = self.g.thumb(first, cat, r.h - 46)

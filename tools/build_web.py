@@ -19,10 +19,10 @@ import tempfile
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GAME_FILES = ["main.py", "audio.py", "domino_data.py", "fun.py", "calls.py", "modes.py",
-              "screens.py", "scenery.py", "howto.py", "stories.py", "town3d.py", "translations.py",
-              "video.py", "rhymes_hub.py", "roadsafety.py", "singalong.py", "catalog_more.py", "bangla.py",
-              "world.py", "hub_data.json", "videos.json"]
+# Every .py in the game folder is a game module (tools live in tools/), so all of
+# them ship. A hand-kept list missed magic.py on 17-Oct and the web game stopped at
+# "No module named 'magic'" (grey screen) until 18-Oct.
+GAME_FILES = sorted(f for f in os.listdir(ROOT) if f.endswith(".py")) + ["hub_data.json", "videos.json"]
 GAME_DIRS = ["pics", "sounds", "fonts"]
 APP = "dominowonderdash"
 ICONS = ["icon-180.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png"]

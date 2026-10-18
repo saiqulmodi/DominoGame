@@ -29,6 +29,7 @@ import howto
 import magic
 import modes
 import roadsafety
+import mathsgame
 import scenery
 import screens
 import singalong
@@ -340,6 +341,7 @@ class Game:
     self.mode = "trace"          # "trace", "quiz" or "spell"
     self.quiz = self.spell = None
     self.road = None             # Cross the Road (roadsafety.py)
+    self.maths = None            # Maths Play (mathsgame.py)
     self.story = None            # {"story": dict, "step": int}
     self.banner_override = None
     self.call_at = None
@@ -560,7 +562,7 @@ class Game:
     self.particles.texts = []
     self.mode = mode
     self.banner_override = None
-    self.quiz = self.spell = self.road = None
+    self.quiz = self.spell = self.road = self.maths = None
     if mode == "quiz":
       self.quiz = modes.QuizMode(self, (self.cat, self.puzzle))
     elif mode == "spell":
@@ -568,6 +570,8 @@ class Game:
     elif mode == "road":
       self.road = roadsafety.RoadGame(self)
       self.banner_override = "ROAD SAFETY"
+    elif mode == "maths":
+      self.maths = mathsgame.MathsGame(self)
     else:
       self.load_item()
 
@@ -796,8 +800,8 @@ class Game:
     self.refresh_mode(name)
 
   def refresh_mode(self, name=None):
-    if self.mode == "road":            # a picture picked from the menu: trace it
-      self.mode, self.road, self.banner_override = "trace", None, None
+    if self.mode in ("road", "maths"):  # a picture picked from the menu: trace it
+      self.mode, self.road, self.maths, self.banner_override = "trace", None, None, None
     if self.mode == "quiz":
       self.quiz = modes.QuizMode(self, (self.cat, name) if name else None)
     elif self.mode == "spell":
@@ -826,6 +830,10 @@ class Game:
       self.sfx.play("click")
       if self.road.kid in ("wait", "arrived"):
         self.road.new_round()
+      return
+    if self.mode == "maths":
+      self.sfx.play("click")
+      self.maths.new_question()
       return
     order = [(s, c, n) for s, cats in self.subjects.items() for c in cats
              for n in hub.CATEGORIES_HUB[c]]
@@ -1009,6 +1017,8 @@ class Game:
         self.quiz.ask()
       elif self.mode == "road":
         self.road.say_hint()
+      elif self.mode == "maths":
+        self.maths.ask()
       elif self.sing and not self.sing.singing:
         self.sing.restart()
       elif self.mode == "spell" and self.spell.done_at is None:
@@ -1036,6 +1046,9 @@ class Game:
         return
       if self.mode == "road":
         self.road.press(pos)
+        return
+      if self.mode == "maths":
+        self.maths.press(pos)
         return
       if (self.stage == "finished" and self.celebration
           and time.time() - self.celebration[1] < 0.8):
@@ -1236,6 +1249,8 @@ class Game:
       self.quiz.update(now)
     if self.mode == "road" and self.road:
       self.road.update(now)
+    if self.mode == "maths" and self.maths:
+      self.maths.update(now)
     if self.mode == "trace" and getattr(self, "sing", None):
       self.sing.update(now)
     if getattr(self, "show", None):
@@ -1550,6 +1565,10 @@ class Game:
       return
     if self.mode == "road" and self.road:
       self.road.draw(screen, now)
+      screen.set_clip(None)
+      return
+    if self.mode == "maths" and self.maths:
+      self.maths.draw(screen, now)
       screen.set_clip(None)
       return
 

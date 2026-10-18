@@ -89,6 +89,16 @@ PAGES = {
          "जब तक आदमी लाल है, रुको। आदमी हरा हो जाए तो वॉक दबाओ।",
          "মানুষটা লাল থাকলে অপেক্ষা করো। সবুজ হলে ওয়াক টিপো।"),
     ],
+    "maths": [
+        ("maths", "Maths Play",
+         "Listen to the question, count the dots, then tap the right number.",
+         "सवाल सुनो, बिंदु गिनो, फिर सही संख्या पर टैप करो।",
+         "প্রশ্ন শোনো, বিন্দু গোনো, তারপর ঠিক সংখ্যায় টোকা দাও।"),
+        ("maths2", "Adding is the secret",
+         "Times is adding again and again. Watch the dominoes fall: 4 + 4 + 4 = 12!",
+         "गुणा बार-बार जोड़ना है। डोमिनो गिरते देखो: 4 + 4 + 4 = 12!",
+         "গুণ মানে বারবার যোগ। ডোমিনো পড়া দেখো: 4 + 4 + 4 = 12!"),
+    ],
     "draw": [
         ("draw", "Draw my own",
          "Pick a crayon and draw with your finger. Tap Done to make dominoes.",
@@ -106,7 +116,7 @@ TAP_NUDGE = ("Tap the screen to push the dominoes!",
 
 def guide_key(g):
   """Which guide fits what the child is doing now."""
-  if g.mode in ("quiz", "spell", "road"):
+  if g.mode in ("quiz", "spell", "road", "maths"):
     return g.mode
   return "draw" if g.is_custom else "trace"
 
@@ -232,6 +242,8 @@ class Guide:
       g.quiz.ask()
     elif g.mode == "spell" and g.spell:
       g.say(f"Spell the word: {g.puzzle}.", g.native_word(g.cat, g.puzzle))
+    elif g.mode == "maths" and g.maths:
+      g.maths.ask()
     else:
       g.announce()
 
@@ -612,6 +624,54 @@ class Guide:
       if pressed:
         tap_rings(screen, btn.center, t)
       draw_hand(screen, tip, pressed)
+
+  def anim_maths(self, screen, g, t):
+    import mathsgame as mg
+    t %= 5.0
+    lb = g.font_at(24).render("How many dots?", True, YELLOW)
+    screen.blit(lb, lb.get_rect(center=(STAGE.centerx, STAGE.y + 34)))
+    dom = pygame.Rect(0, 0, 90, 180)
+    dom.center = (STAGE.centerx, STAGE.y + 160)
+    lit = 0 if t < 2.6 else min(5, int((t - 2.6) / 0.2) + 1)
+    mg.draw_domino(screen, dom, 3, 2, lit=lit)
+    target = None
+    for i, n in enumerate((4, 5, 6, 3)):
+      r = pygame.Rect(STAGE.x + 22 + i * 96, STAGE.bottom - 128, 84, 70)
+      good = n == 5 and t > 2.4
+      pygame.draw.rect(screen, (60, 210, 110) if good else mg.TILE_COLOURS[i], r, border_radius=16)
+      pygame.draw.rect(screen, WHITE, r, 3, border_radius=16)
+      s = g.font_at(34).render(str(n), True, WHITE)
+      screen.blit(s, s.get_rect(center=r.center))
+      if n == 5:
+        target = r.center
+    if t > 2.4:
+      eq = g.font_at(26).render("3 + 2 = 5", True, (60, 210, 110))
+      screen.blit(eq, eq.get_rect(center=(STAGE.centerx, STAGE.bottom - 32)))
+    k = min(1.0, max(0.0, (t - 1.0) / 1.0))
+    start = (STAGE.centerx, STAGE.bottom - 10)
+    tip = (start[0] + (target[0] - start[0]) * k, start[1] + (target[1] - start[1]) * k)
+    if 2.1 < t < 2.7:
+      tap_rings(screen, target, t)
+    draw_hand(screen, tip, 2.1 < t < 2.7)
+
+  def anim_maths2(self, screen, g, t):
+    import mathsgame as mg
+    t %= 5.0
+    lb = g.font_at(24).render("4 × 3 = 4 + 4 + 4", True, YELLOW)
+    screen.blit(lb, lb.get_rect(center=(STAGE.centerx, STAGE.y + 34)))
+    face = mg.face_surface(64, 128, 2, 2)
+    total = 0
+    for i in range(3):
+      x = STAGE.centerx - 110 + i * 110
+      fall = max(0.0, min(1.0, (t - 0.8 - i * 0.6) / 0.3))
+      mg.fall_blit(screen, face, (x, STAGE.y + 250), fall * 0.42)
+      if fall > 0:
+        total += 4
+        s = g.font_at(26).render(f"+4 = {total}", True, YELLOW)
+        screen.blit(s, s.get_rect(center=(x, STAGE.y + 96)))
+    if t > 2.8:
+      eq = g.font_at(34).render("= 12", True, (60, 210, 110))
+      screen.blit(eq, eq.get_rect(center=(STAGE.centerx, STAGE.bottom - 40)))
 
   def anim_draw(self, screen, g, t):
     t %= 6.5
