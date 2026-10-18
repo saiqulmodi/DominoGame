@@ -27,8 +27,30 @@ GRASS_FAR = (160, 206, 128)
 STREET = (190, 182, 168)
 RIVER = (60, 150, 220)
 DECK = (150, 120, 96)
-SUIT = (220, 40, 50)          # the little hero's red suit
-SUIT_DARK = (40, 70, 170)
+SUIT = (220, 40, 50)          # the cape and the school tie
+SUIT_DARK = (40, 70, 170)     # school trousers
+SHIRT = (248, 248, 252)       # school uniform shirt
+SKIN = (226, 170, 120)
+HAIR = (35, 25, 25)
+BAG = (255, 140, 40)          # school bag
+HERO_SCALE = 1.7              # the hero is big: the future of the nation (at least 1.7x)
+HERO_SCREEN = 0.18            # ... and about this share of the screen's height on phones too
+HERO_MAX = 2.8
+# The hero's dreams (user: "very very good students with big ambitions in his dream"),
+# shown in a thought bubble one after another: (picture category, picture, English, Hindi, Bengali)
+DREAMS = [
+    ("Helpers", "Scientist", "Scientist", "वैज्ञानिक", "বিজ্ঞানী"),
+    ("Helpers", "Astronaut", "Astronaut", "अंतरिक्ष यात्री", "মহাকাশচারী"),
+    ("Helpers", "Doctor", "Doctor", "डॉक्टर", "ডাক্তার"),
+    ("Helpers", "Engineer", "Engineer", "इंजीनियर", "ইঞ্জিনিয়ার"),
+    ("Helpers", "Teacher", "Teacher", "शिक्षक", "শিক্ষক"),
+    ("Helpers", "Pilot", "Pilot", "पायलट", "পাইলট"),
+    ("Our Country", "Judge", "Judge", "न्यायाधीश", "বিচারক"),
+    ("Sports", "Trophy", "Champion", "चैंपियन", "চ্যাম্পিয়ন"),
+    ("Helpers", "Artist", "Artist", "कलाकार", "শিল্পী"),
+    ("Helpers", "Farmer", "Farmer", "किसान", "কৃষক"),
+]
+DREAM_SECS = 4.0
 WEB = (250, 250, 255)
 LIGHT = (0.45, 0.80, -0.40)
 WHITE = (255, 255, 255)
@@ -109,6 +131,8 @@ class WorldScene:
     self.buttons = {}             # top-row buttons: name -> rect
     self._signs = {}              # building name boards painted on the walls
     self.door_marks = []          # (screen rect, building) of the "GO IN" arrows
+    self.dream_rect = pygame.Rect(0, 0, 0, 0)   # the hero's dream bubble (tap: hear it)
+    self.dream_at = None
 
   # --- layout ----------------------------------------------------------------------
   def fit(self, size):
@@ -314,6 +338,10 @@ class WorldScene:
                   "bn": f"তোমার রামধনু টুপিতে সাতটার মধ্যে {n}টা রং আছে। "
                         "নতুন বিষয় শিখে নতুন রং পাও!"}.get(self.g.lang))
       return
+    if self.dream_rect.collidepoint(pos):     # the hero's dream bubble
+      self.g.sfx.play("chime")
+      self.say_dream()
+      return
     if self.target is not None and self.zip_rect.collidepoint(pos) and self.player.zip is None:
       self.fly_to(self.target)
       return
@@ -508,6 +536,7 @@ class WorldScene:
       if dist < 120:
         items.append((dist, 2, lp))
     items.append((math.dist(self.player.pos, cp), 3, None))
+    self.dream_at = None
     items.sort(key=lambda it: -it[0])
     labels = self.place_labels()
     for dist, kind, obj in items:
@@ -522,6 +551,8 @@ class WorldScene:
       else:
         self.draw_player(s)
     self.draw_door_marks(s)
+    if self.dream_at:
+      self.draw_dream(s, *self.dream_at)
     self.draw_anchor(s)
     self.draw_hud(s)
 
@@ -810,37 +841,65 @@ class WorldScene:
     return floor
 
   def draw_player(self, s):
-    """The little hero: red and blue suit, with a cape when gliding."""
+    """The hero: a big school student (white shirt, tie, navy trousers, school bag,
+    rainbow cap) with a thought bubble of big dreams; a cape when gliding."""
     p, cam = self.player, self.cam
     px, py, pz = p.pos
+    # an upright phone shows less of the town, so the hero grows to stay big on screen
+    K = max(HERO_SCALE, min(HERO_MAX, HERO_SCREEN * cam.h * cam.dist / (cam.focal * 1.95)))
     sh = cam.project((px, self.floor_under() + 0.03, pz))
     if sh:
-      r = max(3, int(cam.focal * 0.7 / sh[2]))
+      r = max(3, int(cam.focal * 0.7 * K / sh[2]))
       shadow = pygame.Surface((2 * r, r), pygame.SRCALPHA)
       pygame.draw.ellipse(shadow, (0, 0, 0, 80), shadow.get_rect())
       s.blit(shadow, (sh[0] - r, sh[1] - r // 2))
     foot = cam.project((px, py, pz))
     if not foot:
       return
-    sc = cam.focal / foot[2]
+    sc = cam.focal / foot[2] * K
     hx, _, hz = p.heading
 
     def P(dx, dy, dz=0.0):
+      dx, dy, dz = dx * K, dy * K, dz * K
       q = cam.project((px + hz * dx + hx * dz, py + dy, pz - hx * dx + hz * dz))
       return (q[0], q[1]) if q else foot[:2]
 
     swing = math.sin(p.walk_phase * 2.2) * (0.4 if p.grounded else 0.15)
-    hip, neck, head = P(0, 0.95), P(0, 1.45), P(0, 1.68)
+    hip, neck, head = P(0, 0.95), P(0, 1.45), P(0, 1.7)
     lw = max(2, int(0.17 * sc))
     if p.gliding:                                # the magic cape spreads out behind
       pygame.draw.polygon(s, (150, 80, 220), [P(-0.25, 1.45, -0.1), P(0.25, 1.45, -0.1),
                                               P(0.9, 0.5, -0.8), P(-0.9, 0.5, -0.8)])
-    pygame.draw.line(s, SUIT_DARK, hip, P(-0.15, 0.0, swing), lw)
-    pygame.draw.line(s, SUIT_DARK, hip, P(0.15, 0.0, -swing), lw)
-    pygame.draw.line(s, SUIT, hip, neck, max(3, int(0.34 * sc)))
+    # legs: navy school trousers and black shoes
+    for side, sw in ((-0.15, swing), (0.15, -swing)):
+      knee_foot = P(side, 0.0, sw)
+      pygame.draw.line(s, SUIT_DARK, hip, knee_foot, lw + 1)
+      pygame.draw.circle(s, (25, 25, 30), (int(knee_foot[0]), int(knee_foot[1])), max(2, lw // 2 + 1))
+    # school bag on the back (the camera usually looks at the hero's back)
+    bag = [P(-0.31, 1.4, -0.2), P(0.31, 1.4, -0.2), P(0.33, 0.96, -0.22), P(-0.33, 0.96, -0.22)]
+    pygame.draw.polygon(s, BAG, bag)
+    pygame.draw.polygon(s, (170, 80, 20), bag, max(1, lw // 3))
+    flap = [bag[0], bag[1], P(0.2, 1.24, -0.23), P(-0.2, 1.24, -0.23)]
+    pygame.draw.polygon(s, (240, 110, 30), flap)
+    # white school shirt (a wide torso) with a red tie
+    torso = [P(-0.24, 1.47), P(0.24, 1.47), P(0.2, 0.92), P(-0.2, 0.92)]
+    pygame.draw.polygon(s, SHIRT, torso)
+    pygame.draw.polygon(s, (180, 180, 195), torso, max(1, lw // 3))
+    pygame.draw.polygon(s, SUIT, [P(-0.04, 1.44, 0.05), P(0.04, 1.44, 0.05), P(0.03, 1.12, 0.05),
+                                  P(0, 1.06, 0.05), P(-0.03, 1.12, 0.05)])
+    pygame.draw.line(s, SUIT_DARK, P(-0.21, 0.95), P(0.21, 0.95), max(2, lw // 2))   # belt
+    for side in (-0.16, 0.16):                                                        # bag straps
+      pygame.draw.line(s, BAG, P(side, 1.46, 0.03), P(side * 1.15, 1.02, 0.03), max(2, lw // 2))
     rope = p.rope[0] if p.rope is not None else None
     if rope is None and self.web_flash and self.t < self.web_flash[1] and p.zip is not None:
       rope = self.web_flash[0]
+
+    def arm(a, b):
+      elbow = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+      pygame.draw.line(s, SHIRT, a, elbow, lw)          # half sleeves
+      pygame.draw.line(s, SKIN, elbow, b, max(2, lw - 1))
+      pygame.draw.circle(s, SKIN, (int(b[0]), int(b[1])), max(2, lw // 2 + 1))
+    shoulder_l, shoulder_r = P(-0.22, 1.42), P(0.22, 1.42)
     if rope is not None:
       hand = P(0.1, 2.0)
       a = cam.project(rope)
@@ -851,24 +910,72 @@ class WorldScene:
           ang = k * math.pi / 3
           pygame.draw.line(s, WEB, a[:2], (a[0] + 9 * math.cos(ang), a[1] + 9 * math.sin(ang)), 1)
         pygame.draw.circle(s, WEB, (int(a[0]), int(a[1])), 6, 1)
-      pygame.draw.line(s, SUIT, neck, hand, lw)
-      pygame.draw.line(s, SUIT, neck, P(-0.35, 1.0, 0.2), lw)
+      arm(shoulder_r, hand)
+      arm(shoulder_l, P(-0.35, 1.0, 0.2))
     elif not p.grounded:
-      pygame.draw.line(s, SUIT, neck, P(-0.45, 1.75), lw)
-      pygame.draw.line(s, SUIT, neck, P(0.45, 1.75), lw)
+      arm(shoulder_l, P(-0.5, 1.8))
+      arm(shoulder_r, P(0.5, 1.8))
     else:
-      pygame.draw.line(s, SUIT, neck, P(-0.32, 1.0, -swing), lw)
-      pygame.draw.line(s, SUIT, neck, P(0.32, 1.0, swing), lw)
+      arm(shoulder_l, P(-0.34, 1.0, -swing))
+      arm(shoulder_r, P(0.34, 1.0, swing))
+    # head: face, black hair, bright eyes and a smile
     hr = max(3, int(0.22 * sc))
-    pygame.draw.circle(s, SUIT, (int(head[0]), int(head[1])), hr)        # the hero's mask
-    for ex in (-0.35, 0.35):
-      pygame.draw.ellipse(s, WHITE, (head[0] + ex * hr * 1.6 - hr * 0.3, head[1] - hr * 0.35, hr * 0.6, hr * 0.45))
-    self.draw_rainbow_cap(s, head, hr, P(0, 1.74, 0.42), self.g.cap_colours())
+    pygame.draw.circle(s, SKIN, (int(head[0]), int(head[1])), hr)
+    pygame.draw.circle(s, HAIR, (int(head[0]), int(head[1] - hr * 0.25)), int(hr * 0.95),
+                       draw_top_left=True, draw_top_right=True)
+    if hr >= 6:
+      for ex in (-0.38, 0.38):
+        pygame.draw.circle(s, (30, 30, 40), (int(head[0] + ex * hr), int(head[1] + hr * 0.12)), max(1, hr // 7))
+      pygame.draw.arc(s, (150, 60, 50), (head[0] - hr * 0.4, head[1] + hr * 0.05, hr * 0.8, hr * 0.6),
+                      math.pi * 1.15, math.pi * 1.85, max(1, hr // 9))
+    self.draw_rainbow_cap(s, head, hr, P(0, 1.76, 0.42), self.g.cap_colours())
+    self.dream_at = ((head[0], head[1] - hr * 1.4), hr)    # drawn last, over the doors' arrows
     if p.splash > 0:
       for k in range(6):
         a = k / 6 * math.tau + self.t * 3
         q = P(math.cos(a) * 0.9, 0.3 + 0.8 * p.splash / 2.5, math.sin(a) * 0.9)
         pygame.draw.circle(s, (190, 225, 255), (int(q[0]), int(q[1])), max(2, int(0.1 * sc)))
+
+  def dream_now(self):
+    return DREAMS[int(self.t / DREAM_SECS) % len(DREAMS)]
+
+  def draw_dream(self, s, top, hr):
+    """A thought bubble over the hero's head with the dream of the moment; tap it to hear it."""
+    cat, name, en, _hi, _bn = self.dream_now()
+    size = max(44, min(84, int(hr * 3.2)))
+    k = (self.t % DREAM_SECS) / DREAM_SECS
+    bob = math.sin(self.t * 2.0) * 3
+    for i, (dx, dy, r) in enumerate(((0.6, -0.4, 0.18), (1.1, -1.0, 0.26), (1.6, -1.8, 0.34))):
+      pygame.draw.circle(s, WHITE, (int(top[0] + dx * hr), int(top[1] + dy * hr + bob)), max(2, int(r * hr)))
+    centre = (int(top[0] + hr * 2.4 + size * 0.45), int(top[1] - hr * 2.2 - size * 0.55 + bob))
+    bubble = pygame.Rect(0, 0, size + 26, size + 34)
+    bubble.center = centre
+    w, h = self.size if self.size else s.get_size()
+    bubble.clamp_ip(pygame.Rect(4, 56, w - 8, h - 60))       # stay on screen, under the top buttons
+    for ox, oy, rr in ((-0.32, -0.1, 0.42), (0.32, -0.1, 0.42), (0, -0.32, 0.4), (0, 0.2, 0.45)):
+      pygame.draw.circle(s, WHITE, (int(bubble.centerx + ox * bubble.w), int(bubble.centery + oy * bubble.h)),
+                         int(rr * bubble.w))
+    pygame.draw.rect(s, WHITE, bubble, border_radius=size // 2)
+    pygame.draw.rect(s, (255, 200, 60), bubble, 3, border_radius=size // 2)
+    fade = min(1.0, k * 8, (1 - k) * 8)                      # a soft change between dreams
+    pic = self.g.thumb(name, cat, size)
+    if pic is not None:
+      pic = pic.copy()
+      pic.set_alpha(int(255 * fade))
+      s.blit(pic, pic.get_rect(center=(bubble.centerx, bubble.centery - 8)))
+    f = self.g.font_at(max(12, size // 5))
+    label = f.render(en, True, (40, 40, 70))
+    label.set_alpha(int(255 * fade))
+    s.blit(label, label.get_rect(center=(bubble.centerx, bubble.bottom - 12)))
+    self.dream_rect = bubble.inflate(10, 10)
+
+  def say_dream(self):
+    _cat, _name, en, hi, bn = self.dream_now()
+    art = "an" if en[0] in "AEIOU" else "a"
+    self.g.say(f"My dream: I will become {art} {en.lower()} and make India proud!",
+               {"hi": f"मेरा सपना है {hi} बनना और भारत का नाम रोशन करना!",
+                "bn": f"আমার স্বপ্ন {bn} হয়ে ভারতের মুখ উজ্জ্বল করা!"}.get(self.g.lang))
+    self.say(f"Dream: {en}!", 3.0)
 
   @staticmethod
   def draw_rainbow_cap(s, head, hr, peak, colours):
