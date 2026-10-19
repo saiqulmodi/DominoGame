@@ -25,6 +25,7 @@ import time
 import pygame
 
 import maths_bank as mb
+import modes
 from maths_bank import add_all, factor_pair, is_prime, num
 
 WHITE = (255, 255, 255)
@@ -352,9 +353,9 @@ class MathsGame:
   def new_question(self, lead=None):
     g = self.g
     d = self.data
-    last = self.q["kind"] if self.q else None
-    kinds = [k for k in self.kinds() if k != last] or self.kinds()
-    self.q = mb.make(random.choice(kinds), d["diff"].get(self.key, 0))
+    # A different kind of question from the last few (not just the last one), so sums don't repeat in a row.
+    kind = modes.fresh_pick(g, "maths:" + str(self.key), self.kinds(), keep=3)
+    self.q = mb.make(kind, d["diff"].get(self.key, 0))
     self.wrong, self.shake = set(), {}
     self.solved_at = self.revealed_at = self.level_up_at = None
     self.badge = None

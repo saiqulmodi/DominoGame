@@ -24,6 +24,20 @@ def label_of(cat, name):
   return item.get("label") or item.get("tile_text") or name
 
 
+def fresh_pick(game, key, options, keep=6):
+  """A random option that was not among the last `keep` picks for `key` (when possible).
+
+  The memory lives on the game, so it survives switching modes and back.
+  """
+  recent = game.__dict__.setdefault("_recent_picks", {}).setdefault(key, [])
+  keep = min(keep, len(options) // 2)   # always leave a real choice, so a short list never becomes a fixed cycle
+  fresh = [o for o in options if o not in recent[-keep:]] if keep else options
+  pick = random.choice(fresh or options)
+  recent.append(pick)
+  del recent[:-12]
+  return pick
+
+
 # --------------------------------------------------------------------------
 # Quiz: the voice says a name, the child taps the right picture of four
 # --------------------------------------------------------------------------
@@ -48,9 +62,7 @@ class QuizMode:
     g = self.g
     pool = self.pool()
     if target is None or target not in pool:
-      last = getattr(self, "target", None)
-      options = [p for p in pool if p != last] or pool
-      target = random.choice(options)
+      target = fresh_pick(g, "find", pool)
     others = [p for p in pool if p[1] != target[1]]
     random.shuffle(others)
     picked, seen = [], {target[1]}
@@ -179,9 +191,7 @@ class SpellMode:
     words = self.candidates()
     target = (g.cat, name) if name and spellable(g.cat, name) else None
     if target is None:
-      last = getattr(self, "target", None)
-      options = [w for w in words if w != last] or words
-      target = random.choice(options)
+      target = fresh_pick(g, "spell", words)
     self.target = target
     g.cat, g.puzzle = target
     g.page = g.page_of(g.puzzle)
