@@ -41,11 +41,11 @@ class Box:
     self.roof = roof or tuple(max(0, c - 50) for c in colour)
     self.label = label
     self.sub = sub
-    self.kind = kind            # None = scenery only
+    self.kind = kind
     self.payload = payload
     self.windows = windows
-    self.gable = gable          # a pointed house roof on top
-    self.icon = icon            # (category, item) whose picture goes on the sign
+    self.gable = gable
+    self.icon = icon
 
   @property
   def centre(self):
@@ -53,7 +53,6 @@ class Box:
 
   @property
   def top(self):
-    """Height of the highest point (the ridge of a pointed roof)."""
     return self.h + (self.roof_height() if self.gable else 0.0)
 
   def roof_height(self):
@@ -68,7 +67,6 @@ class Box:
     return math.hypot(dx, dz)
 
   def door(self):
-    """The ground point in front of the building, on the street side."""
     cx, _, cz = self.centre
     if self.x1 < -BRIDGE_HALF:
       return (self.x1 + 3.0, 0.0, cz)
@@ -77,21 +75,17 @@ class Box:
     return (cx, 0.0, self.z0 - 3.0)
 
   def anchors(self):
-    """Rope anchor points: the roof corners (and the top of thin posts)."""
     y = self.h
     if (self.x1 - self.x0) < 5 and (self.z1 - self.z0) < 5:
       return [((self.x0 + self.x1) / 2, y, (self.z0 + self.z1) / 2)]
     return [(self.x0, y, self.z0), (self.x1, y, self.z0), (self.x0, y, self.z1), (self.x1, y, self.z1)]
 
 
-# One building per subject. key, side (-1 west / +1 east), z, width, depth, height, colour,
-# label, little sign text, subject name in domino_data, sign picture (category, item)
 SUBJECT_HOUSES = [
     ("english", -1, 40, 18, 14, 11, (250, 196, 70), "ABC School", "English letters", "English", ("ABC", "A")),
     ("hindi", 1, 40, 18, 14, 11, (246, 140, 72), "Hindi Pathshala", "Swar and Vyanjan", "Hindi", None),
     ("maths", -1, 70, 18, 14, 13, (90, 150, 240), "Number House", "Numbers, shapes, signs", "Maths", None),
     ("home", 1, 70, 18, 14, 10, (240, 170, 150), "My Home", "Body, home, helpers", "Me & Home", None),
-    # NCERT Class 6-7
     ("science", -1, 86, 18, 11, 12, (110, 200, 230), "Science Lab", "Class 6-7 science", "Science", ("Lab Tools", "Microscope")),
     ("social", 1, 86, 18, 11, 12, (200, 150, 100), "Heritage Hall", "Class 6-7 history, maps, civics", "Social", ("Long Ago", "Clay Pot")),
     ("nature", -1, 136, 24, 18, 9, (90, 190, 110), "Zoo & Garden", "Animals, birds, plants", "Nature", ("Animals", "Tiger")),
@@ -100,18 +94,11 @@ SUBJECT_HOUSES = [
     ("world", 1, 168, 16, 16, 24, (60, 190, 200), "Globe Tower", "Sky, countries, cities", "World", None),
     ("india", -1, 200, 22, 16, 12, (255, 153, 51), "India Park", "Map, states, monuments", "India", None),
     ("fun", 1, 200, 20, 16, 12, (220, 90, 190), "Fun Park", "Cartoons, music, sports", "Fun", None),
-    # Bangla barnamala
-    ("bangla", 1, 152, 18, 11, 11, (60, 170, 120), "Bangla Pathshala", "Swarabarna, Byanjanbarna",
-     "Bangla", None),
-    # Sing-along rhymes (English, Hindi, Bengali)
-    ("rhymes", 1, 184, 18, 11, 11, (255, 150, 60), "Rhyme Stage", "Sing-along rhymes",
-     "Rhymes", ("Classic Rhymes", "Twinkle Twinkle")),
-    # Road safety: traffic signs to trace and the Cross the Road game
-    ("safety", -1, 184, 18, 11, 11, (240, 70, 70), "Road Safety Park", "Lights, signs, crossing",
-     "Safety", ("Road Safety", "Traffic Light")),
+    ("bangla", 1, 152, 18, 11, 11, (60, 170, 120), "Bangla Pathshala", "Swarabarna, Byanjanbarna", "Bangla", None),
+    ("rhymes", 1, 184, 18, 11, 11, (255, 150, 60), "Rhyme Stage", "Sing-along rhymes", "Rhymes", ("Classic Rhymes", "Twinkle Twinkle")),
+    ("safety", -1, 184, 18, 11, 11, (240, 70, 70), "Road Safety Park", "Lights, signs, crossing", "Safety", ("Road Safety", "Traffic Light")),
 ]
 
-# Houses for everything else. key, side, z, w, d, h, colour, label, sign text, what entering does
 EXTRA_HOUSES = [
     ("story", -1, 12, 14, 12, 9, (255, 150, 190), "Story House", "Story of the day", "story"),
     ("family", 1, 12, 14, 12, 9, (150, 200, 120), "Family House", "Players", "players"),
@@ -121,7 +108,6 @@ EXTRA_HOUSES = [
 
 
 def build_world():
-  """Every solid thing in the town."""
   boxes = []
   for key, side, z, w, d, h, col, label, sub, subject, icon in SUBJECT_HOUSES:
     x0 = side * 9.0
@@ -131,18 +117,14 @@ def build_world():
     x0 = side * 9.0
     boxes.append(Box(key, x0, z - d / 2, x0 + side * w, z + d / 2, h, col, label, sub,
                      kind=kind, gable=True))
-  # the Games Arcade closes the end of the street
   boxes.append(Box("arcade", -7, 236, 7, 244, 20, (255, 120, 60), "Games Arcade", "Find it, Spell it, more",
                    kind="games", roof=(250, 220, 60)))
-  # stepping posts standing in the river, so you can swing across
   for x in (-45, -24, 24, 45):
     boxes.append(Box(f"post{x}", x - 1.1, 102.9, x + 1.1, 105.1, 18, (250, 200, 80),
                      windows=False, roof=(240, 110, 60)))
-  # the town gate
   boxes.append(Box("gate_w", -8.5, -6, -6.5, -4, 10, (230, 90, 120), windows=False))
   boxes.append(Box("gate_e", 6.5, -6, 8.5, -4, 10, (230, 90, 120), windows=False))
   boxes.append(Box("gate_top", -8.5, -6, 8.5, -4, 12.5, (90, 170, 240), windows=False, y0=10))
-  # bridge railings
   for side in (-1, 1):
     boxes.append(Box(f"rail{side}", side * 5.6, RIVER_Z[0] - 2, side * 6.2, RIVER_Z[1] + 2, 1.1,
                      (255, 255, 255), windows=False))
@@ -156,11 +138,11 @@ def trees_and_lamps():
       continue
     lamps.append((-7.5, z))
     lamps.append((7.5, z + 8))
-  for i in range(60):            # a fixed pseudo-random scatter (same every run)
+  for i in range(60):
     x = ((i * 73) % 180) - 90
     z = ((i * 131) % 270) - 30
     if abs(x) < 36 and z > -10:
-      continue                    # keep the street and building rows clear
+      continue
     if RIVER_Z[0] - 4 < z < RIVER_Z[1] + 4:
       continue
     trees.append((x + 0.5, z + 0.5, 5.0 + (i % 4) * 1.5))
@@ -175,23 +157,23 @@ def in_river(x, z):
 # Camera
 # --------------------------------------------------------------------------------------
 class Camera:
-  """A chase camera behind the player. Fixed pitch keeps the horizon steady."""
+  """A chase camera behind the player with panoramic elevation."""
 
-  FOV = math.radians(60)
+  FOV = math.radians(68)
   NEAR = 0.6
 
   def __init__(self, width, height):
-    self.pitch = -0.17
-    self.dist = 14.0
+    self.pitch = -0.32
+    self.dist = 28.0
+    self.height_offset = 12.0
     self.yaw = 0.0
-    self.pos = (0.0, 6.0, -15.0)
+    self.pos = (0.0, 12.0, -28.0)
     self.resize(width, height)
 
   def resize(self, width, height):
     self.w, self.h = width, height
-    self.cx, self.cy = width / 2, height * 0.5
-    # tall phone screens: keep the same sideways view, so the town is not squeezed
-    self.focal = (min(width * 0.75, height) / 2) / math.tan(self.FOV / 2)
+    self.cx, self.cy = width / 2, height * 0.46
+    self.focal = (min(width * 0.85, height) / 2) / math.tan(self.FOV / 2)
     self._axes()
 
   def _axes(self):
@@ -202,16 +184,18 @@ class Camera:
     self.u = (-sy * sp, cp, -cy * sp)
 
   def follow(self, target, yaw, dt=None):
-    """Sit behind and above the target, looking the way it faces (eased with dt)."""
     if dt is None:
       self.yaw = yaw
     else:
       d = (yaw - self.yaw + math.pi) % (2 * math.pi) - math.pi
       self.yaw += d * min(1.0, dt * 5.0)
     self._axes()
-    tx, ty, tz = target[0], target[1] + 2.0, target[2]
-    want = (tx - self.f[0] * self.dist, max(1.5, ty - self.f[1] * self.dist + 2.0),
-            tz - self.f[2] * self.dist)
+    tx, ty, tz = target[0], target[1] + 1.5, target[2]
+    want = (
+        tx - self.f[0] * self.dist,
+        max(3.5, ty + self.height_offset - self.f[1] * self.dist * 0.5),
+        tz - self.f[2] * self.dist,
+    )
     if dt is None:
       self.pos = want
     else:
@@ -228,7 +212,6 @@ class Camera:
     return (self.cx + self.focal * c[0] / c[2], self.cy - self.focal * c[1] / c[2])
 
   def project(self, p):
-    """(x, y, depth) on screen, or None when behind the camera."""
     c = self.to_cam(p)
     if c[2] < self.NEAR:
       return None
@@ -236,8 +219,6 @@ class Camera:
     return (x, y, c[2])
 
   def project_poly(self, pts):
-    """Project a flat polygon, clipping it at the near plane so walls right next to the
-    camera do not vanish. Returns (screen points, mean depth) or None."""
     cam = [self.to_cam(p) for p in pts]
     if all(c[2] >= self.NEAR for c in cam):
       clipped = cam
@@ -258,7 +239,6 @@ class Camera:
     return [self.screen(c) for c in clipped], depth
 
   def horizon_y(self):
-    """Screen y of the horizon (looking down puts it above the middle)."""
     return self.cy + self.focal * math.tan(self.pitch)
 
 
@@ -270,21 +250,19 @@ class Player:
   def __init__(self, pos=START, yaw=0.0):
     self.pos = list(pos)
     self.vel = [0.0, 0.0, 0.0]
-    self.yaw = yaw              # 0 = facing north (+z)
+    self.yaw = yaw
     self.grounded = True
-    self.rope = None            # [anchor (x,y,z), length, longest safe length]
-    self.zip = None             # [start, end, t, duration]
-    self.splash = 0.0           # >0 just after falling in the river
-    self.gliding = False        # the magic cape is open
+    self.rope = None
+    self.zip = None
+    self.splash = 0.0
+    self.gliding = False
     self.walk_phase = 0.0
 
   @property
   def heading(self):
     return (math.sin(self.yaw), 0.0, math.cos(self.yaw))
 
-  # --- swinging -------------------------------------------------------------------
   def best_anchor(self, boxes):
-    """The best rope anchor: ahead of you, above you, within reach."""
     hx, _, hz = self.heading
     px, py, pz = self.pos
     best, best_score = None, -1e9
@@ -322,7 +300,7 @@ class Player:
     self.rope = None
     self.vel[0] *= 1.12
     self.vel[2] *= 1.12
-    self.vel[1] = max(self.vel[1], 0.0) + 5.0       # a little hop as you let go
+    self.vel[1] = max(self.vel[1], 0.0) + 5.0
 
   def zip_to(self, point, duration=None):
     start = tuple(self.pos)
@@ -340,9 +318,7 @@ class Player:
       return True
     return False
 
-  # --- magic tools (like a web-slinging superhero) ----------------------------------
   def super_jump(self):
-    """Magic boots: a jump about three times as high."""
     if self.grounded or self.rope is not None:
       self.rope = None
       self.vel[1] = SUPER_JUMP_SPEED
@@ -354,42 +330,38 @@ class Player:
     return False
 
   def web_pull_target(self, boxes):
-    """Where the web-zip lands you: just inside the roof edge of the best building ahead."""
     a = self.best_anchor(boxes)
     if a is None:
       return None
     for b in boxes:
-      if a in b.anchors():
-        cx, _, cz = b.centre
-        x = a[0] + max(-1.2, min(1.2, cx - a[0]))
-        z = a[2] + max(-1.2, min(1.2, cz - a[2]))
-        return (a, (x, b.h, z))
+      for a_cand in b.anchors():
+        if a == a_cand:
+          cx, _, cz = b.centre
+          x = a[0] + max(-1.2, min(1.2, cx - a[0]))
+          z = a[2] + max(-1.2, min(1.2, cz - a[2]))
+          return (a, (x, b.h, z))
     return None
 
   def web_pull(self, boxes):
-    """Magic web-zip: shoot a web at a roof and get pulled up onto it."""
     hit = self.web_pull_target(boxes)
     if hit is None:
       return None
     anchor, landing = hit
     self.zip_to(landing, duration=max(0.5, min(1.4, math.dist(self.pos, landing) / 30.0)))
-    self.zip.append(anchor)            # remembered so the web line can be drawn
+    self.zip.append(anchor)
     return anchor
 
   def glide(self, on):
-    """Magic cape: falling slowly and drifting forward while it is open."""
     self.gliding = bool(on) and not self.grounded and self.rope is None and self.zip is None
 
-  # --- stepping -------------------------------------------------------------------
   def update(self, dt, boxes, forward=0.0, turn=0.0):
-    """forward/turn in -1..1. Returns an event string or None."""
     self.splash = max(0.0, self.splash - dt)
     if self.zip is not None:
       start, end, t, dur = self.zip[:4]
       t = min(1.0, t + dt / dur)
       self.zip[2] = t
       k = t * t * (3 - 2 * t)
-      arc = 0.0 if len(self.zip) > 4 else 9.0 * 4 * t * (1 - t)   # a web pulls straight
+      arc = 0.0 if len(self.zip) > 4 else 9.0 * 4 * t * (1 - t)
       self.pos = [start[i] + (end[i] - start[i]) * k for i in range(3)]
       self.pos[1] += arc
       if t >= 1.0:
@@ -405,11 +377,10 @@ class Player:
     h = dt / steps
     for _ in range(steps):
       if self.rope is not None:
-        self.vel[0] += hx * forward * 9.0 * h          # pump the swing
+        self.vel[0] += hx * forward * 9.0 * h
         self.vel[2] += hz * forward * 9.0 * h
         self.rope[1] = max(ROPE_MIN, self.rope[1] - 2.5 * h * max(forward, 0))
         if self.rope[1] > self.rope[2]:
-          # reel in, so the bottom of the swing clears the ground
           self.rope[1] = max(self.rope[2], self.rope[1] - 22.0 * h)
       elif self.grounded:
         want = (hx * forward * WALK_SPEED, hz * forward * WALK_SPEED)
@@ -417,13 +388,13 @@ class Player:
         self.vel[0] += (want[0] - self.vel[0]) * k
         self.vel[2] += (want[1] - self.vel[2]) * k
       else:
-        self.vel[0] += hx * forward * 6.0 * h          # a little air control
+        self.vel[0] += hx * forward * 6.0 * h
         self.vel[2] += hz * forward * 6.0 * h
       self.vel[1] -= GRAVITY * h
       if self.gliding:
         if self.vel[1] < -GLIDE_FALL:
           self.vel[1] = -GLIDE_FALL
-        self.vel[0] += hx * 5.0 * h                   # the cape carries you forward
+        self.vel[0] += hx * 5.0 * h
         self.vel[2] += hz * 5.0 * h
       old_y = self.pos[1]
       for i in range(3):
@@ -451,13 +422,12 @@ class Player:
       if not b.contains_xz(px, pz, RADIUS):
         continue
       if b.y0 > 0.5 and self.pos[1] + 1.7 < b.y0:
-        continue                    # walking under the gate's top beam
+        continue
       if old_y >= b.h - 0.05 and self.pos[1] <= b.h + 0.01:
-        floor = max(floor, b.h)     # landing on the roof
+        floor = max(floor, b.h)
         continue
       if self.pos[1] >= b.h:
         continue
-      # inside a wall: push out the shortest way
       pushes = [(px - (b.x0 - RADIUS), 0, -1), ((b.x1 + RADIUS) - px, 0, 1),
                 (pz - (b.z0 - RADIUS), 2, -1), ((b.z1 + RADIUS) - pz, 2, 1)]
       depth, axis, sign = min(pushes)
@@ -472,7 +442,6 @@ class Player:
       if self.vel[1] < 0:
         self.vel[1] = 0.0
       self.gliding = False
-      # on a rope you are only touching down: the reel lifts you off again
       self.grounded = self.rope is None
     else:
       self.grounded = False
@@ -480,7 +449,6 @@ class Player:
     self.pos[0] = max(x0, min(x1, self.pos[0]))
     self.pos[2] = max(z0, min(z1, self.pos[2]))
     if self.grounded and self.pos[1] < 0.5 and in_river(self.pos[0], self.pos[2]):
-      # splash! back to the nearest bank
       bank = RIVER_Z[0] - 2.0 if self.pos[2] < sum(RIVER_Z) / 2 else RIVER_Z[1] + 2.0
       self.pos = [self.pos[0], 0.0, bank]
       self.vel = [0.0, 0.0, 0.0]
@@ -491,7 +459,6 @@ class Player:
 
 
 def nearest_entrance(boxes, pos, reach=4.5):
-  """The building you are standing at (on the ground beside it or on its roof), or None."""
   best, best_d = None, reach
   for b in boxes:
     if b.kind is None:

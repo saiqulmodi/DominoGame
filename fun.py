@@ -1,5 +1,5 @@
 """Extra delight for Domino Wonder Dash: particles, colour themes, trace
-streaks and the sticker shelf (saved progress).
+streaks, Bengali recitation poems, and the sticker shelf (saved progress).
 
 Pure pygame + standard library, so it runs the same on desktop, in the
 browser (pygbag) and on Android.
@@ -45,6 +45,17 @@ THEMES = [
      "cell": (110, 60, 50), "context": (150, 90, 80), "guide": (170, 110, 90),
      "domino_sat": 100, "domino_val": 100, "scene": "sunset"},
 ]
+
+# --------------------------------------------------------------------------
+# Bengali Recitation Poems metadata
+# --------------------------------------------------------------------------
+BANGLA_POEMS = {
+    "Khoka Gelo Machh Dhorte": {"poet": "Traditional Folk", "title": "Khoka Gelo Machh"},
+    "Palkir Gaan": {"poet": "Satyendranath Dutta", "title": "Palkir Gaan"},
+    "Baburam Sapure": {"poet": "Sukumar Ray", "title": "Baburam Sapure"},
+    "Katukutu Buro": {"poet": "Sukumar Ray", "title": "Katukutu Buro"},
+    "Danpite": {"poet": "Sukumar Ray", "title": "Danpite"},
+}
 
 # --------------------------------------------------------------------------
 # Particles: sparks when dots pop, confetti when the dominoes finish
@@ -218,7 +229,7 @@ def new_profile(n):
   return {"name": f"Player {n + 1}", "avatar": n % len(AVATARS), "done": [],
           "stickers": [], "theme": 0, "theme_v": 2, "best_streak": 0, "lang": "hi",
           "quiz": {"right": 0, "asked": 0}, "spell": {"right": 0, "words": []},
-          "stories": [], "days": [], "guides": [],
+          "stories": [], "poems": [], "days": [], "guides": [],
           "road": {"safe": 0, "waited": 0},
           "maths": {"level": 1, "right": 0, "asked": 0, "run": 0, "miss": 0, "best": 1,
                     "solved": 0}}
@@ -226,9 +237,9 @@ def new_profile(n):
 
 class Progress:
   """Each child's progress: items traced, stickers, theme, language, quiz and
-  spelling scores, stories and days played. Several children can share one
-  device (profiles). Saved in a file on desktop/Android and in the browser's
-  localStorage."""
+  spelling scores, stories, Bengali poems recited and days played. Several
+  children can share one device (profiles). Saved in a file on desktop/Android
+  and in the browser's localStorage."""
 
   def __init__(self, total_items):
     self.total = total_items
@@ -257,8 +268,6 @@ class Progress:
           saved = {"profiles": [prof], "current": 0}
         for i, prof in enumerate(saved["profiles"]):
           if prof.get("theme_v") != 2:
-            # "Sunny Day" was added in front: a child who picked a theme keeps
-            # it; the old default (Night) moves to the new bright default
             if prof.get("theme", 0):
               prof["theme"] = prof["theme"] + 1
             prof["theme_v"] = 2
@@ -319,11 +328,14 @@ class Progress:
     return len(self.data["done"])
 
   def all_stickers(self, categories, story_ids=()):
-    """Every sticker: milestones, all-done, one per category, one per story."""
+    """Every sticker: milestones, all-done, one per category, one per story,
+    and individual/master Bengali recitation badges."""
     out = [f"m{n}" for n, _ in MILESTONES if n <= self.total]
     out.append("all")
     out += [f"c:{c}" for c in categories]
     out += [f"s:{s}" for s in story_ids]
+    out += [f"p:{p}" for p in BANGLA_POEMS]
+    out.append("all_bangla_poems")
     return out
 
   def has(self, sticker):
@@ -345,8 +357,35 @@ class Progress:
     done = self._done_set()
     if all(k in done for k in cat_keys) and not self.has(f"c:{cat}"):
       new.append(f"c:{cat}")
+
+    # Check Bengali poem recitation completion
+    item_name = key.split("/", 1)[-1] if "/" in key else key
+    if item_name in BANGLA_POEMS:
+      new += self.finish_poem(item_name, save_now=False)
+
     self.data["stickers"] += new
     self.save()
+    return new
+
+  def finish_poem(self, poem_name, save_now=True):
+    """Awards a recitation badge for a Bengali poem."""
+    if "poems" not in self.data:
+      self.data["poems"] = []
+    if poem_name not in self.data["poems"]:
+      self.data["poems"].append(poem_name)
+
+    new = []
+    sid = f"p:{poem_name}"
+    if not self.has(sid):
+      new.append(sid)
+
+    # All Bengali poems recited bonus badge
+    if all(p in self.data["poems"] for p in BANGLA_POEMS) and not self.has("all_bangla_poems"):
+      new.append("all_bangla_poems")
+
+    if save_now:
+      self.data["stickers"] += new
+      self.save()
     return new
 
   def finish_story(self, story_id):
@@ -378,12 +417,12 @@ class Progress:
     return False
 
 
-STORY_TITLES = {}   # filled by main.py from stories.py
+# --------------------------------------------------------------------------
+# Global Story Titles mapping (populated by main.py)
+# --------------------------------------------------------------------------
+STORY_TITLES = {}
 
-# The rainbow cap: every subject a child discovers (first picture finished in
-# English, Maths, Hindi ...) paints the next stripe of the cap, in rainbow
-# order, until all seven colours are on it. Worked out from the pictures
-# already done, so children who played before get their colours too.
+# The rainbow cap: every subject a child discovers paints the next stripe of the cap
 RAINBOW = [(148, 0, 211), (75, 0, 130), (0, 90, 255), (0, 180, 60), (255, 220, 0),
            (255, 127, 0), (230, 20, 20)]
 RAINBOW_NAMES = ["violet", "indigo", "blue", "green", "yellow", "orange", "red"]
@@ -409,6 +448,11 @@ def cap_colours(count):
 def sticker_title(sid):
   if sid == "all":
     return "Grand Champion"
+  if sid == "all_bangla_poems":
+    return "Poem Master"
+  if sid.startswith("p:"):
+    p_info = BANGLA_POEMS.get(sid[2:])
+    return f"{p_info['title']} Star" if p_info else f"{sid[2:]} Star"
   if sid.startswith("s:"):
     return STORY_TITLES.get(sid[2:], "Story Star")
   if sid.startswith("m"):
@@ -420,6 +464,10 @@ def sticker_title(sid):
 def sticker_need(sid, total, cat_size=0):
   if sid == "all":
     return f"Trace all {total}"
+  if sid == "all_bangla_poems":
+    return f"Recite all {len(BANGLA_POEMS)} poems"
+  if sid.startswith("p:"):
+    return "Recite the poem"
   if sid.startswith("s:"):
     return "Finish the story"
   if sid.startswith("m"):
@@ -452,13 +500,37 @@ def draw_sticker(screen, center, radius, sid, earned, font, picture=None, t=0.0)
     return
   if picture is not None:
     screen.blit(picture, picture.get_rect(center=center))
-  elif sid == "all" or sid.startswith("c:"):
+  elif sid == "all" or sid == "all_bangla_poems" or sid.startswith("c:"):
     star = []
     for i in range(10):
       r = radius * (0.55 if i % 2 == 0 else 0.24)
       a = -math.pi / 2 + i * math.pi / 5
       star.append((cx + r * math.cos(a), cy + r * math.sin(a)))
     pygame.draw.polygon(screen, (255, 215, 0), star)
+  elif sid.startswith("p:"):
+    # Procedural open-book vector icon: renders cleanly across all platforms
+    bx, by = center
+    bw = int(radius * 0.44)
+    bh = int(radius * 0.32)
+    # Left & right pages
+    pygame.draw.polygon(screen, (255, 255, 255), [
+        (bx, by + bh // 2), (bx - bw, by + bh // 3),
+        (bx - bw, by - bh // 2), (bx, by - bh // 3)
+    ])
+    pygame.draw.polygon(screen, (245, 245, 250), [
+        (bx, by + bh // 2), (bx + bw, by + bh // 3),
+        (bx + bw, by - bh // 2), (bx, by - bh // 3)
+    ])
+    # Book spine and outline
+    pygame.draw.line(screen, (60, 50, 90), (bx, by - bh // 3), (bx, by + bh // 2), 2)
+    pygame.draw.lines(screen, (60, 50, 90), True, [
+        (bx, by + bh // 2), (bx - bw, by + bh // 3),
+        (bx - bw, by - bh // 2), (bx, by - bh // 3)
+    ], 1)
+    pygame.draw.lines(screen, (60, 50, 90), True, [
+        (bx, by + bh // 2), (bx + bw, by + bh // 3),
+        (bx + bw, by - bh // 2), (bx, by - bh // 3)
+    ], 1)
   else:
     label = sid[1:] if sid.startswith("m") else "?"
     num = font.render(label, True, (40, 30, 60))

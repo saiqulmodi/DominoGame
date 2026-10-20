@@ -6,7 +6,7 @@ part of the game:
     Globe Tower, India Park and Fun Park open their subject - pick a category, then a picture;
   * Story House plays the story of the day, Family House the players, Drawing Studio
     "Draw my own", Sticker Museum the sticker shelf, and the Games Arcade the Games menu.
-Tapping a building (or its square on the map) flies you there and opens it.
+Tapping a building (or its square on the map, or from the Houses directory) flies you there and opens it.
 
 Magic tools: Web swing (hold), Web zip (onto a roof), Super-jump boots, and a Glide cape (hold).
 The town's maths lives in town3d.py; this file paints it and handles taps and keys.
@@ -36,8 +36,7 @@ BAG = (255, 140, 40)          # school bag
 HERO_SCALE = 1.7              # the hero is big: the future of the nation (at least 1.7x)
 HERO_SCREEN = 0.18            # ... and about this share of the screen's height on phones too
 HERO_MAX = 2.8
-# The hero's dreams (user: "very very good students with big ambitions in his dream"),
-# shown in a thought bubble one after another: (picture category, picture, English, Hindi, Bengali)
+# The hero's dreams shown in a thought bubble one after another:
 DREAMS = [
     ("Helpers", "Scientist", "Scientist", "वैज्ञानिक", "বিজ্ঞানী"),
     ("Helpers", "Astronaut", "Astronaut", "अंतरिक्ष यात्री", "মহাকাশচারী"),
@@ -58,9 +57,9 @@ YELLOW = (255, 204, 0)
 
 TIPS = [
     ((90, 210, 240), "Walk with the arrows (or arrow keys / W A S D)."),
-    ((255, 220, 60), "Tap any building to fly there and go in."),
+    ((255, 220, 60), "Tap any building or open 'Houses' to visit directly."),
     ((255, 120, 120), "Magic tools: WEB to swing, ZIP onto a roof, BOOTS to jump high, CAPE to float."),
-    ((140, 230, 140), "Follow the yellow arrows to a door and tap GO IN. The house button in a game brings you back here."),
+    ((140, 230, 140), "Follow yellow arrows to a door or tap GO IN."),
 ]
 ROAD_GAME = "Cross the Road"      # the Road Safety Park also offers the road game
 MATHS_GAME = "Maths Play"         # the Number House also offers the maths game
@@ -107,19 +106,21 @@ class WorldScene:
     self.trees, self.lamps = town.trees_and_lamps()
     self.player = town.Player()
     self.cam = town.Camera(450, 800)
-    self.size = None
+    self.size = (450, 800)
     self.t = 0.0
     self.target = None
     self.enter_on_arrival = None
     self.tour_k = 0
     self.toast = ("", 0.0)
     self.picker = None            # (building, [(rect, category)], close rect)
+    self.show_directory = False   # Fast-travel all-house browser
+    self.dir_page = 0
     self.hit_polys = {}
     self.anchor = None
     self.drag_x = None
-    self.web_hold = False         # WEB pad or SPACE held in the air
+    self.web_hold = False
     self.cape_hold = False
-    self.web_flash = None         # (anchor, until) - the zip web line
+    self.web_flash = None
     self.show_tips = not game.progress.data.get("town_seen")
     self.pads = {k: Pad(k, *rest) for k, *rest in (
         ("up", "", (40, 90, 160), "up"), ("left", "", (40, 90, 160), "left"),
@@ -128,15 +129,15 @@ class WorldScene:
         ("enter", "GO IN", (170, 70, 170)),
         ("zip", "ZIP", (240, 120, 40), "zip"), ("boots", "BOOTS", (60, 140, 230), "boots"),
         ("cape", "CAPE", (150, 80, 220), "cape"))}
-    self.buttons = {}             # top-row buttons: name -> rect
-    self._signs = {}              # building name boards painted on the walls
-    self.door_marks = []          # (screen rect, building) of the "GO IN" arrows
-    self.dream_rect = pygame.Rect(0, 0, 0, 0)   # the hero's dream bubble (tap: hear it)
+    self.buttons = {}
+    self._signs = {}
+    self.door_marks = []
+    self.dream_rect = pygame.Rect(0, 0, 0, 0)
     self.dream_at = None
 
   # --- layout ----------------------------------------------------------------------
   def fit(self, size):
-    if size == self.size:
+    if size == self.size and getattr(self, "sky", None) is not None:
       return
     self.size = size
     w, h = size
@@ -156,13 +157,17 @@ class WorldScene:
       P[key].rect = pygame.Rect(rx - k * (pad + gap), h - 12 - pad, pad, pad)
     for k, key in enumerate(("cape", "boots", "zip")):
       P[key].rect = pygame.Rect(rx - k * (pad + gap), h - 12 - 2 * pad - gap, pad, pad)
-    if w < 3 * (pad + gap) * 2 + 40:       # narrow phone: tools move up a row
+    if w < 3 * (pad + gap) * 2 + 40:
       for k, key in enumerate(("cape", "boots", "zip")):
         P[key].rect.y = h - 12 - 2 * pad - gap
-    bw = min(150, (w - 40) // 3)
-    self.buttons = {"guide": pygame.Rect(10, 8, bw, 38),
-                    "pictures": pygame.Rect(18 + bw, 8, bw, 38),
-                    "cap": pygame.Rect(26 + 2 * bw, 8, min(bw, 104), 38)}
+
+    bw = min(110, (w - 70) // 4)
+    self.buttons = {
+        "guide": pygame.Rect(8, 8, bw, 38),
+        "houses": pygame.Rect(14 + bw, 8, bw, 38),
+        "pictures": pygame.Rect(20 + 2 * bw, 8, bw, 38),
+        "cap": pygame.Rect(26 + 3 * bw, 8, min(bw, 90), 38)
+    }
     mw = 170 if w >= 700 else 120
     self.map_rect = pygame.Rect(w - mw - 10, 56, mw, int(mw * 1.35))
 
@@ -185,7 +190,6 @@ class WorldScene:
     return r
 
   def icon_for(self, b, size):
-    """The sign picture: the building's own picture, or its subject's first picture."""
     cat, item = b.icon or (None, None)
     if b.kind == "subject" and cat is None:
       cat = self.g.subjects[b.payload][0]
@@ -203,16 +207,13 @@ class WorldScene:
     self.g.progress.save()
 
   def speak_welcome(self):
-    """First visit: the tips are also said out loud, for children who
-    cannot read yet (after the first tap on the web, so sound may play)."""
     if not self.show_tips or getattr(self, "welcomed", False) or self.t < 1.0:
       return
     full = getattr(self.g, "fullscreen", None)
     if full is not None and full.first_tap:
       return
     self.welcomed = True
-    self.g.say("Welcome to Wonder Town! Tap a building to go inside and learn. "
-               "Tap Let's go to start.",
+    self.g.say("Welcome to Wonder Town! Tap a building or Houses to visit and learn.",
                {"hi": "वंडर टाउन में स्वागत है! सीखने के लिए किसी भी इमारत पर टैप करो।",
                 "bn": "ওয়ান্ডার টাউনে স্বাগতম! শিখতে যেকোনো বাড়িতে টোকা দাও।"}.get(self.g.lang))
 
@@ -221,12 +222,13 @@ class WorldScene:
     self.target = self.by_key[TOUR[self.tour_k % len(TOUR)]]
     self.tour_k += 1
     self.say(f"{self.target.label}: {self.target.sub}", 4.0)
-    self.g.say(f"{self.target.label}. {self.target.sub}")   # said too, for young children
+    self.g.say(f"{self.target.label}. {self.target.sub}")
 
   def fly_to(self, b, enter=True):
-    """Fly to a building's door (and go in when we land)."""
+    """Fly directly to a building's entrance."""
     if self.player.zip is not None:
       return
+    self.show_directory = False
     self.target = b
     self.enter_on_arrival = b if enter else None
     self.g.sfx.play("switch")
@@ -267,9 +269,61 @@ class WorldScene:
     if g.subject != b.payload:
       g.subject = b.payload
     g.select_category(cat)
-    g.overlay = "nav"              # the picture bank of that category; a pick starts it
+    g.overlay = "nav"
 
-  # --- input -----------------------------------------------------------------------
+  # --- directory layout & input ----------------------------------------------------
+  def directory_layout(self):
+    w, h = self.size
+    panel = pygame.Rect(0, 0, min(580, w - 24), min(660, h - 40))
+    panel.center = (w // 2, h // 2)
+    cols = 2 if panel.w < 440 else 3
+    active_boxes = [self.by_key[k] for k in TOUR if k in self.by_key]
+    per_page = cols * 4
+    pages = max(1, math.ceil(len(active_boxes) / per_page))
+    self.dir_page %= pages
+    shown = active_boxes[self.dir_page * per_page:(self.dir_page + 1) * per_page]
+
+    cw = (panel.w - 32 - (cols - 1) * 10) // cols
+    ch = min(90, (panel.h - 130) // 4)
+    cells = []
+    for idx, b in enumerate(shown):
+      c = idx % cols
+      r = idx // cols
+      rx = panel.x + 16 + c * (cw + 10)
+      ry = panel.y + 60 + r * (ch + 10)
+      cells.append((pygame.Rect(rx, ry, cw, ch), b))
+
+    close_btn = pygame.Rect(0, 0, 140, 38)
+    close_btn.midbottom = (panel.centerx, panel.bottom - 12)
+    prev_btn = pygame.Rect(panel.x + 20, panel.bottom - 50, 80, 38) if pages > 1 else None
+    next_btn = pygame.Rect(panel.right - 100, panel.bottom - 50, 80, 38) if pages > 1 else None
+    return panel, cells, close_btn, prev_btn, next_btn, pages
+
+  def draw_directory(self, s):
+    panel, cells, close_btn, prev_btn, next_btn, pages = self.directory_layout()
+    veil = pygame.Surface(self.size, pygame.SRCALPHA)
+    veil.fill((10, 20, 40, 160))
+    s.blit(veil, (0, 0))
+    pygame.draw.rect(s, (248, 250, 255), panel, border_radius=18)
+    pygame.draw.rect(s, (70, 130, 230), panel, 4, border_radius=18)
+    self.text(s, "Town Houses Directory", (panel.centerx, panel.y + 24), 22, (30, 40, 70))
+    self.text(s, "Tap any house to fly there directly!", (panel.centerx, panel.y + 44), 13, (90, 100, 130))
+
+    for rect, b in cells:
+      pygame.draw.rect(s, _shade(b.colour, 1.15), rect, border_radius=12)
+      pygame.draw.rect(s, WHITE, rect, 2, border_radius=12)
+      icon = self.icon_for(b, rect.h - 36)
+      if icon:
+        s.blit(icon, icon.get_rect(center=(rect.centerx, rect.y + (rect.h - 22) // 2)))
+      self.text(s, b.label, (rect.centerx, rect.bottom - 12), 14, WHITE)
+
+    self.draw_button(s, close_btn, "Close", (100, 110, 140))
+    if pages > 1:
+      if prev_btn:
+        self.draw_button(s, prev_btn, "< Prev", (60, 140, 220))
+      if next_btn:
+        self.draw_button(s, next_btn, "Next >", (60, 140, 220))
+
   def picker_layout(self):
     b, cats = self.picker
     w, h = self.size
@@ -289,7 +343,7 @@ class WorldScene:
 
   def pick_box_at(self, pos):
     if self.map_rect.collidepoint(pos):
-      best, best_d = None, 14.0
+      best, best_d = None, 18.0
       for b in self.boxes:
         if b.kind is None:
           continue
@@ -305,6 +359,25 @@ class WorldScene:
     return None
 
   def press(self, pos):
+    if self.show_directory:
+      panel, cells, close_btn, prev_btn, next_btn, _pages = self.directory_layout()
+      for r, b in cells:
+        if r.collidepoint(pos):
+          self.fly_to(b)
+          return
+      if prev_btn and prev_btn.collidepoint(pos):
+        self.dir_page -= 1
+        self.g.sfx.play("switch")
+        return
+      if next_btn and next_btn.collidepoint(pos):
+        self.dir_page += 1
+        self.g.sfx.play("switch")
+        return
+      if close_btn.collidepoint(pos) or not panel.collidepoint(pos):
+        self.show_directory = False
+        self.g.sfx.play("click")
+      return
+
     if self.picker is not None:
       panel, cells, close = self.picker_layout()
       for r, cat in cells:
@@ -316,13 +389,19 @@ class WorldScene:
         self.g.sfx.play("click")
         self.picker = None
       return
+
     if self.show_tips:
       if self.tips_button.collidepoint(pos) or self.tips_rect.collidepoint(pos):
         self.g.sfx.play("click")
         self.close_tips()
         return
+
     if self.buttons["guide"].collidepoint(pos):
       self.next_tour()
+      return
+    if self.buttons["houses"].collidepoint(pos):
+      self.g.sfx.play("switch")
+      self.show_directory = True
       return
     if self.buttons["pictures"].collidepoint(pos):
       self.g.sfx.play("switch")
@@ -338,7 +417,7 @@ class WorldScene:
                   "bn": f"তোমার রামধনু টুপিতে সাতটার মধ্যে {n}টা রং আছে। "
                         "নতুন বিষয় শিখে নতুন রং পাও!"}.get(self.g.lang))
       return
-    if self.dream_rect.collidepoint(pos):     # the hero's dream bubble
+    if self.dream_rect.collidepoint(pos):
       self.g.sfx.play("chime")
       self.say_dream()
       return
@@ -350,7 +429,7 @@ class WorldScene:
         p.held = True
         self.pad_down(key)
         return
-    for rect, b in self.door_marks:         # the bouncing "GO IN" arrow at a door
+    for rect, b in self.door_marks:
       if rect.collidepoint(pos):
         self.fly_to(b)
         return
@@ -389,13 +468,16 @@ class WorldScene:
     elif key == "cape":
       self.cape_hold = True
       if self.player.grounded:
-        self.boots()               # take off, then float down
+        self.boots()
 
   def key(self, event):
-    """Keyboard in the town. Returns True when the key was used."""
     k = event.key
-    if self.picker is not None and k in (pygame.K_ESCAPE, pygame.K_AC_BACK):
+    if (self.picker is not None or self.show_directory) and k in (pygame.K_ESCAPE, pygame.K_AC_BACK):
       self.picker = None
+      self.show_directory = False
+      return True
+    if k == pygame.K_h:
+      self.show_directory = not self.show_directory
       return True
     if k == pygame.K_SPACE:
       if self.player.grounded:
@@ -461,7 +543,7 @@ class WorldScene:
     msg, ttl = self.toast
     self.toast = (msg, max(0.0, ttl - dt))
     self.speak_welcome()
-    if self.g.overlay or self.picker is not None:
+    if self.g.overlay or self.picker is not None or self.show_directory:
       return
     try:
       keys = pygame.key.get_pressed()
@@ -480,9 +562,9 @@ class WorldScene:
       self.close_tips()
     p = self.player
     if self.web_hold and not P["web"].held and not k(pygame.K_SPACE):
-      self.web(False)              # SPACE was let go
+      self.web(False)
     if p.rope is None and not p.grounded and self.web_hold and p.zip is None and p.vel[1] < 2:
-      if p.attach(self.boxes):     # holding through the jump
+      if p.attach(self.boxes):
         self.g.sfx.play("switch")
     p.glide(self.cape_hold or k(pygame.K_g))
     event = p.update(dt, self.boxes, fwd, turn)
@@ -507,7 +589,7 @@ class WorldScene:
     w, h = self.size
     s.blit(self.sky, (0, 0))
     hy = int(cam.horizon_y())
-    d = (0.7 - cam.yaw + math.pi) % (2 * math.pi) - math.pi      # a smiling sun in the north-east
+    d = (0.7 - cam.yaw + math.pi) % (2 * math.pi) - math.pi
     if abs(d) < 1.2:
       sx, sy = cam.cx + cam.focal * math.tan(d), hy - 130
       for k in range(12):
@@ -555,6 +637,8 @@ class WorldScene:
       self.draw_dream(s, *self.dream_at)
     self.draw_anchor(s)
     self.draw_hud(s)
+    if self.show_directory:
+      self.draw_directory(s)
 
   def draw_hills(self, s, hy):
     w = self.size[0]
@@ -594,7 +678,7 @@ class WorldScene:
       if a and b:
         pygame.draw.line(s, (150, 205, 245), a[:2], b[:2], 1)
     self.ground_poly(s, [(-6, rz0 - 2), (6, rz0 - 2), (6, rz1 + 2), (-6, rz1 + 2)], DECK)
-    for b in self.boxes:                         # little flower beds in front of houses
+    for b in self.boxes:
       if b.kind is not None and b.gable:
         dx, _, dz = b.door()
         for k in range(5):
@@ -627,7 +711,7 @@ class WorldScene:
       faces.append(((0, 1, 0), [(x0, y1, z0), (x1, y1, z0), (x1, y1, z1), (x0, y1, z1)]))
     if cp[1] < y0:
       faces.append(((0, -1, 0), [(x0, y0, z0), (x0, y0, z1), (x1, y0, z1), (x1, y0, z0)]))
-    if b.gable:                                  # a pointed roof, ridge running east-west
+    if b.gable:
       rh = b.roof_height()
       zm = (z0 + z1) / 2
       faces.append((("roof", -1), [(x0, y1, z0), (x1, y1, z0), (x1, y1 + rh, zm), (x0, y1 + rh, zm)]))
@@ -638,7 +722,6 @@ class WorldScene:
     polys = []
     for n, pts in faces:
       if n[0] == "roof":
-        # a roof slope is seen when the camera is on its side or above the ridge line
         side = n[1]
         zm = (z0 + z1) / 2
         if (cp[2] - zm) * side < 0 and cp[1] < y1 + b.roof_height():
@@ -679,7 +762,7 @@ class WorldScene:
     dx, _, dz = b.door()
     mid = ((p0[0] + p1[0]) / 2, (p0[2] + p1[2]) / 2)
     door_face = math.hypot(mid[0] - dx, mid[1] - dz) < 4.0
-    vmax = 0.68 if b.kind is not None else 1.0     # the name board sits above the windows
+    vmax = 0.68 if b.kind is not None else 1.0
 
     def at(u, v):
       return tuple(p0[i] + (p1[i] - p0[i]) * u + (p3[i] - p0[i]) * v for i in range(3))
@@ -703,7 +786,6 @@ class WorldScene:
         pygame.draw.polygon(s, self.fog((255, 220, 120), dist), pr[0], 2)
 
   def sign_surface(self, b):
-    """The building's name board: white board, coloured frame, big letters."""
     sign = self._signs.get(b.key)
     if sign is None:
       text = self.g.font_at(44).render(b.label, True, (40, 40, 70))
@@ -715,8 +797,6 @@ class WorldScene:
     return sign
 
   def draw_wall_sign(self, s, b, pts):
-    """The name painted on every wall near the top, in perspective, so it reads
-    clearly from the street and from all around the building."""
     cam = self.cam
     p0, p1, _, p3 = pts
     width = math.dist((p0[0], p0[2]), (p1[0], p1[2]))
@@ -735,7 +815,7 @@ class WorldScene:
 
     left, right = cam.project(at(u0, (vt + vb) / 2)), cam.project(at(u1, (vt + vb) / 2))
     if not left or not right or abs(right[0] - left[0]) < 18:
-      return                                    # seen edge-on or too small to read
+      return
     flip = right[0] < left[0]
     n = 16
     tw, th = sign.get_size()
@@ -750,17 +830,15 @@ class WorldScene:
       hgt = max(ba[1], bb[1]) - y
       if w < 0.5 or hgt < 2:
         continue
-      col = n - 1 - k if flip else k            # keep the words reading left to right
+      col = n - 1 - k if flip else k
       c0, c1 = int(tw * col / n), int(tw * (col + 1) / n)
       piece = pygame.transform.scale(sign.subsurface((c0, 0, max(1, c1 - c0), th)),
                                      (int(w) + 1, int(hgt) + 1))
       s.blit(piece, (int(x), int(y)))
 
   def draw_door_marks(self, s):
-    """Near a building: arrows on the path lead to its door, and a big bouncing
-    "GO IN" arrow above the door (tap it to go there and in)."""
     self.door_marks = []
-    if self.g.overlay or self.picker is not None:
+    if self.g.overlay or self.picker is not None or self.show_directory:
       return
     px, _, pz = self.player.pos
     near = sorted(((math.hypot(b.door()[0] - px, b.door()[2] - pz), i, b)
@@ -773,7 +851,7 @@ class WorldScene:
       street_x = dx if arcade else (-4.0 if dx < 0 else 4.0)
       span = dx - street_x
       sgn = 1 if span >= 0 else -1
-      for k in range(4):                        # chevrons moving towards the door
+      for k in range(4):
         f = (k + (self.t * 1.5) % 1.0) / 4.0
         if arcade:
           cx, cz, fx, fz = dx, dz - 8 + 8 * f, 0.0, 1.0
@@ -786,7 +864,7 @@ class WorldScene:
         if pr:
           pygame.draw.polygon(s, YELLOW, pr[0])
           pygame.draw.polygon(s, (200, 120, 0), pr[0], 1)
-      bob = 0.5 * math.sin(self.t * 4 + rank)   # the bouncing arrow above the door
+      bob = 0.5 * math.sin(self.t * 4 + rank)
       tip = self.cam.project((dx, 5.2 + bob, dz))
       if not tip or tip[2] > 70:
         continue
@@ -841,11 +919,8 @@ class WorldScene:
     return floor
 
   def draw_player(self, s):
-    """The hero: a big school student (white shirt, tie, navy trousers, school bag,
-    rainbow cap) with a thought bubble of big dreams; a cape when gliding."""
     p, cam = self.player, self.cam
     px, py, pz = p.pos
-    # an upright phone shows less of the town, so the hero grows to stay big on screen
     K = max(HERO_SCALE, min(HERO_MAX, HERO_SCREEN * cam.h * cam.dist / (cam.focal * 1.95)))
     sh = cam.project((px, self.floor_under() + 0.03, pz))
     if sh:
@@ -867,28 +942,25 @@ class WorldScene:
     swing = math.sin(p.walk_phase * 2.2) * (0.4 if p.grounded else 0.15)
     hip, neck, head = P(0, 0.95), P(0, 1.45), P(0, 1.7)
     lw = max(2, int(0.17 * sc))
-    if p.gliding:                                # the magic cape spreads out behind
+    if p.gliding:
       pygame.draw.polygon(s, (150, 80, 220), [P(-0.25, 1.45, -0.1), P(0.25, 1.45, -0.1),
                                               P(0.9, 0.5, -0.8), P(-0.9, 0.5, -0.8)])
-    # legs: navy school trousers and black shoes
     for side, sw in ((-0.15, swing), (0.15, -swing)):
       knee_foot = P(side, 0.0, sw)
       pygame.draw.line(s, SUIT_DARK, hip, knee_foot, lw + 1)
       pygame.draw.circle(s, (25, 25, 30), (int(knee_foot[0]), int(knee_foot[1])), max(2, lw // 2 + 1))
-    # school bag on the back (the camera usually looks at the hero's back)
     bag = [P(-0.31, 1.4, -0.2), P(0.31, 1.4, -0.2), P(0.33, 0.96, -0.22), P(-0.33, 0.96, -0.22)]
     pygame.draw.polygon(s, BAG, bag)
     pygame.draw.polygon(s, (170, 80, 20), bag, max(1, lw // 3))
     flap = [bag[0], bag[1], P(0.2, 1.24, -0.23), P(-0.2, 1.24, -0.23)]
     pygame.draw.polygon(s, (240, 110, 30), flap)
-    # white school shirt (a wide torso) with a red tie
     torso = [P(-0.24, 1.47), P(0.24, 1.47), P(0.2, 0.92), P(-0.2, 0.92)]
     pygame.draw.polygon(s, SHIRT, torso)
     pygame.draw.polygon(s, (180, 180, 195), torso, max(1, lw // 3))
     pygame.draw.polygon(s, SUIT, [P(-0.04, 1.44, 0.05), P(0.04, 1.44, 0.05), P(0.03, 1.12, 0.05),
                                   P(0, 1.06, 0.05), P(-0.03, 1.12, 0.05)])
-    pygame.draw.line(s, SUIT_DARK, P(-0.21, 0.95), P(0.21, 0.95), max(2, lw // 2))   # belt
-    for side in (-0.16, 0.16):                                                        # bag straps
+    pygame.draw.line(s, SUIT_DARK, P(-0.21, 0.95), P(0.21, 0.95), max(2, lw // 2))
+    for side in (-0.16, 0.16):
       pygame.draw.line(s, BAG, P(side, 1.46, 0.03), P(side * 1.15, 1.02, 0.03), max(2, lw // 2))
     rope = p.rope[0] if p.rope is not None else None
     if rope is None and self.web_flash and self.t < self.web_flash[1] and p.zip is not None:
@@ -896,7 +968,7 @@ class WorldScene:
 
     def arm(a, b):
       elbow = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
-      pygame.draw.line(s, SHIRT, a, elbow, lw)          # half sleeves
+      pygame.draw.line(s, SHIRT, a, elbow, lw)
       pygame.draw.line(s, SKIN, elbow, b, max(2, lw - 1))
       pygame.draw.circle(s, SKIN, (int(b[0]), int(b[1])), max(2, lw // 2 + 1))
     shoulder_l, shoulder_r = P(-0.22, 1.42), P(0.22, 1.42)
@@ -906,7 +978,7 @@ class WorldScene:
       if a:
         pygame.draw.line(s, WEB, hand, a[:2], 2)
         pygame.draw.line(s, (200, 210, 230), (hand[0] + 2, hand[1]), (a[0] + 2, a[1]), 1)
-        for k in range(6):                       # a little web splat where it sticks
+        for k in range(6):
           ang = k * math.pi / 3
           pygame.draw.line(s, WEB, a[:2], (a[0] + 9 * math.cos(ang), a[1] + 9 * math.sin(ang)), 1)
         pygame.draw.circle(s, WEB, (int(a[0]), int(a[1])), 6, 1)
@@ -918,7 +990,6 @@ class WorldScene:
     else:
       arm(shoulder_l, P(-0.34, 1.0, -swing))
       arm(shoulder_r, P(0.34, 1.0, swing))
-    # head: face, black hair, bright eyes and a smile
     hr = max(3, int(0.22 * sc))
     pygame.draw.circle(s, SKIN, (int(head[0]), int(head[1])), hr)
     pygame.draw.circle(s, HAIR, (int(head[0]), int(head[1] - hr * 0.25)), int(hr * 0.95),
@@ -929,7 +1000,7 @@ class WorldScene:
       pygame.draw.arc(s, (150, 60, 50), (head[0] - hr * 0.4, head[1] + hr * 0.05, hr * 0.8, hr * 0.6),
                       math.pi * 1.15, math.pi * 1.85, max(1, hr // 9))
     self.draw_rainbow_cap(s, head, hr, P(0, 1.76, 0.42), self.g.cap_colours())
-    self.dream_at = ((head[0], head[1] - hr * 1.4), hr)    # drawn last, over the doors' arrows
+    self.dream_at = ((head[0], head[1] - hr * 1.4), hr)
     if p.splash > 0:
       for k in range(6):
         a = k / 6 * math.tau + self.t * 3
@@ -940,7 +1011,6 @@ class WorldScene:
     return DREAMS[int(self.t / DREAM_SECS) % len(DREAMS)]
 
   def draw_dream(self, s, top, hr):
-    """A thought bubble over the hero's head with the dream of the moment; tap it to hear it."""
     cat, name, en, _hi, _bn = self.dream_now()
     size = max(44, min(84, int(hr * 3.2)))
     k = (self.t % DREAM_SECS) / DREAM_SECS
@@ -950,14 +1020,14 @@ class WorldScene:
     centre = (int(top[0] + hr * 2.4 + size * 0.45), int(top[1] - hr * 2.2 - size * 0.55 + bob))
     bubble = pygame.Rect(0, 0, size + 26, size + 34)
     bubble.center = centre
-    w, h = self.size if self.size else s.get_size()
-    bubble.clamp_ip(pygame.Rect(4, 56, w - 8, h - 60))       # stay on screen, under the top buttons
+    w, h = self.size
+    bubble.clamp_ip(pygame.Rect(4, 56, w - 8, h - 60))
     for ox, oy, rr in ((-0.32, -0.1, 0.42), (0.32, -0.1, 0.42), (0, -0.32, 0.4), (0, 0.2, 0.45)):
       pygame.draw.circle(s, WHITE, (int(bubble.centerx + ox * bubble.w), int(bubble.centery + oy * bubble.h)),
                          int(rr * bubble.w))
     pygame.draw.rect(s, WHITE, bubble, border_radius=size // 2)
     pygame.draw.rect(s, (255, 200, 60), bubble, 3, border_radius=size // 2)
-    fade = min(1.0, k * 8, (1 - k) * 8)                      # a soft change between dreams
+    fade = min(1.0, k * 8, (1 - k) * 8)
     pic = self.g.thumb(name, cat, size)
     if pic is not None:
       pic = pic.copy()
@@ -979,9 +1049,6 @@ class WorldScene:
 
   @staticmethod
   def draw_rainbow_cap(s, head, hr, peak, colours):
-    """The hero's cap: seven stripes that turn violet, indigo, blue, green,
-    yellow, orange and red as the child discovers subjects (fun.cap_colours),
-    a peak pointing the way the hero faces and a white pom-pom."""
     cx, cy = head[0], head[1] - hr * 0.2
     r = hr * 1.12
     for k, colour in enumerate(colours):
@@ -990,7 +1057,7 @@ class WorldScene:
       pts = [(cx, cy)] + [(cx + r * math.cos(a0 + (a1 - a0) * j / 4),
                            cy + r * math.sin(a0 + (a1 - a0) * j / 4)) for j in range(5)]
       pygame.draw.polygon(s, colour, pts)
-      if hr >= 8:                                  # the seven slots stay visible
+      if hr >= 8:
         pygame.draw.line(s, (120, 120, 140), (cx, cy), pts[-1], 1)
     if hr >= 8:
       pygame.draw.arc(s, (90, 90, 110), (cx - r, cy - r, 2 * r, 2 * r), 0, math.pi, 2)
@@ -1001,7 +1068,7 @@ class WorldScene:
     pygame.draw.circle(s, WHITE, (int(cx), int(cy - r)), max(2, int(hr * 0.28)))
 
   def draw_anchor(self, s):
-    if self.anchor is None or self.g.overlay or self.picker is not None:
+    if self.anchor is None or self.g.overlay or self.picker is not None or self.show_directory:
       return
     a = self.cam.project(self.anchor)
     if a:
@@ -1010,7 +1077,6 @@ class WorldScene:
       pygame.draw.circle(s, YELLOW, (int(a[0]), int(a[1])), int(r))
 
   def place_labels(self):
-    """Name signs nearest first; a sign overlapping a nearer one is left out."""
     cam = self.cam
     cands = []
     for b in self.boxes:
@@ -1020,7 +1086,7 @@ class WorldScene:
       p = cam.project((cx, b.top + 2.0, cz))
       if not p or p[2] > 200 or not (-40 < p[0] < self.size[0] + 40):
         continue
-      if p[2] < 60:                    # near: the name is painted on the walls instead
+      if p[2] < 60:
         continue
       size = int(max(13, min(26, 1300 / p[2])))
       icon = size + 14 if p[2] < 120 else 0
@@ -1114,20 +1180,20 @@ class WorldScene:
       pygame.draw.polygon(s, WHITE, [tip, (back[0] + side[0], back[1] + side[1]), (back[0] - side[0], back[1] - side[1])])
       return
     iy = c[1] - r.h * 0.12
-    if p.icon == "web":                          # a spider web
+    if p.icon == "web":
       for a in range(8):
         ang = a * math.pi / 4
         pygame.draw.line(s, WHITE, (c[0], iy), (c[0] + k * math.cos(ang), iy + k * math.sin(ang)), 2)
       for rr in (k * 0.45, k * 0.9):
         pygame.draw.circle(s, WHITE, (int(c[0]), int(iy)), int(rr), 1)
-    elif p.icon == "zip":                        # a web line up to a roof
+    elif p.icon == "zip":
       pygame.draw.polygon(s, WHITE, [(c[0] + k * 0.2, iy - k * 0.9), (c[0] + k, iy - k * 0.3), (c[0] - k * 0.6, iy - k * 0.3)])
       pygame.draw.line(s, WHITE, (c[0] - k, iy + k * 0.8), (c[0] + k * 0.2, iy - k * 0.5), 3)
-    elif p.icon == "boots":                      # a winged boot
+    elif p.icon == "boots":
       pygame.draw.rect(s, WHITE, (c[0] - k * 0.5, iy - k * 0.8, k * 0.6, k * 1.2), border_radius=3)
       pygame.draw.rect(s, WHITE, (c[0] - k * 0.5, iy + k * 0.2, k * 1.3, k * 0.5), border_radius=4)
       pygame.draw.polygon(s, YELLOW, [(c[0] - k * 0.5, iy - k * 0.4), (c[0] - k * 1.2, iy - k * 0.9), (c[0] - k * 0.9, iy - k * 0.2)])
-    elif p.icon == "cape":                       # a flowing cape
+    elif p.icon == "cape":
       pygame.draw.polygon(s, WHITE, [(c[0] - k * 0.4, iy - k * 0.8), (c[0] + k * 0.4, iy - k * 0.8),
                                      (c[0] + k, iy + k * 0.8), (c[0] - k, iy + k * 0.8)])
     else:
@@ -1140,15 +1206,16 @@ class WorldScene:
     bar.fill((30, 70, 140, 160))
     s.blit(bar, (0, 0))
     self.draw_button(s, self.buttons["guide"], "Guide me", (150, 80, 200))
+    self.draw_button(s, self.buttons["houses"], "Houses", (240, 140, 40))
     self.draw_button(s, self.buttons["pictures"], "Pictures", (60, 160, 90))
-    cap = self.buttons["cap"]                   # the rainbow cap earned so far
+    cap = self.buttons["cap"]
     pygame.draw.rect(s, (255, 255, 255), cap, border_radius=12)
     pygame.draw.rect(s, YELLOW, cap, 2, border_radius=12)
-    self.draw_rainbow_cap(s, (cap.x + 26, cap.centery + 6), 14, (cap.x + 48, cap.centery + 7),
+    self.draw_rainbow_cap(s, (cap.x + 24, cap.centery + 6), 13, (cap.x + 44, cap.centery + 7),
                           self.g.cap_colours())
-    self.text(s, f"{min(7, self.g.cap_count())}/7", (cap.right - 8, cap.centery), 18,
+    self.text(s, f"{min(7, self.g.cap_count())}/7", (cap.right - 6, cap.centery), 16,
               (60, 40, 120), anchor="midright")
-    if w >= 560:
+    if w >= 640:
       self.text(s, "Wonder Town", (w - self.map_rect.w - 30, 27), 22, YELLOW, anchor="midright")
     self.draw_map(s)
     self.zip_rect = pygame.Rect(0, 0, 0, 0)
@@ -1169,7 +1236,7 @@ class WorldScene:
     for p in self.pads.values():
       if p.visible:
         self.draw_pad(s, p)
-    if b is not None and not self.g.overlay and self.picker is None:
+    if b is not None and not self.g.overlay and self.picker is None and not self.show_directory:
       label = f"Go into {b.label}!"
       tw = self.g.font_at(20).size(label)[0]
       r = pygame.Rect(0, 0, min(w - 20, tw + 44), 46)
@@ -1192,7 +1259,7 @@ class WorldScene:
       s.blit(box, r.topleft)
       self.text(s, msg, r.center, size)
     self.tips_rect = self.tips_button = pygame.Rect(0, 0, 0, 0)
-    if self.show_tips and not self.g.overlay and self.picker is None:
+    if self.show_tips and not self.g.overlay and self.picker is None and not self.show_directory:
       cw = min(440, w - 30)
       lines = []
       for col, tip in TIPS:
