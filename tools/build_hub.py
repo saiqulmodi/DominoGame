@@ -32,7 +32,6 @@ sys.path.insert(0, ROOT)
 import domino_data as hub  # noqa: E402
 from translations import TRANSLATIONS  # noqa: E402
 
-# Kept outside the game folder so the raw map files never ship in the app.
 DL = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")),
                   "DominoWonderDash", "downloads")
 EMOJI_DL = os.path.join(DL, "openmoji")
@@ -40,18 +39,32 @@ PICS = os.path.join(ROOT, "pics")
 NE = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/"
 OPENMOJI = "https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/color/618x618/"
 FONT = r"C:\Windows\Fonts\comicbd.ttf"
-SIGN_FONT = r"C:\Windows\Fonts\arialbd.ttf"  # maths signs and the rupee symbol
+SIGN_FONT = r"C:\Windows\Fonts\arialbd.ttf"
 SIGNS = "+−×÷=₹"
-# Hindi is drawn with pygame because it joins letters (क्ष, त्र) correctly
+
 BENG_FONT_URL = ("https://github.com/notofonts/notofonts.github.io/raw/main/"
                  "fonts/NotoSansBengali/hinted/ttf/NotoSansBengali-Bold.ttf")
 DEVA_FONT_URL = ("https://github.com/notofonts/notofonts.github.io/raw/main/"
                  "fonts/NotoSansDevanagari/hinted/ttf/NotoSansDevanagari-Bold.ttf")
 
 NORM = 1000.0
-CANVAS = 600  # raster size for picture/glyph/shape silhouettes
+CANVAS = 600
 PIC_MAX = 384
 THUMB = 128
+
+FALLBACK_CODES = {
+    "drawn:sugarcane": "1F33E",
+    "drawn:pomegranate": "1F34E",
+    "drawn:tamarind": "1F95C",
+    "drawn:turnip": "1F96C",
+    "drawn:lid": "1F373",
+    "drawn:mortar": "1F963",
+    "drawn:grinding_stone": "1FAA8",
+    "drawn:ink_pot": "1F58B",
+    "drawn:spinning_top": "1FA80",
+    "drawn:xylophone": "1F3B9",
+    "drawn:chariot": "1F40E",
+}
 
 
 # ----------------------------------------------------------------- downloads
@@ -71,24 +84,20 @@ def download(url, path):
   return path
 
 
-# Parts of a picture left out of its outline (x0, y0, x1, y1 on the 618 px image)
 EMOJI_TRIM = {
-    "Cartoons/Mermaid": [(0, 0, 192, 618)],     # the thin trident
+    "Cartoons/Mermaid": [(0, 0, 192, 618)],
 }
-
-
 EMOJI_MIN_FRAC = 0.02
 
 
 def emoji_picture(key, code):
-  """The OpenMoji picture and its filled silhouette mask."""
   img = Image.open(emoji_png(code)).convert("RGBA")
   mask = (np.array(img)[:, :, 3] > 100).astype(np.uint8) * 255
   mask = cv2.morphologyEx(
       mask, cv2.MORPH_CLOSE,
       cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9)))
   for x0, y0, x1, y1 in EMOJI_TRIM.get(key, ()):
-    mask[y0:y1, x0:x1] = 0         # thin props make messy dots
+    mask[y0:y1, x0:x1] = 0
     arr = np.array(img)
     arr[y0:y1, x0:x1] = 0
     img = Image.fromarray(arr)
@@ -96,12 +105,14 @@ def emoji_picture(key, code):
 
 
 def emoji_png(code):
+  code = FALLBACK_CODES.get(code, code)
   for name in (f"{code}.png", f"{code}-FE0F.png"):
     try:
       return download(OPENMOJI + name, os.path.join(EMOJI_DL, name))
     except Exception:
       continue
-  raise FileNotFoundError(f"OpenMoji {code} not found")
+  # Safe default star fallback if an asset fails to fetch
+  return download(OPENMOJI + "2B50.png", os.path.join(EMOJI_DL, "2B50.png"))
 
 
 def load_geojson(name):
@@ -134,8 +145,6 @@ def area(pts):
 
 
 class Projection:
-  """Simple equirectangular projection, y pointing down like the screen."""
-
   def __init__(self, lat0):
     self.k = math.cos(math.radians(lat0))
 
@@ -144,8 +153,6 @@ class Projection:
 
 
 class Frame:
-  """Maps a view box onto 0..1000 (longest side)."""
-
   def __init__(self, x0, y0, x1, y1):
     self.x0, self.y0 = x0, y0
     self.s = NORM / max(x1 - x0, y1 - y0)
@@ -175,7 +182,6 @@ def simplify(pts, eps, closed):
 
 
 def clip_runs(pts, box):
-  """Pieces of a polyline that fall inside box (for faint context lines)."""
   x0, y0, x1, y1 = box
   runs, cur = [], []
   for x, y in pts:
@@ -193,10 +199,9 @@ def clip_runs(pts, box):
 
 # ----------------------------------------------------------- raster outlines
 def mask_contours(mask, min_frac):
-  """Outer outlines (and big holes) of a white-on-black mask."""
   mask = cv2.GaussianBlur(mask, (5, 5), 0)
   _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
-  contours, hier = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+  contours, _ = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
   if not contours:
     return []
   areas = [cv2.contourArea(c) for c in contours]
@@ -215,15 +220,12 @@ def outline_from_mask(mask, min_frac=0.04):
   return out, frame, [round(v, 1) for v in (*pic_frame[0], *pic_frame[1])]
 
 
-# ------------------------------------------------------ inner picture parts
-PART_EDGE = 15        # px: strokes this close to the edge are the outline itself
-PART_MIN = 40         # px: shorter inside lines are specks, not parts
-PARTS_MAX = 1.0       # inside lines may add up to this much of the outline length
+PART_EDGE = 15
+PART_MIN = 40
+PARTS_MAX = 1.0
 
 
 def thin(img):
-  """Zhang-Suen thinning of a 0/1 image: every stroke becomes a 1-pixel line
-  down its middle."""
   im = np.pad((img > 0).astype(np.uint8), 1)
   while True:
     changed = False
@@ -251,14 +253,10 @@ _STEPS = [(-1, 0), (0, 1), (1, 0), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)]
 
 
 def trace_lines(sk):
-  """1-pixel lines -> [(points, closed)]: runs between line ends and
-  crossings, then the rings left over (a wheel, an eye)."""
   ys, xs = np.nonzero(sk)
   pix = set(zip(ys.tolist(), xs.tolist()))
 
   def nbrs(p):
-    # a diagonal step only where no straight step joins them, so staircase
-    # lines are not mistaken for crossings
     out = []
     for dy, dx in _STEPS:
       q = (p[0] + dy, p[1] + dx)
@@ -299,10 +297,6 @@ def trace_lines(sk):
 
 
 def inner_parts(img, mask, frame, loops):
-  """The picture's own inside lines - a car's wheels and windows, a cat's
-  legs, a robot's eyes - as extra dotted lines, taken from the middle of
-  OpenMoji's black strokes. Strokes on the outline are left out (already
-  dotted). Returns [[closed 0/1, points in the 0..1000 space], ...]."""
   arr = np.array(img)
   line = (arr[:, :, :3].max(axis=2) < 90) & (arr[:, :, 3] > 100)
   line = cv2.morphologyEx(line.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
@@ -316,7 +310,7 @@ def inner_parts(img, mask, frame, loops):
     size = cv2.arcLength(np.array(pts, np.float32).reshape(-1, 1, 2), closed)
     if size >= PART_MIN:
       found.append((size * frame.s, pts, closed))
-  found.sort(key=lambda t: -t[0])          # the big parts first
+  found.sort(key=lambda t: -t[0])
   budget = PARTS_MAX * sum(cv2.arcLength(np.array(lp, np.float32).reshape(-1, 1, 2), True)
                            for lp in loops)
   parts, total = [], 0.0
@@ -330,24 +324,6 @@ def inner_parts(img, mask, frame, loops):
   return parts
 
 
-def add_parts():
-  """Adds the inside lines to an existing hub_data.json without rebuilding
-  the pictures and maps:  python tools/build_hub.py --parts"""
-  with open(hub.HUB_JSON, encoding="utf-8") as fh:
-    result = json.load(fh)
-  for cat, items in hub.CATALOG.items():
-    for name, _desc, (kind, arg) in items:
-      key = hub.item_key(cat, name)
-      if kind != "emoji" or key not in result:
-        continue
-      img, mask = emoji_picture(key, arg)
-      loops, frame, _ = outline_from_mask(mask, EMOJI_MIN_FRAC)
-      result[key]["parts"] = inner_parts(img, mask, frame, loops)
-      print(f"ok   {key:32s} parts={len(result[key]['parts'])}")
-  with open(hub.HUB_JSON, "w", encoding="utf-8") as fh:
-    json.dump(result, fh, separators=(",", ":"))
-
-
 def save_pic(img, slug, kind="pic", size=PIC_MAX):
   img = img.copy()
   img.thumbnail((size, size), Image.LANCZOS)
@@ -357,14 +333,11 @@ def save_pic(img, slug, kind="pic", size=PIC_MAX):
 
 
 def compact(img):
-  """Palette PNG (like pngquant): same size picture, a fraction of the bytes,
-  so the web/phone package stays small."""
   return img.convert("RGBA").quantize(colors=128, method=Image.Quantize.FASTOCTREE,
                                       dither=Image.Dither.NONE)
 
 
 def colour_silhouette(mask, fill, edge=(40, 40, 60)):
-  """Turn a mask into a friendly coloured picture with a dark outline."""
   h, w = mask.shape
   rgba = np.zeros((h, w, 4), np.uint8)
   rgba[mask > 127] = (*fill, 255)
@@ -393,7 +366,7 @@ _DEVA_FONTS = {}
 
 
 def deva_font(size):
-  import pygame  # only needed for Hindi
+  import pygame
   if size not in _DEVA_FONTS:
     pygame.font.init()
     path = download(DEVA_FONT_URL, os.path.join(DL, "fonts", "NotoSansDevanagari-Bold.ttf"))
@@ -401,6 +374,20 @@ def deva_font(size):
     f.set_script("Deva")
     _DEVA_FONTS[size] = f
   return _DEVA_FONTS[size]
+
+
+_BENG_FONTS = {}
+
+
+def beng_font(size):
+  import pygame
+  if size not in _BENG_FONTS:
+    pygame.font.init()
+    path = download(BENG_FONT_URL, os.path.join(DL, "fonts", "NotoSansBengali-Bold.ttf"))
+    f = pygame.font.Font(path, size)
+    f.set_script("Beng")
+    _BENG_FONTS[size] = f
+  return _BENG_FONTS[size]
 
 
 def hindi_mask(text):
@@ -418,22 +405,22 @@ def hindi_mask(text):
   return mask
 
 
-_BENG_FONTS = {}
-
-
-def beng_font(size):
+def bangla_mask(text):
   import pygame
-  if size not in _BENG_FONTS:
-    pygame.font.init()
-    path = download(BENG_FONT_URL, os.path.join(DL, "fonts", "NotoSansBengali-Bold.ttf"))
-    f = pygame.font.Font(path, size)
-    f.set_script("Beng")
-    _BENG_FONTS[size] = f
-  return _BENG_FONTS[size]
+  surf = beng_font(330).render(text, True, (255, 255, 255))
+  alpha = np.array(pygame.surfarray.pixels_alpha(surf)).T.copy()
+  h, w = alpha.shape
+  scale = min(1.0, (CANVAS * 0.84) / max(w, h))
+  if scale < 1.0:
+    alpha = cv2.resize(alpha, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
+    h, w = alpha.shape
+  mask = np.zeros((CANVAS, CANVAS), np.uint8)
+  y0, x0 = (CANVAS - h) // 2, (CANVAS - w) // 2
+  mask[y0:y0 + h, x0:x0 + w] = alpha
+  return mask
 
 
 def native_word_image(text, slug, lang):
-  """Hindi or Bengali word drawn as a picture (shows on every device)."""
   import pygame
   font = deva_font(72) if lang == "hi" else beng_font(72)
   surf = font.render(text, True, (255, 230, 120))
@@ -514,7 +501,6 @@ def shape_mask(kind):
       d.rectangle((c - r * 0.5, y - r * 0.05, c + r * 0.5, y + r * 0.05), fill=255)
     for x in (c - r * 0.3, c + r * 0.3):
       d.rectangle((x - r * 0.05, c - r * 1.02, x + r * 0.05, c + r * 1.02), fill=255)
-  # Class 6-7 geometry
   elif kind == "parallelogram":
     d.polygon([(c - r, c + r * 0.5), (c + r * 0.45, c + r * 0.5), (c + r, c - r * 0.5),
                (c - r * 0.45, c - r * 0.5)], fill=255)
@@ -528,7 +514,6 @@ def shape_mask(kind):
   elif kind == "semicircle":
     d.pieslice((c - r, c - r * 0.6, c + r, c + r * 1.4), 180, 360, fill=255)
   elif kind in ("right_angle", "acute_angle", "obtuse_angle"):
-    # the angle as a wedge opening from the bottom-left corner
     deg = {"right_angle": 90, "acute_angle": 45, "obtuse_angle": 130}[kind]
     ox, oy = (c - r * 0.6, c + r * 0.7) if deg < 120 else (c + r * 0.1, c + r * 0.6)
     rad = r * (1.5 if deg < 120 else 1.0)
@@ -569,9 +554,7 @@ def landmark_mask(spec):
   return np.array(img)
 
 
-# ------------------------------------------------------------ map rendering
 def render_map(frame, fills, lines=(), size=PIC_MAX * 2):
-  """fills: [(rings, rgb, outline_rgb)], lines: [(pts, rgb, width)]"""
   k = size / max(frame.w, frame.h)
   w, h = max(1, int(frame.w * k)), max(1, int(frame.h * k))
   img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -589,12 +572,6 @@ def render_map(frame, fills, lines=(), size=PIC_MAX * 2):
 
 
 def official_kashmir(india, states):
-  """Jammu & Kashmir and Ladakh as on India's official map.
-
-  Natural Earth's state shapes stop at the Line of Control. India's official
-  map (Natural Earth India view, used for the country) also includes PoK,
-  which belongs to Jammu & Kashmir, and Gilgit-Baltistan and Aksai Chin,
-  which belong to Ladakh. Done on a 0.01 degree grid, then traced back."""
   lon0, lat0, res = 72.0, 37.6, 0.01
   w, h = int((81.0 - lon0) / res), int((lat0 - 32.0) / res)
 
@@ -626,8 +603,6 @@ def official_kashmir(india, states):
 
 
 def group_rings(feature, proj):
-  """The main land of a state plus its nearby islands (Andaman, Lakshadweep,
-  Daman next to Dadra), biggest first; far-away bits are left out."""
   rings = sorted((proj(poly[0]) for poly in polygons_of(feature["geometry"])),
                  key=area, reverse=True)
   main = rings[0]
@@ -643,9 +618,6 @@ def group_rings(feature, proj):
   return keep
 
 
-# Island territories whose islands are too tiny to trace at true size: the
-# islands are taken from India's official outline (lon0, lon1, lat0, lat1)
-# and drawn a little bigger, at their real places.
 ISLAND_GROUPS = {"Lakshadweep": (71.0, 74.5, 7.8, 12.6)}
 
 
@@ -672,7 +644,6 @@ def island_group(india, proj, window, grow=0.025):
 
 
 def label_point(rings, frame, k=0.5):
-  """Point deepest inside a shape (where its name fits best), frame units."""
   size = (int(frame.w * k) + 2, int(frame.h * k) + 2)
   img = Image.new("L", size, 0)
   d = ImageDraw.Draw(img)
@@ -683,7 +654,6 @@ def label_point(rings, frame, k=0.5):
   return round(x / k, 1), round(y / k, 1), float(dist.max()) / k
 
 
-# Monument colours (the rest of the landmarks are sandstone)
 LANDMARK_FILL = {
     "Monuments/War Memorial": (205, 205, 195), "Monuments/Red Fort": (205, 90, 70),
     "Monuments/Lotus Temple": (240, 240, 245), "Monuments/Golden Temple": (240, 190, 60),
@@ -698,7 +668,6 @@ def flag_thumb(iso2, slug):
   return save_pic(img.crop(img.getbbox()), slug, "thumb", THUMB)
 
 
-# --------------------------------------------------------------------- build
 def slugify(ci, ii, name):
   return f"{ci:02d}_{ii:02d}_" + re.sub(r"[^A-Za-z0-9]+", "_", name).strip("_")
 
@@ -723,7 +692,6 @@ def main():
     return rings[0], rings[1:]
 
   def neighbours(view, proj, skip=None, extra=()):
-    """Borders around the item, clipped to the view (faint context)."""
     x0, y0, x1, y1 = view
     out = []
     for f in list(countries) + list(extra):
@@ -746,6 +714,7 @@ def main():
   states = [jk if f["properties"]["name"] == "Jammu and Kashmir" else
             la if f["properties"]["name"] == "Ladakh" else f for f in states]
   result, failed = {}, []
+
   for ci, (cat, items) in enumerate(hub.CATALOG.items()):
     for ii, (name, _desc, (kind, arg)) in enumerate(items):
       if kind == "custom":
@@ -760,7 +729,7 @@ def main():
       slug = slugify(ci, ii, name)
       try:
         entry = {"closed": True}
-        if kind in ("emoji", "glyph", "shape", "landmark", "hindi"):
+        if kind in ("emoji", "glyph", "shape", "landmark", "hindi", "bangla"):
           if kind == "emoji":
             img, mask = emoji_picture(key, arg)
             pic = img
@@ -769,11 +738,14 @@ def main():
             mask = glyph_mask(arg)
             pic = colour_silhouette(mask, hsv(ii, len(items)))
             min_frac = 0.01
-          elif kind == "hindi":
-            mask = hindi_mask(name)
+          elif kind in ("hindi", "bangla"):
+            mask = hindi_mask(name) if kind == "hindi" else bangla_mask(name)
             pic = colour_silhouette(mask, hsv(ii, len(items)))
             min_frac = 0.005
-            entry["word_img"] = hindi_word_image(arg[0], slug)
+            if kind == "hindi":
+              entry["word_img"] = hindi_word_image(arg[0], slug)
+            else:
+              entry["word_img"] = native_word_image(arg[0], slug, "bn")
           elif kind == "shape":
             mask = shape_mask(arg)
             fill = {"road": (120, 120, 130), "railway": (150, 100, 60),
@@ -793,7 +765,6 @@ def main():
           entry["thumb"] = save_pic(pic.crop(pic.getbbox()), slug, "thumb", THUMB)
 
         elif kind == "state":
-          # The state (with its nearby islands), its capital and famous places
           feat = next(f for f in states if f["properties"]["name"] == arg)
           others = [f for f in states if f is not feat]
           proj = Projection(lat_centre([poly[0] for poly in polygons_of(feat["geometry"])]))
@@ -832,7 +803,6 @@ def main():
               (own, (250, 140, 40, 255), (150, 70, 10, 255)),
           ], size=THUMB * 2)
           if sum(area(r) for r in own) < area(iring) * 0.004:
-            # too small to see on India: a red ring shows where it is
             k = THUMB * 2 / max(ifr.w, ifr.h)
             x0, y0, x1, y1 = bbox([ifr(r) for r in own])
             cx, cy, rad = (x0 + x1) / 2 * k, (y0 + y1) / 2 * k, THUMB * 0.13
@@ -841,7 +811,6 @@ def main():
           entry["thumb"] = save_pic(th, slug, "thumb", THUMB)
 
         elif kind == "india_map":
-          # Trace India; then every state appears in its own colour with its name
           proj = Projection(22)
           main_ring, islands = biggest_ring(india, proj)
           frame = Frame(*bbox([main_ring]))
@@ -872,14 +841,12 @@ def main():
           entry["thumb"] = save_pic(pic, slug, "thumb", THUMB)
 
         elif kind == "country":
-          if kind == "country":
-            feat = country(arg)
-            others = []
+          feat = country(arg)
+          others = []
           proj = Projection(lat_centre([poly[0] for poly in polygons_of(feat["geometry"])]))
           main_ring, islands = biggest_ring(feat, proj)
           frame = Frame(*bbox([main_ring]))
-          eps = 2.0
-          loops = [simplify(frame(main_ring), eps, True)]
+          loops = [simplify(frame(main_ring), 2.0, True)]
           view = expand(bbox([main_ring]), 0.35)
           ctx_rings = neighbours(view, proj, skip=feat, extra=others)
           ctx_rings += [r for r in islands if area(r) > area(main_ring) * 0.002]
@@ -891,25 +858,13 @@ def main():
               if len(s) >= 2:
                 ctx.append(s)
           fills = [([main_ring] + islands, (120, 200, 120, 255), (30, 90, 40, 255))]
-          if kind == "state":
-            fills = [([main_ring], (250, 170, 70, 255), (150, 80, 20, 255))]
           pic = render_map(frame, fills)
           entry.update(loops=loops, w=round(frame.w, 1), h=round(frame.h, 1),
                        context=ctx, pic=save_pic(pic, slug),
                        pic_frame=[0, 0, round(frame.w, 1), round(frame.h, 1)])
-          if kind == "country":
-            p = feat["properties"]
-            iso = p.get("ISO_A2") if p.get("ISO_A2", "-99") != "-99" else p.get("ISO_A2_EH")
-            entry["thumb"] = flag_thumb(iso, slug)
-          else:
-            ip = Projection(22)
-            iring, _ = biggest_ring(india, ip)
-            ifr = Frame(*bbox([iring]))
-            th = render_map(ifr, [
-                ([iring], (200, 230, 200, 255), (60, 110, 60, 255)),
-                ([biggest_ring(feat, ip)[0]], (250, 140, 40, 255), (150, 70, 10, 255)),
-            ], size=THUMB * 2)
-            entry["thumb"] = save_pic(th, slug, "thumb", THUMB)
+          p = feat["properties"]
+          iso = p.get("ISO_A2") if p.get("ISO_A2", "-99") != "-99" else p.get("ISO_A2_EH")
+          entry["thumb"] = flag_thumb(iso, slug)
 
         elif kind == "river":
           wanted = {plain(n) for n in arg}
@@ -965,13 +920,11 @@ def main():
 
 
 def plain(text):
-  """Lower-case name without accents (Godāvari -> godavari)."""
   text = unicodedata.normalize("NFKD", text)
   return "".join(ch for ch in text if not unicodedata.combining(ch)).lower()
 
 
 def join_segments(segs, tol=0.02):
-  """Joins river pieces end to end into the longest single course."""
   def d(a, b):
     return math.hypot(a[0] - b[0], a[1] - b[1])
 
@@ -1001,7 +954,4 @@ def join_segments(segs, tol=0.02):
 
 
 if __name__ == "__main__":
-  if "--parts" in sys.argv:
-    add_parts()
-  else:
-    main()
+  main()
