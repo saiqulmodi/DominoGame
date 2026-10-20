@@ -568,6 +568,8 @@ class MathsGame:
     tap2 = q.get("tap2")
     picked = i if tap2 else q["choices"][i]
     if picked == q["c"]:
+      if hasattr(self.g.progress, "record_quest_step"):
+        self.g.progress.record_quest_step("maths", self.g)
       first = not self.wrong
       self.solved_at = time.time()
       d["asked"] += 1
@@ -763,6 +765,15 @@ class MathsGame:
     diff = d["diff"].get(self.key, 0)
     for k in range(3):                         # difficulty: three steps per chapter
       pygame.draw.circle(s, YELLOW if k <= diff else (90, 110, 160), (right - 40 + k * 14, lay["foot"].centery + 12), 5)
+    
+    # 3-Star Daily Wonder Quests in Footer
+    if hasattr(g.progress, "get_daily_quests"):
+      q_status = g.progress.get_daily_quests()
+      mid_x = (btn.right + right - 60) // 2
+      for idx, done in enumerate([q_status["s1"], q_status["s2"], q_status["s3"]]):
+        star_x = mid_x - 22 + idx * 22
+        star_y = lay["foot"].centery
+        g.draw_star(s, (star_x, star_y), 7 if done else 5)
 
   def draw_badge(self, s, lay, now):
     g = self.g
@@ -1168,29 +1179,63 @@ class MathsGame:
   def scene_balance(self, s, lay, now):
     q = self.q
     sc = lay["scene"]
-    self.text(s, q["show"], (sc.centerx, sc.y + 18), 30)
+    self.text(s, q["show"], (sc.centerx, sc.y + 18), 30, YELLOW)
     base_y = sc.bottom - 8
-    top_y = sc.y + int(sc.h * 0.42)
-    pygame.draw.polygon(s, (180, 140, 90), [(sc.centerx - 40, base_y), (sc.centerx + 40, base_y),
-                                            (sc.centerx, top_y)])
-    tilt = 0.0 if self.shown else 0.08 * math.sin(now * 2.5)
+    top_y = sc.y + int(sc.h * 0.40)
+    
+    # Wooden Fulcrum Triangle
+    pygame.draw.polygon(s, (160, 115, 65), [(sc.centerx - 38, base_y), (sc.centerx + 38, base_y), (sc.centerx, top_y)])
+    pygame.draw.polygon(s, (100, 65, 30), [(sc.centerx - 38, base_y), (sc.centerx + 38, base_y), (sc.centerx, top_y)], 2)
+    
+    # Beam with subtle wobble when unsolved
+    tilt = 0.0 if self.shown else 0.06 * math.sin(now * 2.5)
     half = min(170, sc.w // 2 - 70)
     lx, ly = sc.centerx - half, top_y + half * tilt
     rx, ry = sc.centerx + half, top_y - half * tilt
-    pygame.draw.line(s, (220, 190, 140), (lx, ly), (rx, ry), 6)
-    pygame.draw.circle(s, WHITE, (sc.centerx, top_y), 7)
+    pygame.draw.line(s, (230, 200, 120), (lx, ly), (rx, ry), 7)
+    pygame.draw.circle(s, (70, 45, 20), (sc.centerx, top_y), 8)
+    pygame.draw.circle(s, (255, 225, 120), (sc.centerx, top_y), 5)
+    
     left_label = q["show"].split(" = ")[0]
     if self.shown:
       m = re.match(r"^(\d+)x$", left_label)
       left_label = f"{m.group(1)} × {q['val']}" if m else left_label.replace("x", str(q["val"]))
-    for (px, py), label, colour in (((lx, ly), left_label, (90, 170, 255)),
-                                    ((rx, ry), str(q["total"]), (255, 160, 60))):
-      pygame.draw.line(s, WHITE, (px, py), (px, py + 40), 2)
-      pan = pygame.Rect(0, 0, 120, 26)
+
+    # Draw both hanging pans with physical objects
+    for is_right, ((px, py), label, pan_col) in enumerate([
+        (False, ((lx, ly), left_label, (75, 145, 235))),
+        (True, ((rx, ry), str(q["total"]), (245, 140, 50)))
+    ]):
+      pygame.draw.line(s, (200, 200, 210), (px - 45, py + 48), (px, py), 2)
+      pygame.draw.line(s, (200, 200, 210), (px + 45, py + 48), (px, py), 2)
+      
+      pan = pygame.Rect(0, 0, 120, 24)
       pan.center = (px, py + 52)
-      pygame.draw.ellipse(s, colour, pan)
+      pygame.draw.ellipse(s, pan_col, pan)
       pygame.draw.ellipse(s, WHITE, pan, 2)
-      self.text(s, label, (px, pan.y - 16), 26)
+      
+      if not is_right:
+        # Left Pan: Mystery Box [x]
+        box = pygame.Rect(px - 46, pan.y - 34, 36, 34)
+        box_c = (70, 190, 90) if self.shown else (210, 150, 60)
+        pygame.draw.rect(s, box_c, box, border_radius=5)
+        pygame.draw.rect(s, WHITE, box, 2, border_radius=5)
+        box_txt = str(q["val"]) if self.shown else "x"
+        self.text(s, box_txt, box.center, 22, WHITE)
+        if "+" in label:
+          extra_w = label.split("+")[-1].strip()
+          w_rect = pygame.Rect(px + 10, pan.y - 28, 34, 28)
+          pygame.draw.rect(s, (160, 165, 180), w_rect, border_radius=4)
+          pygame.draw.rect(s, WHITE, w_rect, 1, border_radius=4)
+          self.text(s, extra_w, w_rect.center, 20, (30, 30, 40))
+        elif "-" in label:
+          self.text(s, label, (px, pan.y - 48), 22, YELLOW)
+      else:
+        # Right Pan: Total Weight stack
+        w_rect = pygame.Rect(px - 26, pan.y - 36, 52, 36)
+        pygame.draw.rect(s, (215, 175, 55), w_rect, border_radius=5)
+        pygame.draw.rect(s, WHITE, w_rect, 2, border_radius=5)
+        self.text(s, str(q["total"]), w_rect.center, 24, (40, 25, 10))
 
   # --- numbers ----------------------------------------------------------------------
   def scene_pairs(self, s, lay, now):

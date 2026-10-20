@@ -232,7 +232,7 @@ def new_profile(n):
           "stories": [], "poems": [], "days": [], "guides": [],
           "road": {"safe": 0, "waited": 0},
           "maths": {"level": 1, "right": 0, "asked": 0, "run": 0, "miss": 0, "best": 1,
-                    "solved": 0}}
+                    "solved": 0}, "daily": {}}
 
 
 class Progress:
@@ -278,6 +278,45 @@ class Progress:
         self.store = saved
     except Exception:
       pass  # first run, or storage not available: start fresh
+
+
+  def get_daily_quests(self):
+    """Returns today's 3-star quest status: [star1, star2, star3, all_complete]."""
+    import datetime
+    today = datetime.date.today().isoformat()
+    d = self.data.setdefault("daily", {})
+    day_record = d.setdefault(today, {"maths": 0, "trace": 0, "words": 0, "claimed": False})
+    
+    s1 = day_record.get("maths", 0) >= 3
+    s2 = day_record.get("trace", 0) >= 1
+    s3 = day_record.get("words", 0) >= 1
+    all_done = s1 and s2 and s3
+    return {"date": today, "s1": s1, "s2": s2, "s3": s3, "all_done": all_done, "claimed": day_record.get("claimed", False)}
+
+  def record_quest_step(self, kind, g=None):
+    """Records a completed step: 'maths', 'trace', or 'words'."""
+    import datetime
+    today = datetime.date.today().isoformat()
+    d = self.data.setdefault("daily", {})
+    day_record = d.setdefault(today, {"maths": 0, "trace": 0, "words": 0, "claimed": False})
+    day_record[kind] = day_record.get(kind, 0) + 1
+    
+    # Check if newly completed all 3
+    s1 = day_record.get("maths", 0) >= 3
+    s2 = day_record.get("trace", 0) >= 1
+    s3 = day_record.get("words", 0) >= 1
+    if s1 and s2 and s3 and not day_record.get("claimed"):
+      day_record["claimed"] = True
+      sticker_name = "Daily Champion Star"
+      if sticker_name not in self.data["stickers"]:
+        self.data["stickers"].append(sticker_name)
+      if g:
+        try:
+          g.sfx.play("cheer")
+          g.say("Congratulations! You completed all daily wonder quests!", "बधाई हो! आज के सारे वंडर क्वेस्ट पूरे हुए!")
+        except Exception:
+          pass
+    self.save()
 
   def save(self):
     try:
