@@ -24,8 +24,8 @@ SKY_LOW = (255, 222, 180)
 FOG = (210, 228, 242)
 GRASS_NEAR = (98, 180, 86)
 GRASS_FAR = (160, 206, 128)
-STREET = (190, 182, 168)
-RIVER = (60, 150, 220)
+STREET = (235, 206, 150)
+RIVER = (24, 158, 185)
 DECK = (150, 120, 96)
 SUIT = (220, 40, 50)          # the cape and the school tie
 SUIT_DARK = (40, 70, 170)     # school trousers
@@ -33,9 +33,9 @@ SHIRT = (248, 248, 252)       # school uniform shirt
 SKIN = (226, 170, 120)
 HAIR = (35, 25, 25)
 BAG = (255, 140, 40)          # school bag
-HERO_SCALE = 1.7              # the hero is big: the future of the nation (at least 1.7x)
-HERO_SCREEN = 0.18            # ... and about this share of the screen's height on phones too
-HERO_MAX = 2.8
+HERO_SCALE = 2.5              # the hero is big: the future of the nation (at least 1.7x)
+HERO_SCREEN = 0.28            # ... and about this share of the screen's height on phones too
+HERO_MAX = 4.2
 # The hero's dreams shown in a thought bubble one after another:
 DREAMS = [
     ("Helpers", "Scientist", "Scientist", "वैज्ञानिक", "বিজ্ঞানী"),
@@ -661,23 +661,52 @@ class WorldScene:
   def draw_ground(self, s):
     x0, x1, z0, z1 = town.BOUNDS
     rz0, rz1 = town.RIVER_Z
-    for za in range(int(z0), int(z1), 30):
-      self.ground_poly(s, [(-5, za), (5, za), (5, min(z1, za + 30)), (-5, min(z1, za + 30))], STREET)
+    
+    # 1. Grand Outer Ring Roads (Dubai Global Village Promenade)
+    PROMENADE_COL = (105, 115, 130)
+    PAV_COL = (120, 130, 145)
+    KERB_COL = (220, 215, 190)
+
+    # South Promenade & North Boulevard
+    self.ground_poly(s, [(-110, z0 + 10), (110, z0 + 10), (110, z0 + 22), (-110, z0 + 22)], PROMENADE_COL)
+    self.ground_poly(s, [(-110, z1 - 22), (110, z1 - 22), (110, z1 - 10), (-110, z1 - 10)], PROMENADE_COL)
+
+    # West & East Outer Avenues
+    self.ground_poly(s, [(-110, z0 + 10), (-98, z0 + 10), (-98, z1 - 10), (-110, z1 - 10)], PROMENADE_COL)
+    self.ground_poly(s, [(98, z0 + 10), (110, z0 + 10), (110, z1 - 10), (98, z1 - 10)], PROMENADE_COL)
+
+    # 2. Main Central Boulevard (Wide Royal Avenue)
+    for za in range(int(z0), int(z1), 32):
+      self.ground_poly(s, [(-10, za), (10, za), (10, min(z1, za + 32)), (-10, min(z1, za + 32))], STREET)
+      # Central dividing yellow strip / median
+      self.ground_poly(s, [(-0.6, za), (0.6, za), (0.6, min(z1, za + 32)), (-0.6, min(z1, za + 32))], (245, 215, 60))
+
+    # 3. Dedicated Interconnecting Avenues to Every Single Pavilion Door
     for b in self.boxes:
       if b.kind is not None and b.key != "arcade":
         dx, _, dz = b.door()
+        # Draw broad connection road from Central Boulevard all the way to pavilion front
         xa, xb = sorted((dx, 0.0))
-        self.ground_poly(s, [(xa, dz - 1.8), (xb, dz - 1.8), (xb, dz + 1.8), (xa, dz + 1.8)], STREET)
-    plaza = [(12 * math.cos(a / 12 * math.tau), 4 + 12 * math.sin(a / 12 * math.tau)) for a in range(12)]
-    self.ground_poly(s, plaza, (236, 200, 150))
+        # Wide connecting road
+        self.ground_poly(s, [(xa - 1.0, dz - 4.5), (xb + 1.0, dz - 4.5), (xb + 1.0, dz + 4.5), (xa - 1.0, dz + 4.5)], PAV_COL)
+        # Decorative courtyard / entrance plaza in front of the house
+        cx = dx + (3.5 if dx > 0 else -3.5)
+        self.ground_poly(s, [(cx - 5, dz - 6), (cx + 5, dz - 6), (cx + 5, dz + 6), (cx - 5, dz + 6)], (210, 195, 160))
+
+    # 4. Central Grand Plaza (Fountain Lake Court)
+    plaza = [(18 * math.cos(a / 16 * math.tau), 4 + 18 * math.sin(a / 16 * math.tau)) for a in range(16)]
+    self.ground_poly(s, plaza, (236, 205, 155))
+
+    # 5. Grand Canal / River & Bridge Deck
     self.ground_poly(s, [(x0, rz0), (x1, rz0), (x1, rz1), (x0, rz1)], RIVER)
-    for k in range(7):
-      z = rz0 + 2 + ((k * 2.0 + self.t * 1.2) % (rz1 - rz0 - 4))
+    for k in range(9):
+      z = rz0 + 2 + ((k * 1.8 + self.t * 1.2) % (rz1 - rz0 - 4))
       a = self.cam.project((x0 + 20, 0.02, z))
       b = self.cam.project((x1 - 20, 0.02, z))
       if a and b:
-        pygame.draw.line(s, (150, 205, 245), a[:2], b[:2], 1)
-    self.ground_poly(s, [(-6, rz0 - 2), (6, rz0 - 2), (6, rz1 + 2), (-6, rz1 + 2)], DECK)
+        pygame.draw.line(s, (160, 220, 255), a[:2], b[:2], 2)
+    # Royal Arch Bridge connecting across the river
+    self.ground_poly(s, [(-12, rz0 - 3), (12, rz0 - 3), (12, rz1 + 3), (-12, rz1 + 3)], DECK)
     for b in self.boxes:
       if b.kind is not None and b.gable:
         dx, _, dz = b.door()
@@ -939,66 +968,111 @@ class WorldScene:
       q = cam.project((px + hz * dx + hx * dz, py + dy, pz - hx * dx + hz * dz))
       return (q[0], q[1]) if q else foot[:2]
 
-    swing = math.sin(p.walk_phase * 2.2) * (0.4 if p.grounded else 0.15)
-    hip, neck, head = P(0, 0.95), P(0, 1.45), P(0, 1.7)
-    lw = max(2, int(0.17 * sc))
+    # Check if hero is walking away from camera
+    cam_dx = px - cam.pos[0]
+    cam_dz = pz - cam.pos[2]
+    is_facing_away = (hx * cam_dx + hz * cam_dz) > 0.0
+
+    swing = math.sin(p.walk_phase * 2.2) * (0.38 if p.grounded else 0.15)
+    hip = P(0, 0.94)
+    neck = P(0, 1.48)
+    head = P(0, 1.72)
+    lw = max(3, int(0.20 * sc))
+
+    # --- 1. CAPE (Hero Glide / Running Cape) ---
     if p.gliding:
-      pygame.draw.polygon(s, (150, 80, 220), [P(-0.25, 1.45, -0.1), P(0.25, 1.45, -0.1),
-                                              P(0.9, 0.5, -0.8), P(-0.9, 0.5, -0.8)])
-    for side, sw in ((-0.15, swing), (0.15, -swing)):
-      knee_foot = P(side, 0.0, sw)
-      pygame.draw.line(s, SUIT_DARK, hip, knee_foot, lw + 1)
-      pygame.draw.circle(s, (25, 25, 30), (int(knee_foot[0]), int(knee_foot[1])), max(2, lw // 2 + 1))
-    bag = [P(-0.31, 1.4, -0.2), P(0.31, 1.4, -0.2), P(0.33, 0.96, -0.22), P(-0.33, 0.96, -0.22)]
-    pygame.draw.polygon(s, BAG, bag)
-    pygame.draw.polygon(s, (170, 80, 20), bag, max(1, lw // 3))
-    flap = [bag[0], bag[1], P(0.2, 1.24, -0.23), P(-0.2, 1.24, -0.23)]
-    pygame.draw.polygon(s, (240, 110, 30), flap)
-    torso = [P(-0.24, 1.47), P(0.24, 1.47), P(0.2, 0.92), P(-0.2, 0.92)]
-    pygame.draw.polygon(s, SHIRT, torso)
-    pygame.draw.polygon(s, (180, 180, 195), torso, max(1, lw // 3))
-    pygame.draw.polygon(s, SUIT, [P(-0.04, 1.44, 0.05), P(0.04, 1.44, 0.05), P(0.03, 1.12, 0.05),
-                                  P(0, 1.06, 0.05), P(-0.03, 1.12, 0.05)])
-    pygame.draw.line(s, SUIT_DARK, P(-0.21, 0.95), P(0.21, 0.95), max(2, lw // 2))
-    for side in (-0.16, 0.16):
-      pygame.draw.line(s, BAG, P(side, 1.46, 0.03), P(side * 1.15, 1.02, 0.03), max(2, lw // 2))
+      cape = [P(-0.35, 1.46, -0.1), P(0.35, 1.46, -0.1), P(1.0, 0.4, -0.9), P(-1.0, 0.4, -0.9)]
+      pygame.draw.polygon(s, (220, 35, 45), cape)
+      pygame.draw.polygon(s, (160, 20, 30), cape, max(1, lw // 3))
+    elif is_facing_away:
+      c_sw = math.sin(p.walk_phase * 2.2) * 0.06
+      cape = [P(-0.25, 1.44, -0.06), P(0.25, 1.44, -0.06), 
+              P(0.26 + c_sw, 0.90, -0.22), P(-0.26 + c_sw, 0.90, -0.22)]
+      pygame.draw.polygon(s, (220, 35, 45), cape)
+
+    # --- 2. LEGS & SNEAKERS ---
+    for side, sw in ((-0.16, swing), (0.16, -swing)):
+      knee = P(side * 0.85, 0.50, sw * 0.5)
+      foot_pt = P(side, 0.04, sw)
+      # Trousers
+      pygame.draw.line(s, (30, 50, 115), hip, knee, lw + 2)
+      pygame.draw.line(s, (30, 50, 115), knee, foot_pt, lw + 1)
+      # Academy Sneakers (Red sports shoes with white trim)
+      fx, fy = int(foot_pt[0]), int(foot_pt[1])
+      pygame.draw.ellipse(s, (230, 40, 40), (fx - max(4, lw), fy - max(2, lw // 2), max(8, lw * 2), max(5, lw + 2)))
+      pygame.draw.circle(s, (255, 255, 255), (fx, fy), max(2, lw // 2))
+
+    # --- 3. TORSO (Academy Uniform Blazer) ---
+    torso = [P(-0.26, 1.46), P(0.26, 1.46), P(0.21, 0.92), P(-0.21, 0.92)]
+    # White base shirt
+    pygame.draw.polygon(s, (245, 248, 255), torso)
+    # Navy Blazer edges
+    pygame.draw.polygon(s, (25, 45, 110), torso, max(2, lw // 3))
+
+    if is_facing_away:
+      # BACK VIEW: Leather School Satchel Backpack
+      bag = [P(-0.26, 1.42, -0.15), P(0.26, 1.42, -0.15), P(0.28, 0.96, -0.18), P(-0.28, 0.96, -0.18)]
+      pygame.draw.polygon(s, (245, 130, 30), bag)
+      pygame.draw.polygon(s, (180, 80, 20), bag, max(1, lw // 3))
+      # Backpack Flap & Badge
+      flap = [bag[0], bag[1], P(0.20, 1.22, -0.20), P(-0.20, 1.22, -0.20)]
+      pygame.draw.polygon(s, (255, 165, 50), flap)
+      pygame.draw.circle(s, (255, 215, 60), (int(bag[0][0] + 12), int(bag[0][1] + 16)), max(2, lw // 3))
+      # Straps over shoulders
+      for s_side in (-0.18, 0.18):
+        pygame.draw.line(s, (200, 90, 25), P(s_side, 1.46, -0.05), P(s_side * 1.1, 0.98, -0.16), max(2, lw // 2))
+    else:
+      # FRONT VIEW: Collar, Tie & School Crest
+      collar = [P(-0.11, 1.46, 0.05), P(0.11, 1.46, 0.05), P(0, 1.32, 0.06)]
+      pygame.draw.polygon(s, (255, 255, 255), collar)
+      tie = [P(-0.04, 1.42, 0.06), P(0.04, 1.42, 0.06), P(0.03, 1.10, 0.06), P(0, 1.04, 0.06), P(-0.03, 1.10, 0.06)]
+      pygame.draw.polygon(s, (220, 35, 45), tie)
+      # Gold Academy Crest on pocket
+      crest_pt = P(-0.15, 1.30, 0.05)
+      pygame.draw.circle(s, (245, 200, 40), (int(crest_pt[0]), int(crest_pt[1])), max(2, lw // 2))
+
+    # Belt line
+    pygame.draw.line(s, (30, 30, 35), P(-0.21, 0.93), P(0.21, 0.93), max(2, lw // 2))
+
+    # --- 4. ARMS & HANDS ---
+    def arm(a, b):
+      elbow = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+      pygame.draw.line(s, (25, 45, 110), a, elbow, lw + 1)
+      pygame.draw.line(s, SKIN, elbow, b, lw)
+      pygame.draw.circle(s, SKIN, (int(b[0]), int(b[1])), max(3, lw // 2 + 1))
+
+    shoulder_l, shoulder_r = P(-0.25, 1.42), P(0.25, 1.42)
     rope = p.rope[0] if p.rope is not None else None
     if rope is None and self.web_flash and self.t < self.web_flash[1] and p.zip is not None:
       rope = self.web_flash[0]
 
-    def arm(a, b):
-      elbow = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
-      pygame.draw.line(s, SHIRT, a, elbow, lw)
-      pygame.draw.line(s, SKIN, elbow, b, max(2, lw - 1))
-      pygame.draw.circle(s, SKIN, (int(b[0]), int(b[1])), max(2, lw // 2 + 1))
-    shoulder_l, shoulder_r = P(-0.22, 1.42), P(0.22, 1.42)
     if rope is not None:
       hand = P(0.1, 2.0)
       a = cam.project(rope)
       if a:
         pygame.draw.line(s, WEB, hand, a[:2], 2)
-        pygame.draw.line(s, (200, 210, 230), (hand[0] + 2, hand[1]), (a[0] + 2, a[1]), 1)
-        for k in range(6):
-          ang = k * math.pi / 3
-          pygame.draw.line(s, WEB, a[:2], (a[0] + 9 * math.cos(ang), a[1] + 9 * math.sin(ang)), 1)
-        pygame.draw.circle(s, WEB, (int(a[0]), int(a[1])), 6, 1)
       arm(shoulder_r, hand)
       arm(shoulder_l, P(-0.35, 1.0, 0.2))
     elif not p.grounded:
-      arm(shoulder_l, P(-0.5, 1.8))
-      arm(shoulder_r, P(0.5, 1.8))
+      arm(shoulder_l, P(-0.48, 1.75))
+      arm(shoulder_r, P(0.48, 1.75))
     else:
-      arm(shoulder_l, P(-0.34, 1.0, -swing))
-      arm(shoulder_r, P(0.34, 1.0, swing))
-    hr = max(3, int(0.22 * sc))
+      arm(shoulder_l, P(-0.32, 1.02, -swing))
+      arm(shoulder_r, P(0.32, 1.02, swing))
+
+    # --- 5. HEAD & FACE ---
+    hr = max(4, int(0.23 * sc))
     pygame.draw.circle(s, SKIN, (int(head[0]), int(head[1])), hr)
-    pygame.draw.circle(s, HAIR, (int(head[0]), int(head[1] - hr * 0.25)), int(hr * 0.95),
+    # Hair / Trim
+    pygame.draw.circle(s, HAIR, (int(head[0]), int(head[1] - hr * 0.22)), int(hr * 0.96),
                        draw_top_left=True, draw_top_right=True)
-    if hr >= 6:
-      for ex in (-0.38, 0.38):
-        pygame.draw.circle(s, (30, 30, 40), (int(head[0] + ex * hr), int(head[1] + hr * 0.12)), max(1, hr // 7))
-      pygame.draw.arc(s, (150, 60, 50), (head[0] - hr * 0.4, head[1] + hr * 0.05, hr * 0.8, hr * 0.6),
-                      math.pi * 1.15, math.pi * 1.85, max(1, hr // 9))
+
+    # Face details ONLY when facing toward camera
+    if not is_facing_away and hr >= 5:
+      for ex in (-0.36, 0.36):
+        pygame.draw.circle(s, (30, 30, 40), (int(head[0] + ex * hr), int(head[1] + hr * 0.10)), max(1, hr // 7))
+      pygame.draw.arc(s, (160, 60, 50), (head[0] - hr * 0.38, head[1] + hr * 0.05, hr * 0.76, hr * 0.55),
+                      math.pi * 1.15, math.pi * 1.85, max(1, hr // 8))
     self.draw_rainbow_cap(s, head, hr, P(0, 1.76, 0.42), self.g.cap_colours())
     self.dream_at = ((head[0], head[1] - hr * 1.4), hr)
     if p.splash > 0:
@@ -1150,7 +1224,7 @@ class WorldScene:
         pygame.draw.rect(s, WHITE, r.inflate(6, 6), 2)
     p = self.player
     c = self.map_point(p.pos[0], p.pos[2])
-    hx, _, hz = p.heading
+    hx, _, hz = -p.heading[0], -p.heading[1], -p.heading[2]
     tri = [(c[0] + hx * 9, c[1] - hz * 9), (c[0] - hz * 5 - hx * 4, c[1] - hx * 5 + hz * 4),
            (c[0] + hz * 5 - hx * 4, c[1] + hx * 5 + hz * 4)]
     pygame.draw.polygon(s, WHITE, tri)

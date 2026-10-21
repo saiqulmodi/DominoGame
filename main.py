@@ -1,3 +1,4 @@
+import topplegame
 """Domino Wonder Dash - children learn by tracing, toppling and listening.
 
 1. Pick a subject, a category and an item (all from the Picture Data Hub).
@@ -63,7 +64,8 @@ BANK_COLS, BANK_ROWS = 4, 7
 
 # Game screen (screen coordinates; set_layout() fills these in)
 MENU_BTN = pygame.Rect(6, 10, 50, 54)
-TOWN_BTN = pygame.Rect(6, 68, 50, 40)     # back to Wonder Town (the 3D front door)
+TOWN_BTN = pygame.Rect(6, 68, 50, 40)
+TOPPLE_BTN = pygame.Rect(6, 112, 50, 40)   # Domino chain-reaction playground     # back to Wonder Town (the 3D front door)
 NEXT_BTN = pygame.Rect(PANEL_W - 56, 10, 50, 54)
 HELP_BTN = pygame.Rect(PANEL_W - 56, 68, 50, 40)  # "?": the picture guide (howto.py)
 BANNER_RECT = pygame.Rect(68, 8, PANEL_W - 136, 62)
@@ -341,7 +343,8 @@ class Game:
     self.mode = "trace"          # "trace", "quiz" or "spell"
     self.quiz = self.spell = None
     self.road = None             # Cross the Road (roadsafety.py)
-    self.maths = None            # Maths Play (mathsgame.py)
+    self.maths = None
+    self.topple = None            # Maths Play (mathsgame.py)
     self.story = None            # {"story": dict, "step": int}
     self.banner_override = None
     self.call_at = None
@@ -563,6 +566,7 @@ class Game:
     self.mode = mode
     self.banner_override = None
     self.quiz = self.spell = self.road = self.maths = None
+    self.topple = None
     if mode == "quiz":
       self.quiz = modes.QuizMode(self, (self.cat, self.puzzle))
     elif mode == "spell":
@@ -593,6 +597,12 @@ class Game:
     self.cat, self.puzzle = cat, name
     self.page = self.page_of(name)
     self.load_item()
+
+  def enter_topple(self):
+    if not self.topple:
+      self.topple = topplegame.ToppleMode(self)
+    self.mode = "topple"
+    self.say("Welcome to Domino Topple!", "डोमिनो टोपल में स्वागत है!")
 
   def leave_story(self):
     self.story = None
@@ -995,7 +1005,10 @@ class Game:
     if self.in_world:
       self.world.press(pos)
       return
-    if TOWN_BTN.collidepoint(mx, my):
+    if TOPPLE_BTN.collidepoint(mx, my):
+      self.sfx.play("switch")
+      self.enter_topple()
+    elif TOWN_BTN.collidepoint(mx, my):
       self.go_to_town()
     elif MENU_BTN.collidepoint(mx, my):
       self.sfx.play("switch")
@@ -1249,6 +1262,11 @@ class Game:
       self.quiz.update(now)
     if self.mode == "road" and self.road:
       self.road.update(now)
+    if self.mode == "topple" and self.topple:
+      self.topple.update(dt)
+    if self.mode == "topple" and self.topple:
+      self.topple.draw(s, now)
+      return
     if self.mode == "maths" and self.maths:
       self.maths.update(now)
     if self.mode == "trace" and getattr(self, "sing", None):
@@ -1849,6 +1867,15 @@ class Game:
       y = MENU_BTN.centery - 12 + k * 12
       pygame.draw.line(screen, WHITE, (MENU_BTN.x + 14, y), (MENU_BTN.right - 14, y), 4)
     # Town: a little house - back to Wonder Town
+    # Topple Mode Button
+    topple_bg = (50, 180, 100) if self.mode == "topple" else (60, 140, 90)
+    pygame.draw.rect(screen, topple_bg, TOPPLE_BTN, border_radius=12)
+    pygame.draw.rect(screen, WHITE, TOPPLE_BTN, 2, border_radius=12)
+    t_icon = self.font_at(16).render("TOP", True, WHITE)
+    screen.blit(t_icon, t_icon.get_rect(center=(TOPPLE_BTN.centerx, TOPPLE_BTN.centery - 7)))
+    t_sub = self.font_at(11).render("POP", True, YELLOW)
+    screen.blit(t_sub, t_sub.get_rect(center=(TOPPLE_BTN.centerx, TOPPLE_BTN.centery + 9)))
+
     pygame.draw.rect(screen, (240, 140, 40), TOWN_BTN, border_radius=12)
     pygame.draw.rect(screen, WHITE, TOWN_BTN, 2, border_radius=12)
     cx, cy = TOWN_BTN.center

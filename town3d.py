@@ -25,7 +25,7 @@ RADIUS = 0.6                # the player's body, for collisions
 ROPE_MIN, ROPE_MAX = 6.0, 40.0
 RIVER_Z = (96.0, 112.0)
 BRIDGE_HALF = 6.0           # the street bridge over the river is |x| < 6
-BOUNDS = (-95.0, 95.0, -35.0, 245.0)      # x0, x1, z0, z1
+BOUNDS = (-140.0, 140.0, -45.0, 310.0)      # x0, x1, z0, z1
 START = (0.0, 0.0, -18.0)
 
 
@@ -81,44 +81,64 @@ class Box:
     return [(self.x0, y, self.z0), (self.x1, y, self.z0), (self.x0, y, self.z1), (self.x1, y, self.z1)]
 
 
+# --- Palm Jumeirah Archipelago Layout ---
+# side: -1 (West Fronds), 1 (East Fronds)
+# x_reach: how far along the curved frond the pavilion is located
 SUBJECT_HOUSES = [
-    ("english", -1, 40, 18, 14, 11, (250, 196, 70), "ABC School", "English letters", "English", ("ABC", "A")),
-    ("hindi", 1, 40, 18, 14, 11, (246, 140, 72), "Hindi Pathshala", "Swar and Vyanjan", "Hindi", None),
-    ("maths", -1, 70, 18, 14, 13, (90, 150, 240), "Number House", "Numbers, shapes, signs", "Maths", None),
-    ("home", 1, 70, 18, 14, 10, (240, 170, 150), "My Home", "Body, home, helpers", "Me & Home", None),
-    ("science", -1, 86, 18, 11, 12, (110, 200, 230), "Science Lab", "Class 6-7 science", "Science", ("Lab Tools", "Microscope")),
-    ("social", 1, 86, 18, 11, 12, (200, 150, 100), "Heritage Hall", "Class 6-7 history, maps, civics", "Social", ("Long Ago", "Clay Pot")),
-    ("nature", -1, 136, 24, 18, 9, (90, 190, 110), "Zoo & Garden", "Animals, birds, plants", "Nature", ("Animals", "Tiger")),
-    ("food", 1, 136, 20, 16, 9, (236, 90, 90), "Food Market", "Fruits and vegetables", "Food", ("Fruits", "Apple")),
-    ("travel", -1, 168, 22, 16, 12, (160, 110, 220), "Station", "Vehicles, travel, bridges", "Travel", None),
-    ("world", 1, 168, 16, 16, 24, (60, 190, 200), "Globe Tower", "Sky, countries, cities", "World", None),
-    ("india", -1, 200, 22, 16, 12, (255, 153, 51), "India Park", "Map, states, monuments", "India", None),
-    ("fun", 1, 200, 20, 16, 12, (220, 90, 190), "Fun Park", "Cartoons, music, sports", "Fun", None),
-    ("bangla", 1, 152, 18, 11, 11, (60, 170, 120), "Bangla Pathshala", "Swarabarna, Byanjanbarna", "Bangla", None),
-    ("rhymes", 1, 184, 18, 11, 11, (255, 150, 60), "Rhyme Stage", "Sing-along rhymes", "Rhymes", ("Classic Rhymes", "Twinkle Twinkle")),
-    ("safety", -1, 184, 18, 11, 11, (240, 70, 70), "Road Safety Park", "Lights, signs, crossing", "Safety", ("Road Safety", "Traffic Light")),
+    # --- Frond 1: CLASS 1 (Foundation Frond) ---
+    ("english", -1, 38, 38.0, 22, 16, 13, (250, 196, 70), "Class 1: ABC School", "Class 1 - English & Phonics", "English", ("ABC", "A")),
+    ("hindi",    1, 38, 38.0, 22, 16, 13, (246, 140, 72), "Class 1: Hindi Pathshala", "Class 1 - Swar & Vyanjan", "Hindi", None),
+
+    # --- Frond 2: CLASS 2 (Numbers & EVS) ---
+    ("maths",   -1, 78, 48.0, 22, 16, 15, (90, 150, 240), "Class 2: Number House", "Class 2 - Count, Add & Shapes", "Maths", None),
+    ("home",     1, 78, 48.0, 22, 16, 12, (240, 170, 150), "Class 2: My Home & EVS", "Class 2 - Body, Family & Helpers", "Me & Home", None),
+    ("rhymes",   1, 108, 36.0, 20, 14, 12, (255, 150, 60), "Class 2: Rhyme Stage", "Class 2 - Action Poems", "Rhymes", ("Classic Rhymes", "Twinkle Twinkle")),
+
+    # --- Frond 3: CLASS 3 (Science & Social Studies) ---
+    ("science", -1, 145, 56.0, 24, 16, 14, (110, 200, 230), "Class 3: Science Lab", "Class 3 - Living World & Matter", "Science", ("Lab Tools", "Microscope")),
+    ("social",   1, 145, 56.0, 24, 16, 14, (200, 150, 100), "Class 3: Heritage Hall", "Class 3 - History, Land & Maps", "Social", ("Long Ago", "Clay Pot")),
+
+    # --- Frond 4: CLASS 4 (Nature & Food Exploration) ---
+    ("nature",  -1, 185, 58.0, 26, 18, 12, (90, 190, 110), "Class 4: Zoo & Nature", "Class 4 - Habitats, Birds & Plants", "Nature", ("Animals", "Tiger")),
+    ("food",     1, 185, 58.0, 24, 18, 12, (236, 90, 90), "Class 4: Food Souq", "Class 4 - Crops, Diet & Health", "Food", ("Fruits", "Apple")),
+
+    # --- Frond 5: CLASS 5 (World Travel & Languages) ---
+    ("travel",  -1, 225, 52.0, 24, 18, 14, (160, 110, 220), "Class 5: Station Hub", "Class 5 - Transport, Engines & Trade", "Travel", None),
+    ("bangla",   1, 225, 52.0, 22, 16, 12, (60, 170, 120), "Class 5: Bangla Pathshala", "Class 5 - Language & Grammar", "Bangla", None),
+
+    # --- Frond 6: CLASS 6 (Safety & Global Sciences) ---
+    ("safety",  -1, 265, 44.0, 22, 16, 12, (240, 70, 70), "Class 6: Safety Park", "Class 6 - Civics, Signs & Rules", "Safety", ("Road Safety", "Traffic Light")),
+    ("world",    1, 265, 44.0, 20, 20, 28, (60, 190, 200), "Class 6: Globe Tower", "Class 6 - Geography & World Nations", "World", None),
+
+    # --- Outer Crescent: CLASS 7 (Master Subject Arenas) ---
+    ("india",   -1, 305, 34.0, 26, 20, 16, (255, 153, 51), "Class 7: India Pavilion", "Class 7 - States, Constitution & Heritage", "India", None),
+    ("fun",      1, 305, 34.0, 24, 18, 15, (220, 90, 190), "Class 7: Carnival Park", "Class 7 - Logic, Puzzles & Sports", "Fun", None),
 ]
 
 EXTRA_HOUSES = [
-    ("story", -1, 12, 14, 12, 9, (255, 150, 190), "Story House", "Story of the day", "story"),
-    ("family", 1, 12, 14, 12, 9, (150, 200, 120), "Family House", "Players", "players"),
-    ("studio", -1, 228, 16, 12, 10, (120, 200, 255), "Drawing Studio", "Draw my own", "draw"),
-    ("museum", 1, 228, 16, 12, 10, (255, 215, 80), "Sticker Museum", "Your stickers", "stickers"),
+    # Trunk Entry Houses
+    ("story",  -1, 12, 18.0, 14, 12, 9, (255, 150, 190), "Story House", "Story of the day", "story"),
+    ("family",  1, 12, 18.0, 14, 12, 9, (150, 200, 120), "Family House", "Players", "players"),
+    # Upper Trunk Studios
+    ("studio", -1, 240, 20.0, 16, 12, 10, (120, 200, 255), "Drawing Studio", "Draw my own", "draw"),
+    ("museum",  1, 240, 20.0, 16, 12, 10, (255, 215, 80), "Sticker Museum", "Your stickers", "stickers"),
 ]
 
 
 def build_world():
   boxes = []
-  for key, side, z, w, d, h, col, label, sub, subject, icon in SUBJECT_HOUSES:
-    x0 = side * 9.0
+  for key, side, z, reach_x, w, d, h, col, label, sub, subject, icon in SUBJECT_HOUSES:
+    x0 = side * reach_x
     boxes.append(Box(key, x0, z - d / 2, x0 + side * w, z + d / 2, h, col, label, sub,
                      kind="subject", payload=subject, gable=h <= 13, icon=icon))
-  for key, side, z, w, d, h, col, label, sub, kind in EXTRA_HOUSES:
-    x0 = side * 9.0
+  for key, side, z, reach_x, w, d, h, col, label, sub, kind in EXTRA_HOUSES:
+    x0 = side * reach_x
     boxes.append(Box(key, x0, z - d / 2, x0 + side * w, z + d / 2, h, col, label, sub,
                      kind=kind, gable=True))
-  boxes.append(Box("arcade", -7, 236, 7, 244, 20, (255, 120, 60), "Games Arcade", "Find it, Spell it, more",
+  # Grand Arcade at the apex of the Crescent
+  boxes.append(Box("arcade", -14, 325, 14, 342, 24, (255, 120, 60), "Games Arcade", "Find it, Spell it, more",
                    kind="games", roof=(250, 220, 60)))
+
   for x in (-45, -24, 24, 45):
     boxes.append(Box(f"post{x}", x - 1.1, 102.9, x + 1.1, 105.1, 18, (250, 200, 80),
                      windows=False, roof=(240, 110, 60)))
