@@ -102,6 +102,16 @@ class WorldScene:
   def __init__(self, game):
     self.g = game
     self.boxes = town.build_world()
+    # Collectible Stars along Palm Trunk and Fronds
+    self.stars = []
+    for z in range(0, 310, 18):
+      self.stars.append([0.0, z, True, 0.0]) # [x, z, active, bob_phase]
+    for b in self.boxes:
+      if getattr(b, 'kind', None) == 'subject':
+        cx, _, cz = b.centre
+        self.stars.append([cx * 0.5, cz, True, 0.5])
+        self.stars.append([cx * 0.8, cz, True, 1.0])
+    self.score_stars = 0
     self.by_key = {b.key: b for b in self.boxes}
     self.trees, self.lamps = town.trees_and_lamps()
     self.player = town.Player()
@@ -636,6 +646,41 @@ class WorldScene:
     if self.dream_at:
       self.draw_dream(s, *self.dream_at)
     self.draw_anchor(s)
+    
+    # --- Collectible Stars ---
+    p_x, p_z = self.player.pos[0], self.player.pos[2]
+    for s_item in self.stars:
+      sx, sz, active, phase = s_item
+      if not active:
+        continue
+      if math.hypot(p_x - sx, p_z - sz) < 2.2:
+        s_item[2] = False
+        self.score_stars += 1
+        try:
+          self.g.sfx.play("pop")
+        except Exception:
+          pass
+        continue
+      # Bobbing 3D projection
+      bob = math.sin(self.t * 3.5 + phase) * 0.35 + 1.2
+      pt = cam.project((sx, bob, sz))
+      if pt:
+        sr = max(4, int(cam.focal * 0.45 / pt[2]))
+        # Draw 8-point sparkling star
+        col = (255, 215, 0)
+        pygame.draw.circle(s, (255, 245, 160), (int(pt[0]), int(pt[1])), sr + 2)
+        pygame.draw.circle(s, col, (int(pt[0]), int(pt[1])), sr)
+        pygame.draw.circle(s, (255, 255, 255), (int(pt[0]), int(pt[1])), max(1, sr // 3))
+
+    # Star Counter HUD Pill
+    star_hud = pygame.Rect(self.size[0] - 110, 12, 95, 34)
+    pygame.draw.rect(s, (30, 45, 80), star_hud, border_radius=17)
+    pygame.draw.rect(s, (255, 215, 0), star_hud, 2, border_radius=17)
+    pygame.draw.circle(s, (255, 215, 0), (star_hud.x + 18, star_hud.y + 17), 9)
+    pygame.draw.circle(s, (255, 255, 255), (star_hud.x + 18, star_hud.y + 17), 4)
+    count_txt = self.g.font_at(20).render(str(self.score_stars), True, (255, 255, 255))
+    s.blit(count_txt, (star_hud.x + 36, star_hud.y + 7))
+
     self.draw_hud(s)
     if self.show_directory:
       self.draw_directory(s)
