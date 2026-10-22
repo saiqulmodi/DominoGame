@@ -1,4 +1,4 @@
-import topplegame
+﻿import topplegame
 """Domino Wonder Dash - children learn by tracing, toppling and listening.
 
 1. Pick a subject, a category and an item (all from the Picture Data Hub).
@@ -2392,3 +2392,4 @@ def tapped(game):
 
 if __name__ == "__main__":
   asyncio.run(main())
+
