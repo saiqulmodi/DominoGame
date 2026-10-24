@@ -184,7 +184,7 @@ def feature_graphic(g):
   pygame.draw.rect(s, (255, 255, 255), (52, 117, 266, 266), border_radius=52)
   s.blit(card, (60, 125))
   big = main.load_font(72)
-  for n, line in enumerate(("Domino", "Wonder Dash")):
+  for n, line in enumerate(("Domino", "Game")):
     t = big.render(line, True, (255, 255, 255))
     sh = big.render(line, True, (30, 70, 150))
     s.blit(sh, (364, 92 + n * 84))

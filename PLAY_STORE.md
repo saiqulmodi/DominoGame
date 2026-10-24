@@ -1,4 +1,4 @@
-# Domino Wonder Dash on Google Play: everything ready to paste
+# Domino Game on Google Play: everything ready to paste
 
 ## What to upload
 
@@ -12,7 +12,7 @@
 
 Remake them after changes: `.\build_mobile.ps1 -Release` (bundle) and `python tools\store_shots.py` (graphics).
 
-**Upload key:** `C:\Users\saiqu\DominoWonderDash-signing\` (`upload-keystore.jks` + `passwords.txt`).
+**Upload key:** `C:\Users\saiqu\DominoGame-signing\` (`upload-keystore.jks` + `passwords.txt`).
 Copy that folder to a USB stick and to Google Drive today. Every update must be signed with it.
 Keep **Play App Signing** switched on (the default): Google keeps the real signing key, and if
 the upload key is ever lost, Play support can reset it.
@@ -23,7 +23,7 @@ the upload key is ever lost, Play support can reset it.
 ## Step by step
 
 1. https://play.google.com/console : create a developer account (one-time US$25, identity check).
-2. **Create app**: name *Domino Wonder Dash*, default language English (India), **Game**, **Free**.
+2. **Create app**: name *Domino Game*, default language English (India), **Game**, **Free**.
 3. **Testing first**: new personal developer accounts must run a **closed test with at least 12
    testers for 14 days** before production is unlocked. Make a closed testing track, upload the
    .aab, add 12+ Gmail addresses (family, teachers, friends), and ask them to keep it installed
@@ -34,7 +34,7 @@ the upload key is ever lost, Play support can reset it.
 
 ## Store listing
 
-**App name** (max 30): `Domino Wonder Dash`
+**App name** (max 30): `Domino Game`
 
 **Short description** (max 80):
 `Trace, topple and learn: ABC, Hindi, maths, India map and road safety for kids`
@@ -42,7 +42,7 @@ the upload key is ever lost, Play support can reset it.
 **Full description**:
 
 ```
-Learn while you play! Domino Wonder Dash turns learning into a game for children from Class 1 to Class 7.
+Learn while you play! Domino Game turns learning into a game for children from Class 1 to Class 7.
 
 TRACE, TOPPLE, LEARN
 Trace the dotted outline of a real picture with your finger. Dominoes stand up on your line, you tap, they topple, and the real picture appears. The name is spoken, spelled letter by letter and shown in English with Hindi or Bengali.

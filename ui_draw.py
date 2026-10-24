@@ -1,4 +1,4 @@
-"""How Domino Wonder Dash looks: everything Game draws (top row, play area, menu panel, cards).
+"""How Domino Game looks: everything Game draws (top row, play area, menu panel, cards).
 
 The methods live on GameDrawing, which Game inherits from, so they still read and write the
 game's own state through self. Layout values (PLAY_RECT, BANNER_RECT, ...) and helpers come

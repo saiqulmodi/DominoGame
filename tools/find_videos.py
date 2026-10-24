@@ -34,7 +34,7 @@ REVIEW = os.path.join(ROOT, "tools", "videos_review.txt")
 COMMONS = "https://commons.wikimedia.org/w/api.php"
 WIKIPEDIA = "https://en.wikipedia.org/w/api.php"
 SPARQL = "https://query.wikidata.org/sparql"
-AGENT = "DominoWonderDash/1.0 (children's learning game; https://github.com/saiqulmodi/DominoGame)"
+AGENT = "DominoGame/1.0 (children's learning game; https://github.com/saiqulmodi/DominoGame)"
 
 # No real-life video for letters, numbers, signs, shapes, cartoon characters or
 # free drawing; body parts are left out on purpose (medical videos are not for

@@ -29,8 +29,8 @@ ICONS = ["icon-180.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png"
 THEME = "#4A90E2"
 
 MANIFEST = {
-    "name": "Domino Wonder Dash",
-    "short_name": "Wonder Dash",
+    "name": "Domino Game",
+    "short_name": "Domino Game",
     "description": "Children learn by tracing, toppling and listening (Class 1-7).",
     "start_url": "./",
     "scope": "./",
@@ -51,7 +51,7 @@ MANIFEST = {
 # shows at once), the saved copy when offline. The pygbag engine on
 # pygame-web.github.io is versioned, so it is kept and reused. Videos are
 # never stored (too big; they stream).
-SW = """// Domino Wonder Dash - keeps the game on the device so it opens offline
+SW = """// Domino Game - keeps the game on the device so it opens offline
 const CACHE = 'dwd-%(stamp)s';
 const START = ['./', 'index.html', 'manifest.json', 'favicon.png', %(icons)s];
 
@@ -92,7 +92,7 @@ self.addEventListener('fetch', (e) => {
 
 HEAD = """    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="%(theme)s">
-    <meta name="apple-mobile-web-app-title" content="Wonder Dash">
+    <meta name="apple-mobile-web-app-title" content="Domino Game">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-180.png">
     <link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
@@ -128,7 +128,7 @@ def main():
   # pygbag reads the game files with Windows' default code page unless told
   # otherwise; Bengali text has bytes that code page cannot decode
   env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
-  subprocess.run([sys.executable, "-m", "pygbag", "--build", "--title", "Domino Wonder Dash",
+  subprocess.run([sys.executable, "-m", "pygbag", "--build", "--title", "Domino Game",
                   stage], check=True, env=env)
   docs = os.path.join(ROOT, "docs")
   os.makedirs(docs, exist_ok=True)

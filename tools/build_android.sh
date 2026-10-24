@@ -8,7 +8,7 @@
 # files are copied to ~/DominoGame (Linux disk) first and built there.
 #
 # The Play Store upload key lives OUTSIDE the project, on the Windows side:
-#   C:\Users\saiqu\DominoWonderDash-signing\upload-keystore.jks + passwords.txt
+#   C:\Users\saiqu\DominoGame-signing\upload-keystore.jks + passwords.txt
 # It is made once, with a random password, by the first release build.
 # Back it up: every Play Store update must be signed with the same key.
 set -euo pipefail
@@ -16,7 +16,7 @@ set -euo pipefail
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$HOME/DominoGame"
 ENV="$HOME/dwd-buildenv"
-KEYDIR="/mnt/c/Users/saiqu/DominoWonderDash-signing"
+KEYDIR="/mnt/c/Users/saiqu/DominoGame-signing"
 MODE="${1:-debug}"
 export PATH="$HOME/.local/bin:$PATH"
 # Java on WSL can hang trying IPv6 first (Gradle download timed out); use IPv4
@@ -57,9 +57,9 @@ if [ "$MODE" = "release" ]; then
     PASS="$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | cut -c1-24)"
     keytool -genkeypair -keystore "$KEY" -storetype PKCS12 -alias upload -keyalg RSA \
       -keysize 4096 -validity 10000 -storepass "$PASS" -keypass "$PASS" \
-      -dname "CN=Saiqul Modi, O=Domino Wonder Dash, C=IN"
+      -dname "CN=Saiqul Modi, O=Domino Game, C=IN"
     {
-      echo "Domino Wonder Dash - Google Play upload key"
+      echo "Domino Game - Google Play upload key"
       echo "keystore file: upload-keystore.jks"
       echo "key alias: upload"
       echo "password: $PASS"

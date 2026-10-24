@@ -1,4 +1,4 @@
-"""Wonder Town: the 3D world children explore to reach every part of Domino Wonder Dash.
+"""Wonder Town: the 3D world children explore to reach every part of Domino Game.
 
 Pure maths, no drawing (world.py paints it):
   * the town - an island in the sea shaped like Dubai's Palm Jumeirah: the trunk (the

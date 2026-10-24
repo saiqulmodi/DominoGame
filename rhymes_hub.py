@@ -1,4 +1,4 @@
-"""Rhymes and School Hub for Domino Wonder Dash.
+"""Rhymes and School Hub for Domino Game.
 
 Sing-along rhymes: the child traces the rhyme's picture (a star for Twinkle
 Twinkle, a sheep for Baa Baa Black Sheep ...), the dominoes topple, and then

@@ -27,7 +27,7 @@ IS_ANDROID = "ANDROID_ARGUMENT" in os.environ or hasattr(sys, "getandroidapileve
 
 PAGE = """<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{title} - Domino Wonder Dash</title>
+<title>{title} - Domino Game</title>
 <style>{css}</style></head><body>{body}
 <script>
 document.getElementById('dwd-back').onclick=function(){{window.close();
@@ -242,7 +242,7 @@ def player_page():
   body = BODY.format(heading="", sources="", places="", credit="")
   loader = """(function(){try{var h=location.hash.slice(1).replace(/-/g,'+').replace(/_/g,'/');
  var bin=atob(h),bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
- var d=JSON.parse(new TextDecoder('utf-8').decode(bytes));document.title=d.title+' - Domino Wonder Dash';
+ var d=JSON.parse(new TextDecoder('utf-8').decode(bytes));document.title=d.title+' - Domino Game';
  window.dwdPlaylist=d.clips;var c=d.clips[0];document.getElementById('dwd-head').textContent=c.heading;
  document.getElementById('dwd-credit').textContent=c.credit;
  document.getElementById('dwd-player').innerHTML=c.sources;

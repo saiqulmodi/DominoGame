@@ -1,5 +1,5 @@
 """
-Domino Wonder Dash - Domino Playground (topplegame.py)
+Domino Game - Domino Playground (topplegame.py)
 Children lay their own line of dominoes with a finger, tap Topple! and watch the chain
 reaction run to the goal balloon, which pops. Everything sits inside the game's play area.
 """

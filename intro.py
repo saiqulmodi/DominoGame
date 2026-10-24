@@ -137,9 +137,9 @@ class Intro:
       c = (w // 2, h // 2)
       pygame.draw.circle(screen, (255, 240, 150), c, int(6 + 90 * k), max(1, int(8 * (1 - k)) + 1))
       if self.font:
-        title = self.fit(self.font.render("Domino Wonder Dash", True, (255, 255, 255)), w - 32)
+        title = self.fit(self.font.render("Domino Game", True, (255, 255, 255)), w - 32)
         title.set_alpha(int(255 * k))
-        shadow = self.fit(self.font.render("Domino Wonder Dash", True, (20, 20, 50)), w - 32)
+        shadow = self.fit(self.font.render("Domino Game", True, (20, 20, 50)), w - 32)
         shadow.set_alpha(int(200 * k))
         screen.blit(shadow, shadow.get_rect(center=(c[0] + 3, c[1] + 3)))
         screen.blit(title, title.get_rect(center=c))

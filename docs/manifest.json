@@ -1,6 +1,6 @@
 {
-  "name": "Domino Wonder Dash",
-  "short_name": "Wonder Dash",
+  "name": "Domino Game",
+  "short_name": "Domino Game",
   "description": "Children learn by tracing, toppling and listening (Class 1-7).",
   "start_url": "./",
   "scope": "./",

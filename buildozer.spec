@@ -1,7 +1,7 @@
 [app]
 
 # Name shown under the app icon
-title = Domino Wonder Dash
+title = Domino Game
 package.name = dominowonderdash
 package.domain = org.saiqul
 

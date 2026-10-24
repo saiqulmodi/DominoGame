@@ -88,7 +88,7 @@ def splash(w, h):
   pygame.draw.rect(s, (255, 255, 255), rect.inflate(12, 12), border_radius=n // 6 + 6)
   s.blit(card, rect)
   f = pygame.font.Font(FONT, int(w * 0.09))
-  for n, line in enumerate(("Domino", "Wonder Dash")):
+  for n, line in enumerate(("Domino", "Game")):
     t = f.render(line, True, (255, 255, 255))
     s.blit(t, t.get_rect(center=(w // 2, int(h * 0.68) + n * int(w * 0.11))))
   f2 = pygame.font.Font(FONT, int(w * 0.05))

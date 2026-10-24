@@ -1,4 +1,4 @@
-"""Wonder Town - the 3D front door of Domino Wonder Dash (like Bridge Genius's Campus World).
+"""Wonder Town - the 3D front door of Domino Game (like Bridge Genius's Campus World).
 
 Children walk, jump and use magic tools to move around a sunny town. Every building opens a
 part of the game:

@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Real video - Domino Wonder Dash</title>
+<title>Real video - Domino Game</title>
 <style>
 #dwd-video{position:fixed;inset:0;z-index:2147483647;background:#0d0d1a;
  display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -31,7 +31,7 @@
 <script>
 (function(){try{var h=location.hash.slice(1).replace(/-/g,'+').replace(/_/g,'/');
  var bin=atob(h),bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
- var d=JSON.parse(new TextDecoder('utf-8').decode(bytes));document.title=d.title+' - Domino Wonder Dash';
+ var d=JSON.parse(new TextDecoder('utf-8').decode(bytes));document.title=d.title+' - Domino Game';
  window.dwdPlaylist=d.clips;var c=d.clips[0];document.getElementById('dwd-head').textContent=c.heading;
  document.getElementById('dwd-credit').textContent=c.credit;
  document.getElementById('dwd-player').innerHTML=c.sources;

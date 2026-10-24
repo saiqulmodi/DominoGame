@@ -1,4 +1,4 @@
-# Domino Wonder Dash: testing and mobile builds
+# Domino Game: testing and mobile builds
 
 ## 1. Play and test on Windows
 
@@ -37,7 +37,7 @@ python tools\build_hub.py
 ```
 
 This writes the outlines to `hub_data.json` and the pictures to `pics\`. It needs internet
-the first time (downloads are cached in `%LOCALAPPDATA%\DominoWonderDash\downloads`).
+the first time (downloads are cached in `%LOCALAPPDATA%\DominoGame\downloads`).
 It needs `pip install pillow numpy opencv-python-headless`, and those are needed only for building, not for playing.
 
 ## One click: `build_mobile.ps1`
@@ -141,7 +141,7 @@ The game is shared on GitHub and Stratos (the Play Store kit in `PLAY_STORE.md` 
 for later but not used). After every change:
 
 1. `python tools\build_web.py`, then commit and push to both GitHub remotes
-   (`dominogame` = github.com/saiqulmodi/DominoGame, `origin` = DominoWonderDash).
+   (`dominogame` = github.com/saiqulmodi/DominoGame, `origin` = DominoGame too).
    GitHub Pages updates https://saiqulmodi.github.io/DominoGame/ by itself.
 2. `python tools\make_stratos_box.py`, then in the stratos-games-site folder commit
    **only** `games/saiqulmodi-domino-wonder-dash`, pull with rebase and push.

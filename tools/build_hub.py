@@ -33,7 +33,7 @@ import domino_data as hub  # noqa: E402
 from translations import TRANSLATIONS  # noqa: E402
 
 DL = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")),
-                  "DominoWonderDash", "downloads")
+                  "DominoGame", "downloads")
 EMOJI_DL = os.path.join(DL, "openmoji")
 PICS = os.path.join(ROOT, "pics")
 NE = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/"

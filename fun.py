@@ -1,4 +1,4 @@
-"""Extra delight for Domino Wonder Dash: particles, colour themes, trace
+"""Extra delight for Domino Game: particles, colour themes, trace
 streaks, Bengali recitation poems, and the sticker shelf (saved progress).
 
 Pure pygame + standard library, so it runs the same on desktop, in the

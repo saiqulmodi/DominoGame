@@ -16,7 +16,7 @@ BOX = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
     "saiqulmodi-domino-wonder-dash")
 CDN = "https://pygame-web.github.io/cdn/"
 CACHE = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")),
-                     "DominoWonderDash", "engine_cache")
+                     "DominoGame", "engine_cache")
 os.makedirs(CACHE, exist_ok=True)
 
 ENGINE = [

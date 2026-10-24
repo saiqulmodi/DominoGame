@@ -1,4 +1,4 @@
-# Domino Wonder Dash
+# Domino Game
 
 A free learning game for children from **Nursery to Class 7**. Children trace a dotted
 outline with a finger or the mouse, watch magic dominoes topple, and see the real picture
@@ -7,7 +7,7 @@ while its name is said, spelled and sung, in English with Hindi or Bangla.
 - **Play in the browser** (phone or computer): https://saiqulmodi.github.io/DominoGame/
   (Android: *Install app*; iPhone: Share > *Add to Home Screen*; works offline once loaded)
 - **Download page (Android / iPhone & iPad / computer)**: https://saiqulmodi.github.io/DominoGame/download.html
-- **Android app**: [DominoWonderDash-1.1-test.apk](https://github.com/saiqulmodi/DominoGame/releases/download/v1.1-test/DominoWonderDash-1.1-test.apk)
+- **Android app**: [DominoGame.apk](https://github.com/saiqulmodi/DominoGame/releases/download/v1.1-test/DominoGame.apk)
   (open in Chrome, allow "install unknown apps", Install)
 - **On Stratos Games**: https://stratos-technologies-fzco.github.io/stratos-games-site/play/saiqulmodi-domino-wonder-dash/
 - **Share with friends for feedback** (WhatsApp button): https://saiqulmodi.github.io/DominoGame/share.html

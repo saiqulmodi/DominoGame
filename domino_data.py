@@ -1,4 +1,4 @@
-"""Picture Data Hub for Domino Wonder Dash.
+"""Picture Data Hub for Domino Game.
 
 CATALOG below is the single list of every category and item in the game.
 Each item says where its outline comes from:

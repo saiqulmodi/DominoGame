@@ -1,4 +1,4 @@
-"""Domino Wonder Dash - children learn by tracing, toppling and listening.
+"""Domino Game - children learn by tracing, toppling and listening.
 
 1. Pick a subject, a category and an item (all from the Picture Data Hub).
 2. Trace the dotted outline with a finger or the mouse; each dot pops.
@@ -1450,7 +1450,7 @@ async def main():
   if not IS_WEB and os.environ.get("SDL_VIDEODRIVER") != "dummy":
     fullscreen.full = True
   open_display(fullscreen.full)
-  pygame.display.set_caption("Domino Wonder Dash - Learn while you play")
+  pygame.display.set_caption("Domino Game - Learn while you play")
   try:
     pygame.key.stop_text_input()   # only on while a name is being typed
   except Exception:

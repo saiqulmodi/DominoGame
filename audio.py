@@ -1,4 +1,4 @@
-"""Sound effects and spoken names for Domino Wonder Dash.
+"""Sound effects and spoken names for Domino Game.
 
 Every sound is generated in code (no asset files), so the game runs the same
 on desktop, in the browser (pygbag) and on Android. If audio or speech is not

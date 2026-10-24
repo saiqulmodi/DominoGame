@@ -1,4 +1,4 @@
-# build_mobile.ps1 - build Domino Wonder Dash for phones and test it on this laptop
+# build_mobile.ps1 - build Domino Game for phones and test it on this laptop
 #
 #   .\build_mobile.ps1            web + installable app (PWA) into docs\, then a local test server
 #   .\build_mobile.ps1 -Android   also builds the Android .apk (WSL Ubuntu) into bin\
@@ -50,7 +50,7 @@ if ($Android) {
 if ($Release) {
     Write-Host "=== 5. Google Play bundle (.aab), signed with the upload key ===" -ForegroundColor Cyan
     Invoke-AndroidBuild "release" "*.aab" "Play Store bundle"
-    Write-Host "Back up C:\Users\saiqu\DominoWonderDash-signing - every update needs that key." -ForegroundColor Yellow
+    Write-Host "Back up C:\Users\saiqu\DominoGame-signing - every update needs that key." -ForegroundColor Yellow
 }
 
 if ($NoServe) { return }
