@@ -29,21 +29,46 @@ IS_ANDROID = "ANDROID_ARGUMENT" in os.environ or hasattr(
 # --------------------------------------------------------------------------
 # Procedural sound effects
 # --------------------------------------------------------------------------
+_RAW_ONLY = []   # set once the mixer refuses WAV files (the browser build)
+
+
 def _render(duration, fn, peak=0.6):
-  n = int(RATE * duration)
-  data = [fn(i / RATE, i / n) for i in range(n)]
+  rate = RATE
+  if _RAW_ONLY:
+    rate = pygame.mixer.get_init()[0]
+  n = int(rate * duration)
+  data = [fn(i / rate, i / n) for i in range(n)]
   top = max(1e-9, max(abs(s) for s in data))
   scale = peak / top
   pcm = array("h", (int(s * scale * 32767) for s in data))
   if sys.byteorder == "big":
     pcm.byteswap()
+  if _RAW_ONLY:
+    return _raw_sound(pcm)
   # WAV header written by hand: the browser build (pygbag) has no `wave`
   # module and would try to fetch an unrelated "wave" package instead.
   data = pcm.tobytes()
   header = (b"RIFF" + struct.pack("<I", 36 + len(data)) + b"WAVEfmt "
             + struct.pack("<IHHIIHH", 16, 1, 1, RATE, RATE * 2, 2, 16)
             + b"data" + struct.pack("<I", len(data)))
-  return pygame.mixer.Sound(io.BytesIO(header + data))
+  try:
+    return pygame.mixer.Sound(io.BytesIO(header + data))
+  except Exception:
+    # pygame-ce in the browser cannot read a file object: hand it raw samples
+    # at the mixer's own rate instead (all later sounds go straight this way).
+    _RAW_ONLY.append(True)
+    return _render(duration, fn, peak)
+
+
+def _raw_sound(pcm):
+  """Mono 16-bit samples -> a Sound in the mixer's own channel layout."""
+  channels = pygame.mixer.get_init()[2]
+  if channels > 1:
+    wide = array("h", bytes(len(pcm) * 2 * channels))
+    for c in range(channels):
+      wide[c::channels] = pcm
+    pcm = wide
+  return pygame.mixer.Sound(buffer=pcm.tobytes())
 
 
 def _sin(freq, t):

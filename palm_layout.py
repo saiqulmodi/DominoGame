@@ -1,4 +1,4 @@
-﻿# Palm Jumeirah Layout for DominoGame (world roads & educational zones)
+# Palm Jumeirah Layout for DominoGame (world roads & educational zones)
 import math
 
 class PalmWorld:

@@ -28,7 +28,18 @@ def _wav(samples, peak=0.7):
   header = (b"RIFF" + struct.pack("<I", 36 + len(data)) + b"WAVEfmt "
             + struct.pack("<IHHIIHH", 16, 1, 1, RATE, RATE * 2, 2, 16)
             + b"data" + struct.pack("<I", len(data)))
-  return pygame.mixer.Sound(io.BytesIO(header + data))
+  try:
+    return pygame.mixer.Sound(io.BytesIO(header + data))
+  except Exception:
+    # Browser build: no file objects, so raw samples at the mixer's own rate/channels
+    freq, _, channels = pygame.mixer.get_init()
+    n = int(len(pcm) * freq / RATE)
+    out = array("h", bytes(n * 2 * channels))
+    for i in range(n):
+      v = pcm[min(len(pcm) - 1, i * RATE // freq)]
+      for c in range(channels):
+        out[i * channels + c] = v
+    return pygame.mixer.Sound(buffer=out.tobytes())
 
 
 def _env(t, dur, attack=0.03, release=0.12):

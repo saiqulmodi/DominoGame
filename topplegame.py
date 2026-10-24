@@ -1,4 +1,4 @@
-﻿"""
+"""
 Domino Wonder Dash - Topple & Pop Mode (topplegame.py)
 Physics-based domino chain reaction and acoustic topple simulation.
 """
