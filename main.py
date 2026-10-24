@@ -1,4 +1,3 @@
-import topplegame
 """Domino Wonder Dash - children learn by tracing, toppling and listening.
 
 1. Pick a subject, a category and an item (all from the Picture Data Hub).
@@ -27,6 +26,7 @@ import calls
 import domino_data as hub
 import fun
 import howto
+import intro
 import magic
 import modes
 import roadsafety
@@ -35,6 +35,8 @@ import scenery
 import screens
 import singalong
 import stories
+import topplegame
+import ui_draw
 import video
 import world
 from audio import IS_ANDROID, IS_WEB, SoundBank, Speaker
@@ -64,15 +66,11 @@ BANK_COLS, BANK_ROWS = 4, 7
 
 # Game screen (screen coordinates; set_layout() fills these in)
 MENU_BTN = pygame.Rect(6, 10, 50, 54)
-TOWN_BTN = pygame.Rect(6, 68, 50, 40)
-TOPPLE_BTN = pygame.Rect(6, 112, 50, 40)   # Domino chain-reaction playground     # back to Wonder Town (the 3D front door)
+TOWN_BTN = pygame.Rect(6, 68, 50, 40)     # back to Wonder Town (the 3D front door)
 NEXT_BTN = pygame.Rect(PANEL_W - 56, 10, 50, 54)
-HELP_BTN = pygame.Rect(PANEL_W - 56, 68, 50, 40)  # "?": the picture guide (howto.py)
 BANNER_RECT = pygame.Rect(68, 8, PANEL_W - 136, 62)
 SPEAKER_R = 21
-VIDEO_R = 19
 SPEAKER_CENTER = (BANNER_RECT.right - 28, BANNER_RECT.centery)
-VIDEO_CENTER = (SPEAKER_CENTER[0] - 48, BANNER_RECT.centery)   # "watch real" button
 DESC_Y = 73
 PLAY_RECT = pygame.Rect(0, TOP_H, PANEL_W, PANEL_H - TOP_H)
 NAV_X = NAV_Y = 0                 # where the 450 x 800 panels sit on screen
@@ -116,15 +114,13 @@ def layout_size(window_size):
 
 def set_layout(width, height=PANEL_H):
   """Fits the top row, play area, drawing tools and menu panel to the canvas."""
-  global WIDTH, HEIGHT, PLAY_RECT, BANNER_RECT, SPEAKER_CENTER, VIDEO_CENTER
-  global NEXT_BTN, HELP_BTN, NAV_X, NAV_Y, CRAYON_Y, UNDO_RECT, DONE_RECT, TOOLBAR_BOTTOM
+  global WIDTH, HEIGHT, PLAY_RECT, BANNER_RECT, SPEAKER_CENTER
+  global NEXT_BTN, NAV_X, NAV_Y, CRAYON_Y, UNDO_RECT, DONE_RECT, TOOLBAR_BOTTOM
   WIDTH, HEIGHT = width, height
   NEXT_BTN = pygame.Rect(width - 56, 10, 50, 54)
-  HELP_BTN = pygame.Rect(width - 56, 68, 50, 40)
   BANNER_RECT = pygame.Rect(0, 8, min(width - 120, 660), 62)
   BANNER_RECT.centerx = width // 2
   SPEAKER_CENTER = (BANNER_RECT.right - 28, BANNER_RECT.centery)
-  VIDEO_CENTER = (SPEAKER_CENTER[0] - 48, BANNER_RECT.centery)
   PLAY_RECT = pygame.Rect(0, TOP_H, width, height - TOP_H)
   NAV_X, NAV_Y = (width - PANEL_W) // 2, (height - PANEL_H) // 2
   CRAYON_Y = PLAY_RECT.y + 22
@@ -132,6 +128,7 @@ def set_layout(width, height=PANEL_H):
   DONE_RECT = pygame.Rect(PLAY_RECT.right - 100, PLAY_RECT.y + 6, 92, 34)
   TOOLBAR_BOTTOM = PLAY_RECT.y + 46
   modes.set_area(PLAY_RECT)
+  ui_draw.share(globals())      # the drawing code reads the new layout too
 MAX_DRAW_DOMINOES = 260
 TRACE_RADIUS = 24      # how close the finger must pass to cover a dot
 TRACE_DONE = 0.95      # share of dots that completes the outline
@@ -307,7 +304,7 @@ def today_number():
   return datetime.date.today().toordinal()
 
 
-class Game:
+class Game(ui_draw.GameDrawing):
 
   def __init__(self, sfx, speaker):
     self.sfx = sfx
@@ -353,6 +350,8 @@ class Game:
 
     self.load_item(announce=True)
     self.world = world.WorldScene(self)
+    # The opening show: a screen-filling domino chain, biggest to dot-sized (intro.py)
+    self.intro = intro.Intro(self.sfx, self.font_at(40))
 
   # ------------------------------------------------------------ helpers
   def font_at(self, size):
@@ -414,10 +413,15 @@ class Game:
     howto.GUIDE.open(self, key, page)
 
   def guide_first_time(self):
-    """The first time a child plays each way, its picture guide opens."""
+    """The first time a child plays each way, its picture guide opens. Tracing and
+    drawing start straight away instead: the helping hand shows how on the picture
+    itself (howto.draw_idle_hand), and Games > How to play still has the guide."""
     if self.overlay or self.in_world:
       return
-    if howto.guide_key(self) not in self.progress.data.setdefault("guides", []):
+    key = howto.guide_key(self)
+    if key in ("trace", "draw"):
+      return
+    if key not in self.progress.data.setdefault("guides", []):
       self.open_guide()
 
   # ------------------------------------------------------------ item state
@@ -614,99 +618,6 @@ class Game:
       return None
     return hub.video_for(self.cat, self.puzzle)
 
-  def draw_places(self, screen, now):
-    """Maps, once traced: the capital (star), famous places (red dots) and,
-    on the India map, every state's name."""
-    places = getattr(self, "places", None)
-    if self.stage != "finished" or not places or now - self.finished_at < 0.6:
-      return
-    area = PLAY_RECT.inflate(-6, -6)
-    # markers first, so no name is written over another place's dot
-    taken = [pygame.Rect(int(x) - 8, int(y) - 8, 16, 16)
-             for _l, x, y, kind, _r in places if kind in ("capital", "place")]
-    if self.current_video():
-      taken.append(self.watch_rect().inflate(10, 10))
-    for _label, x, y, kind, _room in places:
-      if kind == "capital":
-        self.draw_star(screen, (int(x), int(y)), 10)
-      elif kind == "place":
-        pygame.draw.circle(screen, WHITE, (int(x), int(y)), 6)
-        pygame.draw.circle(screen, (230, 40, 50), (int(x), int(y)), 4)
-    busy = sum(1 for p in places if p[3] == "place") > 3
-    # famous places first (in their listed order), then the capital (which
-    # always gets a name), then state names where they fit
-    order = {"place": 0, "capital": 1, "state": 2}
-    for label, x, y, kind, room in sorted(places, key=lambda p: order.get(p[3], 3)):
-      x, y = int(x), int(y)
-      if kind == "state":
-        text = self.halo_text(self.small_font, label)
-        if text.get_width() > room * 4.2:            # long name: try the short one
-          text = self.halo_text(self.small_font, hub.INDIA_SHORT.get(label, label))
-        if text.get_width() > room * 4.2 or text.get_height() > room * 2.2:
-          continue                       # the state is too small for its name here
-        spots = [("center", (x, y))]
-        box = text.get_rect()
-      else:
-        font = self.small_font if busy and kind == "place" else self.font
-        text = font.render(label, True, WHITE)
-        box = text.get_rect().inflate(8, 4)
-        spots = [("midleft", (x + 11, y)), ("midright", (x - 11, y)),
-                 ("midbottom", (x, y - 9)), ("midtop", (x, y + 9)),
-                 ("bottomleft", (x + 6, y - 6)), ("topleft", (x + 6, y + 6)),
-                 ("bottomright", (x - 6, y - 6)), ("topright", (x - 6, y + 6))]
-      for anchor, point in spots:
-        r = box.copy()
-        setattr(r, anchor, point)
-        if area.contains(r) and not any(r.colliderect(t) for t in taken
-                                        if not t.collidepoint(x, y)):
-          break
-      else:
-        if kind != "capital":
-          continue                       # no room: leave this name out
-        r = box.copy()
-        r.midleft = (x + 11, y)
-      taken.append(r)
-      if kind != "state":
-        pill = pygame.Surface(r.size, pygame.SRCALPHA)
-        pill.fill((20, 20, 40, 200) if kind == "place" else (120, 80, 0, 225))
-        screen.blit(pill, r.topleft)
-      screen.blit(text, text.get_rect(center=r.center))
-
-  def halo_text(self, font, text):
-    """Dark words with a white edge: readable on any map colour."""
-    ink = font.render(text, True, (25, 25, 45))
-    edge = font.render(text, True, WHITE)
-    surf = pygame.Surface((ink.get_width() + 2, ink.get_height() + 2), pygame.SRCALPHA)
-    for dx, dy in ((0, 1), (2, 1), (1, 0), (1, 2)):
-      surf.blit(edge, (dx, dy))
-    surf.blit(ink, (1, 1))
-    return surf
-
-  def watch_rect(self):
-    """Big "Watch the real ..." button shown after a picture is finished."""
-    r = pygame.Rect(0, 0, min(320, PLAY_RECT.w - 40), 46)
-    r.midbottom = (PLAY_RECT.centerx, PLAY_RECT.bottom - 34)
-    return r
-
-  def draw_watch_button(self, screen, now):
-    if self.stage != "finished" or not self.current_video():
-      return
-    rect = self.watch_rect()
-    grow = int(3 * (1 + math.sin(now * 5)))
-    pygame.draw.rect(screen, YELLOW, rect.inflate(6 + grow, 6 + grow), 3, border_radius=26)
-    pygame.draw.rect(screen, (230, 40, 50), rect, border_radius=23)
-    pygame.draw.rect(screen, WHITE, rect, 2, border_radius=23)
-    cx, cy = rect.x + 28, rect.centery
-    pygame.draw.circle(screen, WHITE, (cx, cy), 15)
-    pygame.draw.polygon(screen, (230, 40, 50), [(cx - 5, cy - 8), (cx - 5, cy + 8), (cx + 9, cy)])
-    word = hub.letter_word(self.cat, self.puzzle)      # a letter: its word's video
-    title = (word[1] if word else
-             hub.CATEGORIES_HUB[self.cat][self.puzzle].get("label") or self.puzzle)
-    words = (f"See {title}'s famous places!" if self.current_video().get("places")
-             else f"Watch the real {title}!")
-    lbl = fit_label(self.hint_font, words, WHITE, rect.w - 64)
-    screen.blit(lbl, lbl.get_rect(midleft=(rect.x + 52, rect.centery)))
-
   def watch_video(self):
     clip = self.current_video()
     title = hub.CATEGORIES_HUB[self.cat][self.puzzle].get("label") or self.puzzle
@@ -853,62 +764,6 @@ class Game:
     self.sfx.play("click")
     self.load_item()
 
-  def word_card_rect(self):
-    """A free spot for the word card: a corner with none of the letter's dots
-    under it (so tracing is never blocked). None while tracing if no corner is
-    free; after tracing it may sit anywhere."""
-    key = (self.cat, self.puzzle, PLAY_RECT.size, self.stage == "finished")
-    if getattr(self, "_card_key", None) != key:
-      self._card_key = key
-      self._card_rect = None
-      p = PLAY_RECT
-      for w, h in ((104, 120), (84, 98)):
-        spots = [(p.x + 8, p.y + 52), (p.x + 8, p.bottom - 90 - h),
-                 (p.right - 8 - w, p.bottom - 90 - h), (p.right - 8 - w, p.y + 52),
-                 (p.x + 8, p.centery - h // 2), (p.right - 8 - w, p.centery - h // 2)]
-        for x, y in spots:
-          r = pygame.Rect(x, y, w, h)
-          zone = r.inflate(14, 14)
-          if not any(zone.collidepoint(d) for d in self.dots):
-            self._card_rect = r
-            break
-        if self._card_rect:
-          break
-      if self._card_rect is None and self.stage == "finished":
-        self._card_rect = pygame.Rect(p.x + 8, p.y + 52, 84, 98)
-    return self._card_rect
-
-  def draw_word_card(self, screen, now):
-    """Letters: the word's picture (A for Apple -> the apple), so the sound of
-    the letter is joined to a real thing. Tap it to hear the word again."""
-    if self.mode != "trace" or self.is_custom:
-      return
-    word = hub.letter_word(self.cat, self.puzzle)
-    if not word:
-      return
-    r = self.word_card_rect()
-    if r is None:
-      return                               # no free corner while tracing
-    if self.stage == "finished":           # a little bounce of joy at the end
-      r = r.move(0, int(-6 * abs(math.sin((now - self.finished_at) * 4)))
-                 if now - self.finished_at < 2 else 0)
-    card = pygame.Surface(r.size, pygame.SRCALPHA)
-    pygame.draw.rect(card, (255, 255, 255, 225), card.get_rect(), border_radius=16)
-    screen.blit(card, r.topleft)
-    pygame.draw.rect(screen, YELLOW, r, 3, border_radius=16)
-    th = self.thumb(word[1], word[0], int(r.h * 0.62))
-    if th is not None:
-      screen.blit(th, th.get_rect(center=(r.centerx, r.y + int(r.h * 0.4))))
-    native = self.native_image(word[0], word[1], 16) if self.lang != "en" else None
-    lbl = fit_label(self.small_font, word[1], (40, 40, 70), r.w - 10)
-    screen.blit(lbl, lbl.get_rect(center=(r.centerx, r.bottom - (30 if native else 14))))
-    if native is not None:
-      screen.blit(native, native.get_rect(center=(r.centerx, r.bottom - 12)))
-    if self.current_video():                # a red dot: this word has a real video
-      pygame.draw.circle(screen, (230, 40, 50), (r.right - 14, r.y + 14), 9)
-      pygame.draw.polygon(screen, WHITE, [(r.right - 17, r.y + 9), (r.right - 17, r.y + 19),
-                                          (r.right - 9, r.y + 14)])
-
   def peek_next(self):
     """The picture Next would open (for the "What's next?" mystery card)."""
     if self.story or self.mode != "trace":
@@ -920,32 +775,6 @@ class Game:
     except ValueError:
       return None
     return order[(i + 1) % len(order)]
-
-  def whats_next_rect(self):
-    return pygame.Rect(PLAY_RECT.right - 104, PLAY_RECT.y + 52, 96, 112)
-
-  def draw_whats_next(self, screen, now):
-    """After a finish: the next picture as a dark mystery shape with a "?",
-    so children want to find out what comes next. Tap it to go there."""
-    if self.stage != "finished" or now - self.finished_at < 1.5 or self.is_custom:
-      return
-    nxt = self.peek_next()
-    if not nxt:
-      return
-    r = self.whats_next_rect().move(0, int(4 * math.sin(now * 3)))
-    card = pygame.Surface(r.size, pygame.SRCALPHA)
-    pygame.draw.rect(card, (25, 30, 70, 215), card.get_rect(), border_radius=16)
-    screen.blit(card, r.topleft)
-    pygame.draw.rect(screen, YELLOW, r, 3, border_radius=16)
-    th = self.thumb(nxt[1], nxt[0], 62)
-    if th is not None:
-      shadow = th.copy()
-      shadow.fill((70, 60, 140, 255), special_flags=pygame.BLEND_RGB_MIN)
-      screen.blit(shadow, shadow.get_rect(center=(r.centerx, r.y + 44)))
-    q = self.font_at(34).render("?", True, YELLOW)
-    screen.blit(q, q.get_rect(center=(r.centerx + 26, r.y + 22)))
-    lbl = fit_label(self.small_font, "What's next?", WHITE, r.w - 8)
-    screen.blit(lbl, lbl.get_rect(center=(r.centerx, r.bottom - 14)))
 
   def per_page(self):
     cells = BANK_COLS * BANK_ROWS
@@ -987,6 +816,9 @@ class Game:
   # ------------------------------------------------------------ input
   def press(self, pos):
     mx, my = pos
+    if self.intro:                       # a tap skips the opening show
+      self.intro.skip()
+      return
     if self.overlay == "shelf":          # any tap closes the sticker shelf
       self.overlay = None
       self.sfx.play("click")
@@ -1005,24 +837,27 @@ class Game:
     if self.in_world:
       self.world.press(pos)
       return
-    if TOPPLE_BTN.collidepoint(mx, my):
-      self.sfx.play("switch")
-      self.enter_topple()
-    elif TOWN_BTN.collidepoint(mx, my):
+    # Only Menu, Home, Next and the name's speaker sit on the game screen; the domino
+    # playground and "How to play" are rows of the Games menu.
+    if TOWN_BTN.collidepoint(mx, my):
       self.go_to_town()
     elif MENU_BTN.collidepoint(mx, my):
       self.sfx.play("switch")
       self.overlay = "nav"
     elif NEXT_BTN.collidepoint(mx, my):
       self.next_item()
-    elif HELP_BTN.collidepoint(mx, my):
-      self.sfx.play("switch")
-      self.open_guide()
     elif BANNER_RECT.collidepoint(mx, my):
       self.sfx.play("click")
-      if (self.current_video() and
-          math.hypot(mx - VIDEO_CENTER[0], my - VIDEO_CENTER[1]) <= VIDEO_R + 6):
-        self.watch_video()
+      word = (hub.letter_word(self.cat, self.puzzle)
+              if self.mode == "trace" and not self.is_custom and self.stage != "draw" else None)
+      if word and mx < BANNER_RECT.x + 64:   # the letter's word picture (A -> apple)
+        cat, word = word
+        if self.current_video() and self.stage == "finished":
+          self.watch_video()                   # the real one
+        else:
+          self.say(f"{self.puzzle} for {word}!" if self.cat in ("ABC", "abc") else f"{word}!",
+                   self.native_word(cat, word))
+          self.calls.play(word)
         return
       if mx < BANNER_RECT.x + 64 and self.calls.play(self.puzzle):
         return                   # tap the little picture to hear its sound
@@ -1038,18 +873,6 @@ class Game:
         self.say(f"Spell the word: {self.puzzle}.", self.native_word(self.cat, self.puzzle))
       else:
         self.announce()
-    elif (PLAY_RECT.collidepoint(mx, my) and self.mode == "trace"
-          and hub.letter_word(self.cat, self.puzzle)
-          and self.word_card_rect() and self.word_card_rect().collidepoint(mx, my)
-          and self.stage != "draw"):
-      cat, word = hub.letter_word(self.cat, self.puzzle)
-      self.sfx.play("click")
-      if self.current_video() and self.stage == "finished":
-        self.watch_video()                   # the real one
-      else:
-        self.say(f"{self.puzzle} for {word}!" if self.cat in ("ABC", "abc") else f"{word}!",
-                 self.native_word(cat, word))
-        self.calls.play(word)
     elif PLAY_RECT.collidepoint(mx, my):
       if self.mode == "quiz":
         self.quiz.press(pos)
@@ -1062,6 +885,9 @@ class Game:
         return
       if self.mode == "maths":
         self.maths.press(pos)
+        return
+      if self.mode == "topple" and self.topple:
+        self.topple.handle_click((mx, my))
         return
       if (self.stage == "finished" and self.celebration
           and time.time() - self.celebration[1] < 0.8):
@@ -1095,8 +921,14 @@ class Game:
           self.load_item(announce=False)  # play again, endlessly
 
   def drag(self, pos):
+    if self.intro:
+      return
     if self.in_world and not self.overlay:
       self.world.drag(pos)
+      return
+    if not self.overlay and self.mode == "topple" and self.topple:
+      if PLAY_RECT.collidepoint(pos):
+        self.topple.handle_drag(pos)
       return
     if self.overlay or self.mode != "trace":
       return
@@ -1117,6 +949,8 @@ class Game:
         self.strokes[-1].append((mx, my))
 
   def release(self, pos):
+    if self.intro:
+      return
     if self.in_world:
       self.world.release(pos)
     if self.overlay or self.mode != "trace":
@@ -1248,6 +1082,11 @@ class Game:
     now = time.time()
     dt = min(0.05, now - self.last_tick)
     self.last_tick = now
+    if self.intro:                       # Wonder Town waits until the show is over
+      self.intro.update(now, (WIDTH, HEIGHT))
+      if not self.intro.done:
+        return
+      self.intro = None
     self.particles.update(dt)
     if self.in_world:
       self.world.update(dt)
@@ -1263,10 +1102,8 @@ class Game:
     if self.mode == "road" and self.road:
       self.road.update(now)
     if self.mode == "topple" and self.topple:
+      self.topple.fit(PLAY_RECT)
       self.topple.update(dt)
-    if self.mode == "topple" and self.topple:
-      self.topple.draw(s, now)
-      return
     if self.mode == "maths" and self.maths:
       self.maths.update(now)
     if self.mode == "trace" and getattr(self, "sing", None):
@@ -1398,574 +1235,6 @@ class Game:
     s = height / img.get_height()
     return self.image(path, (max(1, int(img.get_width() * s)), height))
 
-  def render_char(self, ch, size, color):
-    font = self.font_at(size)
-    metrics = font.metrics(ch)
-    if not metrics or metrics[0] is None:
-      font = pygame.font.SysFont("Arial", size, bold=True)
-    return font.render(ch, True, color)
-
-  def draw_title_banner(self, screen, now):
-    pygame.draw.rect(screen, self.theme["banner"], BANNER_RECT, border_radius=14)
-    pygame.draw.rect(screen, YELLOW, BANNER_RECT, 2, border_radius=14)
-
-    # Real picture at the left of the name (tap it to hear its sound)
-    x_start = BANNER_RECT.x + 10
-    hide = self.banner_override or self.mode == "quiz"   # don't show the answer
-    hide = hide or BANNER_RECT.w < 420     # narrow phone: room for the letters
-    th = None if hide else self.thumb(self.puzzle, self.cat, 52)
-    if th is not None:
-      screen.blit(th, th.get_rect(center=(BANNER_RECT.x + 34, BANNER_RECT.centery)))
-      x_start = BANNER_RECT.x + 64
-
-    # Hindi letters: the word ("अ से अनार") is a ready-made picture, so it
-    # shows correctly even on phones and browsers without Hindi fonts.
-    item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
-    if item.get("word_img") and not self.banner_override:
-      word = self.image(os.path.join(hub.HERE, item["word_img"]))
-      if word is not None:
-        avail_w = self.banner_right() - 10 - x_start
-        avail_h = BANNER_RECT.h - 12
-        if now - self.praised_at < 2.5:  # glow on "Well done"
-          pygame.draw.rect(screen, YELLOW, BANNER_RECT, 5, border_radius=14)
-        s = min(avail_w / word.get_width(), avail_h / word.get_height())
-        size = (max(1, int(word.get_width() * s)), max(1, int(word.get_height() * s)))
-        word = self.image(os.path.join(hub.HERE, item["word_img"]), size)
-        screen.blit(word, word.get_rect(center=(x_start + avail_w / 2,
-                                                BANNER_RECT.centery)))
-      self.draw_speaker(screen)
-      self.draw_video_button(screen, now)
-      return
-
-    name = self.banner_override or item.get("tile_text") or self.puzzle
-    gap = 3
-    avail = self.banner_right() - 8 - x_start
-    units = sum(0.5 if ch == " " else 1 for ch in name)
-    tile_w = int(min(44, (avail - gap * (len(name) - 1)) / units))
-    tile_h = min(54, int(tile_w * 1.3))
-    total_w = sum(tile_w // 2 if ch == " " else tile_w for ch in name)
-    total_w += gap * (len(name) - 1)
-    x = x_start + (avail - total_w) / 2
-    base_y = BANNER_RECT.centery - tile_h / 2
-
-    elapsed = now - self.announced_at
-    spelling = not self.is_custom and not self.banner_override and self.mode != "quiz"
-    active = int((elapsed - SPELL_START) // SPELL_STEP) if spelling else -1
-    n_letters = sum(1 for ch in name if ch != " ")
-    letter_idx = 0
-    praising = now - self.praised_at < 2.5
-    screen.set_clip(BANNER_RECT.inflate(-4, -4))
-    for i, ch in enumerate(name):
-      if ch == " ":
-        x += tile_w // 2 + gap
-        continue
-      # Tiles drop in one after another, then light up as each letter is said
-      drop = max(0.0, 1.0 - (elapsed - i * 0.05) / 0.25)
-      y = base_y - drop * 30
-      lit = praising or (elapsed >= SPELL_START and (
-          letter_idx == active or n_letters <= active < n_letters + 2))
-      color = pygame.Color(0)
-      color.hsva = ((i * 360 // max(1, len(name))) % 360, 70, 95, 100)
-      rect = pygame.Rect(int(x), int(y - (7 if lit else 0)), tile_w, tile_h)
-      pygame.draw.rect(screen, YELLOW if lit else color, rect, border_radius=7)
-      pygame.draw.rect(screen, WHITE, rect, 2, border_radius=7)
-      lbl = self.render_char(ch, max(12, int(tile_h * 0.62)), self.theme["bg"])
-      screen.blit(lbl, lbl.get_rect(center=rect.center))
-      x += tile_w + gap
-      letter_idx += 1
-    screen.set_clip(None)
-    self.draw_speaker(screen)
-    self.draw_video_button(screen, now)
-
-  def banner_right(self):
-    """Where the name tiles must stop (before the video and speaker buttons)."""
-    if self.current_video():
-      return VIDEO_CENTER[0] - VIDEO_R
-    return SPEAKER_CENTER[0] - SPEAKER_R
-
-  def draw_video_button(self, screen, now):
-    """Red "watch the real thing" play button; it pulses after a finish."""
-    if not self.current_video():
-      return
-    cx, cy = VIDEO_CENTER
-    if self.stage == "finished":
-      r = VIDEO_R + 4 + 3 * math.sin(now * 6)
-      pygame.draw.circle(screen, YELLOW, VIDEO_CENTER, int(r), 3)
-    pygame.draw.circle(screen, (230, 40, 50), VIDEO_CENTER, VIDEO_R)
-    pygame.draw.circle(screen, WHITE, VIDEO_CENTER, VIDEO_R, 2)
-    pygame.draw.polygon(screen, WHITE, [(cx - 6, cy - 10), (cx - 6, cy + 10), (cx + 11, cy)])
-
-  def draw_speaker(self, screen):
-    """Speaker icon (tap to hear the name again)."""
-    cx, cy = SPEAKER_CENTER
-    bg = self.theme["bg"]
-    pygame.draw.circle(screen, CYAN, SPEAKER_CENTER, SPEAKER_R)
-    pygame.draw.rect(screen, bg, (cx - 11, cy - 5, 6, 10))
-    pygame.draw.polygon(
-        screen, bg,
-        [(cx - 6, cy - 5), (cx + 2, cy - 12), (cx + 2, cy + 12), (cx - 6, cy + 5)],
-    )
-    for r in (7, 12):
-      pygame.draw.arc(
-          screen, bg, (cx + 2 - r, cy - r, 2 * r, 2 * r),
-          -math.pi / 4, math.pi / 4, 2,
-      )
-
-  def hint_text(self):
-    if self.stage == "draw":
-      if not self.drawing:
-        return "Draw anything you imagine!"
-      return "Draw more, or tap Done to make dominoes"
-    if self.stage == "trace":
-      return f"Trace the dots!  {sum(self.covered)} / {len(self.dots)}"
-    if self.stage == "ready":
-      if self.dropping():
-        letter = getattr(self, "domino_letter", None)
-        if letter and not hub.CATEGORIES_HUB[self.cat][self.puzzle].get("hindi"):
-          return f"Here come the {letter} dominoes!"
-        return "Here come the dominoes!"
-      return "Tap to push the dominoes!"
-    if self.stage == "finished":
-      if self.sing:
-        return ("Sing along!" if self.sing.singing
-                else "Tap the words to sing again, or Next")
-      if self.story:
-        last = self.story["step"] == len(self.story["story"]["steps"]) - 1
-        return "The end! Pick another story" if last else "Tap for the next part!"
-      if self.current_video():
-        if self.current_video().get("places"):
-          return "Yay! Tap to play again, or see the famous places"
-        return "Yay! Tap to play again, or watch the real one"
-      return "Yay! Tap to play again, or Next"
-    return ""
-
-  def draw_free_drawing(self, screen, now):
-    """The child's own picture in crayon colours, plus the crayon toolbar."""
-    for colour, pts in self.drawing:
-      if len(pts) > 1:
-        pygame.draw.lines(screen, colour, False, pts, 6)
-      for p in pts[:1] + pts[-1:]:
-        pygame.draw.circle(screen, colour, (int(p[0]), int(p[1])), 3)
-    if self.stage != "draw":
-      return
-    for i, colour in enumerate(CRAYONS):
-      centre = (self.crayon_x(i), CRAYON_Y)
-      r = CRAYON_R + (3 if i == self.crayon else 0)
-      pygame.draw.circle(screen, colour, centre, r)
-      pygame.draw.circle(screen, WHITE if i == self.crayon else (40, 40, 60),
-                         centre, r, 3 if i == self.crayon else 1)
-    if self.drawing:
-      for rect, text, colour in ((UNDO_RECT, "Undo", (255, 100, 100)),
-                                 (DONE_RECT, "Done!", (60, 180, 90))):
-        pygame.draw.rect(screen, colour, rect, border_radius=10)
-        pygame.draw.rect(screen, WHITE, rect, 2, border_radius=10)
-        lbl = self.font.render(text, True, WHITE)
-        screen.blit(lbl, lbl.get_rect(center=rect.center))
-      if len(self.drawing) >= 2 and not self.user_points:
-        r = 4 + 2 * math.sin(now * 5)    # gentle pulse: "you can finish now"
-        pygame.draw.rect(screen, YELLOW, DONE_RECT.inflate(int(r), int(r)), 2,
-                         border_radius=12)
-
-  def draw_play_area(self, screen, now):
-    screen.set_clip(PLAY_RECT)
-    scenery.draw(screen, PLAY_RECT, self.theme.get("scene", "night"), now)
-    if self.mode in ("quiz", "spell"):     # their white text needs a calmer backdrop
-      veil = pygame.Surface(PLAY_RECT.size, pygame.SRCALPHA)
-      veil.fill((*self.theme["bg"], 205))
-      screen.blit(veil, PLAY_RECT.topleft)
-    if self.mode == "quiz" and self.quiz:
-      self.quiz.draw(screen, now)
-      screen.set_clip(None)
-      return
-    if self.mode == "spell" and self.spell:
-      self.spell.draw(screen, now)
-      screen.set_clip(None)
-      return
-    if self.mode == "road" and self.road:
-      self.road.draw(screen, now)
-      screen.set_clip(None)
-      return
-    if self.mode == "maths" and self.maths:
-      self.maths.draw(screen, now)
-      screen.set_clip(None)
-      return
-
-    for line in self.context:
-      if len(line) > 1:
-        pygame.draw.lines(screen, self.theme["context"], False, line, 1)
-
-    # The real picture: a faint guide while tracing, full colour at the end
-    if self.pic_path and self.pic_rect:
-      x, y, w, h = self.pic_rect
-      img = self.image(self.pic_path, (max(1, int(w)), max(1, int(h))))
-      if img is not None:
-        if self.stage == "finished":
-          alpha = int(70 + 185 * min(1.0, (now - self.finished_at) / 1.0))
-        elif self.stage == "trace":
-          alpha = 70
-        else:
-          alpha = 45
-        img.set_alpha(alpha)
-        screen.blit(img, (x, y))
-
-    if self.stage == "trace":
-      # Dotted outline: faint guide line, hollow dots, filled when covered
-      flags = getattr(self, "loop_closed", [])
-      for k, lp_start in enumerate(self._loop_slices()):
-        pts = self.dots[lp_start[0]:lp_start[1]]
-        if len(pts) > 1:
-          closed = flags[k] if k < len(flags) else self.closed
-          pygame.draw.lines(screen, self.theme["guide"], closed, pts, 1)
-      # Trail grows thicker and glows while a streak is going
-      streak = self.streak.active(now)
-      width = 4 + min(8, streak // 3)
-      glow = pygame.Color(0)
-      glow.hsva = ((now * 240) % 360, 80, 100, 100)
-      for k, stroke in enumerate(self.strokes):
-        if len(stroke) > 1:
-          live = k == len(self.strokes) - 1 and streak >= 6
-          if live:
-            pulse = width + 6 + int(3 * math.sin(now * 14))
-            pygame.draw.lines(screen, glow, False, stroke[-40:], pulse)
-          pygame.draw.lines(screen, YELLOW, False, stroke, width if live else 4)
-      first_open = next((i for i, c in enumerate(self.covered) if not c), None)
-      rim = (40, 50, 80)
-      for i, (dx, dy) in enumerate(self.dots):
-        c = (int(dx), int(dy))
-        if self.covered[i]:
-          pygame.draw.circle(screen, WHITE, c, 8)
-          pygame.draw.circle(screen, self.dot_color(i), c, 6)
-        else:
-          pygame.draw.circle(screen, rim, c, 6)
-          pygame.draw.circle(screen, WHITE, c, 4)
-      if first_open is not None and not any(self.covered):
-        fx, fy = self.dots[first_open]
-        r = 13 + 4 * math.sin(now * 6)
-        pygame.draw.circle(screen, YELLOW, (int(fx), int(fy)), int(r), 2)
-
-    if self.is_custom:
-      self.draw_free_drawing(screen, now)
-
-    if self.stage in ("ready", "running", "finished"):
-      if self.stage == "ready" and self.dominoes and not self.dropping(now):
-        r = 15 + 4 * math.sin(now * 6)
-        pygame.draw.circle(screen, YELLOW, (int(self.dominoes[0].x),
-                                            int(self.dominoes[0].y)), int(r), 2)
-      letter = self.letter_surface() if not self.is_custom else None
-      for d in self.dominoes:
-        t = (now - d.drop_at) / DROP_TIME
-        if t < 0:
-          continue                     # not dropped yet
-        lift = (1 - min(1.0, t)) ** 2 * DROP_HEIGHT
-        surf = domino_tile(d.color, plain=letter is not None)
-        fall = d.current_angle / (math.pi / 2)     # 0 standing .. 1 lying down
-        if fall > 0:                               # it tips over: flatter, with a shadow
-          surf = toppled_tile(surf, fall)
-        rotated = pygame.transform.rotate(
-            surf, math.degrees(-(d.angle + d.current_angle)))
-        alpha = 110 if self.stage == "finished" else int(255 * min(1.0, 0.3 + t))
-        since = now - getattr(d, "fall_at", -9) if d.state != "standing" else -1
-        if 0 <= since < 0.2 and self.stage == "running":   # flash as it is pushed
-          pygame.draw.circle(screen, WHITE, (int(d.x), int(d.y)), int(16 - 40 * since))
-        rotated.set_alpha(alpha)
-        screen.blit(rotated, rotated.get_rect(center=(d.x, d.y - lift)))
-        if letter is not None:
-          letter.set_alpha(alpha)
-          screen.blit(letter, letter.get_rect(center=(d.x, d.y - lift)))
-      if self.is_custom and self.stage == "finished":
-        self.draw_free_drawing(screen, now)   # the child's picture is the reward
-      if self.show and self.stage == "running":   # suspense: the teetering domino glows
-        front = next((d for d in reversed(self.dominoes) if d.state == "falling"), None)
-        if front is not None and self.show.is_twist(self.dominoes.index(front)):
-          r = 18 + 6 * math.sin(now * 12)
-          pygame.draw.circle(screen, YELLOW, (int(front.x), int(front.y)), int(r), 3)
-      if self.show:
-        self.show.draw(screen, now)
-    self.draw_whats_next(screen, now)
-
-    if self.story:                      # story progress dots
-      steps = len(self.story["story"]["steps"])
-      for k in range(steps):
-        cx = PLAY_RECT.centerx + (k - (steps - 1) / 2) * 22
-        done = k < self.story["step"] or (k == self.story["step"] and self.stage == "finished")
-        pygame.draw.circle(screen, YELLOW if done else HINT, (int(cx), PLAY_RECT.top + 14),
-                           7 if k == self.story["step"] else 5, 0 if done else 2)
-
-    self.draw_places(screen, now)
-    if not self.celebration:
-      self.draw_watch_button(screen, now)
-    hint = self.hint_text()
-    streak = self.streak.active(now) if self.stage == "trace" else 0
-    if streak >= 5:
-      hint = f"Streak {streak}!  " + hint
-    if hint:
-      surf = fit_label(self.hint_font, hint, YELLOW if streak >= 5 else WHITE, PLAY_RECT.w - 40)
-      box = surf.get_rect(center=(PLAY_RECT.centerx, PLAY_RECT.bottom - 18)).inflate(26, 10)
-      pill = pygame.Surface(box.size, pygame.SRCALPHA)
-      pygame.draw.rect(pill, (20, 24, 50, 170), pill.get_rect(), border_radius=box.h // 2)
-      screen.blit(pill, box.topleft)
-      screen.blit(surf, surf.get_rect(center=box.center))
-    self.draw_word_card(screen, now)
-    howto.draw_idle_hand(self, screen, now, PLAY_RECT)
-    if self.sing:
-      self.sing.draw(screen, PLAY_RECT, now)
-    if self.celebration:
-      self.draw_celebration(screen, now)
-    self.draw_cap_won(screen, now)
-    screen.set_clip(None)
-
-  def draw_cap_won(self, screen, now):
-    """A big rainbow cap pops up when a new subject adds a colour."""
-    won = getattr(self, "cap_won", None)
-    if won is None or now - won > 4.0:
-      return
-    t = now - won
-    grow = min(1.0, t / 0.4)
-    r = int(64 * grow)
-    if r < 4:
-      return
-    c = (PLAY_RECT.centerx, PLAY_RECT.y + 120)
-    world.WorldScene.draw_rainbow_cap(screen, (c[0], c[1] + r * 0.2), r / 1.12,
-                                      (c[0] + r * 1.4, c[1] + r * 0.2), self.cap_colours())
-    count = self.cap_count()
-    lbl = fit_label(self.big_font, f"Rainbow cap {min(count, 7)} / 7", YELLOW, PLAY_RECT.w - 40)
-    screen.blit(lbl, lbl.get_rect(center=(c[0], c[1] + r * 0.2 + 30)))
-
-  def sticker_picture(self, sid, size):
-    """Category stickers show the category's first picture; story stickers
-    show the story's first picture."""
-    if sid.startswith("c:"):
-      cat = sid[2:]
-      if cat in hub.CATEGORIES_HUB:
-        first = next(iter(hub.CATEGORIES_HUB[cat]))
-        return self.thumb(first, cat, size)
-    if sid.startswith("s:"):
-      story = stories.find(sid[2:])
-      if story:
-        cat, name, _ = story["steps"][0]
-        return self.thumb(name, cat, size)
-    return None
-
-  def draw_celebration(self, screen, now):
-    sid, start = self.celebration
-    t = now - start
-    grow = min(1.0, t / 0.35)
-    radius = int(70 * (0.3 + 0.7 * grow) * (1 + 0.05 * math.sin(now * 8)))
-    cx, cy = PLAY_RECT.centerx, PLAY_RECT.centery - 30
-    shade = pygame.Surface(PLAY_RECT.size, pygame.SRCALPHA)
-    shade.fill((0, 0, 0, 110))
-    screen.blit(shade, PLAY_RECT.topleft)
-    fun.draw_sticker(screen, (cx, cy), radius, sid, True, self.big_font,
-                     self.sticker_picture(sid, int(radius * 1.0)), t=now * 0.6)
-    for text, y, font in (("New sticker!", cy - radius - 26, self.big_font),
-                          (fun.sticker_title(sid), cy + radius + 22, self.hint_font)):
-      surf = font.render(text, True, YELLOW)
-      screen.blit(surf, surf.get_rect(center=(cx, y)))
-
-  def draw_shelf(self, screen, now):
-    """Sticker shelf: every sticker, earned ones in colour."""
-    width = screen.get_width()           # the shelf panel is 450 wide
-    area = pygame.Rect(0, 0, width, STICKER_RECT.top - 6)
-    shade = pygame.Surface(area.size, pygame.SRCALPHA)
-    shade.fill((*self.theme["bg"], 240))
-    screen.blit(shade, area.topleft)
-    title = self.big_font.render(f"{self.progress.data['name']}'s Stickers", True, YELLOW)
-    screen.blit(title, title.get_rect(center=(width / 2, 24)))
-    info = (f"Traced {self.progress.count()} of {self.progress.total}   "
-            f"Best streak {self.progress.data.get('best_streak', 0)}")
-    surf = self.font.render(info, True, CYAN)
-    screen.blit(surf, surf.get_rect(center=(width / 2, 50)))
-    cats = [c for cs in self.subjects.values() for c in cs]
-    stickers = self.progress.all_stickers(cats, [s["id"] for s in stories.STORIES])
-    cols = 8
-    cw = width / cols
-    ch = (area.h - 90) / math.ceil(len(stickers) / cols)
-    r = int(min(cw, ch) * 0.33)
-    for i, sid in enumerate(stickers):
-      row, col = divmod(i, cols)
-      cx = int(col * cw + cw / 2)
-      cy = int(70 + row * ch + r)
-      earned = self.progress.has(sid)
-      fun.draw_sticker(screen, (cx, cy), r, sid, earned, self.small_font,
-                       self.sticker_picture(sid, int(r * 1.0)) if earned else None)
-      if sid.startswith("c:"):
-        size = len(hub.CATEGORIES_HUB.get(sid[2:], {}))
-        label = sid[2:] if earned else fun.sticker_need(sid, self.progress.total, size)
-      else:
-        label = (fun.sticker_title(sid) if earned
-                 else fun.sticker_need(sid, self.progress.total))
-      lbl = fit_label(self.small_font, label, WHITE if earned else HINT, cw - 2)
-      screen.blit(lbl, lbl.get_rect(center=(cx, cy + r + 7)))
-    tip = self.small_font.render("Tap anywhere to go back", True, HINT)
-    screen.blit(tip, tip.get_rect(center=(width / 2, area.bottom - 10)))
-
-  def _loop_slices(self):
-    out, start = [], 0
-    for lp in getattr(self, "loops", []):
-      out.append((start, start + len(lp)))
-      start += len(lp)
-    return out
-
-  def draw_description(self, screen):
-    """Story sentence, or the second-language name and the description."""
-    item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
-    desc_w = min(PANEL_W - 24, WIDTH - 2 * (TOWN_BTN.right + 8))
-    if self.story and self.mode == "trace":
-      lines = wrap_text(self.font, self.story_line(), desc_w)[:2]
-      for n, line in enumerate(lines):
-        surf = self.font.render(line, True, YELLOW)
-        screen.blit(surf, surf.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + n * 17)))
-      return
-    if self.banner_override:              # spelling: don't give the word away
-      return
-    native = None if item.get("word_img") else self.native_image(self.cat, self.puzzle, 18)
-    desc = item["desc"]
-    if native is not None:
-      screen.blit(native, native.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y)))
-      line = fit_label(self.font, desc, CYAN, desc_w)
-      screen.blit(line, line.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + 19)))
-      return
-    for n, line in enumerate(wrap_text(self.font, desc, desc_w)[:2]):
-      surf = self.font.render(line, True, CYAN)
-      screen.blit(surf, surf.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + n * 17)))
-
-  def draw(self, screen):
-    """Game screen: the play area fills the screen under a slim top row
-    (menu button, name, Next). The menu and other panels open on top."""
-    now = time.time()
-    if self.in_world:
-      self.world.draw(screen)
-    else:
-      screen.fill(self.theme["bg"])
-      self.draw_play_area(screen, now)
-      self.draw_top_row(screen, now)
-    self.particles.draw(screen, self.hint_font)
-    if self.overlay:
-      dim = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-      dim.fill((0, 0, 0, 150))
-      screen.blit(dim, (0, 0))
-      panel = screen.subsurface(pygame.Rect(NAV_X, NAV_Y, PANEL_W, PANEL_H))
-      if self.overlay == "nav":
-        self.draw_menu_panel(panel, now)
-      elif self.overlay == "shelf":
-        self.draw_shelf(panel, now)
-      else:
-        screens.PANELS[self.overlay].draw(panel, self, now)
-
-  def draw_top_row(self, screen, now):
-    tm = self.theme
-    screen.blit(top_band(tm, WIDTH), (0, 0))
-    pygame.draw.line(screen, tm["panel"], (0, TOP_H - 1), (WIDTH, TOP_H - 1), 2)
-    self.draw_title_banner(screen, now)
-    self.draw_description(screen)
-    # Menu button: three bars; it glows for a while so children find it
-    pulse = now - self.started_at < 12 and not self.overlay
-    pygame.draw.rect(screen, (70, 130, 230), MENU_BTN, border_radius=12)
-    pygame.draw.rect(screen, YELLOW if pulse and int(now * 2) % 2 else WHITE, MENU_BTN, 2,
-                     border_radius=12)
-    for k in range(3):
-      y = MENU_BTN.centery - 12 + k * 12
-      pygame.draw.line(screen, WHITE, (MENU_BTN.x + 14, y), (MENU_BTN.right - 14, y), 4)
-    # Town: a little house - back to Wonder Town
-    # Topple Mode Button
-    topple_bg = (50, 180, 100) if self.mode == "topple" else (60, 140, 90)
-    pygame.draw.rect(screen, topple_bg, TOPPLE_BTN, border_radius=12)
-    pygame.draw.rect(screen, WHITE, TOPPLE_BTN, 2, border_radius=12)
-    t_icon = self.font_at(16).render("TOP", True, WHITE)
-    screen.blit(t_icon, t_icon.get_rect(center=(TOPPLE_BTN.centerx, TOPPLE_BTN.centery - 7)))
-    t_sub = self.font_at(11).render("POP", True, YELLOW)
-    screen.blit(t_sub, t_sub.get_rect(center=(TOPPLE_BTN.centerx, TOPPLE_BTN.centery + 9)))
-
-    pygame.draw.rect(screen, (240, 140, 40), TOWN_BTN, border_radius=12)
-    pygame.draw.rect(screen, WHITE, TOWN_BTN, 2, border_radius=12)
-    cx, cy = TOWN_BTN.center
-    pygame.draw.polygon(screen, WHITE, [(cx - 14, cy - 1), (cx, cy - 13), (cx + 14, cy - 1)])
-    pygame.draw.rect(screen, WHITE, (cx - 10, cy - 1, 20, 14))
-    pygame.draw.rect(screen, (240, 140, 40), (cx - 3, cy + 4, 6, 9))
-    # Next: an arrow to the next picture
-    pygame.draw.rect(screen, (60, 180, 90), NEXT_BTN, border_radius=12)
-    pygame.draw.rect(screen, WHITE, NEXT_BTN, 2, border_radius=12)
-    cx, cy = NEXT_BTN.center
-    pygame.draw.polygon(screen, WHITE, [(cx - 8, cy - 13), (cx + 10, cy), (cx - 8, cy + 13)])
-    # Help: "?" opens the picture guide for what the child is doing
-    pygame.draw.rect(screen, (150, 80, 200), HELP_BTN, border_radius=12)
-    pygame.draw.rect(screen, WHITE, HELP_BTN, 2, border_radius=12)
-    q = self.font_at(30).render("?", True, WHITE)
-    screen.blit(q, q.get_rect(center=HELP_BTN.center))
-
-  def draw_menu_panel(self, screen, now):
-    """The menu: subjects, categories, every picture of the category and the
-    Reset / Games / Stickers / Theme / Play buttons."""
-    tm = self.theme
-    bg = tm["bg"]
-    screen.fill(bg)
-    pygame.draw.rect(screen, tm["panel"], screen.get_rect(), 3)
-
-    # Subjects (top row) and their categories (second row)
-    pygame.draw.rect(screen, tm["panel"], SUBJ_RECT.union(CAT_RECT))
-    for rect, s in self.subject_rects():
-      active = s == self.subject
-      pygame.draw.rect(screen, YELLOW if active else tm["subject"], rect, border_radius=8)
-      lbl = fit_label(self.cat_font, s, bg if active else WHITE, rect.w - 4)
-      screen.blit(lbl, lbl.get_rect(center=rect.center))
-    for rect, c in self.category_rects():
-      active = c == self.cat
-      pygame.draw.rect(screen, CYAN if active else tm["cat"], rect, border_radius=8)
-      lbl = fit_label(self.cat_font, c, bg if active else WHITE, rect.w - 4)
-      screen.blit(lbl, lbl.get_rect(center=rect.center))
-      if self.progress.has(f"c:{c}"):          # whole category finished
-        pygame.draw.circle(screen, GOLD, (rect.right - 5, rect.top + 5), 5)
-
-    # Item bank: picture + name, with "More" when a category has many items
-    pygame.draw.rect(screen, tm["panel"], BANK_RECT)
-    cells, pages = self.bank_cells()
-    for rect, name in cells:
-      if name == ">more":
-        pygame.draw.rect(screen, PURPLE, rect, border_radius=8)
-        lbl = self.hint_font.render("More >", True, WHITE)
-        screen.blit(lbl, lbl.get_rect(center=(rect.centerx, rect.centery - 8)))
-        pg = self.small_font.render(f"{self.page + 1} / {pages}", True, WHITE)
-        screen.blit(pg, pg.get_rect(center=(rect.centerx, rect.centery + 14)))
-        continue
-      active = self.puzzle == name and self.mode == "trace"  # no hints in quiz/spell
-      pygame.draw.rect(screen, CYAN if active else tm["cell"], rect, border_radius=8)
-      th = self.thumb(name, self.cat, rect.h - 24)
-      if th is not None:
-        screen.blit(th, th.get_rect(center=(rect.centerx, rect.y + (rect.h - 18) / 2 + 2)))
-      elif name == CUSTOM:
-        screen.blit(screens.crayon_icon(rect.h - 30),
-                    screens.crayon_icon(rect.h - 30).get_rect(
-                        center=(rect.centerx, rect.y + (rect.h - 18) / 2 + 2)))
-      label = hub.CATEGORIES_HUB[self.cat][name].get("label", name)  # Hindi: "ka"
-      lbl = fit_label(self.small_font, label, bg if active else WHITE, rect.w - 6)
-      screen.blit(lbl, lbl.get_rect(center=(rect.centerx, rect.bottom - 10)))
-      if self.progress.is_done(self.key(name)):  # gold star = already traced
-        self.draw_star(screen, (rect.right - 10, rect.top + 10), 8)
-      if self.mode == "trace" and hub.video_for(self.cat, name):
-        bx, by = rect.x + 11, rect.y + 11          # red badge: has a real video
-        pygame.draw.circle(screen, (230, 40, 50), (bx, by), 8)
-        pygame.draw.polygon(screen, WHITE, [(bx - 3, by - 4), (bx - 3, by + 4), (bx + 5, by)])
-
-    # Reset, Games, Stickers, Theme and Play (back to the game)
-    pygame.draw.rect(screen, (255, 100, 100), RESET_RECT, border_radius=10)
-    lbl = self.hint_font.render("Reset", True, WHITE)
-    screen.blit(lbl, lbl.get_rect(center=RESET_RECT.center))
-    pygame.draw.rect(screen, (70, 130, 230), GAMES_RECT, border_radius=10)
-    lbl = self.hint_font.render("Games", True, WHITE)
-    screen.blit(lbl, lbl.get_rect(center=GAMES_RECT.center))
-    pygame.draw.rect(screen, (230, 160, 20), STICKER_RECT, border_radius=10)
-    self.draw_star(screen, (STICKER_RECT.x + 18, STICKER_RECT.centery), 11)
-    lbl = self.hint_font.render(str(len(self.progress.data["stickers"])), True, WHITE)
-    screen.blit(lbl, lbl.get_rect(midleft=(STICKER_RECT.x + 33, STICKER_RECT.centery)))
-    pygame.draw.rect(screen, tm["subject"], THEME_RECT, border_radius=10)
-    for k, col in enumerate(((255, 90, 120), (255, 204, 0), (0, 220, 180), (120, 160, 255))):
-      a = k * math.pi / 2 + now * 0.5
-      pygame.draw.circle(screen, col, (int(THEME_RECT.centerx + 9 * math.cos(a)),
-                                       int(THEME_RECT.centery + 9 * math.sin(a))), 6)
-    pygame.draw.rect(screen, (60, 180, 90), NEXT_RECT, border_radius=10)
-    lbl = self.hint_font.render("Play >", True, WHITE)
-    screen.blit(lbl, lbl.get_rect(center=NEXT_RECT.center))
-
   def menu_press(self, mx, my):
     """A tap in the menu panel (panel coordinates). Picking a picture, Play,
     or a tap outside the panel goes back to the game."""
@@ -2046,16 +1315,6 @@ class Game:
       self.pic_path, self.pic_rect = hub.fetch_picture_from_hub(
           self.puzzle, self.box, cat=self.cat)
       self.places = hub.fetch_places_from_hub(self.puzzle, self.box, cat=self.cat)
-
-  def draw_star(self, screen, center, r):
-    cx, cy = center
-    pts = []
-    for i in range(10):
-      rad = r if i % 2 == 0 else r * 0.45
-      a = -math.pi / 2 + i * math.pi / 5
-      pts.append((cx + rad * math.cos(a), cy + rad * math.sin(a)))
-    pygame.draw.polygon(screen, GOLD, pts)
-    pygame.draw.polygon(screen, (150, 100, 0), pts, 1)
 
 
 class Viewport:
@@ -2388,6 +1647,9 @@ def tapped(game):
     full.tapped()
     return True
   return False
+
+
+ui_draw.share(globals())        # constants, helpers and modules for the drawing code
 
 
 if __name__ == "__main__":

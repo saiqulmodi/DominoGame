@@ -1,9 +1,11 @@
 """Wonder Town: the 3D world children explore to reach every part of Domino Wonder Dash.
 
 Pure maths, no drawing (world.py paints it):
-  * the town - one colourful building for each subject (ABC School, Zoo & Garden, Food
-    Market, ...), plus the Story House, Family House, Drawing Studio, Sticker Museum and
-    Games Arcade, a river with a bridge and stepping posts, trees and lamp posts;
+  * the town - an island in the sea shaped like Dubai's Palm Jumeirah: the trunk (the
+    main street, from the beach on the mainland), one curved frond out to each class's
+    building, far apart over the water, and the outer crescent with the Games Arcade at
+    its top; plus the Story House, Family House, Drawing Studio and Sticker Museum, a canal
+    across the trunk with a bridge and swing posts, palm trees and lamp posts;
   * a perspective camera with near-plane clipping (works the same in the browser);
   * the player: walking, jumping, landing on roofs, and the rope swing - a rope to a roof
     corner or post that swings you across with real pendulum physics;
@@ -25,7 +27,7 @@ RADIUS = 0.6                # the player's body, for collisions
 ROPE_MIN, ROPE_MAX = 6.0, 40.0
 RIVER_Z = (96.0, 112.0)
 BRIDGE_HALF = 6.0           # the street bridge over the river is |x| < 6
-BOUNDS = (-140.0, 140.0, -45.0, 310.0)      # x0, x1, z0, z1
+BOUNDS = (-210.0, 210.0, -45.0, 385.0)      # x0, x1, z0, z1
 START = (0.0, 0.0, -18.0)
 
 
@@ -86,58 +88,175 @@ class Box:
 # x_reach: how far along the curved frond the pavilion is located
 SUBJECT_HOUSES = [
     # --- Frond 1: CLASS 1 (Foundation Frond) ---
-    ("english", -1, 38, 38.0, 22, 16, 13, (250, 196, 70), "Class 1: ABC School", "Class 1 - English & Phonics", "English", ("ABC", "A")),
-    ("hindi",    1, 38, 38.0, 22, 16, 13, (246, 140, 72), "Class 1: Hindi Pathshala", "Class 1 - Swar & Vyanjan", "Hindi", None),
+    ("english", -1, 38, 70.0, 22, 16, 13, (250, 196, 70), "Class 1: ABC School", "Class 1 - English & Phonics", "English", ("ABC", "A")),
+    ("hindi",    1, 38, 70.0, 22, 16, 13, (246, 140, 72), "Class 1: Hindi Pathshala", "Class 1 - Swar & Vyanjan", "Hindi", None),
 
     # --- Frond 2: CLASS 2 (Numbers & EVS) ---
-    ("maths",   -1, 78, 48.0, 22, 16, 15, (90, 150, 240), "Class 2: Number House", "Class 2 - Count, Add & Shapes", "Maths", None),
-    ("home",     1, 78, 48.0, 22, 16, 12, (240, 170, 150), "Class 2: My Home & EVS", "Class 2 - Body, Family & Helpers", "Me & Home", None),
-    ("rhymes",   1, 108, 36.0, 20, 14, 12, (255, 150, 60), "Class 2: Rhyme Stage", "Class 2 - Action Poems", "Rhymes", ("Classic Rhymes", "Twinkle Twinkle")),
+    ("maths",   -1, 78, 84.0, 22, 16, 15, (90, 150, 240), "Class 2: Number House", "Class 2 - Count, Add & Shapes", "Maths", None),
+    ("home",     1, 78, 84.0, 22, 16, 12, (240, 170, 150), "Class 2: My Home & EVS", "Class 2 - Body, Family & Helpers", "Me & Home", None),
+    ("rhymes",   1, 120, 78.0, 20, 14, 12, (255, 150, 60), "Class 2: Rhyme Stage", "Class 2 - Action Poems", "Rhymes", ("Classic Rhymes", "Twinkle Twinkle")),
 
     # --- Frond 3: CLASS 3 (Science & Social Studies) ---
-    ("science", -1, 145, 56.0, 24, 16, 14, (110, 200, 230), "Class 3: Science Lab", "Class 3 - Living World & Matter", "Science", ("Lab Tools", "Microscope")),
-    ("social",   1, 145, 56.0, 24, 16, 14, (200, 150, 100), "Class 3: Heritage Hall", "Class 3 - History, Land & Maps", "Social", ("Long Ago", "Clay Pot")),
+    ("science", -1, 145, 92.0, 24, 16, 14, (110, 200, 230), "Class 3: Science Lab", "Class 3 - Living World & Matter", "Science", ("Lab Tools", "Microscope")),
+    ("social",   1, 145, 92.0, 24, 16, 14, (200, 150, 100), "Class 3: Heritage Hall", "Class 3 - History, Land & Maps", "Social", ("Long Ago", "Clay Pot")),
 
     # --- Frond 4: CLASS 4 (Nature & Food Exploration) ---
-    ("nature",  -1, 185, 58.0, 26, 18, 12, (90, 190, 110), "Class 4: Zoo & Nature", "Class 4 - Habitats, Birds & Plants", "Nature", ("Animals", "Tiger")),
-    ("food",     1, 185, 58.0, 24, 18, 12, (236, 90, 90), "Class 4: Food Souq", "Class 4 - Crops, Diet & Health", "Food", ("Fruits", "Apple")),
+    ("nature",  -1, 185, 92.0, 26, 18, 12, (90, 190, 110), "Class 4: Zoo & Nature", "Class 4 - Habitats, Birds & Plants", "Nature", ("Animals", "Tiger")),
+    ("food",     1, 185, 92.0, 24, 18, 12, (236, 90, 90), "Class 4: Food Souq", "Class 4 - Crops, Diet & Health", "Food", ("Fruits", "Apple")),
 
     # --- Frond 5: CLASS 5 (World Travel & Languages) ---
-    ("travel",  -1, 225, 52.0, 24, 18, 14, (160, 110, 220), "Class 5: Station Hub", "Class 5 - Transport, Engines & Trade", "Travel", None),
-    ("bangla",   1, 225, 52.0, 22, 16, 12, (60, 170, 120), "Class 5: Bangla Pathshala", "Class 5 - Language & Grammar", "Bangla", None),
+    ("travel",  -1, 225, 84.0, 24, 18, 14, (160, 110, 220), "Class 5: Station Hub", "Class 5 - Transport, Engines & Trade", "Travel", None),
+    ("bangla",   1, 225, 84.0, 22, 16, 12, (60, 170, 120), "Class 5: Bangla Pathshala", "Class 5 - Language & Grammar", "Bangla", None),
 
     # --- Frond 6: CLASS 6 (Safety & Global Sciences) ---
-    ("safety",  -1, 265, 44.0, 22, 16, 12, (240, 70, 70), "Class 6: Safety Park", "Class 6 - Civics, Signs & Rules", "Safety", ("Road Safety", "Traffic Light")),
-    ("world",    1, 265, 44.0, 20, 20, 28, (60, 190, 200), "Class 6: Globe Tower", "Class 6 - Geography & World Nations", "World", None),
+    ("safety",  -1, 265, 70.0, 22, 16, 12, (240, 70, 70), "Class 6: Safety Park", "Class 6 - Civics, Signs & Rules", "Safety", ("Road Safety", "Traffic Light")),
+    ("world",    1, 265, 70.0, 20, 20, 28, (60, 190, 200), "Class 6: Globe Tower", "Class 6 - Geography & World Nations", "World", None),
 
     # --- Outer Crescent: CLASS 7 (Master Subject Arenas) ---
-    ("india",   -1, 305, 34.0, 26, 20, 16, (255, 153, 51), "Class 7: India Pavilion", "Class 7 - States, Constitution & Heritage", "India", None),
-    ("fun",      1, 305, 34.0, 24, 18, 15, (220, 90, 190), "Class 7: Carnival Park", "Class 7 - Logic, Puzzles & Sports", "Fun", None),
+    ("india",   -1, 305, 52.0, 26, 20, 16, (255, 153, 51), "Class 7: India Pavilion", "Class 7 - States, Constitution & Heritage", "India", None),
+    ("fun",      1, 305, 52.0, 24, 18, 15, (220, 90, 190), "Class 7: Carnival Park", "Class 7 - Logic, Puzzles & Sports", "Fun", None),
 ]
 
 EXTRA_HOUSES = [
     # Trunk Entry Houses
-    ("story",  -1, 12, 18.0, 14, 12, 9, (255, 150, 190), "Story House", "Story of the day", "story"),
-    ("family",  1, 12, 18.0, 14, 12, 9, (150, 200, 120), "Family House", "Players", "players"),
-    # Upper Trunk Studios
-    ("studio", -1, 240, 20.0, 16, 12, 10, (120, 200, 255), "Drawing Studio", "Draw my own", "draw"),
-    ("museum",  1, 240, 20.0, 16, 12, 10, (255, 215, 80), "Sticker Museum", "Your stickers", "stickers"),
+    ("story",  -1, 12, 20.0, 14, 12, 9, (255, 150, 190), "Story House", "Story of the day", "story"),
+    ("family",  1, 12, 20.0, 14, 12, 9, (150, 200, 120), "Family House", "Players", "players"),
+    # Studios on the trunk, between the Class 4 and Class 5 fronds
+    ("studio", -1, 205, 20.0, 16, 12, 10, (120, 200, 255), "Drawing Studio", "Draw my own", "draw"),
+    ("museum",  1, 205, 20.0, 16, 12, 10, (255, 215, 80), "Sticker Museum", "Your stickers", "stickers"),
 ]
+
+
+# --- the Palm island: land shapes (everything else is sea) ---------------------------
+TRUNK_HALF = 14.0           # the trunk is |x| < 14 m
+TRUNK_END = 361.0           # ... and reaches the crescent
+MAINLAND_Z = -22.0          # south of this: the beach and the mainland
+FROND_HALF = 7.0            # half width of a frond
+FROND_SLOPE = 0.42          # fronds fan out north-east / north-west like the real Palm's
+PAD = 6.0                   # land around every building
+CRESCENT_C = (0.0, 175.0)   # the outer crescent (breakwater ring) ...
+CRESCENT_R = 195.0          # ... its radius
+CRESCENT_HALF = 9.0         # ... half its width
+CRESCENT_ARC = (math.radians(-35), math.radians(215))   # open towards the beach (south)
+
+
+def _bezier(p0, p1, p2, n=14):
+  return [((1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0],
+           (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1])
+          for t in (k / (n - 1) for k in range(n))]
+
+
+def frond_path(side, z, reach_x):
+  """A frond leaves the trunk sideways and bends north to the building's door."""
+  tip = (side * (reach_x - 3.0), z + FROND_SLOPE * reach_x)
+  return _bezier((side * (TRUNK_HALF - 2.0), z), (side * reach_x * 0.45, z + FROND_SLOPE * reach_x * 0.25), tip)
+
+
+FRONDS = {}                 # house key -> the frond's centre line [(x, z), ...]
+for _key, _side, _z, _reach, *_rest in SUBJECT_HOUSES:
+  FRONDS[_key] = frond_path(_side, _z, _reach)
+PADS = []                   # land rectangles round buildings and their short paths
+
+
+def _seg_dist(px, pz, a, b):
+  ax, az = a
+  dx, dz = b[0] - ax, b[1] - az
+  L = dx * dx + dz * dz
+  t = 0.0 if L == 0 else max(0.0, min(1.0, ((px - ax) * dx + (pz - az) * dz) / L))
+  return math.hypot(px - (ax + t * dx), pz - (az + t * dz))
+
+
+def on_land(x, z):
+  """True on the island (trunk, fronds, building pads, crescent) or the mainland."""
+  if z < MAINLAND_Z:
+    return True
+  if abs(x) <= TRUNK_HALF and z <= TRUNK_END:
+    return not in_river(x, z)                 # the canal crosses the trunk
+  for x0, z0, x1, z1 in PADS:
+    if x0 <= x <= x1 and z0 <= z <= z1:
+      return True
+  for path in FRONDS.values():
+    if (min(p[0] for p in path) - FROND_HALF <= x <= max(p[0] for p in path) + FROND_HALF
+        and any(_seg_dist(x, z, path[i], path[i + 1]) <= FROND_HALF for i in range(len(path) - 1))):
+      return True
+  cx, cz = CRESCENT_C
+  r = math.hypot(x - cx, z - cz)
+  if abs(r - CRESCENT_R) <= CRESCENT_HALF:
+    a = math.atan2(z - cz, x - cx)
+    lo, hi = CRESCENT_ARC
+    a = a if a >= lo else a + 2 * math.pi
+    return lo <= a <= hi
+  return False
+
+
+def in_water(x, z):
+  return not on_land(x, z)
+
+
+_GRID = {}
+GRID_STEP = 4.0
+
+
+def land_at(x, z):
+  """A quick, coarse on_land() for drawing (a 4 m grid, filled in as it is asked)."""
+  key = (int(x // GRID_STEP), int(z // GRID_STEP))
+  hit = _GRID.get(key)
+  if hit is None:
+    hit = _GRID[key] = on_land((key[0] + 0.5) * GRID_STEP, (key[1] + 0.5) * GRID_STEP)
+  return hit
+
+
+def strip(path, half):
+  """A band of the given half width along a centre line, as one polygon."""
+  left, right = [], []
+  for i, (x, z) in enumerate(path):
+    a = path[max(0, i - 1)]
+    b = path[min(len(path) - 1, i + 1)]
+    dx, dz = b[0] - a[0], b[1] - a[1]
+    L = math.hypot(dx, dz) or 1.0
+    nx, nz = -dz / L * half, dx / L * half
+    left.append((x + nx, z + nz))
+    right.append((x - nx, z - nz))
+  return left + right[::-1]
+
+
+def crescent_pieces(n=8, half=CRESCENT_HALF):
+  """The crescent in n pieces (smaller polygons clip and cull better)."""
+  lo, hi = CRESCENT_ARC
+  out = []
+  for k in range(n):
+    a0 = lo + (hi - lo) * k / n
+    a1 = lo + (hi - lo) * (k + 1) / n
+    arc = [a0 + (a1 - a0) * j / 6 for j in range(7)]
+    cx, cz = CRESCENT_C
+    outer = [(cx + (CRESCENT_R + half) * math.cos(a), cz + (CRESCENT_R + half) * math.sin(a)) for a in arc]
+    inner = [(cx + (CRESCENT_R - half) * math.cos(a), cz + (CRESCENT_R - half) * math.sin(a)) for a in arc]
+    out.append(outer + inner[::-1])
+  return out
 
 
 def build_world():
   boxes = []
+  PADS.clear()
   for key, side, z, reach_x, w, d, h, col, label, sub, subject, icon in SUBJECT_HOUSES:
     x0 = side * reach_x
-    boxes.append(Box(key, x0, z - d / 2, x0 + side * w, z + d / 2, h, col, label, sub,
+    tz = z + FROND_SLOPE * reach_x            # at the tip of its frond, out over the sea
+    boxes.append(Box(key, x0, tz - d / 2, x0 + side * w, tz + d / 2, h, col, label, sub,
                      kind="subject", payload=subject, gable=h <= 13, icon=icon))
   for key, side, z, reach_x, w, d, h, col, label, sub, kind in EXTRA_HOUSES:
     x0 = side * reach_x
     boxes.append(Box(key, x0, z - d / 2, x0 + side * w, z + d / 2, h, col, label, sub,
                      kind=kind, gable=True))
   # Grand Arcade at the apex of the Crescent
-  boxes.append(Box("arcade", -14, 325, 14, 342, 24, (255, 120, 60), "Games Arcade", "Find it, Spell it, more",
-                   kind="games", roof=(250, 220, 60)))
+  top = CRESCENT_C[1] + CRESCENT_R
+  boxes.append(Box("arcade", -14, top - 8.5, 14, top + 8.5, 24, (255, 120, 60), "Games Arcade",
+                   "Find it, Spell it, more", kind="games", roof=(250, 220, 60)))
+  for b in boxes:                           # land under every building and its front path
+    if b.kind is not None:
+      PADS.append((b.x0 - PAD, b.z0 - PAD, b.x1 + PAD, b.z1 + PAD))
+      if b.kind != "subject" and b.key != "arcade":
+        dx, _, dz = b.door()
+        PADS.append((min(dx, 0.0) - 5, dz - 5, max(dx, 0.0) + 5, dz + 5))
 
   for x in (-45, -24, 24, 45):
     boxes.append(Box(f"post{x}", x - 1.1, 102.9, x + 1.1, 105.1, 18, (250, 200, 80),
@@ -151,21 +270,33 @@ def build_world():
   return boxes
 
 
-def trees_and_lamps():
+def trees_and_lamps(boxes=()):
+  """Lamps along the trunk; palm trees along its edges, on the frond tips and on the
+  beach - only on land, never inside a building or on a frond's path."""
   trees, lamps = [], []
-  for z in range(-30, 236, 16):
+  for z in range(-30, int(TRUNK_END) - 10, 16):
     if RIVER_Z[0] - 6 < z < RIVER_Z[1] + 6:
       continue
     lamps.append((-7.5, z))
     lamps.append((7.5, z + 8))
-  for i in range(60):
-    x = ((i * 73) % 180) - 90
-    z = ((i * 131) % 270) - 30
-    if abs(x) < 36 and z > -10:
+  spots = []
+  for z in range(-6, int(TRUNK_END) - 20, 22):
+    spots += [(-11.5, z + 5), (11.5, z + 16)]
+  for path in FRONDS.values():               # one palm beside the end of each frond
+    (ax, az), (bx, bz) = path[-4], path[-1]
+    spots.append((ax, az + (FROND_HALF - 1.5)))
+  for i in range(26):                          # the mainland beach
+    spots.append((((i * 73) % 360) - 180 + 0.5, -27 - (i * 37) % 16))
+  lo, hi = CRESCENT_ARC
+  for k in range(18):                          # palms along the crescent
+    a = lo + (hi - lo) * (k + 0.5) / 18
+    spots.append((CRESCENT_C[0] + CRESCENT_R * math.cos(a), CRESCENT_C[1] + CRESCENT_R * math.sin(a)))
+  for i, (x, z) in enumerate(spots):
+    if not on_land(x, z) or any(b.contains_xz(x, z, 2.5) for b in boxes):
       continue
-    if RIVER_Z[0] - 4 < z < RIVER_Z[1] + 4:
+    if any(b.kind is not None and math.dist((x, z), (b.door()[0], b.door()[2])) < 6 for b in boxes):
       continue
-    trees.append((x + 0.5, z + 0.5, 5.0 + (i % 4) * 1.5))
+    trees.append((x, z, 5.0 + (i % 4) * 1.5))
   return trees, lamps
 
 
@@ -277,6 +408,7 @@ class Player:
     self.splash = 0.0
     self.gliding = False
     self.walk_phase = 0.0
+    self.safe = (self.pos[0], self.pos[2])   # the last spot on dry land
 
   @property
   def heading(self):
@@ -468,13 +600,15 @@ class Player:
     x0, x1, z0, z1 = BOUNDS
     self.pos[0] = max(x0, min(x1, self.pos[0]))
     self.pos[2] = max(z0, min(z1, self.pos[2]))
-    if self.grounded and self.pos[1] < 0.5 and in_river(self.pos[0], self.pos[2]):
-      bank = RIVER_Z[0] - 2.0 if self.pos[2] < sum(RIVER_Z) / 2 else RIVER_Z[1] + 2.0
-      self.pos = [self.pos[0], 0.0, bank]
-      self.vel = [0.0, 0.0, 0.0]
-      self.rope = None
-      self.splash = 2.5
-      event = "splash"
+    if self.grounded and self.pos[1] < 0.5 and floor == 0.0:
+      if in_water(self.pos[0], self.pos[2]):     # into the sea: back to the last dry spot
+        self.pos = [self.safe[0], 0.0, self.safe[1]]
+        self.vel = [0.0, 0.0, 0.0]
+        self.rope = None
+        self.splash = 2.5
+        event = "splash"
+      else:
+        self.safe = (self.pos[0], self.pos[2])
     return event
 
 

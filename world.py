@@ -26,6 +26,11 @@ GRASS_NEAR = (98, 180, 86)
 GRASS_FAR = (160, 206, 128)
 STREET = (235, 206, 150)
 RIVER = (24, 158, 185)
+SEA_NEAR = (38, 150, 200)     # the sea round the Palm island
+SEA_FAR = (120, 196, 228)
+SAND = (240, 222, 170)
+LAWN = (120, 196, 110)
+PATH = (250, 236, 200)
 DECK = (150, 120, 96)
 SUIT = (220, 40, 50)          # the cape and the school tie
 SUIT_DARK = (40, 70, 170)     # school trousers
@@ -50,6 +55,8 @@ DREAMS = [
     ("Helpers", "Farmer", "Farmer", "किसान", "কৃষক"),
 ]
 DREAM_SECS = 4.0
+FLY_SECS = 5.0                # opening aerial view of the Palm, then down to the hero
+FLY_HOLD = 1.6                # ... of which this long it simply hangs above the island
 WEB = (250, 250, 255)
 LIGHT = (0.45, 0.80, -0.40)
 WHITE = (255, 255, 255)
@@ -106,14 +113,17 @@ class WorldScene:
     self.stars = []
     for z in range(0, 310, 18):
       self.stars.append([0.0, z, True, 0.0]) # [x, z, active, bob_phase]
-    for b in self.boxes:
-      if getattr(b, 'kind', None) == 'subject':
-        cx, _, cz = b.centre
-        self.stars.append([cx * 0.5, cz, True, 0.5])
-        self.stars.append([cx * 0.8, cz, True, 1.0])
+    for key, path in town.FRONDS.items():     # two stars along every frond
+      for k, phase in ((len(path) // 3, 0.5), (2 * len(path) // 3, 1.0)):
+        self.stars.append([path[k][0], path[k][1], True, phase])
     self.score_stars = 0
     self.by_key = {b.key: b for b in self.boxes}
-    self.trees, self.lamps = town.trees_and_lamps()
+    self.trees, self.lamps = town.trees_and_lamps(self.boxes)
+    self.land = self.land_shapes()
+    self.flyover = 0.0            # seconds into the opening aerial view (None = done)
+    self.far = 280.0              # how far away buildings and land are still drawn
+    self.fog_k = 1.0
+    self._map_cache = None
     self.player = town.Player()
     self.cam = town.Camera(450, 800)
     self.size = (450, 800)
@@ -183,14 +193,14 @@ class WorldScene:
 
   def _backdrop(self, w, h):
     hy = int(self.cam.horizon_y())
-    s = pygame.Surface((w, h))
-    for y in range(h):
+    col_px = pygame.Surface((1, h))           # one column, stretched: fast enough to
+    for y in range(h):                        # repaint every frame of the flyover
       if y <= hy:
         col = _mix(SKY_TOP, SKY_LOW, (y / max(1, hy)) ** 1.5)
-      else:
-        col = _mix(GRASS_FAR, GRASS_NEAR, ((y - hy) / max(1, h - hy)) ** 0.7)
-      pygame.draw.line(s, col, (0, y), (w, y))
-    return s
+      else:                                    # the sea all round the island
+        col = _mix(SEA_FAR, SEA_NEAR, ((y - hy) / max(1, h - hy)) ** 0.7)
+      col_px.set_at((0, y), col)
+    return pygame.transform.scale(col_px, (w, h))
 
   # --- helpers ---------------------------------------------------------------------
   def text(self, s, msg, pos, size, colour=WHITE, anchor="center"):
@@ -369,6 +379,9 @@ class WorldScene:
     return None
 
   def press(self, pos):
+    if self.flyover is not None:            # a tap ends the aerial view at once
+      self.end_flyover()
+      return
     if self.show_directory:
       panel, cells, close_btn, prev_btn, next_btn, _pages = self.directory_layout()
       for r, b in cells:
@@ -548,10 +561,63 @@ class WorldScene:
       self.enter(b)
 
   # --- update ----------------------------------------------------------------------
+  def draw_flyover_title(self, s):
+    w, h = self.size
+    k = min(1.0, self.flyover / 0.6) * min(1.0, max(0.0, (FLY_SECS - self.flyover) / 0.8))
+    if k <= 0:
+      return
+    big = self.g.font_at(34 if w >= 600 else 28).render("Wonder Town", True, WHITE)
+    small = self.g.font_at(18).render("An island in the sea, shaped like a palm tree", True, (230, 240, 255))
+    if small.get_width() > w - 60:
+      small = pygame.transform.smoothscale(small, (w - 60, max(1, small.get_height() * (w - 60) // small.get_width())))
+    box = pygame.Rect(0, 0, max(big.get_width(), small.get_width()) + 36, 84)
+    box.midtop = (w // 2, 18)
+    pill = pygame.Surface(box.size, pygame.SRCALPHA)
+    pygame.draw.rect(pill, (20, 40, 90, int(200 * k)), pill.get_rect(), border_radius=20)
+    s.blit(pill, box.topleft)
+    for surf, y in ((big, box.y + 10), (small, box.y + 52)):
+      surf.set_alpha(int(255 * k))
+      s.blit(surf, surf.get_rect(midtop=(box.centerx, y)))
+    tip = self.g.font_at(16).render("Tap to start", True, WHITE)
+    tip.set_alpha(int(255 * k * (0.6 + 0.4 * math.sin(self.t * 3))))
+    s.blit(tip, tip.get_rect(midbottom=(w // 2, h - 16)))
+
+  def end_flyover(self):
+    self.flyover = None
+    self.far, self.fog_k = 280.0, 1.0
+    self.cam.pitch = -0.32
+    self.cam.follow(self.player.pos, self.player.yaw)
+    self.sky_stale = True
+
+  def aerial(self, k):
+    """The camera between the bird's-eye view of the whole Palm (k = 0) and the usual
+    view behind the hero (k = 1), eased so it glides in and settles gently."""
+    cam = self.cam
+    e = k * k * (3 - 2 * k)
+    w, h = self.size
+    height = max(430 * cam.focal / h, 440 * cam.focal / w)     # the whole island fits
+    top_pos, top_pitch = (0.0, height, 165.0), -1.52
+    cam.pitch = -0.32
+    cam.follow(self.player.pos, self.player.yaw)
+    chase = cam.pos
+    cam.pos = tuple(a + (b - a) * e for a, b in zip(top_pos, chase))
+    cam.pitch = top_pitch + (-0.32 - top_pitch) * e
+    cam._axes()
+    self.far = 280.0 + (height + 500.0) * (1 - e)
+    self.fog_k = 0.15 + 0.85 * e
+    self.sky_stale = True             # draw() repaints the sky for the new horizon
+
   def update(self, dt):
     self.t += dt
     msg, ttl = self.toast
     self.toast = (msg, max(0.0, ttl - dt))
+    if self.flyover is not None:            # the opening aerial view of the Palm
+      self.flyover += dt
+      if self.flyover >= FLY_SECS:
+        self.end_flyover()
+      else:
+        self.aerial(max(0.0, self.flyover - FLY_HOLD) / (FLY_SECS - FLY_HOLD))
+        return
     self.speak_welcome()
     if self.g.overlay or self.picker is not None or self.show_directory:
       return
@@ -580,7 +646,7 @@ class WorldScene:
     event = p.update(dt, self.boxes, fwd, turn)
     if event == "splash":
       self.g.sfx.play("clack")
-      self.say("Splash! Use WEB or ZIP on the river posts, or walk over the bridge.", 4.0)
+      self.say("Splash! That's the sea. Walk along the palm's paths, or use WEB or ZIP.", 4.0)
     elif event == "arrived":
       self.g.sfx.play("chime")
       if self.enter_on_arrival is not None:
@@ -591,10 +657,13 @@ class WorldScene:
 
   # --- drawing ---------------------------------------------------------------------
   def fog(self, col, depth):
-    return _mix(col, FOG, min(0.75, max(0.0, (depth - 45.0) / 240.0)))
+    return _mix(col, FOG, min(0.75, max(0.0, (depth * self.fog_k - 45.0) / 240.0)))
 
   def draw(self, s):
     self.fit(s.get_size())
+    if getattr(self, "sky_stale", False):
+      self.sky_stale = False
+      self.sky = self._backdrop(*self.size)
     cam = self.cam
     w, h = self.size
     s.blit(self.sky, (0, 0))
@@ -617,7 +686,7 @@ class WorldScene:
     cp = cam.pos
     for b in self.boxes:
       dist = math.dist(b.centre, cp)
-      if dist < 280:
+      if dist < self.far:
         items.append((dist, 0, b))
     for t in self.trees:
       dist = math.dist((t[0], t[2] / 2, t[1]), cp)
@@ -630,7 +699,7 @@ class WorldScene:
     items.append((math.dist(self.player.pos, cp), 3, None))
     self.dream_at = None
     items.sort(key=lambda it: -it[0])
-    labels = self.place_labels()
+    labels = self.place_labels() if self.flyover is None else {}   # no name tags from up high
     for dist, kind, obj in items:
       if kind == 0:
         self.draw_box(s, obj, dist)
@@ -642,11 +711,14 @@ class WorldScene:
         self.draw_lamp(s, obj, dist)
       else:
         self.draw_player(s)
+    if self.flyover is not None:            # the aerial view: only the Palm and a title
+      self.draw_flyover_title(s)
+      return
     self.draw_door_marks(s)
     if self.dream_at:
       self.draw_dream(s, *self.dream_at)
     self.draw_anchor(s)
-    
+
     # --- Collectible Stars ---
     p_x, p_z = self.player.pos[0], self.player.pos[2]
     for s_item in self.stars:
@@ -703,54 +775,87 @@ class WorldScene:
       return pr[0]
     return None
 
+  def land_shapes(self):
+    """The island as (colour, polygon) pairs, drawn in this order; built once."""
+    out = []
+    x0, x1, z0, _ = town.BOUNDS
+    for k in range(2):                         # the mainland: a beach, and lawn behind it
+      a = x0 - 60 + (x1 - x0 + 120) * k / 2
+      b = x0 - 60 + (x1 - x0 + 120) * (k + 1) / 2
+      out.append((SAND, [(a, town.MAINLAND_Z - 7), (b, town.MAINLAND_Z - 7), (b, town.MAINLAND_Z), (a, town.MAINLAND_Z)]))
+      out.append((LAWN, [(a, z0 - 40), (b, z0 - 40), (b, town.MAINLAND_Z - 7), (a, town.MAINLAND_Z - 7)]))
+    for poly in town.crescent_pieces():         # sand ring with palms on it
+      out.append((SAND, poly))
+    th, te = town.TRUNK_HALF, town.TRUNK_END
+    out.append((SAND, [(-th - 1, town.MAINLAND_Z - 1), (th + 1, town.MAINLAND_Z - 1), (th + 1, te), (-th - 1, te)]))
+    coarse = {k: p[::2] + ([p[-1]] if len(p) % 2 == 0 else []) for k, p in town.FRONDS.items()}
+    for path in coarse.values():                 # fewer corners: cheaper to draw, same look
+      out.append((SAND, town.strip(path, town.FROND_HALF)))
+    for px0, pz0, px1, pz1 in town.PADS:
+      out.append((SAND, [(px0, pz0), (px1, pz0), (px1, pz1), (px0, pz1)]))
+    for path in coarse.values():                 # the frond's path to the door
+      out.append((PATH, town.strip(path, 2.6)))
+    # every polygon with its middle, for culling far-away pieces
+    return [(col, poly, (sum(p[0] for p in poly) / len(poly), sum(p[1] for p in poly) / len(poly)),
+             max(math.dist(q, (sum(p[0] for p in poly) / len(poly), sum(p[1] for p in poly) / len(poly)))
+                 for q in poly)) for col, poly in out]
+
   def draw_ground(self, s):
     x0, x1, z0, z1 = town.BOUNDS
     rz0, rz1 = town.RIVER_Z
-    
-    # 1. Grand Outer Ring Roads (Dubai Global Village Promenade)
-    PROMENADE_COL = (105, 115, 130)
-    PAV_COL = (120, 130, 145)
-    KERB_COL = (220, 215, 190)
+    cx, _, cz = self.cam.pos
 
-    # South Promenade & North Boulevard
-    self.ground_poly(s, [(-110, z0 + 10), (110, z0 + 10), (110, z0 + 22), (-110, z0 + 22)], PROMENADE_COL)
-    self.ground_poly(s, [(-110, z1 - 22), (110, z1 - 22), (110, z1 - 10), (-110, z1 - 10)], PROMENADE_COL)
+    # 1. Sparkles on the sea near the camera
+    for k in range(14):
+      wz = cz - 30 + ((k * 23 + self.t * 2.0) % 160)
+      wx = cx + ((k * 47) % 120) - 60
+      if town.land_at(wx, wz):
+        continue
+      a = self.cam.project((wx - 3, 0.0, wz))
+      b = self.cam.project((wx + 3, 0.0, wz))
+      if a and b and a[2] < 120:
+        pygame.draw.line(s, self.fog((200, 235, 255), a[2]), a[:2], b[:2], 2)
 
-    # West & East Outer Avenues
-    self.ground_poly(s, [(-110, z0 + 10), (-98, z0 + 10), (-98, z1 - 10), (-110, z1 - 10)], PROMENADE_COL)
-    self.ground_poly(s, [(98, z0 + 10), (110, z0 + 10), (110, z1 - 10), (98, z1 - 10)], PROMENADE_COL)
+    # 2. The island: beach, trunk, fronds, building pads and the crescent
+    fx, fz = self.cam.f[0], self.cam.f[2]
+    flat = math.hypot(fx, fz) or 1.0
+    for col, poly, mid, rad in self.land:
+      dx, dz = mid[0] - cx, mid[1] - cz
+      near = math.hypot(dx, dz) - rad
+      if near > self.far + 20:
+        continue
+      if self.flyover is None and ((col == PATH and near > 110) or (rad < 25 and near > 170)):
+        continue                               # thin paths and small pads: too small to see
+      if self.flyover is None and (dx * fx + dz * fz) / flat < -rad:
+        continue                               # wholly behind the camera
+      self.ground_poly(s, poly, col)
 
-    # 2. Main Central Boulevard (Wide Royal Avenue)
-    for za in range(int(z0), int(z1), 32):
-      self.ground_poly(s, [(-10, za), (10, za), (10, min(z1, za + 32)), (-10, min(z1, za + 32))], STREET)
-      # Central dividing yellow strip / median
-      self.ground_poly(s, [(-0.6, za), (0.6, za), (0.6, min(z1, za + 32)), (-0.6, min(z1, za + 32))], (245, 215, 60))
+    # 3. The main street along the trunk (Wide Royal Avenue)
+    for za in range(int(town.MAINLAND_Z) - 20, int(town.TRUNK_END), 32):
+      zb = min(town.TRUNK_END, za + 32)
+      self.ground_poly(s, [(-10, za), (10, za), (10, zb), (-10, zb)], STREET)
+      self.ground_poly(s, [(-0.6, za), (0.6, za), (0.6, zb), (-0.6, zb)], (245, 215, 60))
 
-    # 3. Dedicated Interconnecting Avenues to Every Single Pavilion Door
+    # 4. Short paths and front courtyards of the trunk's own houses
     for b in self.boxes:
-      if b.kind is not None and b.key != "arcade":
+      if b.kind is not None and b.kind != "subject" and b.key != "arcade":
         dx, _, dz = b.door()
-        # Draw broad connection road from Central Boulevard all the way to pavilion front
         xa, xb = sorted((dx, 0.0))
-        # Wide connecting road
-        self.ground_poly(s, [(xa - 1.0, dz - 4.5), (xb + 1.0, dz - 4.5), (xb + 1.0, dz + 4.5), (xa - 1.0, dz + 4.5)], PAV_COL)
-        # Decorative courtyard / entrance plaza in front of the house
-        cx = dx + (3.5 if dx > 0 else -3.5)
-        self.ground_poly(s, [(cx - 5, dz - 6), (cx + 5, dz - 6), (cx + 5, dz + 6), (cx - 5, dz + 6)], (210, 195, 160))
+        self.ground_poly(s, [(xa - 1.0, dz - 4.5), (xb + 1.0, dz - 4.5), (xb + 1.0, dz + 4.5), (xa - 1.0, dz + 4.5)], PATH)
 
-    # 4. Central Grand Plaza (Fountain Lake Court)
+    # 5. Central Grand Plaza (Fountain Lake Court)
     plaza = [(18 * math.cos(a / 16 * math.tau), 4 + 18 * math.sin(a / 16 * math.tau)) for a in range(16)]
     self.ground_poly(s, plaza, (236, 205, 155))
 
-    # 5. Grand Canal / River & Bridge Deck
-    self.ground_poly(s, [(x0, rz0), (x1, rz0), (x1, rz1), (x0, rz1)], RIVER)
-    for k in range(9):
-      z = rz0 + 2 + ((k * 1.8 + self.t * 1.2) % (rz1 - rz0 - 4))
-      a = self.cam.project((x0 + 20, 0.02, z))
-      b = self.cam.project((x1 - 20, 0.02, z))
+    # 6. The canal across the trunk, and the bridge
+    self.ground_poly(s, [(-town.TRUNK_HALF - 1, rz0), (town.TRUNK_HALF + 1, rz0),
+                         (town.TRUNK_HALF + 1, rz1), (-town.TRUNK_HALF - 1, rz1)], SEA_NEAR)
+    for k in range(5):
+      z = rz0 + 2 + ((k * 2.6 + self.t * 1.2) % (rz1 - rz0 - 4))
+      a = self.cam.project((-town.TRUNK_HALF, 0.02, z))
+      b = self.cam.project((town.TRUNK_HALF, 0.02, z))
       if a and b:
         pygame.draw.line(s, (160, 220, 255), a[:2], b[:2], 2)
-    # Royal Arch Bridge connecting across the river
     self.ground_poly(s, [(-12, rz0 - 3), (12, rz0 - 3), (12, rz1 + 3), (-12, rz1 + 3)], DECK)
     for b in self.boxes:
       if b.kind is not None and b.gable:
@@ -970,11 +1075,23 @@ class WorldScene:
     if not base or not top:
       return
     scale = self.cam.focal / base[2]
-    pygame.draw.line(s, self.fog((120, 80, 50), dist), base[:2], top[:2], max(1, int(0.5 * scale)))
-    for fy, fr, col in ((0.55, 0.45, (60, 150, 70)), (0.82, 0.33, (90, 180, 90))):
-      c = self.cam.project((x, h * fy, z))
-      if c:
-        pygame.draw.circle(s, self.fog(col, dist), (int(c[0]), int(c[1])), max(2, int(h * fr * scale)))
+    lean = 0.12 * h * scale                    # a palm leans a little
+    mid = ((base[0] + top[0]) / 2 + lean * 0.4, (base[1] + top[1]) / 2)
+    tip = (top[0] + lean, top[1])
+    wide = max(1, int(0.32 * scale))
+    trunk = self.fog((150, 110, 70), dist)
+    pygame.draw.line(s, trunk, base[:2], mid, wide + 1)
+    pygame.draw.line(s, trunk, mid, tip, wide)
+    leaf = self.fog((50, 160, 80), dist)
+    leaf2 = self.fog((90, 190, 90), dist)
+    L = h * 0.55 * scale
+    for k in range(7):                           # drooping leaves all round the crown
+      a = k / 7 * math.tau + 0.3
+      ex, ey = tip[0] + math.cos(a) * L, tip[1] + abs(math.sin(a)) * L * 0.25 + L * 0.2
+      cxp, cyp = tip[0] + math.cos(a) * L * 0.5, tip[1] - L * 0.25
+      pts = [tip, (cxp, cyp), (ex, ey)]
+      pygame.draw.lines(s, leaf if k % 2 else leaf2, False, pts, max(2, int(0.5 * scale)))
+    pygame.draw.circle(s, self.fog((120, 80, 40), dist), (int(tip[0]), int(tip[1])), max(1, wide))
 
   def draw_lamp(self, s, lp, dist):
     x, z = lp
@@ -1255,11 +1372,16 @@ class WorldScene:
   def draw_map(self, s):
     m = self.map_rect
     pygame.draw.rect(s, WHITE, m.inflate(8, 8), border_radius=10)
-    pygame.draw.rect(s, (110, 180, 100), m)
-    a, b = self.map_point(-5, town.BOUNDS[2]), self.map_point(5, town.BOUNDS[3])
-    pygame.draw.rect(s, STREET, pygame.Rect(a[0], b[1], max(2, b[0] - a[0]), a[1] - b[1]))
-    r0, r1 = self.map_point(town.BOUNDS[0], town.RIVER_Z[1]), self.map_point(town.BOUNDS[1], town.RIVER_Z[0])
-    pygame.draw.rect(s, RIVER, pygame.Rect(r0[0], r0[1], r1[0] - r0[0], max(2, r1[1] - r0[1])))
+    if self._map_cache is None or self._map_cache[0] != m.size:   # the island, drawn once per size
+      base = pygame.Surface(m.size)
+      base.fill(SEA_NEAR)
+      for col, poly, _mid, _rad in self.land:
+        pts = [(x - m.x, y - m.y) for x, y in (self.map_point(px, pz) for px, pz in poly)]
+        pygame.draw.polygon(base, col if col != PATH else STREET, pts)
+      a, b = self.map_point(-3, town.MAINLAND_Z), self.map_point(3, town.TRUNK_END)
+      pygame.draw.rect(base, STREET, pygame.Rect(a[0] - m.x, b[1] - m.y, max(2, b[0] - a[0]), a[1] - b[1]))
+      self._map_cache = (m.size, base)
+    s.blit(self._map_cache[1], m.topleft)
     for bx in self.boxes:
       if bx.kind is None:
         continue

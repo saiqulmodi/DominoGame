@@ -34,6 +34,7 @@ NEXT_BTN = pygame.Rect(314, 652, 120, 84)
 CLOSE_BTN = pygame.Rect(392, 10, 48, 48)
 
 IDLE_TRACE = 6.0       # s without a new dot before the helping hand shows
+IDLE_TRACE_NEW = 2.0   # ... for a child's first pictures (they get no guide pages first)
 IDLE_TAP = 3.0         # s of standing dominoes before the hand shows a tap
 IDLE_DRAW = 5.0        # s of an empty drawing page
 
@@ -838,7 +839,9 @@ def draw_idle_hand(g, screen, now, play_rect):
   if g.mode != "trace" or g.overlay or g.celebration:
     return
   idle = now - getattr(g, "last_progress_at", now)
-  if g.stage == "trace" and idle > IDLE_TRACE and g.dots:
+  new_player = len(g.progress.data.get("done", [])) < 3     # no guide pages first: show sooner
+  idle_trace = IDLE_TRACE_NEW if new_player else IDLE_TRACE
+  if g.stage == "trace" and idle > idle_trace and g.dots:
     start = next((i for i, c in enumerate(g.covered) if not c), None)
     if start is None:
       return
@@ -847,7 +850,7 @@ def draw_idle_hand(g, screen, now, play_rect):
       if lo <= start < hi:
         path = g.dots[start:min(hi, start + 6)]
         break
-    t = (idle - IDLE_TRACE) % 2.2
+    t = (idle - idle_trace) % 2.2
     pygame.draw.circle(screen, YELLOW, (int(path[0][0]), int(path[0][1])),
                        int(16 + 5 * math.sin(now * 6)), 3)
     if t < 0.4 or len(path) < 2:

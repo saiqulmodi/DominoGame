@@ -64,6 +64,22 @@ def crayon_icon(size):
   return surf
 
 
+def domino_icon(size):
+  """Three dominoes tipping over one after another: the domino playground."""
+  surf = pygame.Surface((size, size), pygame.SRCALPHA)
+  w, h = max(6, size // 5), max(14, int(size * 0.62))
+  for k, (tilt, col) in enumerate(((0, (233, 69, 96)), (-22, (255, 204, 0)), (-58, (60, 160, 255)))):
+    tile = pygame.Surface((w, h), pygame.SRCALPHA)
+    pygame.draw.rect(tile, col, tile.get_rect(), border_radius=3)
+    pygame.draw.rect(tile, (40, 40, 60), tile.get_rect(), 2, border_radius=3)
+    pygame.draw.line(tile, (255, 255, 255), (2, h // 2), (w - 3, h // 2), 1)
+    for fy in (0.25, 0.75):
+      pygame.draw.circle(tile, (255, 255, 255), (w // 2, int(h * fy)), max(1, w // 5))
+    rot = pygame.transform.rotate(tile, tilt)
+    surf.blit(rot, rot.get_rect(midbottom=(int(size * (0.22 + 0.3 * k)), size - 2)))
+  return surf
+
+
 # --------------------------------------------------------------------------
 def maths_line(p):
   """Maths Play for the parents report: right first time and chapters with a gold star."""
@@ -85,6 +101,7 @@ class Menu:
         ("quiz", "Find it!", ("Home", "Bulb"), "Hear a name, tap the picture"),
         ("spell", "Spell it", ("ABC", "A"), "Put the letters in order"),
         ("draw", "Draw my own", ("Home", "Pencil"), "Draw anything you imagine"),
+        ("topple", "Domino playground", None, "Lay your own dominoes, watch them fall"),
         ("road", "Cross the Road", ("Road Safety", "Traffic Light"), "Red stop, green go: road safety"),
         ("maths", "Maths Play", ("123", "7"), "Count, add, tables, integers: Class 1-7"),
         ("story", "Story of the day", (today["steps"][0][0], today["steps"][0][1]),
@@ -112,7 +129,7 @@ class Menu:
     title(screen, g, "Play & Learn")
     drawing = g.mode == "trace" and not g.story and g.is_custom
     for rect, (key, text, icon, sub) in self.rows(g):
-      active = (key == g.mode and key in ("trace", "quiz", "spell", "road", "maths") and not g.story
+      active = (key == g.mode and key in ("trace", "quiz", "spell", "road", "maths", "topple") and not g.story
                 and not (key == "trace" and drawing))
       if key == "story" and g.story:
         active = True
@@ -120,6 +137,8 @@ class Menu:
         active = drawing
       if key == "draw":
         pic = crayon_icon(44)
+      elif key == "topple":
+        pic = domino_icon(44)
       elif key == "howto":
         pic = howto.help_icon(44)
       else:
@@ -137,6 +156,9 @@ class Menu:
           g.overlay = None
         elif key == "draw":
           g.start_drawing()
+          g.overlay = None
+        elif key == "topple":
+          g.enter_topple()
           g.overlay = None
         elif key == "story":
           g.start_story(g.story_of_today())
