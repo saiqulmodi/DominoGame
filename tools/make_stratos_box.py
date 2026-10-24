@@ -100,6 +100,13 @@ window.__ssv_engine = (async function () {
 </script>
 """
 html = html.replace("<head>", "<head>\n" + unpack, 1)
+# Stratos boxes load no scripts from other sites, so GoatCounter's script becomes
+# its no-script form: one counting image request, path /stratos
+GOAT = ('<script data-goatcounter="https://dominogame.goatcounter.com/count"\n'
+        '            async src="//gc.zgo.at/count.js"></script>\n')
+assert html.count(GOAT) == 1, "GoatCounter line changed in tools/build_web.py"
+html = html.replace(GOAT, "<script>new Image().src = 'https://dominogame.goatcounter.com/count"
+                    "?p=/stratos&t=Domino%20Game%20on%20Stratos&rnd=' + Math.random();</script>\n")
 leftover = re.findall(r"https?://(?!www\.w3\.org)[^\s\"'<>)]+", html)
 open(os.path.join(BOX, "index.html"), "w", encoding="utf-8").write(html)
 
