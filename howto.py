@@ -238,7 +238,7 @@ class Guide:
     say_line(g, en, hi, bn)
 
   def close(self, g):
-    """Back to the game, which says the picture's name again."""
+    """Back to the game; question games ask their question again, pictures stay quiet."""
     g.overlay = None
     g.sfx.play("click")
     if g.in_world:
@@ -249,8 +249,6 @@ class Guide:
       g.say(f"Spell the word: {g.puzzle}.", g.native_word(g.cat, g.puzzle))
     elif g.mode == "maths" and g.maths:
       g.maths.ask()
-    else:
-      g.announce()
 
   def press(self, g, pos):
     last = self.page == len(self.pages()) - 1
@@ -861,16 +859,10 @@ def draw_idle_hand(g, screen, now, play_rect):
       a, b = path[i], path[i + 1]
       k = f - i
       draw_hand(screen, (a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k), True)
-    if not getattr(g, "nudged", False) and len(g.progress.data.get("done", [])) < 15:
-      g.nudged = True
-      say_line(g, *NUDGE)
   elif g.stage == "ready" and not g.dropping() and idle > 2.4 + IDLE_TAP:
     c = (play_rect.centerx, play_rect.centery)
     tap_rings(screen, c, now)
-    draw_hand(screen, c, int(now * 2) % 2 == 0)
-    if not getattr(g, "tap_nudged", False) and len(g.progress.data.get("done", [])) < 15:
-      g.tap_nudged = True
-      say_line(g, *TAP_NUDGE)
+    draw_hand(screen, c, int(now * 2) % 2 == 0)   # shown, not said
   elif g.stage == "draw" and not g.drawing and idle > IDLE_DRAW:
     t = (idle - IDLE_DRAW) % 2.5
     c = play_rect.center

@@ -1,5 +1,5 @@
 // Domino Game - keeps the game on the device so it opens offline
-const CACHE = 'dwd-20261024124335';
+const CACHE = 'dwd-20261024134123';
 const START = ['./', 'index.html', 'manifest.json', 'favicon.png', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {

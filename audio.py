@@ -136,6 +136,53 @@ def _make_bell(freq):
   return fn
 
 
+def _make_voice(inst, freq):
+  """One note of an instrument, made in code (domino music and jingles)."""
+  tau = 2 * math.pi
+  if inst == "xylophone":                    # wooden bar: bright, quick
+    return lambda t, p: min(1.0, t / 0.002) * (
+        math.sin(tau * freq * t) * math.exp(-t * 11)
+        + 0.4 * math.sin(tau * 3.93 * freq * t) * math.exp(-t * 30))
+  if inst == "marimba":                      # soft, round wood
+    return lambda t, p: min(1.0, t / 0.004) * (
+        math.sin(tau * freq * t) * math.exp(-t * 7)
+        + 0.18 * math.sin(tau * 4.0 * freq * t) * math.exp(-t * 22))
+  if inst == "piano":
+    return lambda t, p: min(1.0, t / 0.003) * sum(
+        a * math.sin(tau * freq * k * 1.0008 ** k * t) * math.exp(-t * (3 + 2.5 * k))
+        for k, a in ((1, 1.0), (2, 0.45), (3, 0.22), (4, 0.1)))
+  if inst == "harp":                         # plucked string
+    return lambda t, p: min(1.0, t / 0.002) * sum(
+        math.sin(tau * freq * k * t) * math.exp(-t * (4 + 3 * k)) / k for k in range(1, 6))
+  if inst == "flute":                        # breathy, gentle swell, vibrato
+    return lambda t, p: (min(1.0, t / 0.05) * (1 - p) ** 0.6
+                         * (math.sin(tau * freq * t + 0.04 * math.sin(tau * 5.5 * t))
+                            + 0.12 * math.sin(tau * 2 * freq * t)
+                            + 0.03 * random.uniform(-1, 1)))
+  if inst == "steel drum":
+    return lambda t, p: min(1.0, t / 0.003) * math.exp(-t * 5) * (
+        math.sin(tau * freq * t) + 0.5 * math.sin(tau * 2 * freq * t)
+        + 0.3 * math.sin(tau * 3.01 * freq * t) * math.exp(-t * 6))
+  if inst == "kalimba":                      # thumb piano: a click, then a soft tine
+    return lambda t, p: min(1.0, t / 0.002) * (
+        math.sin(tau * freq * t) * math.exp(-t * 6)
+        + 0.35 * math.sin(tau * 5.4 * freq * t) * math.exp(-t * 40))
+  if inst == "sitar":                        # buzzing pluck that bends a little
+    def fn(t, p):
+      f = freq * (1 + 0.012 * math.exp(-t * 10))
+      s = sum(math.sin(tau * f * k * t) / k ** 0.8 for k in range(1, 7))
+      return min(1.0, t / 0.002) * math.exp(-t * 4.5) * math.tanh(1.6 * s)
+    return fn
+  if inst == "water drop":                   # a drip: the pitch jumps up as it falls
+    return lambda t, p: (math.sin(tau * freq * (1 + 1.2 * p) * t)
+                         * math.exp(-t * 28) * min(1.0, t / 0.002))
+  return _make_bell(freq)
+
+
+INSTRUMENTS = ["bell", "xylophone", "marimba", "piano", "harp", "flute", "steel drum",
+               "kalimba", "sitar", "water drop"]
+NOTE_LEN = {"water drop": 0.2, "xylophone": 0.4, "kalimba": 0.5, "flute": 0.45,
+            "sitar": 0.6, "piano": 0.6, "harp": 0.6, "steel drum": 0.5, "marimba": 0.5}
 NOTE_LOW, NOTE_HIGH = 55, 91        # MIDI notes the domino music may use
 
 
@@ -186,29 +233,41 @@ class SoundBank:
     except Exception as exc:  # no audio device, unsupported platform, ...
       print(f"[audio] sound effects disabled: {exc}")
 
-  def note(self, midi):
-    """Plays a bell note (MIDI number); made the first time it is needed."""
+  def _voice(self, inst, midi):
+    notes = self.sounds.setdefault("notes", {})
+    key = (inst, midi)
+    snd = notes.get(key)
+    if snd is None:
+      snd = notes[key] = _render(NOTE_LEN.get(inst, 0.55),
+                                 _make_voice(inst, 440 * 2 ** ((midi - 69) / 12)), 0.33)
+    return snd
+
+  def note(self, midi, inst="bell", volume=1.0):
+    """Plays one note (MIDI number) on an instrument; made the first time it is needed."""
     if not self.ok:
       return
     midi = max(NOTE_LOW, min(NOTE_HIGH, int(midi)))
-    notes = self.sounds.setdefault("notes", {})
-    snd = notes.get(midi)
-    if snd is None:
-      snd = notes[midi] = _render(0.55, _make_bell(440 * 2 ** ((midi - 69) / 12)), 0.33)
     try:
-      snd.play()
+      ch = self._voice(inst, midi).play()
+      if ch is not None:
+        ch.set_volume(volume)
     except Exception:
       pass
 
-  def warm(self):
-    """Makes one more bell note ahead of time (called while the game is idle,
-    so the domino music never has to wait)."""
+  def ready(self, inst):
+    """True once every note of this instrument has been made."""
+    notes = self.sounds.get("notes", {})
+    return all((inst, m) in notes for m in range(NOTE_LOW, NOTE_HIGH + 1))
+
+  def warm(self, inst="bell"):
+    """Makes one more note of the coming music ahead of time (called while the game
+    is idle, so the domino music never has to wait)."""
     if not self.ok:
       return
     notes = self.sounds.setdefault("notes", {})
     for midi in range(NOTE_LOW, NOTE_HIGH + 1):
-      if midi not in notes:
-        notes[midi] = _render(0.55, _make_bell(440 * 2 ** ((midi - 69) / 12)), 0.33)
+      if (inst, midi) not in notes:
+        self._voice(inst, midi)
         return
 
   def play(self, name, variant=None):

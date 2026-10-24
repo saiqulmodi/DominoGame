@@ -1051,12 +1051,33 @@ def _find(name, cat=None):
   return _BY_NAME.get(name)
 
 
-def _fit(item, box, margin=0.9):
+_BOUNDS = {}
+
+
+def _bounds(item):
+  """(x0, y0, w, h) of the outline and its inner parts (the drawn shape itself,
+  without the empty border of its canvas)."""
+  key = id(item)
+  if key not in _BOUNDS:
+    pts = [p for lp in item.get("loops", []) for p in lp]
+    pts += [p for _c, lp in item.get("parts", []) for p in lp]
+    if len(pts) < 2:
+      _BOUNDS[key] = (0, 0, item["w"], item["h"])
+    else:
+      xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+      _BOUNDS[key] = (min(xs), min(ys), max(1e-6, max(xs) - min(xs)),
+                      max(1e-6, max(ys) - min(ys)))
+  return _BOUNDS[key]
+
+
+def _fit(item, box, margin=0.99):
+  """Scale and offset that make the shape fill the box (keeping its proportions),
+  so every picture covers most of the play area."""
   bx, by, bw, bh = box
-  w, h = item["w"], item["h"]
+  x0, y0, w, h = _bounds(item)
   s = min(bw * margin / w, bh * margin / h)
-  ox = bx + (bw - w * s) / 2
-  oy = by + (bh - h * s) / 2
+  ox = bx + (bw - w * s) / 2 - x0 * s
+  oy = by + (bh - h * s) / 2 - y0 * s
   return s, ox, oy
 
 

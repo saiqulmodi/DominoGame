@@ -192,8 +192,9 @@ class GameDrawing:
     base_y = BANNER_RECT.centery - tile_h / 2
 
     elapsed = now - self.announced_at
+    spelled = now - self.spelling_at        # letters light up only when spelled aloud
     spelling = not self.is_custom and not self.banner_override and self.mode != "quiz"
-    active = int((elapsed - SPELL_START) // SPELL_STEP) if spelling else -1
+    active = int((spelled - SPELL_START) // SPELL_STEP) if spelling else -1
     n_letters = sum(1 for ch in name if ch != " ")
     letter_idx = 0
     praising = now - self.praised_at < 2.5
@@ -205,7 +206,7 @@ class GameDrawing:
       # Tiles drop in one after another, then light up as each letter is said
       drop = max(0.0, 1.0 - (elapsed - i * 0.05) / 0.25)
       y = base_y - drop * 30
-      lit = praising or (elapsed >= SPELL_START and (
+      lit = praising or (spelled >= SPELL_START and (
           letter_idx == active or n_letters <= active < n_letters + 2))
       # Bright, strong tiles with a big white letter (a dark edge keeps it readable)
       color = pygame.Color(0)
@@ -226,11 +227,19 @@ class GameDrawing:
     self.draw_speaker(screen)
 
   def banner_right(self):
-    """Where the name tiles must stop (before the speaker button)."""
-    return SPEAKER_CENTER[0] - SPEAKER_R
+    """Where the name tiles must stop (before the ABC and speaker buttons)."""
+    return (SPELL_CENTER if self.can_spell() else SPEAKER_CENTER)[0] - SPEAKER_R
 
   def draw_speaker(self, screen):
-    """Speaker icon (tap to hear the name again)."""
+    """Speaker icon (tap to hear the name again) and, for names, the ABC button
+    that opens the spelling card."""
+    if self.can_spell():
+      c = SPELL_CENTER
+      pygame.draw.circle(screen, (40, 40, 80), (c[0], c[1] + 2), SPEAKER_R)
+      pygame.draw.circle(screen, YELLOW if self.spell_card else (255, 150, 60), c, SPEAKER_R)
+      pygame.draw.circle(screen, WHITE, c, SPEAKER_R, 2)
+      lbl = fit_label(self.font_at(15), "ABC", WHITE, SPEAKER_R * 2 - 8)
+      screen.blit(lbl, lbl.get_rect(center=(c[0], c[1] + 1)))
     cx, cy = SPEAKER_CENTER
     bg = self.theme["bg"]
     pygame.draw.circle(screen, CYAN, SPEAKER_CENTER, SPEAKER_R)
@@ -263,6 +272,8 @@ class GameDrawing:
       if self.sing:
         return ("Sing along!" if self.sing.singing
                 else "Tap the words to sing again, or Next")
+      if self.sing_rect():
+        return "Tap Sing to sing along, or Next"
       if self.story:
         last = self.story["step"] == len(self.story["story"]["steps"]) - 1
         return "The end! Pick another story" if last else "Tap for the next part!"
@@ -425,8 +436,10 @@ class GameDrawing:
         fall = d.current_angle / (math.pi / 2)     # 0 standing .. 1 lying down
         if fall > 0:                               # it tips over: flatter, with a shadow
           surf = toppled_tile(surf, fall)
+        # a standing domino stands across the line with a gap to the next one, like a
+        # real domino run; as it falls it turns to lie along the line on the next one
         rotated = pygame.transform.rotate(
-            surf, math.degrees(-(d.angle + d.current_angle)))
+            surf, math.degrees(-(d.angle + math.pi / 2 + d.current_angle)))
         alpha = int(255 * min(1.0, 0.3 + t))     # still bright at the end: they made it happen
         since = now - getattr(d, "fall_at", -9) if d.state != "standing" else -1
         if 0 <= since < 0.2 and self.stage == "running":   # flash as it is pushed
@@ -458,6 +471,9 @@ class GameDrawing:
     self.draw_places(screen, now)
     if not self.celebration:
       self.draw_watch_button(screen, now)
+      self.draw_sing_button(screen, now)
+    self.draw_praise(screen, now)
+    self.draw_jingle_button(screen, now)
     hint = self.hint_text()
     streak = self.streak.active(now) if self.stage == "trace" else 0
     if streak >= 5:
@@ -477,7 +493,137 @@ class GameDrawing:
     if self.celebration:
       self.draw_celebration(screen, now)
     self.draw_cap_won(screen, now)
+    if self.spell_card:
+      self.draw_spell_card(screen, now)
     screen.set_clip(None)
+
+  # ------------------------------------------------------------ tap-only extras
+  def draw_praise(self, screen, now):
+    """"Well done! Cat!" shown big for a few seconds after a finish (not said)."""
+    if self.stage != "finished" or not self.praise_line:
+      return
+    t = now - self.finished_at
+    if t > 4.0:
+      return
+    grow = min(1.0, t / 0.3)
+    lbl = fit_label(self.font_at(34), self.praise_line, YELLOW, PLAY_RECT.w - 60)
+    if grow < 1.0:
+      lbl = pygame.transform.smoothscale(
+          lbl, (max(1, int(lbl.get_width() * grow)), max(1, int(lbl.get_height() * grow))))
+    box = lbl.get_rect(midtop=(PLAY_RECT.centerx, PLAY_RECT.y + 14)).inflate(30, 12)
+    pill = pygame.Surface(box.size, pygame.SRCALPHA)
+    pygame.draw.rect(pill, (20, 24, 50, 200), pill.get_rect(), border_radius=box.h // 2)
+    screen.blit(pill, box.topleft)
+    pygame.draw.rect(screen, YELLOW, box, 2, border_radius=box.h // 2)
+    screen.blit(lbl, lbl.get_rect(center=box.center))
+
+  def draw_sing_button(self, screen, now):
+    """A finished rhyme waits for this button: it never starts singing by itself."""
+    rect = self.sing_rect()
+    if rect is None:
+      return
+    grow = int(3 * (1 + math.sin(now * 5)))
+    pygame.draw.rect(screen, YELLOW, rect.inflate(6 + grow, 6 + grow), 3, border_radius=26)
+    pygame.draw.rect(screen, (40, 170, 90), rect, border_radius=23)
+    pygame.draw.rect(screen, WHITE, rect, 2, border_radius=23)
+    cx, cy = rect.x + 28, rect.centery
+    pygame.draw.circle(screen, WHITE, (cx, cy), 15)
+    pygame.draw.polygon(screen, (40, 170, 90), [(cx - 5, cy - 8), (cx - 5, cy + 8), (cx + 9, cy)])
+    lbl = fit_label(self.hint_font, "Sing along!", WHITE, rect.w - 64)
+    screen.blit(lbl, lbl.get_rect(midleft=(rect.x + 52, rect.centery)))
+
+  def draw_jingle_button(self, screen, now):
+    """The ♪ button: a different little tune each time it is tapped."""
+    if self.mode != "trace" or self.stage == "draw":
+      return
+    c = JINGLE_CENTER
+    playing = now - getattr(self, "jingle_at", -9) < 1.6
+    r = JINGLE_R + (int(3 * abs(math.sin(now * 10))) if playing else 0)
+    pygame.draw.circle(screen, (40, 40, 80), (c[0], c[1] + 3), r)
+    pygame.draw.circle(screen, (170, 90, 230), c, r)
+    pygame.draw.circle(screen, WHITE, c, r, 2)
+    singalong.note(screen, (c[0] - 2, c[1] - 1), WHITE)
+
+  def spell_card_rects(self):
+    """The ABC card and its two buttons: (card, say, spell)."""
+    card = pygame.Rect(0, 0, min(PLAY_RECT.w - 30, 640), min(PLAY_RECT.h - 40, 300))
+    card.center = PLAY_RECT.center
+    bw = min(200, (card.w - 60) // 2)
+    say = pygame.Rect(0, 0, bw, 48)
+    spell = say.copy()
+    say.bottomright = (card.centerx - 10, card.bottom - 16)
+    spell.bottomleft = (card.centerx + 10, card.bottom - 16)
+    return card, say, spell
+
+  def spell_card_hit(self, pos):
+    card, say, spell = self.spell_card_rects()
+    if say.collidepoint(pos):
+      return "say"
+    if spell.collidepoint(pos):
+      return "spell"
+    close = pygame.Rect(card.right - 46, card.y + 6, 40, 40)
+    if card.collidepoint(pos) and not close.collidepoint(pos):
+      return "card"
+    return None
+
+  def draw_spell_card(self, screen, now):
+    """Spelling and saying the name, only when a child taps ABC: big letter tiles
+    light up one by one as each letter is said; Say it / Spell it say it again."""
+    card, say, spell = self.spell_card_rects()
+    glass = pygame.Surface(card.size, pygame.SRCALPHA)
+    pygame.draw.rect(glass, (25, 30, 70, 238), glass.get_rect(), border_radius=22)
+    screen.blit(glass, card.topleft)
+    pygame.draw.rect(screen, YELLOW, card, 3, border_radius=22)
+    head = self.font_at(20).render("Spell it and say it", True, YELLOW)
+    screen.blit(head, head.get_rect(midtop=(card.centerx, card.y + 12)))
+    x0 = card.right - 26
+    for a, b in (((-8, -8), (8, 8)), ((-8, 8), (8, -8))):          # close (x)
+      pygame.draw.line(screen, WHITE, (x0 + a[0], card.y + 26 + a[1]),
+                       (x0 + b[0], card.y + 26 + b[1]), 3)
+    item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
+    mid = pygame.Rect(card.x + 20, card.y + 46, card.w - 40, say.top - card.y - 60)
+    if item.get("word_img"):                         # Hindi / Bangla: the word picture
+      img = self.image(os.path.join(hub.HERE, item["word_img"]))
+      if img is not None:
+        s = min(mid.w / img.get_width(), mid.h / img.get_height())
+        img = self.image(os.path.join(hub.HERE, item["word_img"]),
+                         (max(1, int(img.get_width() * s)), max(1, int(img.get_height() * s))))
+        screen.blit(img, img.get_rect(center=mid.center))
+    else:
+      name = item.get("tile_text") or self.puzzle
+      letters = [ch for ch in name if ch != " "]
+      spelled = now - self.spelling_at
+      active = int((spelled - SPELL_START) // SPELL_STEP)
+      gap = 6
+      units = sum(0.5 if ch == " " else 1 for ch in name)
+      tw = int(min(70, (mid.w - gap * (len(name) - 1)) / max(1, units)))
+      th = min(int(tw * 1.3), mid.h - 30)
+      total = sum(tw // 2 if ch == " " else tw for ch in name) + gap * (len(name) - 1)
+      x = mid.centerx - total / 2
+      y = mid.centery - th / 2 - 8
+      k = 0
+      for i, ch in enumerate(name):
+        if ch == " ":
+          x += tw // 2 + gap
+          continue
+        lit = spelled >= SPELL_START and (k == active or len(letters) <= active < len(letters) + 2)
+        col = pygame.Color(0)
+        col.hsva = ((i * 360 // max(1, len(name))) % 360, 85, 88, 100)
+        r = pygame.Rect(int(x), int(y - (8 if lit else 0)), tw, th)
+        pygame.draw.rect(screen, (30, 30, 60), r.move(0, 4), border_radius=10)
+        pygame.draw.rect(screen, YELLOW if lit else col, r, border_radius=10)
+        pygame.draw.rect(screen, WHITE, r, 2, border_radius=10)
+        lbl = self.render_char(ch, max(14, int(th * 0.72)), (40, 40, 80) if lit else WHITE)
+        screen.blit(lbl, lbl.get_rect(center=r.center))
+        x += tw + gap
+        k += 1
+      count = fit_label(self.font, f"{len(letters)} letters", HINT, mid.w)
+      screen.blit(count, count.get_rect(midtop=(mid.centerx, int(y + th + 12))))
+    for rect, text, colour in ((say, "Say it", (60, 160, 255)), (spell, "Spell it", (255, 150, 60))):
+      pygame.draw.rect(screen, colour, rect, border_radius=24)
+      pygame.draw.rect(screen, WHITE, rect, 2, border_radius=24)
+      lbl = fit_label(self.hint_font, text, WHITE, rect.w - 16)
+      screen.blit(lbl, lbl.get_rect(center=rect.center))
 
   def draw_cap_won(self, screen, now):
     """A big rainbow cap pops up when a new subject adds a colour."""

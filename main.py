@@ -2,9 +2,12 @@
 
 1. Pick a subject, a category and an item (all from the Picture Data Hub).
 2. Trace the dotted outline with a finger or the mouse; each dot pops.
-3. Dominoes stand up on the outline - tap and watch them fall.
-4. The real picture appears, the name is said, spelled and shown (with its
-   Hindi or Bengali name), and the real sound plays (moo, choo-choo, ...).
+3. Dominoes stand up on the outline - tap and watch them fall, to music that is
+   different every time (magic.py).
+4. The real picture appears with "Well done!" on the screen. Pictures are shown,
+   not talked about: only each house's first picture says what it is. The name is
+   spelled only when a child taps ABC, rhymes sing only after Sing is tapped, and
+   the ♪ button and the little picture (moo, choo-choo ...) play only when tapped.
 5. Sparks, streaks, colour themes and a sticker shelf keep it exciting.
 6. The Games button opens more ways to learn: Find it! (quiz), Spell it,
    Story of the day, players (one profile per child), language and a
@@ -18,6 +21,7 @@ import asyncio
 import datetime
 import math
 import os
+import random
 import time
 
 import pygame
@@ -70,7 +74,9 @@ TOWN_BTN = pygame.Rect(6, 68, 50, 40)     # back to Wonder Town (the 3D front do
 NEXT_BTN = pygame.Rect(PANEL_W - 56, 10, 50, 54)
 BANNER_RECT = pygame.Rect(68, 8, PANEL_W - 136, 62)
 SPEAKER_R = 21
+JINGLE_R = 22
 SPEAKER_CENTER = (BANNER_RECT.right - 28, BANNER_RECT.centery)
+SPELL_CENTER = (SPEAKER_CENTER[0] - 2 * SPEAKER_R - 8, BANNER_RECT.centery)   # "ABC": spelling card
 DESC_Y = 73
 PLAY_RECT = pygame.Rect(0, TOP_H, PANEL_W, PANEL_H - TOP_H)
 NAV_X = NAV_Y = 0                 # where the 450 x 800 panels sit on screen
@@ -90,8 +96,9 @@ DROP_GAP = 0.06                   # s between dominoes (less for big pictures)
 DROP_ALL = 2.4                    # s: the whole line has dropped by then
 DROP_HEIGHT = 80                  # px it drops from
 LETTER_SPACING = 34               # px between the big letter dominoes
-LETTER_TILE = (30, 46)            # big letter domino (w, h)
-BADGE_R = 15                      # white badge with the letter on it
+LETTER_TILE = (22, 44)            # letter domino (w, h): a real domino's 1 : 2 shape
+BADGE_R = 10                      # white badge with the letter on it (fits inside the tile)
+PIC_BOTTOM = 46                   # px under the picture kept for the hint and progress bar
 # Free drawing: crayons, Undo and Done sit along the top of the play area
 CRAYONS = [(255, 204, 0), (233, 69, 96), (255, 140, 40), (80, 200, 90),
            (60, 160, 255), (170, 110, 255), (255, 255, 255)]
@@ -114,14 +121,16 @@ def layout_size(window_size):
 
 def set_layout(width, height=PANEL_H):
   """Fits the top row, play area, drawing tools and menu panel to the canvas."""
-  global WIDTH, HEIGHT, PLAY_RECT, BANNER_RECT, SPEAKER_CENTER
+  global WIDTH, HEIGHT, PLAY_RECT, BANNER_RECT, SPEAKER_CENTER, SPELL_CENTER, JINGLE_CENTER
   global NEXT_BTN, NAV_X, NAV_Y, CRAYON_Y, UNDO_RECT, DONE_RECT, TOOLBAR_BOTTOM
   WIDTH, HEIGHT = width, height
   NEXT_BTN = pygame.Rect(width - 56, 10, 50, 54)
   BANNER_RECT = pygame.Rect(0, 8, min(width - 120, 660), 62)
   BANNER_RECT.centerx = width // 2
   SPEAKER_CENTER = (BANNER_RECT.right - 28, BANNER_RECT.centery)
+  SPELL_CENTER = (SPEAKER_CENTER[0] - 2 * SPEAKER_R - 8, BANNER_RECT.centery)
   PLAY_RECT = pygame.Rect(0, TOP_H, width, height - TOP_H)
+  JINGLE_CENTER = (PLAY_RECT.x + 32, PLAY_RECT.bottom - 70)    # the ♪ button
   NAV_X, NAV_Y = (width - PANEL_W) // 2, (height - PANEL_H) // 2
   CRAYON_Y = PLAY_RECT.y + 22
   UNDO_RECT = pygame.Rect(PLAY_RECT.right - 188, PLAY_RECT.y + 6, 80, 34)
@@ -347,8 +356,13 @@ class Game(ui_draw.GameDrawing):
     self.call_at = None
     self.rename_text = ""
     self.in_world = True         # the game opens in Wonder Town (world.py)
+    self.voiced_cat = None       # the house whose first picture has spoken
+    self.spell_card = False      # the "ABC" spelling card is open
+    self.spelling_at = -100.0    # when the name was last spelled aloud (letters light up)
+    self.jingle_notes = []       # [(time, MIDI note, volume, instrument)] of the ♪ tune
+    self.last_jingle_inst = None
 
-    self.load_item(announce=True)
+    self.load_item(announce=False)
     self.world = world.WorldScene(self)
     # The opening show: a screen-filling domino chain, biggest to dot-sized (intro.py)
     self.intro = intro.Intro(self.sfx, self.font_at(40))
@@ -442,9 +456,16 @@ class Game(ui_draw.GameDrawing):
     self.sing = None                      # sing-along card of a rhyme (singalong.py)
     self.show = None                      # the domino show (magic.py)
     self.nudged = self.tap_nudged = False
+    self.spell_card = False
+    self.praise_line = ""
+    self.announced_at = time.time()       # the name tiles drop in
+    self.music = magic.plan_music()       # this picture's domino music (never the last one's)
     if hasattr(self, "particles"):
       self.particles.texts = []
-    box = PLAY_RECT.inflate(-16, -40)
+    # the picture fills the play area (at least 85% of its width or height), with
+    # room left at the bottom for the hint and the progress bar
+    box = pygame.Rect(PLAY_RECT.x + 8, PLAY_RECT.y + 8, PLAY_RECT.w - 16,
+                      PLAY_RECT.h - 8 - PIC_BOTTOM)
     self.box = (box.x, box.y, box.w, box.h)
     if self.is_custom:
       self.closed = False
@@ -466,20 +487,70 @@ class Game(ui_draw.GameDrawing):
     self.places = ([] if self.is_custom else
                    hub.fetch_places_from_hub(self.puzzle, self.box, cat=self.cat))
     if announce:
-      self.announce()
+      self.voice_first()
 
-  def announce(self):
-    """Says (and spells) the item, in English and the second language."""
+  def voice_first(self):
+    """Pictures are shown, not talked about: only the first picture of each house
+    says what it is and what to do (stories still tell their story)."""
+    if self.mode != "trace":
+      return
+    if self.story:
+      self.announce(self.story_line())
+    elif self.cat != self.voiced_cat:
+      self.voiced_cat = self.cat
+      item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
+      if self.is_custom:
+        todo = ""
+      elif item.get("rhyme") or item.get("chant"):
+        todo = " Trace the picture, then tap Sing."
+      else:
+        todo = " Trace the dots!"
+      self.announce(after=todo)
+
+  def announce(self, before="", after=""):
+    """Says the item's name (no spelling: that is the ABC card), in English and
+    the second language. Used when a child taps the speaker."""
     self.announced_at = time.time()
-    text = hub.spoken_text(self.puzzle, self.cat)
     item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
-    if self.story and self.mode == "trace":
-      text = self.story_line() + " " + text
+    if self.is_custom or item.get("hindi"):
+      text = hub.spoken_text(self.puzzle, self.cat)
+    else:
+      text = f"{item.get('label') or self.puzzle}!"
+    text = " ".join(t for t in (before, text, after.strip()) if t)
     if item.get("hindi"):                     # Hindi / Bangla letters speak their language
       self.say(text, item["hindi"], item.get("say_lang", "hi"))
       return
     word = self.native_word(self.cat, self.puzzle)
     self.say(text, f"{text} {word}" if word else None)
+
+  def can_spell(self):
+    """The ABC spelling card is there for pictures with a name to spell."""
+    if self.mode != "trace" or self.is_custom or self.banner_override:
+      return False
+    item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
+    return not item.get("rhyme")
+
+  def spell_aloud(self):
+    """Says the name, spells it letter by letter (the letters light up) and says it
+    again, only when a child asks for it (ABC card, Spelling game)."""
+    self.spelling_at = time.time()
+    text = hub.spoken_text(self.puzzle, self.cat)
+    item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
+    if item.get("hindi"):
+      self.say(text, item["hindi"], item.get("say_lang", "hi"))
+      return
+    word = self.native_word(self.cat, self.puzzle)
+    self.say(text, f"{text} {word}" if word else None)
+
+  def play_jingle(self):
+    """The ♪ button: a short tune, different from the last one, only when tapped."""
+    ready = [i for i in magic.INSTRUMENTS if self.sfx.ok and self.sfx.ready(i)]
+    fresh = [i for i in ready if i != self.last_jingle_inst]
+    inst = random.choice(fresh) if fresh else self.music["inst"]
+    self.last_jingle_inst = inst
+    now = time.time()
+    self.jingle_notes = [(now + t, m, v, inst) for t, m, v in magic.jingle(inst)]
+    self.jingle_at = now
 
   def stand_dominoes(self, loops):
     self.last_progress_at = time.time()
@@ -521,7 +592,7 @@ class Game(ui_draw.GameDrawing):
       if item.get("hindi") and self.pic_path:       # Hindi letters: the letter picture
         ink = self.native_letter_image()
       elif self.domino_letter:
-        size = 26 if len(self.domino_letter) == 1 else 18
+        size = 19 if len(self.domino_letter) == 1 else 13
         ink = self.render_char(self.domino_letter, size, (25, 30, 70))
       else:
         ink = None
@@ -539,7 +610,7 @@ class Game(ui_draw.GameDrawing):
     if img is None:
       return None
     img = img.subsurface(img.get_bounding_rect())   # just the letter, no margin
-    s = 24 / max(img.get_width(), img.get_height())
+    s = 17 / max(img.get_width(), img.get_height())
     return pygame.transform.smoothscale(
         img, (max(1, int(img.get_width() * s)), max(1, int(img.get_height() * s))))
 
@@ -550,7 +621,7 @@ class Game(ui_draw.GameDrawing):
     # magic and finale. Each push time is worked out in advance, so the show
     # runs the same at any frame rate.
     n = len(self.dominoes)
-    self.show = magic.Show(n)
+    self.show = magic.Show(n, music=self.music)
     at = time.time()
     for i, d in enumerate(self.dominoes):
       d.state = "standing"
@@ -636,9 +707,7 @@ class Game(ui_draw.GameDrawing):
     if full:
       full.resume()
     if self.stage == "finished" and not self.story:
-      self.load_item()
-    else:
-      self.announce()
+      self.load_item(announce=False)
 
   def start_drawing(self):
     """Games menu: straight to the free drawing page."""
@@ -694,6 +763,7 @@ class Game(ui_draw.GameDrawing):
     self.sfx.play("switch")
     self.overlay = None
     self.in_world = True
+    self.voiced_cat = None          # entering a house again: its first picture speaks
 
   # ------------------------------------------------------------ navigation
   def items(self):
@@ -837,9 +907,29 @@ class Game(ui_draw.GameDrawing):
     if self.in_world:
       self.world.press(pos)
       return
-    # Only Menu, Home, Next and the name's speaker sit on the game screen; the domino
+    if self.spell_card:                  # the ABC card: its buttons, or a tap closes it
+      act = self.spell_card_hit(pos)
+      if act == "say":
+        self.sfx.play("click")
+        self.announce()
+      elif act == "spell":
+        self.sfx.play("click")
+        self.spell_aloud()
+      elif act != "card":
+        self.spell_card = False
+        self.sfx.play("click")
+      return
+    # Only Menu, Home, Next, the name's speaker and ABC sit on the game screen; the domino
     # playground and "How to play" are rows of the Games menu.
-    if TOWN_BTN.collidepoint(mx, my):
+    if (self.can_spell() and math.hypot(mx - SPELL_CENTER[0], my - SPELL_CENTER[1])
+        <= SPEAKER_R + 4):
+      self.sfx.play("click")
+      self.spell_card = True
+      self.spell_aloud()
+    elif (self.mode == "trace" and self.stage != "draw"
+          and math.hypot(mx - JINGLE_CENTER[0], my - JINGLE_CENTER[1]) <= JINGLE_R + 4):
+      self.play_jingle()
+    elif TOWN_BTN.collidepoint(mx, my):
       self.go_to_town()
     elif MENU_BTN.collidepoint(mx, my):
       self.sfx.play("switch")
@@ -905,6 +995,10 @@ class Game(ui_draw.GameDrawing):
         if (time.time() - self.finished_at >= 1.5 and not self.is_custom
             and self.peek_next() and self.whats_next_rect().collidepoint(mx, my)):
           self.next_item()                   # the mystery picture
+          return
+        if self.sing_rect() and self.sing_rect().collidepoint(mx, my):
+          self.sfx.play("click")          # rhymes sing only when the child asks
+          self.sing = singalong.SingAlong(self, self.cat, self.puzzle, delay=0.4)
           return
         if self.sing:                     # rhyme: tap the words to sing again
           if self.sing.card_rect(PLAY_RECT).collidepoint(mx, my) or self.sing.singing:
@@ -1110,8 +1204,11 @@ class Game(ui_draw.GameDrawing):
       self.sing.update(now)
     if getattr(self, "show", None):
       self.show.update(dt)
+    while self.jingle_notes and now >= self.jingle_notes[0][0]:
+      _at, midi, vol, inst = self.jingle_notes.pop(0)
+      self.sfx.note(midi, inst, vol)
     if self.stage != "running" and int(now * 20) % 3 == 0:
-      self.sfx.warm()                      # bell notes made ahead, a few at a time
+      self.sfx.warm(self.music["inst"])    # the coming music's notes, a few at a time
     if self.mode == "trace" and self.stage == "ready" and self.dominoes:
       landed = sum(1 for d in self.dominoes if now >= d.drop_at + DROP_TIME)
       if landed > self.landed:
@@ -1127,7 +1224,7 @@ class Game(ui_draw.GameDrawing):
         if show:
           note = show.note(i)
           if note is not None:
-            self.sfx.note(note)                # the show's own melody
+            self.sfx.note(note, show.inst, show.accent(i))   # the show's own melody
           show.pushed(i, d.x, d.y)             # its magic rises from the line
           if show.is_twist(i) and not show.teased:
             show.teased.add(i)
@@ -1150,7 +1247,7 @@ class Game(ui_draw.GameDrawing):
       area = pygame.Rect(self.pic_rect) if self.pic_rect else PLAY_RECT
       self.show.finale(area)
     self.praised_at = time.time()
-    self.call_at = time.time() + CALL_DELAY
+    self.call_at = None            # its real sound plays when the little picture is tapped
     self.particles.confetti(PLAY_RECT)
     cat_keys = [self.key(n) for n in hub.CATEGORIES_HUB[self.cat]]
     caps_before = self.cap_count()
@@ -1175,23 +1272,23 @@ class Game(ui_draw.GameDrawing):
                  else f" You found {self.subject}! Your cap got {colour}!")
       if caps_before + 1 == len(fun.RAINBOW):
         praise += " All seven rainbow colours!"
-    clip = self.current_video()
-    if clip and not self.story:
-      praise += (" Tap the red button to see its famous places!" if clip.get("places")
-                 else " Tap the red button to watch a real one!")
+    # Shown, not said: the praise appears on the screen (the chime, confetti and
+    # sticker are the reward). Rhymes wait for the Sing button.
     item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
-    if item.get("rhyme") or item.get("chant"):   # rhymes and letters: let's sing
-      self.call_at = None
-      # the song starts once the praise (sticker, cap colour ...) has been said
-      self.sing = singalong.SingAlong(self, self.cat, self.puzzle,
-                                      delay=max(singalong.START_DELAY, len(praise) / 13))
-    if item.get("hindi"):
-      lang = item.get("say_lang", "hi")
-      well = "দারুণ!" if lang == "bn" else "शाबाश!"
-      self.say(praise, f"{well} {item['hindi']}", lang)
+    if self.is_custom or item.get("hindi") or item.get("source") in ("glyph", "hindi", "bangla"):
+      self.praise_line = hub.praise_text(self.puzzle, self.cat)
     else:
-      word = self.native_word(self.cat, self.puzzle)
-      self.say(praise, f"{praise} {word}" if word else None)
+      self.praise_line = f"Well done! {item.get('label') or self.puzzle}!"
+
+  def sing_rect(self):
+    """The big Sing button of a finished rhyme (None when there is none)."""
+    if self.stage != "finished" or self.sing or self.mode != "trace":
+      return None
+    item = hub.CATEGORIES_HUB[self.cat][self.puzzle]
+    if not (item.get("rhyme") or item.get("chant")):
+      return None
+    r = self.watch_rect()
+    return r.move(0, -(r.h + 14)) if self.current_video() else r
 
   # ------------------------------------------------------------ drawing
   def image(self, path, size=None):

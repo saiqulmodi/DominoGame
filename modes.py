@@ -258,7 +258,7 @@ class SpellMode:
     cat, name = self.target
     self.done_at = time.time()
     g.banner_override = None
-    g.announce()               # says and spells the word
+    g.spell_aloud()            # says and spells the word (the child just spelled it)
     g.sfx.play("chime")
     g.particles.confetti(g_area())
     g.calls.play(name)

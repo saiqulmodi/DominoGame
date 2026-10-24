@@ -1,11 +1,14 @@
 """Domino magic: every cascade is a little show, and never the same twice.
 
 Each time the dominoes are pushed, a Show is made with
-  - its own music: a scale (Indian ragas Bhupali, Yaman, Kafi, or major,
-    pentatonic, whole-tone ...), a starting note and a melody shape (rising,
-    falling, wave, zigzag, mountain), one bell note every few dominoes;
+  - its own music: an instrument (bells, xylophone, marimba, piano, harp, flute,
+    steel drum, kalimba, sitar, water drops), a scale (Indian ragas Bhupali, Yaman,
+    Kafi, or major, pentatonic, whole-tone ...), a melody shape (rising, falling,
+    waves, zigzag, mountain, ocean) and a rhythm (waltz, march, swing, gallop ...),
+    one note every few dominoes, never the same as the show before;
   - its own timing: a slow start, waves of speed, one or two "twists" where
-    the line almost stops ("will it fall?") and then bursts forward, and a
+    the line almost stops ("will it fall?") and then bursts forward, tiny
+    stops of a fraction of a second, and a
     slow-motion ending, about 4-8 seconds in all whatever the picture;
   - its own magic along the line: butterflies, fireflies, a rainbow trail,
     stars or bubbles rising from the falling dominoes;
@@ -26,9 +29,39 @@ SCALES = [
     ("Whole tone", [0, 2, 4, 6, 8, 10]),
     ("Bilawal", [0, 2, 4, 5, 7, 9, 11, 12]),
 ]
-CONTOURS = ["up", "down", "wave", "zigzag", "mountain", "valley"]
+CONTOURS = ["up", "down", "wave", "zigzag", "mountain", "valley", "ocean"]
 STYLES = ["butterflies", "fireflies", "rainbow", "stars", "bubbles"]
+INSTRUMENTS = ["bell", "xylophone", "marimba", "piano", "harp", "flute", "steel drum",
+               "kalimba", "sitar", "water drop"]
+# Rhythms: how long each note waits, cycling (1 = an even step); the first is the strong beat
+RHYTHMS = {
+    "flowing waves": [1.0],
+    "waltz": [1.5, 0.75, 0.75],
+    "march": [1.2, 0.8],
+    "swing": [1.35, 0.65],
+    "gallop": [0.6, 0.6, 1.8],
+    "skip": [0.7, 1.3, 1.0, 1.0],
+}
 NOTES_PER_SECOND = 7
+_LAST = {}                 # the previous show's music: the next one never repeats it
+
+
+def pick(rng, key, options):
+  """A random choice that is never the previous show's choice."""
+  fresh = [o for o in options if o != _LAST.get(key)] or list(options)
+  _LAST[key] = choice = rng.choice(fresh)
+  return choice
+
+
+def plan_music(seed=None):
+  """The next cascade's music, chosen when a picture opens (so its instrument's
+  notes can be made while the child traces). Never the same as the last one."""
+  rng = random.Random(seed)
+  return {"inst": pick(rng, "inst", INSTRUMENTS),
+          "scale": pick(rng, "scale", [s[0] for s in SCALES]),
+          "contour": pick(rng, "contour", CONTOURS),
+          "rhythm": pick(rng, "rhythm", list(RHYTHMS)),
+          "style": pick(rng, "style", STYLES)}
 WING = [(255, 120, 180), (255, 200, 60), (120, 200, 255), (170, 120, 255), (120, 230, 140),
         (255, 150, 80)]
 
@@ -41,25 +74,33 @@ def hue(h, s=85, v=100):
 
 class Show:
 
-  def __init__(self, n, seed=None):
+  def __init__(self, n, seed=None, music=None):
     rng = random.Random(seed)
     self.rng = rng
     self.n = n
-    self.scale_name, self.scale = rng.choice(SCALES)
+    music = music or plan_music(rng.random())
+    self.inst = music["inst"]
+    self.scale_name = music["scale"]
+    self.scale = dict(SCALES)[self.scale_name]
     self.root = rng.choice([60, 62, 63, 65, 67])
-    self.contour = rng.choice(CONTOURS)
-    self.style = rng.choice(STYLES)
+    self.contour = music["contour"]
+    self.rhythm_name = music["rhythm"]
+    self.rhythm = RHYTHMS[self.rhythm_name]
+    self.style = music["style"]
     self.hue0 = rng.uniform(0, 360)
+    self.ph = rng.uniform(0, 2 * math.pi)
     self.duration = min(8.0, max(4.0, 3.0 + 0.03 * n))
     phase = rng.uniform(0, 2 * math.pi)
     waves = rng.choice([2, 3, 4])
+    depth = rng.uniform(0.45, 0.65)        # waves of speed: slow ... quick ... slow
     self.twists = sorted((rng.uniform(0.3, 0.75), rng.uniform(0.03, 0.06))
                          for _ in range(rng.choice([1, 2])))
+    self.step = max(1, round(n / (self.duration * NOTES_PER_SECOND)))
     weights = []
     for i in range(n):
       p = i / max(1, n - 1)
       ramp = 0.35 + 0.65 * min(1.0, p / 0.25)                 # slow start
-      speed = ramp * (1.0 + 0.35 * math.sin(p * math.pi * 2 * waves + phase))
+      speed = ramp * (1.0 + depth * math.sin(p * math.pi * 2 * waves + phase))
       for c, w in self.twists:
         if abs(p - c) < w:
           speed *= 0.22                                       # suspense ...
@@ -67,11 +108,16 @@ class Show:
           speed *= 1.8                                        # ... then a burst
       if p > 0.92:
         speed *= 0.55                                         # slow-motion end
-      weights.append(max(0.05, speed))
+      beat = self.rhythm[(i // self.step) % len(self.rhythm)]  # the rhythm's long and short notes
+      weights.append(max(0.05, speed / beat))
     raw = [1.0 / s for s in weights]
     k = self.duration / sum(raw)
     self.gaps = [r * k for r in raw]                          # s until the next push
-    self.step = max(1, round(n / (self.duration * NOTES_PER_SECOND)))
+    # a few tiny stops, a fraction of a second, as if the chain holds its breath
+    for _ in range(rng.choice([1, 2, 3])):
+      j = int(rng.uniform(0.15, 0.85) * n) // self.step * self.step
+      if 0 < j < n - 1:
+        self.gaps[j] += rng.uniform(0.15, 0.4)
     self.fx = []                                              # magic particles
     self.teased = set()
 
@@ -89,9 +135,14 @@ class Show:
         "zigzag": (j % 4) / 3,
         "mountain": 1 - abs(2 * f - 1),
         "valley": abs(2 * f - 1),
+        "ocean": 0.5 + 0.35 * math.sin(j * 0.5 + self.ph) + 0.15 * math.sin(j * 1.7),
     }[self.contour]
-    d = int(round(shape * (span - 1)))
+    d = int(round(max(0.0, min(1.0, shape)) * (span - 1)))
     return self.root + self.scale[d % len(self.scale)] + 12 * (d // len(self.scale))
+
+  def accent(self, i):
+    """Volume of domino i's note: the rhythm's strong beat is louder."""
+    return 1.0 if (i // self.step) % len(self.rhythm) == 0 else 0.68
 
   def tip_speed(self, i, push=0.3):
     """rad/s: domino i tilts far enough to push the next one exactly on time."""
@@ -188,6 +239,30 @@ class Show:
   @property
   def busy(self):
     return bool(self.fx)
+
+
+def jingle(inst, seed=None):
+  """A short tune for the ♪ button: [(seconds from now, MIDI note, volume)].
+  Its scale, shape and rhythm are never the same as the last jingle's."""
+  rng = random.Random(seed)
+  scale = dict(SCALES)[pick(rng, "j_scale", [s[0] for s in SCALES])]
+  shape = pick(rng, "j_shape", ["up", "down", "wave", "mountain", "valley", "bounce"])
+  beats = RHYTHMS[pick(rng, "j_rhythm", list(RHYTHMS))]
+  root = rng.choice([60, 62, 64, 65, 67])
+  n = rng.choice([6, 7, 8, 9])
+  out, t = [], 0.0
+  for j in range(n):
+    f = j / (n - 1)
+    v = {"up": f, "down": 1 - f, "wave": 0.5 + 0.5 * math.sin(j * 1.1),
+         "mountain": 1 - abs(2 * f - 1), "valley": abs(2 * f - 1),
+         "bounce": (j % 2) * 0.6 + f * 0.4}[shape]
+    d = int(round(v * (len(scale) + 2)))
+    midi = root + scale[d % len(scale)] + 12 * (d // len(scale))
+    if j == n - 1:
+      midi = root + 12                     # always lands home
+    out.append((t, midi, 1.0 if j % len(beats) == 0 else 0.7))
+    t += 0.17 * beats[j % len(beats)]
+  return out
 
 
 def butterfly(screen, x, y, colour, flap, size=1.0, fade=1.0):
