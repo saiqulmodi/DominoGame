@@ -96,6 +96,8 @@ HEAD = """    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-180.png">
     <link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
+    <script data-goatcounter="https://dominogame.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {

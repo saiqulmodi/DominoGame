@@ -27,6 +27,7 @@ import time
 import pygame
 
 import calls
+import counter
 import domino_data as hub
 import fun
 import howto
@@ -1559,6 +1560,7 @@ async def main():
   speaker = Speaker()
   game = Game(sfx, speaker)
   game.fullscreen = fullscreen
+  counter.count_open()             # anonymous "app opened" count (Android only)
 
   # Touch and mouse share one code path. Phones also send "fake" mouse events
   # for each touch, so those are ignored to avoid double taps.

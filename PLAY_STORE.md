@@ -71,7 +71,7 @@ MORE WAYS TO PLAY
 Find it! quiz, Spell it, Draw my own (your drawing becomes dominoes), a story every day, up to 6 players on one device, and a report for parents.
 
 SAFE FOR CHILDREN
-No ads. No in-app purchases. No accounts. No data collected. Works offline.
+No ads. No in-app purchases. No accounts. No personal data collected (only an anonymous count of how often the game is opened). Works offline.
 ```
 
 **Hindi listing** (add translation > Hindi):
@@ -89,11 +89,11 @@ No ads. No in-app purchases. No accounts. No data collected. Works offline.
 | Ads | **No**, the app contains no ads |
 | App access | All functionality is available without special access (no login) |
 | Content rating | Category **Game** (or Reference/Education); answer **No** to violence, fear, sex, language, drugs, gambling, user interaction, sharing location, buying digital goods. Expected rating: 3+ / Everyone |
-| Target audience | Ages **6-8** and **9-12** (add **5 and under** if you want the youngest too). This puts the app under the **Families Policy**, which it meets: no ads, no data collection, no accounts |
+| Target audience | Ages **6-8** and **9-12** (add **5 and under** if you want the youngest too). This puts the app under the **Families Policy**, which it meets: no ads, no personal data, no accounts (only an anonymous count of app openings) |
 | Appeal to children | Yes |
-| Data safety | **Does your app collect or share any of the required user data types? No.** (Progress and the typed player name stay on the device and are never sent anywhere, so under Play's rules they are not "collected".) Encryption in transit: not applicable. Data deletion: not applicable |
+| Data safety | **Does your app collect or share any of the required user data types? Yes.** Collected: **App activity > App interactions** only (counter.py sends one anonymous "app opened" hit to GoatCounter with the app and Android version). Shared: **No**. Processed ephemerally: No. Required (users cannot turn it off): Yes. Purpose: **Analytics**. Encryption in transit: **Yes** (https). Users can request deletion: No (nothing is linked to a person). Progress and the typed player name stay on the device and are never sent, so they are not "collected" |
 | Government / financial / health / news app | No |
-| Permissions | None requested |
+| Permissions | **INTERNET** only (for the anonymous count) |
 
 **Teacher Approved**: once live, the app can be considered for Google Play's Teacher Approved
 badge (it is automatic for eligible Families apps; nothing to apply for).

@@ -41,9 +41,11 @@ android.release_artifact = aab
 android.debug_artifact = apk
 # keeps the screen on while a child is tracing
 android.wakelock = True
-# no permissions at all: real-life videos open in the phone's own browser.
-# (Do not add an empty "android.permissions =" line: it makes a bogus
+# only internet, for the anonymous "app opened" count (counter.py); real-life
+# videos open in the phone's own browser.
+# (Never leave "android.permissions =" empty: it makes a bogus
 # "android.permission." entry in the app's manifest.)
+android.permissions = INTERNET
 android.extra_manifest_xml = ./android_queries.xml
 
 [buildozer]

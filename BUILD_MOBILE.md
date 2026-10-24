@@ -85,7 +85,8 @@ The first build downloads the Android SDK/NDK and takes 20-40 minutes.
 
 Copy `bin\dominowonderdash-*.apk` to the phone and install it (allow "install unknown apps").
 `buildozer.spec` sets portrait, full screen, the app icon and start-up picture (`icons\`),
-keeps the screen on while a child plays, and asks for no permissions. `pyjnius` gives the
+keeps the screen on while a child plays, and asks only for internet (the anonymous
+"app opened" count in `counter.py`, shown on dominogame.goatcounter.com). `pyjnius` gives the
 phone's text-to-speech voice; `android_queries.xml` declares that service (Android 11+).
 Real-life videos open the game's own player page (`docs/play.html`, written by
 `tools/build_web.py`) in Chrome; the phone's Back button returns to the game. In the game,
