@@ -6,17 +6,21 @@ part of the game:
     Globe Tower, India Park and Fun Park open their subject - pick a category, then a picture;
   * Story House plays the story of the day, Family House the players, Drawing Studio
     "Draw my own", Sticker Museum the sticker shelf, and the Games Arcade the Games menu.
-Tapping a building (or its square on the map, or from the Houses directory) flies you there and opens it.
+Tapping a building (or its square on the map, or from the Houses directory) flies you there and opens it:
+each flight has its own style, colours and music, with dominoes toppling along the path (flight.py).
 
 Magic tools: Web swing (hold), Web zip (onto a roof), Super-jump boots, and a Glide cape (hold).
 The town's maths lives in town3d.py; this file paints it and handles taps and keys.
 """
 
 import math
+import random
 
 import pygame
 
 import domino_data as hub
+import flight as flights
+import magic
 import town3d as town
 
 SKY_TOP = (90, 160, 240)
@@ -154,6 +158,13 @@ class WorldScene:
     self.door_marks = []
     self.dream_rect = pygame.Rect(0, 0, 0, 0)
     self.dream_at = None
+    self.flight = None            # the flight to a house now under way (flight.py)
+    self.flight_inst = random.choice(magic.INSTRUMENTS)   # the next flight's music
+    self.cam_side = 0.55
+
+  @property
+  def flying(self):
+    return self.flight is not None and not self.flight.finished
 
   # --- layout ----------------------------------------------------------------------
   def fit(self, size):
@@ -245,14 +256,28 @@ class WorldScene:
     self.g.say(f"{self.target.label}. {self.target.sub}")
 
   def fly_to(self, b, enter=True):
-    """Fly directly to a building's entrance."""
-    if self.player.zip is not None:
+    """Fly to a building: a flight in a new style with dominoes along the path, one round
+    around the house, a helicopter landing at the door; the house opens when the last
+    domino has fallen."""
+    if self.player.zip is not None or self.flying:
       return
     self.show_directory = False
     self.target = b
     self.enter_on_arrival = b if enter else None
-    self.g.sfx.play("switch")
-    self.player.zip_to(b.door())
+    sfx = self.g.sfx
+    sfx.play("switch")
+    ready = [i for i in magic.INSTRUMENTS if getattr(sfx, "ok", False) and sfx.ready(i)]
+    first = [self.flight_inst] if self.flight_inst in ready else ready
+    p = self.player
+    p.rope = None
+    self.flight = flights.Flight(tuple(p.pos), b, self.boxes, p.yaw, instruments=first)
+    self.flight_inst = random.choice([i for i in magic.INSTRUMENTS if i != self.flight.inst])
+    self.cam_side = random.choice([-0.55, 0.55])        # the camera watches the path from one side
+    self.say(f"Flying {self.flight.label} to {b.label}!", 3.5)
+
+  def skip_flight(self):
+    if self.flying:
+      self.flight.skip()
 
   # --- entering buildings ----------------------------------------------------------
   def enter(self, b):
@@ -382,6 +407,9 @@ class WorldScene:
     if self.flyover is not None:            # a tap ends the aerial view at once
       self.end_flyover()
       return
+    if self.flying:                         # a tap during a flight lands at once
+      self.skip_flight()
+      return
     if self.show_directory:
       panel, cells, close_btn, prev_btn, next_btn, _pages = self.directory_layout()
       for r, b in cells:
@@ -495,6 +523,10 @@ class WorldScene:
 
   def key(self, event):
     k = event.key
+    if self.flying:
+      if k in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_e, pygame.K_ESCAPE):
+        self.skip_flight()
+      return True
     if (self.picker is not None or self.show_directory) and k in (pygame.K_ESCAPE, pygame.K_AC_BACK):
       self.picker = None
       self.show_directory = False
@@ -619,6 +651,11 @@ class WorldScene:
         self.aerial(max(0.0, self.flyover - FLY_HOLD) / (FLY_SECS - FLY_HOLD))
         return
     self.speak_welcome()
+    self.steer_camera(dt)
+    if self.flight is not None and self.fly(dt):
+      return
+    if self.flight is None and int(self.t * 60) % 3 == 1:
+      self.g.sfx.warm(self.flight_inst)       # the next flight's notes, a few at a time
     if self.g.overlay or self.picker is not None or self.show_directory:
       return
     try:
@@ -654,6 +691,53 @@ class WorldScene:
         self.enter(b)
     self.anchor = None if (p.rope or p.zip) else p.best_anchor(self.boxes)
     self.cam.follow(p.pos, p.yaw, dt)
+
+  def fly(self, dt):
+    """Moves the flight on; True while it steers the hero (and the camera)."""
+    f = self.flight
+    if f.finished:
+      f.update(dt)
+      if f.gone:
+        self.flight = None
+      return False
+    event = f.update(dt, self.g.sfx)
+    p = self.player
+    p.pos, p.yaw = list(f.pos), f.yaw
+    p.vel = [0.0, 0.0, 0.0]
+    p.rope = p.zip = None
+    p.grounded = f.landed
+    p.gliding = False
+    if event == "done":
+      p.safe = (p.pos[0], p.pos[2])
+      if self.enter_on_arrival is not None:
+        b, self.enter_on_arrival = self.enter_on_arrival, None
+        self.enter(b)
+      else:
+        self.g.sfx.play("chime")
+    cx, _, cz = f.box.centre
+    look = self.cam.yaw
+    if math.hypot(cx - p.pos[0], cz - p.pos[2]) > 4.0:
+      look = math.atan2(cx - p.pos[0], cz - p.pos[2]) + self.cam_side
+    self.anchor = None
+    self.cam.follow(p.pos, look, dt)
+    return True
+
+  def steer_camera(self, dt):
+    """During a flight the camera stands further back and higher, so the whole path shows."""
+    cam = self.cam
+    if self.flying and self.flight.t < self.flight.hover_t - 0.8:
+      want = (46.0, 20.0, -0.44)
+    elif self.flying:                  # close in to watch the helicopter landing
+      want = (30.0, 11.0, -0.30)
+    else:
+      want = (28.0, 12.0, -0.32)
+    k = min(1.0, dt * 1.5)
+    old = cam.pitch
+    cam.dist += (want[0] - cam.dist) * k
+    cam.height_offset += (want[1] - cam.height_offset) * k
+    cam.pitch += (want[2] - cam.pitch) * k
+    if abs(cam.pitch - old) > 1e-5:
+      self.sky_stale = True
 
   # --- drawing ---------------------------------------------------------------------
   def fog(self, col, depth):
@@ -697,9 +781,11 @@ class WorldScene:
       if dist < 120:
         items.append((dist, 2, lp))
     items.append((math.dist(self.player.pos, cp), 3, None))
+    if self.flight is not None:
+      items.extend((d, 4, dm) for d, dm in self.flight.visible(cp))
     self.dream_at = None
     items.sort(key=lambda it: -it[0])
-    labels = self.place_labels() if self.flyover is None else {}   # no name tags from up high
+    labels = self.place_labels() if self.flyover is None and not self.flying else {}   # no name tags from up high
     for dist, kind, obj in items:
       if kind == 0:
         self.draw_box(s, obj, dist)
@@ -709,12 +795,18 @@ class WorldScene:
         self.draw_tree(s, obj, dist)
       elif kind == 2:
         self.draw_lamp(s, obj, dist)
+      elif kind == 4:
+        self.flight.draw_domino(s, cam, obj, self.fog)
       else:
         self.draw_player(s)
     if self.flyover is not None:            # the aerial view: only the Palm and a title
       self.draw_flyover_title(s)
       return
-    self.draw_door_marks(s)
+    if self.flying:                         # the path and the hero only
+      self.door_marks = []
+      self.dream_at = None
+    else:
+      self.draw_door_marks(s)
     if self.dream_at:
       self.draw_dream(s, *self.dream_at)
     self.draw_anchor(s)
@@ -1112,7 +1204,8 @@ class WorldScene:
   def draw_player(self, s):
     p, cam = self.player, self.cam
     px, py, pz = p.pos
-    K = max(HERO_SCALE, min(HERO_MAX, HERO_SCREEN * cam.h * cam.dist / (cam.focal * 1.95)))
+    share = HERO_SCREEN * (0.55 if self.flying and not self.flight.rotor else 1.0)  # smaller in flight
+    K = max(HERO_SCALE, min(HERO_MAX, share * cam.h * cam.dist / (cam.focal * 1.95)))
     sh = cam.project((px, self.floor_under() + 0.03, pz))
     if sh:
       r = max(3, int(cam.focal * 0.7 * K / sh[2]))
@@ -1141,8 +1234,16 @@ class WorldScene:
     head = P(0, 1.72)
     lw = max(3, int(0.20 * sc))
 
-    # --- 1. CAPE (Hero Glide / Running Cape) ---
-    if p.gliding:
+    # --- 1. CAPE (Hero Glide / Running Cape), or wings in a flight ---
+    beat = math.sin(self.flight.flap) if self.flying and self.flight.flap_rate else None
+    if beat is not None and not p.grounded:
+      wing = self.flight.dominoes[0].col
+      for side in (-1, 1):
+        w = [P(side * 0.2, 1.42, -0.12), P(side * 1.15, 1.75 + 0.5 * beat, -0.25),
+             P(side * 1.0, 1.05 + 0.3 * beat, -0.25), P(side * 0.2, 1.0, -0.12)]
+        pygame.draw.polygon(s, wing, w)
+        pygame.draw.polygon(s, _shade(wing, 0.5), w, max(1, lw // 3))
+    elif p.gliding:
       cape = [P(-0.35, 1.46, -0.1), P(0.35, 1.46, -0.1), P(1.0, 0.4, -0.9), P(-1.0, 0.4, -0.9)]
       pygame.draw.polygon(s, (220, 35, 45), cape)
       pygame.draw.polygon(s, (160, 20, 30), cape, max(1, lw // 3))
@@ -1215,6 +1316,9 @@ class WorldScene:
         pygame.draw.line(s, WEB, hand, a[:2], 2)
       arm(shoulder_r, hand)
       arm(shoulder_l, P(-0.35, 1.0, 0.2))
+    elif beat is not None and not p.grounded:            # flapping like a bird
+      arm(shoulder_l, P(-0.62, 1.42 + 0.38 * beat, -0.1))
+      arm(shoulder_r, P(0.62, 1.42 + 0.38 * beat, -0.1))
     elif not p.grounded:
       arm(shoulder_l, P(-0.48, 1.75))
       arm(shoulder_r, P(0.48, 1.75))
@@ -1237,6 +1341,16 @@ class WorldScene:
                       math.pi * 1.15, math.pi * 1.85, max(1, hr // 8))
     self.draw_rainbow_cap(s, head, hr, P(0, 1.76, 0.42), self.g.cap_colours())
     self.dream_at = ((head[0], head[1] - hr * 1.4), hr)
+    rotor = self.flight.rotor if self.flying else 0.0
+    if rotor > 0:                                        # landing like a helicopter
+      top, hub_pt = P(0, 2.0), P(0, 2.0 + 0.3 * rotor)
+      pygame.draw.line(s, (60, 60, 70), top, hub_pt, max(2, lw // 2))
+      for k in range(2):
+        a = self.t * 26 + k * math.pi / 2
+        end = P(math.cos(a) * 1.4 * rotor, 2.0 + 0.3 * rotor, math.sin(a) * 1.4 * rotor)
+        other = P(-math.cos(a) * 1.4 * rotor, 2.0 + 0.3 * rotor, -math.sin(a) * 1.4 * rotor)
+        pygame.draw.line(s, (50, 50, 60), other, end, max(2, lw // 2))
+      pygame.draw.circle(s, (240, 200, 40), (int(hub_pt[0]), int(hub_pt[1])), max(2, lw // 2))
     if p.splash > 0:
       for k in range(6):
         a = k / 6 * math.tau + self.t * 3
@@ -1460,7 +1574,7 @@ class WorldScene:
       self.text(s, "Wonder Town", (w - self.map_rect.w - 30, 27), 22, YELLOW, anchor="midright")
     self.draw_map(s)
     self.zip_rect = pygame.Rect(0, 0, 0, 0)
-    if self.target is not None and self.player.zip is None:
+    if self.target is not None and self.player.zip is None and self.flight is None:
       p = self.player
       dx, _, dz = self.target.door()
       dist = math.hypot(dx - p.pos[0], dz - p.pos[2])

@@ -1,5 +1,8 @@
 """Paints the app icons and the start-up splash into icons/.
 
+The icon is the opening show's domino spiral: biggest dominoes at the edge, dots in
+the middle, one arm running in and one running back out.
+
 Used by the phone app (buildozer.spec), the installable web app
 (manifest.json) and the browser tab. Run:  python tools/make_icons.py
 """
@@ -14,64 +17,78 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "icons")
 FONT = os.path.join(ROOT, "fonts", "Sniglet-ExtraBold.ttf")
 SKY_TOP, SKY_LOW = (120, 205, 255), (60, 140, 235)
-GRASS = (90, 200, 110)
-COLOURS = [(233, 69, 96), (255, 140, 40), (255, 204, 0), (80, 200, 90),
-           (60, 160, 255), (170, 110, 255)]
 
 
-def tile(w, h, colour):
-  """One domino: coloured tile, dark rim, shine, middle line and two pips."""
-  s = pygame.Surface((w, h), pygame.SRCALPHA)
-  r = max(2, w // 5)
-  dark = tuple(int(c * 0.55) for c in colour)
-  pygame.draw.rect(s, dark, (0, 0, w, h), border_radius=r)
-  pygame.draw.rect(s, colour, (w // 14 + 1, w // 14 + 1, w - 2 * (w // 14 + 1),
-                               h - 2 * (w // 14 + 1)), border_radius=r)
-  pygame.draw.line(s, (255, 255, 255), (w // 8, h // 2), (w - w // 8, h // 2), max(1, w // 12))
-  for y in (h // 4, 3 * h // 4):
-    pygame.draw.circle(s, (255, 255, 255), (w // 2, y), max(2, w // 6))
-  return s
+def spiral_dominoes(cx, cy, outer, turn):
+  """One arm of the icon's spiral: dominoes from the outer edge (biggest) to the
+  middle (a dot), each lying along the path, like the opening show. turn rotates
+  the arm, so a second arm can sit in the gaps of the first."""
+  k = 0.12                                  # how fast the spiral closes in
+  c = 0.38                                  # a domino's length, as a share of its radius
+  out, theta = [], 0.0
+  while True:
+    r = outer * math.exp(-k * theta)
+    length = c * r
+    if length < 1.2:
+      break
+    a = theta + turn
+    x, y = cx + r * math.cos(a), cy + r * math.sin(a)
+    # direction of travel (inwards along the spiral)
+    tx, ty = -math.sin(a) - k * math.cos(a), math.cos(a) - k * math.sin(a)
+    out.append((x, y, math.atan2(ty, tx), length))
+    theta += 0.85 * c / math.sqrt(1 + k * k)
+  return out
 
 
-def star(surf, c, r, colour=(255, 215, 0)):
-  pts = []
-  for i in range(10):
-    rad = r if i % 2 == 0 else r * 0.45
-    a = -math.pi / 2 + i * math.pi / 5
-    pts.append((c[0] + rad * math.cos(a), c[1] + rad * math.sin(a)))
-  pygame.draw.polygon(surf, colour, pts)
-  pygame.draw.polygon(surf, (180, 120, 0), pts, max(1, int(r / 9)))
+def flat_domino(s, x, y, ang, length, colour):
+  """A domino lying along the path, seen from above: coloured face, dark rim,
+  a middle line and two pips."""
+  w = length * 0.5
+  ca, sa = math.cos(ang), math.sin(ang)
+  px, py = -sa, ca
+  hl, hw = length / 2 * 0.92, w / 2
+
+  def at(u, v):
+    return (x + ca * u + px * v, y + sa * u + py * v)
+
+  pts = [at(-hl, -hw), at(hl, -hw), at(hl, hw), at(-hl, hw)]
+  dark = tuple(int(v * 0.45) for v in colour)
+  pygame.draw.polygon(s, colour, pts)
+  pygame.draw.polygon(s, dark, pts, max(1, int(length / 14)))
+  if length >= 10:
+    pygame.draw.line(s, (255, 255, 255), at(0, -hw * 0.7), at(0, hw * 0.7), max(1, int(length / 18)))
+    for u in (-hl / 2, hl / 2):
+      q = at(u, 0)
+      pygame.draw.circle(s, (255, 255, 255), (int(q[0]), int(q[1])), max(1, int(length / 11)))
 
 
 def icon(size, safe=1.0):
-  """Square icon. safe < 1 keeps the picture inside Android's round mask."""
-  s = pygame.Surface((size, size))
-  for y in range(size):
-    k = y / size
-    pygame.draw.line(s, tuple(int(a + (b - a) * k) for a, b in zip(SKY_TOP, SKY_LOW)),
-                     (0, y), (size, y))
-  u = size * safe / 100.0                    # picture units: 0..100 in the safe area
-  ox = oy = size * (1 - safe) / 2
-  pygame.draw.ellipse(s, GRASS, (ox - 20 * u, oy + 74 * u, 140 * u, 60 * u))
-  # a line of dominoes toppling from left to right
-  for i, col in enumerate(COLOURS):
-    w, h = int(11 * u), int(26 * u)
-    t = tile(w, h, col)
-    angle = -min(80, max(0, (3 - i) * 26))   # the first ones have fallen
-    t = pygame.transform.rotozoom(t, angle, 1)
-    x = ox + (14 + i * 14.5) * u
-    y = oy + 78 * u
-    s.blit(t, t.get_rect(midbottom=(x, y)))
-  star(s, (ox + 72 * u, oy + 26 * u), 17 * u)
-  try:
-    f = pygame.font.Font(FONT, int(24 * u))
-    a = f.render("ABC", True, (255, 255, 255))
-    sh = f.render("ABC", True, (30, 70, 150))
-    s.blit(sh, sh.get_rect(center=(ox + 33 * u + 2 * u / 3, oy + 28 * u + 2 * u / 3)))
-    s.blit(a, a.get_rect(center=(ox + 33 * u, oy + 28 * u)))
-  except Exception:
-    pass
-  return s
+  """Square icon: the opening show's domino spiral. One rainbow arm runs from the
+  biggest domino at the edge into the middle, a second arm runs from the middle
+  back out to the biggest domino on the other side. safe < 1 keeps it inside
+  Android's round mask. Drawn 4x bigger and scaled down for smooth edges."""
+  big = size * 4
+  s = pygame.Surface((big, big))
+  top, low = (40, 70, 150), (16, 26, 64)          # the opening show's night blue
+  for y in range(big):
+    k = y / big
+    pygame.draw.line(s, tuple(int(a + (b - a) * k) for a, b in zip(top, low)), (0, y), (big, y))
+  c = big / 2
+  outer = big * safe * 0.38
+  glow = pygame.Surface((big, big), pygame.SRCALPHA)  # the middle, where the chain ends
+  for i in range(12, 0, -1):
+    pygame.draw.circle(glow, (255, 230, 120, 14), (int(c), int(c)), int(outer * 0.05 * i))
+  s.blit(glow, (0, 0))
+  arms = [(spiral_dominoes(c, c, outer, -math.pi / 2), 0),
+          (spiral_dominoes(c, c, outer, math.pi / 2), 180)]
+  for arm, hue0 in arms:
+    n = len(arm)
+    for i, (x, y, ang, length) in enumerate(arm):
+      col = pygame.Color(0)
+      col.hsva = ((hue0 + 330 * i / max(1, n - 1)) % 360, 82, 100, 100)
+      flat_domino(s, x, y, ang, length, (col.r, col.g, col.b))
+  pygame.draw.circle(s, (255, 245, 190), (int(c), int(c)), max(2, int(outer * 0.035)))
+  return pygame.transform.smoothscale(s, (size, size))
 
 
 def splash(w, h):
