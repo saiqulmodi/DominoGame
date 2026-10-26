@@ -23,7 +23,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # them ship. A hand-kept list missed magic.py on 17-Oct and the web game stopped at
 # "No module named 'magic'" (grey screen) until 18-Oct.
 GAME_FILES = sorted(f for f in os.listdir(ROOT) if f.endswith(".py")) + ["hub_data.json", "videos.json"]
-GAME_DIRS = ["pics", "sounds", "fonts"]
+GAME_DIRS = ["pics", "sounds", "fonts", "labels"]   # labels: Hindi / Bangla button words
 APP = "dominowonderdash"
 ICONS = ["icon-180.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png"]
 THEME = "#4A90E2"
@@ -139,6 +139,17 @@ HEAD = """    <link rel="manifest" href="manifest.json">
         logEvent(analytics, "game_started");
         document.removeEventListener("click", onFirstClick);
       }, { once: true });
+
+      // milestones from the game (counter.count_event): class travel, finished
+      // pictures, celebrations - anonymous names only
+      window.dominoEvent = function (name, value) {
+        try { logEvent(analytics, name, { value: String(value) }); } catch (e) {}
+        try {
+          if (window.goatcounter && window.goatcounter.count) {
+            window.goatcounter.count({ path: "/event/" + name + "/" + value, title: name, event: true });
+          }
+        } catch (e) {}
+      };
     </script>
 """
 

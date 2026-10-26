@@ -11,6 +11,11 @@ Colourful dominoes stand along the whole path just behind the hero, and a toppli
 chases the hero along it; the last domino falls at the hero's feet just after touch-down,
 and then the house opens. Every flight has its own colours and its own music (instrument,
 scale, melody), never the same as the flight before. A tap skips to the landing.
+
+The Domino Highway (Highway) is the Magic Box's ride to a Class Pavilion: down the main
+street at 10x walking speed, easing in and out, with glowing dominoes springing up and
+toppling right behind the hero's heels (a small pool, recycled as they finish) and bell
+notes of a raga that climb with speed and with the distance covered.
 """
 
 import bisect
@@ -23,7 +28,8 @@ import magic
 
 SPACING = 3.0            # m between dominoes along the path
 DOM_H, DOM_W = 4.0, 2.0  # a domino's height and width (real 1:2 shape)
-MAX_DOMINOES = 200
+MAX_DOMINOES = 600       # the 10x Palm has kilometre-long flights
+MAX_POINTS = 1500        # path points of a flight's cruise
 FALL_SECS = 0.38         # one domino's fall
 FALL_ANGLE = 1.2         # rad: how far it leans onto the next one
 NOTES_PER_SECOND = 7
@@ -206,7 +212,7 @@ class Flight:
     sx, sz = fz, -fx
     q = self._params(max(d, 30.0))
     pts, speeds = [], []
-    n = max(160, int(d * 2.5))
+    n = max(160, min(MAX_POINTS, int(d * 2.5)))
     for i in range(n + 1):                               # 1. the cruise in this flight's style
       u = i / n
       fwd, side, up, sp = self._offsets(u, max(d, 30.0), q)
@@ -260,11 +266,19 @@ class Flight:
   @staticmethod
   def _clear_roofs(pts, boxes, target, cruise_end):
     """Keeps the path a few metres above every roof it crosses (smoothly)."""
+    xs, zs = [p[0] for p in pts], [p[2] for p in pts]
+    x0, x1, z0, z1 = min(xs) - 3, max(xs) + 3, min(zs) - 3, max(zs) + 3
+    near = []                                            # only buildings the path can cross
+    for b in boxes:
+      if b is target or b.x1 < x0 or b.x0 > x1 or b.z1 < z0 or b.z0 > z1:
+        continue
+      if any(b.contains_xz(x, z, pad=14.0) for x, z in zip(xs[::8], zs[::8])):
+        near.append(b)
     need = []
     for x, y, z in pts:
       roof = 0.0
-      for b in boxes:
-        if b is not target and b.contains_xz(x, z, pad=2.5):
+      for b in near:
+        if b.contains_xz(x, z, pad=2.5):
           roof = max(roof, b.top)
       need.append(roof + 3.0 if roof > 0 else -1e9)
     lift = [max(0.0, n - p[1]) for n, p in zip(need, pts)]
@@ -437,3 +451,231 @@ class Flight:
         c = P(0, v)
         if c:
           pygame.draw.circle(s, white, (int(c[0]), int(c[1])), max(1, int(tall / 13)))
+
+
+# --------------------------------------------------------------------------------------
+# The Domino Highway: the Magic Box's 10x ride down the main street to a Class Pavilion
+# --------------------------------------------------------------------------------------
+HIGHWAY_SPEED = 120.0    # m/s at full speed: 10x the hero's walking speed (town3d.WALK_SPEED)
+RAMP_SECS = 2.4          # ease-in and ease-out
+TRAIL_GAP = 3.0          # m between the dominoes springing up behind the hero
+TRAIL_MAX = 60           # dominoes alive at once (a pool: finished ones are reused)
+TRAIL_LAG = 0.10         # s after the hero passes, a domino starts to fall
+TRAIL_FALL = 0.30
+TRAIL_LIFE = 1.30        # s from springing up to fading away
+HIGHWAY_NOTES = (3.0, 7.0)   # notes per second: slow ... full speed (never a buzz of clicks)
+BHUPALI = [0, 2, 4, 7, 9]
+
+
+class TrailDomino:
+  __slots__ = ("pos", "tan", "up", "side", "col", "laid", "fall")
+
+  def place(self, pos, tan, col, laid):
+    self.pos, self.tan, self.col, self.laid = pos, tan, col, laid
+    self.fall = laid + TRAIL_LAG
+    self.up = (0.0, 1.0, 0.0)
+    self.side = _norm((tan[2], 0.0, -tan[0]))
+    return self
+
+
+class Highway:
+  """A straight-on, warp-speed ride: same interface as Flight for world.py."""
+
+  flap_rate = 0.0
+  flap = 0.0
+  rotor = 0.0
+  highway = True
+
+  def __init__(self, start, box, colour, inst=None, seed=None):
+    rng = random.Random(seed)
+    self.box = box
+    self.label = "on the Domino Highway"
+    self.colour = colour
+    self.inst = inst
+    self.root = rng.choice([60, 62, 63])
+    self.scale = BHUPALI if rng.random() < 0.5 else dict(magic.SCALES)["Bilawal"][:7]
+    self.t = 0.0
+    self.finished = False
+    self.fade = FADE_SECS
+    self._road(start, box)
+    L = self.length
+    self.vmax = min(HIGHWAY_SPEED, L / RAMP_SECS)
+    self.cruise = max(0.0, (L - self.vmax * RAMP_SECS) / self.vmax)
+    self.land_at = 2 * RAMP_SECS + self.cruise
+    self.hover_t = self.land_at
+    self.done_at = self.land_at + 0.55
+    self.pos, self.yaw = self.at_s(0.0)[0], 0.0
+    self.s = 0.0
+    self.speed_k = 0.0
+    self.trail, self.pool = [], []
+    self.next_gap = TRAIL_GAP
+    self.next_note = 0.0
+    self.note_k = 0
+
+  def _road(self, start, box):
+    """The road: onto the middle of the main street, then north to the pavilion's front,
+    swaying gently from side to side."""
+    ax, _ay, az = start
+    door = box.door()
+    sgn = 1.0 if door[2] >= az else -1.0
+    merge = min(30.0, abs(door[2] - az) * 0.3)
+    pts = []
+    for i in range(25):                                  # a smooth curve onto the street
+      u = i / 24
+      cx, cz = 0.0, az + sgn * merge * 0.3
+      ex, ez = 0.0, az + sgn * merge
+      pts.append(((1 - u) ** 2 * ax + 2 * (1 - u) * u * cx + u * u * ex,
+                  (1 - u) ** 2 * az + 2 * (1 - u) * u * cz + u * u * ez))
+    z0, z1 = pts[-1][1], door[2]
+    run = abs(z1 - z0)
+    n = max(20, int(run / 4.0))
+    for i in range(1, n + 1):                            # the long run, swaying a little
+      u = i / n
+      sway = 3.0 * math.sin(math.tau * u * max(1.0, run / 420.0)) * _ease(u / 0.1) * _ease((1 - u) / 0.1)
+      pts.append((sway, z0 + (z1 - z0) * u))
+    self.road = pts
+    self.arc = [0.0]
+    for i in range(1, len(pts)):
+      self.arc.append(self.arc[-1] + math.dist(pts[i], pts[i - 1]))
+    self.length = max(1.0, self.arc[-1])
+
+  def at_s(self, s):
+    """(position, yaw) at distance s along the road."""
+    s = max(0.0, min(self.length, s))
+    i = max(0, min(len(self.arc) - 2, bisect.bisect_right(self.arc, s) - 1))
+    a, b = self.road[i], self.road[i + 1]
+    f = (s - self.arc[i]) / max(1e-9, self.arc[i + 1] - self.arc[i])
+    x, z = a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f
+    return (x, 0.0, z), math.atan2(b[0] - a[0], b[1] - a[1])
+
+  def s_at(self, t):
+    """Distance covered at time t: an ease-in, the cruise at full speed, an ease-out."""
+    V, R, L = self.vmax, RAMP_SECS, self.length
+    if t <= 0:
+      return 0.0
+    if t < R:
+      u = t / R
+      return V * R * (u ** 3 - u ** 4 / 2)
+    if t < R + self.cruise:
+      return V * R / 2 + V * (t - R)
+    w = max(0.0, (self.land_at - t) / R)
+    return L - V * R * (w ** 3 - w ** 4 / 2)
+
+  def v_at(self, t):
+    if t <= 0 or t >= self.land_at:
+      return 0.0
+    if t < RAMP_SECS:
+      return self.vmax * _ease(t / RAMP_SECS)
+    if t < RAMP_SECS + self.cruise:
+      return self.vmax
+    return self.vmax * _ease((self.land_at - t) / RAMP_SECS)
+
+  @property
+  def landed(self):
+    return self.t >= self.land_at
+
+  @property
+  def gone(self):
+    return self.finished
+
+  def skip(self):
+    self.t = max(self.t, self.land_at)
+    self.s = self.length
+    self.pos, _ = self.at_s(self.length)
+    self.pool.extend(self.trail)
+    self.trail = []
+
+  def _spawn(self, s):
+    pos, yaw = self.at_s(s)
+    tan = (math.sin(yaw), 0.0, math.cos(yaw))
+    k = len(self.pool) + len(self.trail)
+    glow = 0.35 + 0.35 * (0.5 + 0.5 * math.sin(s * 0.08))
+    col = tuple(min(255, int(c + (255 - c) * glow)) for c in self.colour)
+    if self.trail and len(self.trail) >= TRAIL_MAX:
+      dm = self.trail.pop(0)
+    else:
+      dm = self.pool.pop() if self.pool else TrailDomino()
+    self.trail.append(dm.place(pos, tan, col, self.t))
+    return k
+
+  def update(self, dt, sfx=None):
+    if self.finished:
+      return None
+    event = None
+    was = self.landed
+    self.t += dt
+    s = self.s_at(min(self.t, self.land_at))
+    pos, yaw = self.at_s(s)
+    while self.next_gap <= s - 1.5 and self.next_gap < self.length - 2.0:   # just behind the heels
+      self._spawn(self.next_gap)
+      self.next_gap += TRAIL_GAP
+    self.s, self.pos, self.yaw = s, pos, yaw
+    v = self.v_at(self.t)
+    self.speed_k = v / HIGHWAY_SPEED
+    alive = [dm for dm in self.trail if self.t - dm.laid < TRAIL_LIFE]
+    if len(alive) < len(self.trail):                     # finished ones go back to the pool
+      self.pool.extend(dm for dm in self.trail if self.t - dm.laid >= TRAIL_LIFE)
+      self.trail = alive
+    if sfx and v > 1.0 and self.t >= self.next_note:     # a raga that climbs as we go
+      lo, hi = HIGHWAY_NOTES
+      self.next_note = self.t + 1.0 / (lo + (hi - lo) * self.speed_k)
+      span = len(self.scale) * 2
+      f = 0.35 * (v / self.vmax) + 0.65 * (s / self.length)
+      d = int(round(max(0.0, min(1.0, f)) * (span - 1)))
+      d = min(span - 1, d + (1 if self.note_k % 3 == 1 else 0))
+      self.note_k += 1
+      midi = self.root + self.scale[d % len(self.scale)] + 12 * (d // len(self.scale))
+      if self.inst:
+        sfx.note(midi, self.inst, 1.0 if self.note_k % 4 == 1 else 0.7)
+      else:
+        sfx.play("clack", d)
+    if self.landed and not was:
+      event = "landed"
+      if sfx:
+        sfx.play("pop", 3)
+    if self.t >= self.done_at:
+      self.finished = True
+      self.pool.extend(self.trail)
+      self.trail = []
+      event = "done"
+    return event
+
+  def notes(self):
+    """Every note the ride can play (made before it starts, so none has to wait)."""
+    return [self.root + self.scale[d % len(self.scale)] + 12 * (d // len(self.scale))
+            for d in range(len(self.scale) * 2)]
+
+  def visible(self, cam_pos, far=170.0):
+    out = []
+    for dm in self.trail:
+      d = math.dist(dm.pos, cam_pos)
+      if d < far:
+        out.append((d, dm))
+    return out
+
+  def draw_domino(self, s, cam, dm, fog=None):
+    age = self.t - dm.laid
+    grow = min(1.0, age / 0.08) * max(0.0, min(1.0, (TRAIL_LIFE - age) / 0.35))
+    if grow <= 0.02:
+      return
+    k = 0.0 if self.t < dm.fall else min(1.0, (self.t - dm.fall) / TRAIL_FALL)
+    a = (math.pi / 2 - 0.08) * k * k                     # falls flat onto the road
+    h, w = DOM_H * grow, DOM_W * grow / 2
+    up = tuple(dm.up[c] * math.cos(a) + dm.tan[c] * math.sin(a) for c in range(3))
+    p, sd = dm.pos, dm.side
+    base = [tuple(p[c] + sd[c] * w * m for c in range(3)) for m in (-1, 1)]
+    top = [tuple(b[c] + up[c] * h for c in range(3)) for b in base]
+    got = cam.project_poly([base[0], base[1], top[1], top[0]])
+    if not got:
+      return
+    poly, depth = got
+    col = dm.col if fog is None else fog(dm.col, depth)
+    pygame.draw.polygon(s, col, poly)
+    ys = [q[1] for q in poly]
+    tall = max(ys) - min(ys)
+    if tall >= 5:                                        # a bright rim: they glow
+      pygame.draw.polygon(s, (255, 255, 230), poly, 1 if tall < 24 else 2)
+    if tall >= 14:
+      q = cam.project(tuple(p[c] + up[c] * h * 0.5 for c in range(3)))
+      if q:
+        pygame.draw.circle(s, (255, 255, 255), (int(q[0]), int(q[1])), max(1, int(tall / 12)))

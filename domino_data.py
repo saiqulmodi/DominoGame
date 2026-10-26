@@ -894,6 +894,18 @@ SUBJECTS = {
     "Social": ["Long Ago", "Earth & Maps", "Our Country"],
     "Safety": ["Road Safety"],
 }
+# The NCERT class topics (catalog_more.NCERT_CATEGORIES): EVS for Classes 1-5, more
+# Science and Social Science for Classes 6-7; the crescent's Wonder Melas get a tab too
+SUBJECTS["EVS"] = ["Living & Non-living", "My Family", "Seasons & Weather", "Helpers Around Us",
+                   "Clean & Healthy", "Animal Homes", "Water O' Water", "Flying High",
+                   "Houses We Live In", "Going to School", "Save the Trees", "Basva's Farm",
+                   "Super Senses", "Tasting to Digesting", "Float or Sink", "Up You Go"]
+SUBJECTS["Science"] += ["Food & Nutrients", "Deficiency Diseases", "Plant Parts", "Body Movements",
+                        "Light & Shadows", "Heat", "Acids & Bases", "Changes Around Us",
+                        "Breathing & Blood", "How Living Things Eat", "Motion & Time"]
+SUBJECTS["Social"] += ["Moon Phases", "Globe & Time", "Early Humans", "Kings & Empires",
+                       "Government & Us"]
+SUBJECTS["Melas"] = ["Flower Garden", "Wonder Mela", "Book Fair", "Auto Expo", "Boat Mela"]
 
 
 def letter_chant(cat, name):

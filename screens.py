@@ -442,6 +442,97 @@ class StoryList:
     g.overlay = None
 
 
+class Creations:
+  """My Creations (the museum on the crescent): every picture the child has brought to
+  life, newest first, as photo cards. Tap a card to hear it; Back returns to town."""
+
+  COLS, ROWS = 3, 4
+
+  def __init__(self):
+    self.page = 0
+    self.pop = (None, 0.0)
+
+  def items(self, g):
+    out = []
+    for key in reversed(g.progress.data.get("done", [])):
+      cat, _, name = key.partition("/")
+      if name and name in hub.CATEGORIES_HUB.get(cat, {}):
+        out.append((cat, name))
+    return out
+
+  def cells(self, g):
+    items = self.items(g)
+    per = self.COLS * self.ROWS
+    pages = max(1, -(-len(items) // per))
+    self.page %= pages
+    shown = items[self.page * per:(self.page + 1) * per]
+    cw, ch = 134, 136
+    x0 = (450 - self.COLS * cw - (self.COLS - 1) * 10) // 2
+    return [(pygame.Rect(x0 + (i % self.COLS) * (cw + 10), 84 + (i // self.COLS) * (ch + 8), cw, ch), it)
+            for i, it in enumerate(shown)], pages, len(items)
+
+  def buttons(self):
+    return {"prev": pygame.Rect(16, AREA_BOTTOM - 56, 96, 42),
+            "back": pygame.Rect(175, AREA_BOTTOM - 56, 100, 42),
+            "next": pygame.Rect(338, AREA_BOTTOM - 56, 96, 42)}
+
+  def draw(self, screen, g, now):
+    shade(screen, g.theme, 250)
+    title(screen, g, "My Creations")
+    cells, pages, total = self.cells(g)
+    sub = g.font.render(f"You brought {total} pictures to life! Tap one to hear it.", True, CYAN)
+    screen.blit(sub, sub.get_rect(center=(225, 62)))
+    for rect, (cat, name) in cells:
+      popped = self.pop[0] == (cat, name) and now - self.pop[1] < 0.5
+      r = rect.inflate(8, 8) if popped else rect
+      pygame.draw.rect(screen, (255, 248, 230), r, border_radius=14)
+      pygame.draw.rect(screen, YELLOW, r, 3, border_radius=14)
+      pic = g.thumb(name, cat, 96)
+      if pic is not None:
+        screen.blit(pic, pic.get_rect(center=(r.centerx, r.y + 56)))
+      label = hub.CATEGORIES_HUB[cat][name].get("label") or name
+      lbl = g.small_font.render(label, True, (40, 40, 70))
+      if lbl.get_width() > r.w - 10:
+        lbl = pygame.transform.smoothscale(lbl, (r.w - 10, lbl.get_height()))
+      screen.blit(lbl, lbl.get_rect(center=(r.centerx, r.bottom - 30)))
+      c = g.small_font.render(cat, True, (120, 120, 150))
+      if c.get_width() > r.w - 10:
+        c = pygame.transform.smoothscale(c, (r.w - 10, c.get_height()))
+      screen.blit(c, c.get_rect(center=(r.centerx, r.bottom - 13)))
+    if total == 0:
+      tip = g.font.render("Trace a picture and it will live here!", True, WHITE)
+      screen.blit(tip, tip.get_rect(center=(225, 300)))
+    b = self.buttons()
+    if pages > 1:
+      button(screen, g, b["prev"], "< Back", (150, 90, 220))
+      button(screen, g, b["next"], "More >", (150, 90, 220))
+      pg = g.small_font.render(f"{self.page + 1} / {pages}", True, HINT)
+      screen.blit(pg, pg.get_rect(center=(225, AREA_BOTTOM - 70)))
+    button(screen, g, b["back"], "Town", (240, 140, 40))
+
+  def press(self, g, pos):
+    b = self.buttons()
+    cells, pages, _ = self.cells(g)
+    if b["back"].collidepoint(pos):
+      g.sfx.play("click")
+      g.overlay = None
+      return
+    if pages > 1 and b["prev"].collidepoint(pos):
+      g.sfx.play("switch")
+      self.page -= 1
+      return
+    if pages > 1 and b["next"].collidepoint(pos):
+      g.sfx.play("switch")
+      self.page += 1
+      return
+    for rect, (cat, name) in cells:
+      if rect.collidepoint(pos):
+        self.pop = ((cat, name), time.time())
+        if not g.calls.play(name):
+          g.sfx.play("chime")
+        return
+
+
 PANELS = {"menu": Menu(), "players": Players(), "rename": Rename(),
           "parents": Parents(), "stories": StoryList(), "howto": howto.GUIDE,
-          "credits": Credits()}
+          "credits": Credits(), "creations": Creations()}

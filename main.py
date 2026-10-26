@@ -37,6 +37,7 @@ import modes
 import roadsafety
 import mathsgame
 import scenery
+import sathi
 import screens
 import singalong
 import stories
@@ -56,6 +57,8 @@ from translations import LANGUAGES
 # back to the game. set_layout() fits everything to the screen.
 PANEL_W, PANEL_H = 450, 800
 WIDTH, HEIGHT = PANEL_W, PANEL_H
+CAT_PER_PAGE = 6         # the menu's category row pages through longer subjects
+SUBJ_PER_PAGE = 7        # ... and the subject row through the subjects
 TOP_H = 112                       # height of the top row (name + description)
 
 # Inside the menu panel (panel coordinates)
@@ -854,15 +857,43 @@ class Game(ui_draw.GameDrawing):
   # ------------------------------------------------------------ layout
   def subject_rects(self):
     subs = list(self.subjects)
-    w = PANEL_W / len(subs)
-    return [(pygame.Rect(int(i * w) + 2, 4, int(w) - 4, 32), s)
-            for i, s in enumerate(subs)]
+    if len(subs) <= SUBJ_PER_PAGE + 1:
+      w = PANEL_W / len(subs)
+      return [(pygame.Rect(int(i * w) + 2, 4, int(w) - 4, 32), s)
+              for i, s in enumerate(subs)]
+    # many subjects: a readable few at a time, with < and > to page through
+    per, arrow = SUBJ_PER_PAGE, 28
+    pages = math.ceil(len(subs) / per)
+    if getattr(self, "subj_page_of", None) != self.subject:
+      self.subj_page_of = self.subject
+      self.subj_page = subs.index(self.subject) // per if self.subject in subs else 0
+    self.subj_page %= pages
+    shown = subs[self.subj_page * per:(self.subj_page + 1) * per]
+    w = (PANEL_W - 2 * arrow) / per
+    out = [(pygame.Rect(2, 4, arrow - 4, 32), "<")]
+    out += [(pygame.Rect(arrow + int(i * w) + 2, 4, int(w) - 4, 32), s) for i, s in enumerate(shown)]
+    out.append((pygame.Rect(PANEL_W - arrow + 2, 4, arrow - 4, 32), ">"))
+    return out
 
   def category_rects(self):
     cats = self.subjects[self.subject]
-    w = PANEL_W / len(cats)
-    return [(pygame.Rect(int(i * w) + 3, 44, int(w) - 6, 30), c)
-            for i, c in enumerate(cats)]
+    if len(cats) <= CAT_PER_PAGE + 1:
+      w = PANEL_W / len(cats)
+      return [(pygame.Rect(int(i * w) + 3, 44, int(w) - 6, 30), c)
+              for i, c in enumerate(cats)]
+    # many categories (EVS, Science): a few at a time, with < and > to page through
+    per, arrow = CAT_PER_PAGE, 28
+    pages = math.ceil(len(cats) / per)
+    if getattr(self, "cat_page_of", None) != self.subject:
+      self.cat_page_of = self.subject
+      self.cat_page = cats.index(self.cat) // per if self.cat in cats else 0
+    self.cat_page %= pages
+    shown = cats[self.cat_page * per:(self.cat_page + 1) * per]
+    w = (PANEL_W - 2 * arrow) / per
+    out = [(pygame.Rect(3, 44, arrow - 5, 30), "<")]
+    out += [(pygame.Rect(arrow + int(i * w) + 2, 44, int(w) - 4, 30), c) for i, c in enumerate(shown)]
+    out.append((pygame.Rect(PANEL_W - arrow + 2, 44, arrow - 5, 30), ">"))
+    return out
 
   def bank_cells(self):
     """[(rect, item name or '>more')] for the current page of items."""
@@ -1007,6 +1038,15 @@ class Game(ui_draw.GameDrawing):
               self.sfx.play("click")
               self.sing.restart()
             return
+        act = self.showcase_hit((mx, my))
+        if act == "hear":                 # the showcase tabs under the picture
+          self.calls.play(self.puzzle)
+          return
+        if act == "spell":
+          self.sfx.play("click")
+          self.spell_card = True
+          self.spell_aloud()
+          return
         if self.current_video() and self.watch_rect().collidepoint(mx, my):
           self.watch_video()
         elif self.story:
@@ -1244,9 +1284,11 @@ class Game(ui_draw.GameDrawing):
     self.stage = "finished"
     self.finished_at = time.time()
     self.sfx.play("chime")
-    if self.show:                          # the butterfly effect
+    if self.show:                          # one of seven celebrations
       area = pygame.Rect(self.pic_rect) if self.pic_rect else PLAY_RECT
-      self.show.finale(area)
+      self.show.finale(area, self.sfx)
+      counter.count_event("celebration_finale_played", self.show.finale_kind)
+    counter.count_event("creation_item_unlocked", self.cat)
     self.praised_at = time.time()
     self.call_at = None            # its real sound plays when the little picture is tapped
     self.particles.confetti(PLAY_RECT)
@@ -1279,7 +1321,32 @@ class Game(ui_draw.GameDrawing):
     if self.is_custom or item.get("hindi") or item.get("source") in ("glyph", "hindi", "bangla"):
       self.praise_line = hub.praise_text(self.puzzle, self.cat)
     else:
-      self.praise_line = f"Well done! {item.get('label') or self.puzzle}!"
+      self.praise_line = f"You made it! {item.get('label') or self.puzzle}!"   # traced to life
+
+  def showcase_rects(self):
+    """Tabs under a picture brought to life: Hear it (its real sound) and Spell it."""
+    if (self.stage != "finished" or self.mode != "trace" or self.is_custom or self.sing
+            or time.time() - self.finished_at < 0.8):
+      return []
+    acts = []
+    if self.calls.sound_for(self.puzzle):
+      acts.append(("hear", "Hear it"))
+    if self.can_spell():
+      acts.append(("spell", "Spell it"))
+    if not acts:
+      return []
+    below = self.sing_rect() or (self.watch_rect() if self.current_video() else None)
+    base = below.top - 12 if below else PLAY_RECT.bottom - 34
+    w = 130
+    x0 = PLAY_RECT.centerx - (len(acts) * w + (len(acts) - 1) * 12) // 2
+    return [(pygame.Rect(x0 + i * (w + 12), base - 42, w, 42), act, label)
+            for i, (act, label) in enumerate(acts)]
+
+  def showcase_hit(self, pos):
+    for rect, act, _label in self.showcase_rects():
+      if rect.collidepoint(pos):
+        return act
+    return None
 
   def sing_rect(self):
     """The big Sing button of a finished rhyme (None when there is none)."""
@@ -1341,11 +1408,17 @@ class Game(ui_draw.GameDrawing):
       return
     if SUBJ_RECT.collidepoint(mx, my):
       for rect, s in self.subject_rects():
-        if rect.collidepoint(mx, my) and s != self.subject:
+        if rect.collidepoint(mx, my) and s in ("<", ">"):
+          self.sfx.play("switch")
+          self.subj_page += 1 if s == ">" else -1
+        elif rect.collidepoint(mx, my) and s != self.subject:
           self.select_subject(s)
     elif CAT_RECT.collidepoint(mx, my):
       for rect, c in self.category_rects():
-        if rect.collidepoint(mx, my) and c != self.cat:
+        if rect.collidepoint(mx, my) and c in ("<", ">"):
+          self.sfx.play("switch")
+          self.cat_page += 1 if c == ">" else -1
+        elif rect.collidepoint(mx, my) and c != self.cat:
           self.select_category(c)
     elif BANK_RECT.collidepoint(mx, my):
       cells, _ = self.bank_cells()

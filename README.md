@@ -48,8 +48,10 @@ Every cascade is a new little show (`magic.py`): its own melody on bell notes (I
 ragas Bhupali, Yaman, Kafi, Bilawal, or major, pentatonic, whole-tone, rising, falling or
 in waves), a slow start, twists where the line almost stops ("...?") and then bursts
 forward, a glowing wave of light with butterflies, fireflies, stars, bubbles or a rainbow,
-a butterfly-effect finale, and a **What's next?** mystery card that leads to the next
-picture.
+a finale that is one of seven celebrations (butterflies, rising balloons, doves and parrots,
+prismatic bubbles, fuljhari sparklers, festival crackers in a night sky, or fairy bulbs
+along a branching domino wave), each with its own sounds, and a **What's next?** mystery
+card that leads to the next picture.
 
 ## More ways to learn (Games)
 
@@ -82,8 +84,23 @@ picture.
 
 - Moving picture guides show how to play, and every instruction is spoken
 - A helping hand appears when a child stops tracing
-- **Wonder Town**: a 3D town where every building is a subject, with names painted on the
-  walls and yellow arrows to each door
+- **Wonder Town**: a 3D island shaped like Dubai's Palm Jumeirah, at its grand scale
+  (kilometre-long roads), where every building is a subject, with names painted on the
+  walls and yellow arrows to each door. At the gate the **Magic Box** has a crystal button
+  per class (Class 1-7, shown and spoken in English, Hindi or Bangla) that sends the hero
+  down the **Domino Highway** at 10x speed, glowing dominoes toppling behind, to that
+  class's **pavilion**; its **Subject Magic Console** opens the class's Maths chapters,
+  EVS (Classes 1-5) or Science and Social Science (Classes 6-7), English, Hindi, Bangla
+  and the India Map. **Back to Gate** crystals fly back to the Magic Box. Tapping any
+  building still flies there too. Along the outer crescent: Safari Zoo, Bird Sanctuary,
+  Coral Aquarium, Flower Garden, Wonder Mela, Book Fair, Auto Expo and Boat Mela
+- **NCERT topics by class** (`catalog_more.NCERT_CATEGORIES`, `ncert.py`): Living &
+  Non-living, My Family, Seasons, Helpers, Cleanliness; Animal Homes, Water, Flying High,
+  Houses, Going to School, Save the Trees, Basva's Farm, Super Senses, Tasting to
+  Digesting, Float or Sink, Up You Go; Food & Nutrients, Deficiency Diseases, Plant Parts,
+  Body Movements, Light, Heat, Acids & Bases, Changes, Breathing & Blood, How Living Things
+  Eat, Motion & Time; Moon Phases, Globe & Time, Early Humans, Kings & Empires,
+  Government & Us
 - A **rainbow cap** gains a colour for every subject discovered; stickers for milestones
 
 ## Run it

@@ -9,18 +9,29 @@ part of the game:
 Tapping a building (or its square on the map, or from the Houses directory) flies you there and opens it:
 each flight has its own style, colours and music, with dominoes toppling along the path (flight.py).
 
+The Magic Box at the entrance gate has a crystal button per class (labels and a spoken welcome in
+English, Hindi or Bangla): it sends the hero down the Domino Highway at 10x speed to that class's
+pavilion, whose Subject Magic Console opens the class's Maths chapters, EVS / Science, Social
+Science, languages and India Map. A Back to Gate crystal (and button) flies back to the Magic Box.
+
 Magic tools: Web swing (hold), Web zip (onto a roof), Super-jump boots, and a Glide cape (hold).
 The town's maths lives in town3d.py; this file paints it and handles taps and keys.
 """
 
+import bisect
 import math
 import random
 
 import pygame
 
+import os
+
+import counter
 import domino_data as hub
 import flight as flights
 import magic
+import ncert
+import sathi
 import town3d as town
 
 SKY_TOP = (90, 160, 240)
@@ -59,6 +70,9 @@ DREAMS = [
     ("Helpers", "Farmer", "Farmer", "किसान", "কৃষক"),
 ]
 DREAM_SECS = 4.0
+FAR_VIEW = 1400.0             # how far away buildings and land are still drawn (the 10x Palm)
+LABEL_FAR = 900.0             # name tags up to this far
+FOV_WARP = math.radians(14)   # the view widens this much at the Highway's full speed
 FLY_SECS = 5.0                # opening aerial view of the Palm, then down to the hero
 FLY_HOLD = 1.6                # ... of which this long it simply hangs above the island
 WEB = (250, 250, 255)
@@ -74,8 +88,24 @@ TIPS = [
 ]
 ROAD_GAME = "Cross the Road"      # the Road Safety Park also offers the road game
 MATHS_GAME = "Maths Play"         # the Number House also offers the maths game
-TOUR = ["english", "nature", "maths", "food", "story", "hindi", "home", "bangla", "science", "social", "travel",
-        "world", "safety", "rhymes", "india", "fun", "studio", "museum", "family", "arcade"]
+TOUR = ["gateway"] + [f"class{n}" for n in range(1, 8)] + [
+        "english", "nature", "maths", "food", "story", "hindi", "home", "bangla", "science", "social", "travel",
+        "world", "safety", "rhymes", "india", "fun", "studio", "museum", "family", "arcade",
+        "creations"] + [z[0] for z in town.ZONES]
+HI_NUM = ["एक", "दो", "तीन", "चार", "पाँच", "छह", "सात"]
+BN_TO = ["একে", "দুইয়ে", "তিনে", "চারে", "পাঁচে", "ছয়ে", "সাতে"]
+LABELS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "labels")
+# The Subject Magic Console: (key, English name, icon (category, item)); some only for some classes
+CONSOLE = [
+    ("maths", "Maths", None),
+    ("evs", "EVS", ("Animals", "Tiger")),
+    ("science", "Science", ("Lab Tools", "Microscope")),
+    ("social", "Social Science", ("Long Ago", "Clay Pot")),
+    ("english", "English", ("ABC", "A")),
+    ("hindi", "Hindi", None),
+    ("bangla", "Bangla", None),
+    ("india", "India Map", ("India Map", "India")),
+]
 
 
 def _mix(a, b, k):
@@ -115,7 +145,7 @@ class WorldScene:
     self.boxes = town.build_world()
     # Collectible Stars along Palm Trunk and Fronds
     self.stars = []
-    for z in range(0, 310, 18):
+    for z in range(0, 3100, 180):
       self.stars.append([0.0, z, True, 0.0]) # [x, z, active, bob_phase]
     for key, path in town.FRONDS.items():     # two stars along every frond
       for k, phase in ((len(path) // 3, 0.5), (2 * len(path) // 3, 1.0)):
@@ -123,9 +153,11 @@ class WorldScene:
     self.score_stars = 0
     self.by_key = {b.key: b for b in self.boxes}
     self.trees, self.lamps = town.trees_and_lamps(self.boxes)
+    self.tree_z = [t[1] for t in self.trees]
+    self.lamp_z = [lp[1] for lp in self.lamps]
     self.land = self.land_shapes()
     self.flyover = 0.0            # seconds into the opening aerial view (None = done)
-    self.far = 280.0              # how far away buildings and land are still drawn
+    self.far = FAR_VIEW           # how far away buildings and land are still drawn
     self.fog_k = 1.0
     self._map_cache = None
     self.player = town.Player()
@@ -161,6 +193,16 @@ class WorldScene:
     self.flight = None            # the flight to a house now under way (flight.py)
     self.flight_inst = random.choice(magic.INSTRUMENTS)   # the next flight's music
     self.cam_side = 0.55
+    self.magic_open = False       # the Magic Box's class buttons are showing
+    self.console = None           # the Class Pavilion whose Subject Magic Console is open
+    self.console_wave = None      # (start, from, to, choice): the indoor domino wave
+    self.gate_rect = pygame.Rect(0, 0, 0, 0)
+    self._labels = {}
+
+  @property
+  def panel_open(self):
+    return (self.picker is not None or self.show_directory or self.magic_open
+            or self.console is not None)
 
   @property
   def flying(self):
@@ -219,6 +261,12 @@ class WorldScene:
     r = img.get_rect(**{anchor: (int(pos[0]), int(pos[1]))})
     s.blit(img, r)
     return r
+
+  def fit_text(self, s, msg, pos, size, width, colour=WHITE):
+    """Text made smaller until it fits the width."""
+    while size > 10 and self.g.font_at(size).size(msg)[0] > width:
+      size -= 1
+    return self.text(s, msg, pos, size, colour)
 
   def icon_for(self, b, size):
     cat, item = b.icon or (None, None)
@@ -279,6 +327,64 @@ class WorldScene:
     if self.flying:
       self.flight.skip()
 
+  def visit(self, b):
+    """A tapped building: fly there and go in (the Magic Box opens at once when near; a
+    Back to Gate crystal flies straight to the Magic Box)."""
+    if b.kind == "return":
+      b = self.by_key["gateway"]
+    if b.kind == "gateway" and math.dist((b.door()[0], b.door()[2]),
+                                         (self.player.pos[0], self.player.pos[2])) < 30:
+      self.target = b
+      self.enter(b)
+      return
+    self.fly_to(b)
+
+  def start_highway(self, n):
+    """The Magic Box's ride: down the Domino Highway at 10x speed to class n's pavilion."""
+    if self.flying:
+      return
+    b = self.by_key[f"class{n}"]
+    self.magic_open = False
+    self.target = b
+    self.enter_on_arrival = b
+    sfx = self.g.sfx
+    p = self.player
+    p.rope = p.zip = None
+    inst = "bell" if getattr(sfx, "ok", False) else None
+    self.flight = flights.Highway(tuple(p.pos), b, town.CLASS_COLOURS[n], inst)
+    if inst:
+      sfx.prepare(inst, self.flight.notes())
+    sfx.play("switch")
+    self.cam_side = 0.0
+    self.say(f"Domino Highway to Class {n}!", 3.5)
+    counter.count_event("magic_box_class_travel", f"class{n}")
+
+  def class_word(self, n):
+    """(English, picture of the class's name in the child's language or None)."""
+    return f"Class {n}", self.label_image(f"class{n}")
+
+  def label_image(self, key, height=None):
+    """A Hindi / Bangla label drawn by tools/make_labels.py (labels/<lang>_<key>.png)."""
+    lang = self.g.lang
+    if lang not in ("hi", "bn"):
+      return None
+    k = (lang, key, height)
+    if k not in self._labels:
+      img = None
+      try:
+        img = pygame.image.load(os.path.join(LABELS, f"{lang}_{key}.png")).convert_alpha()
+        if height:
+          img = pygame.transform.smoothscale(img, (max(1, img.get_width() * height // img.get_height()), height))
+      except Exception:
+        img = None
+      self._labels[k] = img
+    return self._labels[k]
+
+  def welcome_class(self, n):
+    self.g.say(f"Welcome to Class {n}!",
+               {"hi": f"कक्षा {HI_NUM[n - 1]} में आपका स्वागत है!",
+                "bn": f"শ্রেণি {BN_TO[n - 1]} স্বাগতম!"}.get(self.g.lang))
+
   # --- entering buildings ----------------------------------------------------------
   def enter(self, b):
     g = self.g
@@ -301,6 +407,26 @@ class WorldScene:
       g.overlay = "shelf"
     elif kind == "games":
       g.overlay = "menu"
+    elif kind == "gateway":
+      self.magic_open = True
+      g.say("Pick your class!", {"hi": "अपनी कक्षा चुनो!", "bn": "তোমার শ্রেণি বেছে নাও!"}.get(g.lang))
+    elif kind == "class":
+      self.console = b
+      self.console_wave = None
+    elif kind == "return":
+      self.fly_to(self.by_key["gateway"])
+    elif kind == "zone":
+      cats = [c for c in b.payload if c in hub.CATEGORIES_HUB]
+      if cats:
+        self.picker = (b, cats)
+    elif kind == "creations":
+      g.overlay = "creations"
+
+  def subject_of(self, cat):
+    for subject, cats in self.g.subjects.items():
+      if cat in cats:
+        return subject
+    return None
 
   def pick_category(self, b, cat):
     g = self.g
@@ -311,10 +437,141 @@ class WorldScene:
     if cat == MATHS_GAME:
       g.set_mode("maths")
       return
-    if g.subject != b.payload:
-      g.subject = b.payload
+    subject = b.payload if b.kind == "subject" else self.subject_of(cat)
+    if subject is not None and g.subject != subject:
+      g.subject = subject
     g.select_category(cat)
     g.overlay = "nav"
+
+  # --- the Magic Box and the Subject Magic Console ----------------------------------
+  def console_items(self, n):
+    """The console's buttons for class n: EVS for Classes 1-5, Science and Social Science
+    for Classes 6-7, Maths, the three languages and the India Map for everyone."""
+    out = []
+    for key, name, icon in CONSOLE:
+      if (key == "evs" and n > 5) or (key in ("science", "social") and n < 6):
+        continue
+      out.append((key, name, icon))
+    return out
+
+  def console_cats(self, n, key):
+    """The categories behind a console button (this class's NCERT topics first)."""
+    own = list(ncert.CLASS_TOPICS.get(n, {}).get(key, []))
+    extra = {"evs": ["Me & Home"] if n <= 2 else ["Nature", "Food"], "science": ["Science"],
+             "social": ["Social"], "english": ["English"], "hindi": ["Hindi"], "bangla": ["Bangla"],
+             "india": ["India", "Safety"]}.get(key, [])
+    for subject in extra:
+      own += [c for c in self.g.subjects.get(subject, []) if c not in own]
+    cats = [c for c in own if c in hub.CATEGORIES_HUB]
+    if key == "india":
+      cats.append(ROAD_GAME)
+    return cats
+
+  def console_choose(self, n, key):
+    g = self.g
+    b = self.console
+    self.console = None
+    if key == "maths":
+      g.maths_open_class = n                  # Maths Play opens on this class's chapters
+      g.set_mode("maths")
+      return
+    cats = self.console_cats(n, key)
+    if cats:
+      self.picker = (b, cats)
+
+  def magic_layout(self):
+    w, h = self.size
+    cols = 2 if w < 560 else 4
+    rows = -(-7 // cols)
+    bw = min(150, (w - 60 - (cols - 1) * 12) // cols)
+    bh = max(70, min(104, (h - 230) // rows - 12))
+    panel = pygame.Rect(0, 0, cols * (bw + 12) + 30, rows * (bh + 12) + 150)
+    panel.center = (w // 2, h // 2)
+    cells = []
+    for k, (n, name, col, _keys) in enumerate(town.CLASSES):
+      r, c = divmod(k, cols)
+      left = panel.x + 21 + c * (bw + 12)
+      if r == rows - 1 and 7 % cols:                     # centre the last row
+        left += (cols - 7 % cols) * (bw + 12) // 2
+      cells.append((pygame.Rect(left, panel.y + 80 + r * (bh + 12), bw, bh), n, name, col))
+    close = pygame.Rect(0, 0, 160, 40)
+    close.midbottom = (panel.centerx, panel.bottom - 12)
+    return panel, cells, close
+
+  def console_layout(self):
+    b = self.console
+    n = b.payload
+    items = self.console_items(n)
+    w, h = self.size
+    cols = 2 if w < 560 else 4
+    rows = -(-len(items) // cols)
+    bw = min(150, (w - 60 - (cols - 1) * 12) // cols)
+    bh = max(76, min(110, (h - 300) // rows - 12))
+    panel = pygame.Rect(0, 0, cols * (bw + 12) + 30, rows * (bh + 12) + 220)
+    panel.center = (w // 2, h // 2)
+    cells = []
+    for k, (key, name, icon) in enumerate(items):
+      r, c = divmod(k, cols)
+      cells.append((pygame.Rect(panel.x + 21 + c * (bw + 12), panel.y + 80 + r * (bh + 12), bw, bh),
+                    key, name, icon))
+    pedestal = (panel.centerx, panel.bottom - 108)
+    gate = pygame.Rect(panel.x + 16, panel.bottom - 52, (panel.w - 44) // 2, 40)
+    close = pygame.Rect(gate.right + 12, panel.bottom - 52, (panel.w - 44) // 2, 40)
+    return panel, cells, pedestal, gate, close
+
+  def press_panels(self, pos):
+    """Taps on the Magic Box or the Subject Magic Console; True when one was open."""
+    if self.magic_open:
+      panel, cells, close = self.magic_layout()
+      for r, n, _name, _col in cells:
+        if r.collidepoint(pos):
+          self.g.sfx.play("chime")
+          self.welcome_class(n)
+          self.start_highway(n)
+          return True
+      if close.collidepoint(pos) or not panel.collidepoint(pos):
+        self.g.sfx.play("click")
+        self.magic_open = False
+      return True
+    if self.console is not None:
+      if self.console_wave is not None:                  # the dominoes are on their way
+        return True
+      panel, cells, pedestal, gate, close = self.console_layout()
+      for r, key, _name, _icon in cells:
+        if r.collidepoint(pos):
+          self.g.sfx.play("tip")
+          self.console_wave = (self.t, pedestal, r.center, key)
+          return True
+      if gate.collidepoint(pos):
+        self.g.sfx.play("switch")
+        self.console = None
+        self.fly_to(self.by_key["gateway"])
+        return True
+      if close.collidepoint(pos) or not panel.collidepoint(pos):
+        self.g.sfx.play("click")
+        self.console = None
+      return True
+    return False
+
+  WAVE_N = 14
+  WAVE_SECS = 1.0
+
+  def update_console_wave(self):
+    if self.console_wave is None or self.console is None:
+      return
+    t0, _a, _b, key = self.console_wave
+    k = (self.t - t0) / self.WAVE_SECS
+    done = int(min(1.0, k) * self.WAVE_N)
+    clacked = getattr(self, "_wave_clacked", 0) if k > 0.02 else 0
+    if done > clacked:
+      if done % 2 == 0:
+        self.g.sfx.play("clack", done)
+      self._wave_clacked = done
+    if k >= 1.25:
+      self.console_wave = None
+      self._wave_clacked = 0
+      self.g.sfx.play("chime")
+      self.console_choose(self.console.payload, key)
 
   # --- directory layout & input ----------------------------------------------------
   def directory_layout(self):
@@ -374,7 +631,10 @@ class WorldScene:
     w, h = self.size
     cols = 2 if w < 600 else min(3, len(cats))
     rows = -(-len(cats) // cols)
-    cw, ch = min(190, (w - 60) // cols), 120
+    while rows * 76 > h - 150 and cols < 4:            # a long list: more, smaller cells
+      cols += 1
+      rows = -(-len(cats) // cols)
+    cw, ch = min(190, (w - 60) // cols), max(64, min(120, (h - 150) // rows - 12))
     pw, ph = cols * (cw + 12) + 28, rows * (ch + 12) + 130
     panel = pygame.Rect(0, 0, pw, ph)
     panel.center = (w // 2, h // 2)
@@ -410,11 +670,14 @@ class WorldScene:
     if self.flying:                         # a tap during a flight lands at once
       self.skip_flight()
       return
+    if self.press_panels(pos):
+      return
     if self.show_directory:
       panel, cells, close_btn, prev_btn, next_btn, _pages = self.directory_layout()
       for r, b in cells:
         if r.collidepoint(pos):
-          self.fly_to(b)
+          self.show_directory = False
+          self.visit(b)
           return
       if prev_btn and prev_btn.collidepoint(pos):
         self.dir_page -= 1
@@ -468,6 +731,10 @@ class WorldScene:
                   "bn": f"তোমার রামধনু টুপিতে সাতটার মধ্যে {n}টা রং আছে। "
                         "নতুন বিষয় শিখে নতুন রং পাও!"}.get(self.g.lang))
       return
+    if self.gate_rect.collidepoint(pos):      # drawn over the dream bubble: first
+      self.g.sfx.play("switch")
+      self.fly_to(self.by_key["gateway"])
+      return
     if self.dream_rect.collidepoint(pos):
       self.g.sfx.play("chime")
       self.say_dream()
@@ -482,11 +749,11 @@ class WorldScene:
         return
     for rect, b in self.door_marks:
       if rect.collidepoint(pos):
-        self.fly_to(b)
+        self.visit(b)
         return
     b = self.pick_box_at(pos)
     if b is not None and b.kind is not None:
-      self.fly_to(b)
+      self.visit(b)
       return
     self.drag_x = pos[0]
 
@@ -527,9 +794,14 @@ class WorldScene:
       if k in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_e, pygame.K_ESCAPE):
         self.skip_flight()
       return True
-    if (self.picker is not None or self.show_directory) and k in (pygame.K_ESCAPE, pygame.K_AC_BACK):
+    if self.panel_open and k in (pygame.K_ESCAPE, pygame.K_AC_BACK):
       self.picker = None
       self.show_directory = False
+      self.magic_open = False
+      self.console = None
+      self.console_wave = None
+      return True
+    if self.magic_open or self.console is not None:
       return True
     if k == pygame.K_h:
       self.show_directory = not self.show_directory
@@ -616,7 +888,7 @@ class WorldScene:
 
   def end_flyover(self):
     self.flyover = None
-    self.far, self.fog_k = 280.0, 1.0
+    self.far, self.fog_k = FAR_VIEW, 1.0
     self.cam.pitch = -0.32
     self.cam.follow(self.player.pos, self.player.yaw)
     self.sky_stale = True
@@ -627,16 +899,17 @@ class WorldScene:
     cam = self.cam
     e = k * k * (3 - 2 * k)
     w, h = self.size
-    height = max(430 * cam.focal / h, 440 * cam.focal / w)     # the whole island fits
-    top_pos, top_pitch = (0.0, height, 165.0), -1.52
+    x0, x1, z0, z1 = town.BOUNDS
+    height = max((z1 - z0) * cam.focal / h, (x1 - x0) * 1.05 * cam.focal / w)   # the whole island fits
+    top_pos, top_pitch = (0.0, height, (z0 + z1) / 2 - 0.04 * (z1 - z0)), -1.52
     cam.pitch = -0.32
     cam.follow(self.player.pos, self.player.yaw)
     chase = cam.pos
     cam.pos = tuple(a + (b - a) * e for a, b in zip(top_pos, chase))
     cam.pitch = top_pitch + (-0.32 - top_pitch) * e
     cam._axes()
-    self.far = 280.0 + (height + 500.0) * (1 - e)
-    self.fog_k = 0.15 + 0.85 * e
+    self.far = FAR_VIEW + (height + 5000.0) * (1 - e)
+    self.fog_k = 0.02 + 0.98 * e
     self.sky_stale = True             # draw() repaints the sky for the new horizon
 
   def update(self, dt):
@@ -652,11 +925,12 @@ class WorldScene:
         return
     self.speak_welcome()
     self.steer_camera(dt)
+    self.update_console_wave()
     if self.flight is not None and self.fly(dt):
       return
     if self.flight is None and int(self.t * 60) % 3 == 1:
       self.g.sfx.warm(self.flight_inst)       # the next flight's notes, a few at a time
-    if self.g.overlay or self.picker is not None or self.show_directory:
+    if self.g.overlay or self.panel_open:
       return
     try:
       keys = pygame.key.get_pressed()
@@ -716,7 +990,10 @@ class WorldScene:
         self.g.sfx.play("chime")
     cx, _, cz = f.box.centre
     look = self.cam.yaw
-    if math.hypot(cx - p.pos[0], cz - p.pos[2]) > 4.0:
+    if getattr(f, "highway", False):          # the Highway: the camera rides behind
+      look = f.yaw
+      p.grounded = f.landed
+    elif math.hypot(cx - p.pos[0], cz - p.pos[2]) > 4.0:
       look = math.atan2(cx - p.pos[0], cz - p.pos[2]) + self.cam_side
     self.anchor = None
     self.cam.follow(p.pos, look, dt)
@@ -725,7 +1002,11 @@ class WorldScene:
   def steer_camera(self, dt):
     """During a flight the camera stands further back and higher, so the whole path shows."""
     cam = self.cam
-    if self.flying and self.flight.t < self.flight.hover_t - 0.8:
+    warp = 0.0
+    if self.flying and getattr(self.flight, "highway", False):
+      warp = self.flight.speed_k              # warp speed: further back, and a wider view
+      want = (30.0 + 10.0 * warp, 12.0 + 2.0 * warp, -0.30)
+    elif self.flying and self.flight.t < self.flight.hover_t - 0.8:
       want = (46.0, 20.0, -0.44)
     elif self.flying:                  # close in to watch the helicopter landing
       want = (30.0, 11.0, -0.30)
@@ -736,12 +1017,16 @@ class WorldScene:
     cam.dist += (want[0] - cam.dist) * k
     cam.height_offset += (want[1] - cam.height_offset) * k
     cam.pitch += (want[2] - cam.pitch) * k
+    fov = cam.FOV + FOV_WARP * warp
+    if abs(fov - cam.fov) > 1e-4:
+      cam.set_fov(cam.fov + (fov - cam.fov) * min(1.0, dt * 4.0))
+      self.sky_stale = True
     if abs(cam.pitch - old) > 1e-5:
       self.sky_stale = True
 
   # --- drawing ---------------------------------------------------------------------
   def fog(self, col, depth):
-    return _mix(col, FOG, min(0.75, max(0.0, (depth * self.fog_k - 45.0) / 240.0)))
+    return _mix(col, FOG, min(0.75, max(0.0, (depth * self.fog_k - 60.0) / 1000.0)))
 
   def draw(self, s):
     self.fit(s.get_size())
@@ -765,6 +1050,7 @@ class WorldScene:
       pygame.draw.arc(s, (90, 60, 30), (sx - 12, sy - 4, 24, 18), math.pi * 1.1, math.pi * 1.9, 3)
     self.draw_hills(s, hy)
     self.draw_ground(s)
+    self.draw_sea_life(s)
     items = []
     self.hit_polys = {}
     cp = cam.pos
@@ -772,11 +1058,13 @@ class WorldScene:
       dist = math.dist(b.centre, cp)
       if dist < self.far:
         items.append((dist, 0, b))
-    for t in self.trees:
+    lo, hi = bisect.bisect_left(self.tree_z, cp[2] - 170), bisect.bisect_right(self.tree_z, cp[2] + 170)
+    for t in self.trees[lo:hi]:               # only the nearby ones (sorted by z)
       dist = math.dist((t[0], t[2] / 2, t[1]), cp)
       if dist < 170:
         items.append((dist, 1, t))
-    for lp in self.lamps:
+    lo, hi = bisect.bisect_left(self.lamp_z, cp[2] - 120), bisect.bisect_right(self.lamp_z, cp[2] + 120)
+    for lp in self.lamps[lo:hi]:
       dist = math.dist((lp[0], 3, lp[1]), cp)
       if dist < 120:
         items.append((dist, 2, lp))
@@ -789,6 +1077,10 @@ class WorldScene:
     for dist, kind, obj in items:
       if kind == 0:
         self.draw_box(s, obj, dist)
+        if obj.kind in ("gateway", "return"):
+          self.draw_crystal(s, obj)
+        elif obj.kind == "creations":
+          self.draw_creations(s, obj)
         if obj.key in labels:
           self.draw_label(s, obj, *labels[obj.key])
       elif kind == 1:
@@ -799,6 +1091,7 @@ class WorldScene:
         self.flight.draw_domino(s, cam, obj, self.fog)
       else:
         self.draw_player(s)
+        self.draw_sathi_ahead(s)
     if self.flyover is not None:            # the aerial view: only the Palm and a title
       self.draw_flyover_title(s)
       return
@@ -922,15 +1215,19 @@ class WorldScene:
         continue                               # wholly behind the camera
       self.ground_poly(s, poly, col)
 
-    # 3. The main street along the trunk (Wide Royal Avenue)
+    # 3. The main street along the trunk (Wide Royal Avenue): only the pieces in view
     for za in range(int(town.MAINLAND_Z) - 20, int(town.TRUNK_END), 32):
       zb = min(town.TRUNK_END, za + 32)
+      dz = (za + zb) / 2 - cz
+      near = math.hypot(cx, dz) - 17
+      if near > self.far + 20 or (self.flyover is None and (-cx * fx + dz * fz) / flat < -17):
+        continue
       self.ground_poly(s, [(-10, za), (10, za), (10, zb), (-10, zb)], STREET)
       self.ground_poly(s, [(-0.6, za), (0.6, za), (0.6, zb), (-0.6, zb)], (245, 215, 60))
 
     # 4. Short paths and front courtyards of the trunk's own houses
     for b in self.boxes:
-      if b.kind is not None and b.kind != "subject" and b.key != "arcade":
+      if b.kind is not None and b.kind not in ("subject", "zone") and b.key != "arcade":
         dx, _, dz = b.door()
         xa, xb = sorted((dx, 0.0))
         self.ground_poly(s, [(xa - 1.0, dz - 4.5), (xb + 1.0, dz - 4.5), (xb + 1.0, dz + 4.5), (xa - 1.0, dz + 4.5)], PATH)
@@ -1107,9 +1404,213 @@ class WorldScene:
                                      (int(w) + 1, int(hgt) + 1))
       s.blit(piece, (int(x), int(y)))
 
+  def draw_sathi_ahead(self, s):
+    """Sathi hops along the Domino Highway a little ahead of the hero."""
+    f = self.flight
+    if not self.flying or not getattr(f, "highway", False):
+      return
+    pos, _yaw = f.at_s(f.s + 9.0)
+    q = self.cam.project((pos[0] + 1.6, 0.0, pos[2]))
+    if q:
+      sathi.draw(s, q[0], q[1], max(8, min(90, self.cam.focal * 3.2 / q[2])), self.t, "hop")
+
+  def draw_sea_life(self, s):
+    """Boats bobbing and dolphins leaping in the water near the camera."""
+    if self.flyover is not None:
+      return
+    cam = self.cam
+    cx, _, cz = cam.pos
+    for k in range(10):
+      gx = math.floor(cx / 90.0) * 90.0 + ((k * 37) % 5 - 2) * 90.0 + 25.0 * math.sin(k * 7.1)
+      gz = math.floor(cz / 90.0) * 90.0 + ((k * 53) % 5 - 1) * 90.0 + 25.0 * math.cos(k * 3.3)
+      seed = int(gx * 13 + gz * 7) % 97
+      if town.land_at(gx, gz) or town.land_at(gx + 8, gz) or town.land_at(gx - 8, gz):
+        continue
+      if seed % 3 == 0:                          # a dolphin leaping now and then
+        ph = (self.t * 0.35 + seed * 0.13) % 1.0
+        if ph > 0.45:
+          continue
+        u = ph / 0.45
+        p = cam.project((gx + 10 * (u - 0.5), 4.5 * math.sin(math.pi * u), gz))
+        if not p or p[2] > 260:
+          continue
+        k2 = cam.focal / p[2]
+        ang = math.cos(math.pi * u) * 0.9
+        body = [(p[0] + math.cos(ang) * 2.4 * k2 * sgn, p[1] - math.sin(ang) * 2.4 * k2 * sgn) for sgn in (1, -1)]
+        pygame.draw.line(s, self.fog((80, 110, 150), p[2]), body[0], body[1], max(2, int(1.1 * k2)))
+        pygame.draw.circle(s, self.fog((80, 110, 150), p[2]), (int(body[0][0]), int(body[0][1])), max(1, int(0.6 * k2)))
+        continue
+      bob = 0.3 * math.sin(self.t * 1.8 + seed)
+      hull = [cam.project((gx + dx, bob + dy, gz)) for dx, dy in ((-3.0, 0.6), (3.0, 0.6), (2.2, -0.4), (-2.2, -0.4))]
+      if not all(hull) or hull[0][2] > 260:
+        continue
+      col = ((230, 70, 60), (250, 250, 250), (60, 120, 220), (250, 190, 40))[seed % 4]
+      pygame.draw.polygon(s, self.fog(col, hull[0][2]), [h[:2] for h in hull])
+      mast = cam.project((gx, bob + 0.6, gz)), cam.project((gx, bob + 6.0, gz)), cam.project((gx + 2.6, bob + 1.0, gz))
+      if all(mast):
+        pygame.draw.polygon(s, self.fog((255, 255, 245), mast[0][2]), [m[:2] for m in mast])
+        pygame.draw.line(s, self.fog((90, 70, 50), mast[0][2]), mast[0][:2], mast[1][:2], 1)
+
+  def draw_creations(self, s, b):
+    """The child's latest creations float round the My Creations museum."""
+    done = self.g.progress.data.get("done", [])[-8:]
+    if not done:
+      return
+    cx, _, cz = b.centre
+    for i, key in enumerate(done):
+      cat, _, name = key.partition("/")
+      a = self.t * 0.4 + i * math.tau / len(done)
+      p = self.cam.project((cx + 20 * math.cos(a), b.top + 6 + 1.5 * math.sin(self.t * 2 + i), cz + 20 * math.sin(a)))
+      if not p or p[2] > 400:
+        continue
+      size = int(max(16, min(96, self.cam.focal * 6 / p[2])) // 16 * 16)
+      pic = self.g.thumb(name, cat, size)
+      if pic is not None:
+        s.blit(pic, pic.get_rect(midbottom=(int(p[0]), int(p[1]))))
+
+  def draw_crystal(self, s, b):
+    """The Magic Box glows on its pedestal with seven class crystals circling it; a Back
+    to Gate crystal glows and spins."""
+    cam = self.cam
+    cx, _, cz = b.centre
+    gate = b.kind == "gateway"
+    y = b.h + (2.6 if gate else 1.4) + 0.3 * math.sin(self.t * 2.2)
+    c = cam.project((cx, y, cz))
+    if not c or c[2] > 400:
+      return
+    k = cam.focal / c[2]
+    size = (1.6 if gate else 1.0) * k
+    glow = pygame.Surface((int(size * 6) + 4,) * 2, pygame.SRCALPHA)
+    gc = (200, 150, 255) if gate else (150, 240, 255)
+    pygame.draw.circle(glow, (*gc, 70), (glow.get_width() // 2,) * 2, int(size * 3))
+    pygame.draw.circle(glow, (*gc, 110), (glow.get_width() // 2,) * 2, int(size * 1.9))
+    s.blit(glow, (int(c[0] - glow.get_width() / 2), int(c[1] - glow.get_height() / 2)))
+    spin = self.t * 1.6
+    gem = [(c[0], c[1] - size * 1.3), (c[0] + size * abs(math.cos(spin)), c[1]),
+           (c[0], c[1] + size * 1.3), (c[0] - size * abs(math.cos(spin)), c[1])]
+    pygame.draw.polygon(s, (255, 230, 120) if gate else (170, 245, 255), gem)
+    pygame.draw.polygon(s, WHITE, gem, max(1, int(size / 6)))
+    if gate:                                  # the seven class crystals going round
+      for i, (n, _name, col, _keys) in enumerate(town.CLASSES):
+        a = spin + i * math.tau / 7
+        q = cam.project((cx + 2.4 * math.cos(a), y + 0.4 * math.sin(a * 2), cz + 2.4 * math.sin(a)))
+        if q:
+          r = max(2, int(cam.focal * 0.42 / q[2]))
+          pygame.draw.circle(s, col, (int(q[0]), int(q[1])), r)
+          pygame.draw.circle(s, WHITE, (int(q[0] - r / 3), int(q[1] - r / 3)), max(1, r // 3))
+
+  def draw_gem_button(self, s, r, col, title, native=None, sub=None, icon=None):
+    """A crystal button: a faceted gem in the class colour."""
+    cut = min(18, r.h // 4)
+    outer = [(r.x + cut, r.y), (r.right - cut, r.y), (r.right, r.y + cut), (r.right, r.bottom - cut),
+             (r.right - cut, r.bottom), (r.x + cut, r.bottom), (r.x, r.bottom - cut), (r.x, r.y + cut)]
+    pygame.draw.polygon(s, _shade(col, 0.8), outer)
+    inner = r.inflate(-cut, -cut)
+    top = [(r.x + cut, r.y), (r.right - cut, r.y), (inner.right, inner.y), (inner.x, inner.y)]
+    pygame.draw.polygon(s, _mix(col, WHITE, 0.45), top)
+    pygame.draw.rect(s, col, inner)
+    shine = int(inner.w * ((self.t * 0.4 + r.x * 0.003) % 1.6 - 0.3))
+    if 0 < shine < inner.w - 6:
+      pygame.draw.line(s, _mix(col, WHITE, 0.6), (inner.x + shine, inner.bottom - 2),
+                       (inner.x + min(inner.w - 2, shine + inner.h // 2), inner.y + 2), 3)
+    pygame.draw.polygon(s, WHITE, outer, 2)
+    y = inner.centery
+    if icon is not None:
+      s.blit(icon, icon.get_rect(midleft=(inner.x + 4, inner.centery)))
+    cx = inner.centerx + (icon.get_width() // 2 if icon is not None else 0)
+    room = inner.w - 8 - (icon.get_width() if icon is not None else 0)
+    if native is not None and native.get_width() > room:      # long Hindi / Bangla words
+      native = pygame.transform.smoothscale(
+          native, (room, max(1, native.get_height() * room // native.get_width())))
+    if native is not None:
+      s.blit(native, native.get_rect(center=(cx, y - 8)))
+      self.text(s, title, (cx, inner.bottom - 10), 13, WHITE)
+    else:
+      size = 20
+      while size > 12 and self.g.font_at(size).size(title)[0] > inner.w - 8 - (icon.get_width() if icon else 0):
+        size -= 1
+      self.text(s, title, (cx, y - (8 if sub else 0)), size, WHITE)
+    if sub and native is None:
+      self.text(s, sub, (cx, inner.bottom - 10), 12, (255, 255, 240))
+
+  def draw_magic_box(self, s):
+    panel, cells, close = self.magic_layout()
+    veil = pygame.Surface(self.size, pygame.SRCALPHA)
+    veil.fill((20, 10, 50, 170))
+    s.blit(veil, (0, 0))
+    pygame.draw.rect(s, (40, 26, 90), panel, border_radius=22)
+    pygame.draw.rect(s, (255, 215, 90), panel, 4, border_radius=22)
+    glow = 0.5 + 0.5 * math.sin(self.t * 3)
+    self.text(s, "Magic Box", (panel.centerx, panel.y + 30), 28, _mix((255, 215, 90), WHITE, glow))
+    self.fit_text(s, "Pick your class - ride the Domino Highway!", (panel.centerx, panel.y + 58), 14,
+                  panel.w - 24, (220, 210, 255))
+    for r, n, name, col in cells:
+      native = self.label_image(f"class{n}", max(20, r.h // 3))
+      self.draw_gem_button(s, r, col, f"Class {n}", native, name)
+    self.draw_button(s, close, "Back to town", (90, 80, 150))
+    sathi.draw(s, close.x - 34, close.bottom, 54, self.t, "point")   # Sathi points at the crystals
+
+  def draw_console(self, s):
+    b = self.console
+    n = b.payload
+    col = b.colour
+    panel, cells, pedestal, gate, close = self.console_layout()
+    veil = pygame.Surface(self.size, pygame.SRCALPHA)
+    veil.fill((10, 20, 40, 150))
+    s.blit(veil, (0, 0))
+    pygame.draw.rect(s, (252, 248, 238), panel, border_radius=22)   # the courtyard
+    pygame.draw.rect(s, col, panel, 5, border_radius=22)
+    native = self.label_image(f"class{n}", 30)
+    if native is not None:
+      s.blit(native, native.get_rect(center=(panel.centerx, panel.y + 26)))
+    else:
+      self.text(s, f"Class {n}", (panel.centerx, panel.y + 26), 26, (40, 40, 70))
+    self.fit_text(s, "Subject Magic Console: what shall we learn?", (panel.centerx, panel.y + 56), 14,
+                  panel.w - 24, (90, 90, 120))
+    for r, key, name, icon in cells:
+      if key == "maths":
+        pic = self.g.thumb(str(n), "123", r.h - 34)
+      elif icon is not None:
+        pic = self.g.thumb(icon[1], icon[0], r.h - 34)
+      else:
+        first_cat = (self.g.subjects.get(name) or [None])[0]
+        pic = self.g.thumb(next(iter(hub.CATEGORIES_HUB[first_cat])), first_cat, r.h - 34) if first_cat else None
+      if pic is not None and pic.get_width() > r.w * 0.34:
+        pic = pygame.transform.smoothscale(pic, (int(r.w * 0.34), max(1, int(pic.get_height() * r.w * 0.34 / pic.get_width()))))
+      self.draw_gem_button(s, r, _shade(col, 0.95) if key != "maths" else _shade(col, 0.8), name,
+                           self.label_image(key, max(18, r.h // 4)), None, pic)
+    # the magic pedestal, glowing, with the indoor domino wave running to the chosen station
+    px, py = pedestal
+    pulse = 0.5 + 0.5 * math.sin(self.t * 4)
+    pygame.draw.ellipse(s, _mix(col, WHITE, 0.3 + 0.3 * pulse), (px - 46, py - 6, 92, 22))
+    pygame.draw.rect(s, _shade(col, 0.7), (px - 30, py - 30, 60, 30), border_radius=6)
+    gem = [(px, py - 60 - 4 * pulse), (px + 16, py - 42), (px, py - 26), (px - 16, py - 42)]
+    pygame.draw.polygon(s, _mix(col, WHITE, 0.5), gem)
+    pygame.draw.polygon(s, WHITE, gem, 2)
+    if self.console_wave is not None:
+      t0, a, bpt, _key = self.console_wave
+      k = (self.t - t0) / self.WAVE_SECS
+      ax, ay = a[0], a[1] - 30
+      dx, dy = bpt[0] - ax, bpt[1] - ay
+      L = math.hypot(dx, dy) or 1.0
+      ux, uy = dx / L, dy / L
+      for i in range(self.WAVE_N):
+        f = (i + 0.5) / self.WAVE_N
+        x, y = ax + dx * f, ay + dy * f
+        fall = max(0.0, min(1.0, k * self.WAVE_N - i))
+        h = 16
+        lean = fall * 1.35                               # standing ... toppling towards the station
+        top = (x + ux * h * math.sin(lean), y - h * math.cos(lean) + uy * h * math.sin(lean))
+        dc = _mix(col, WHITE, 0.25 * fall)
+        pygame.draw.line(s, (40, 40, 60), (x, y), top, 9)
+        pygame.draw.line(s, dc, (x, y), top, 7)
+        pygame.draw.circle(s, WHITE, (int((x + top[0]) / 2), int((y + top[1]) / 2)), 2)
+    self.draw_button(s, gate, "Back to Gate", (120, 90, 220))
+    self.draw_button(s, close, "Back to town", (90, 110, 150))
+
   def draw_door_marks(self, s):
     self.door_marks = []
-    if self.g.overlay or self.picker is not None or self.show_directory:
+    if self.g.overlay or self.panel_open:
       return
     px, _, pz = self.player.pos
     near = sorted(((math.hypot(b.door()[0] - px, b.door()[2] - pz), i, b)
@@ -1118,7 +1619,7 @@ class WorldScene:
       if d > 45:
         break
       dx, _, dz = b.door()
-      arcade = b.key == "arcade"
+      arcade = b.key == "arcade" or b.kind == "zone"
       street_x = dx if arcade else (-4.0 if dx < 0 else 4.0)
       span = dx - street_x
       sgn = 1 if span >= 0 else -1
@@ -1167,7 +1668,7 @@ class WorldScene:
     if not base or not top:
       return
     scale = self.cam.focal / base[2]
-    lean = 0.12 * h * scale                    # a palm leans a little
+    lean = (0.12 + 0.03 * math.sin(self.t * 1.3 + x * 0.07)) * h * scale   # a palm leans and sways
     mid = ((base[0] + top[0]) / 2 + lean * 0.4, (base[1] + top[1]) / 2)
     tip = (top[0] + lean, top[1])
     wide = max(1, int(0.32 * scale))
@@ -1418,7 +1919,7 @@ class WorldScene:
     pygame.draw.circle(s, WHITE, (int(cx), int(cy - r)), max(2, int(hr * 0.28)))
 
   def draw_anchor(self, s):
-    if self.anchor is None or self.g.overlay or self.picker is not None or self.show_directory:
+    if self.anchor is None or self.g.overlay or self.panel_open:
       return
     a = self.cam.project(self.anchor)
     if a:
@@ -1434,7 +1935,7 @@ class WorldScene:
         continue
       cx, _, cz = b.centre
       p = cam.project((cx, b.top + 2.0, cz))
-      if not p or p[2] > 200 or not (-40 < p[0] < self.size[0] + 40):
+      if not p or p[2] > LABEL_FAR or not (-40 < p[0] < self.size[0] + 40):
         continue
       if p[2] < 60:
         continue
@@ -1586,12 +2087,26 @@ class WorldScene:
         pygame.draw.rect(s, (240, 140, 40), self.zip_rect, border_radius=20)
         pygame.draw.rect(s, WHITE, self.zip_rect, 2, border_radius=20)
         self.text(s, label, self.zip_rect.center, 17 if tw + 40 <= w - 20 else 14)
+    self.gate_rect = pygame.Rect(0, 0, 0, 0)
+    gx, _, gz = self.by_key["gateway"].door()
+    if (self.flight is None and not self.panel_open and not self.g.overlay
+            and math.hypot(gx - self.player.pos[0], gz - self.player.pos[2]) > 60):
+      label = "Back to Gate"
+      tw = self.g.font_at(16).size(label)[0]
+      self.gate_rect = pygame.Rect(0, 0, max(self.map_rect.w, tw + 46), 38)
+      self.gate_rect.topright = (self.map_rect.right, self.map_rect.bottom + 12)
+      glow = int(40 * (1 + math.sin(self.t * 4)))
+      pygame.draw.rect(s, (110 + glow // 2, 80, 230), self.gate_rect, border_radius=19)
+      pygame.draw.rect(s, (170, 245, 255), self.gate_rect, 2, border_radius=19)
+      gx0, gy0 = self.gate_rect.x + 18, self.gate_rect.centery
+      pygame.draw.polygon(s, (170, 245, 255), [(gx0, gy0 - 10), (gx0 + 7, gy0), (gx0, gy0 + 10), (gx0 - 7, gy0)])
+      self.text(s, label, (self.gate_rect.centerx + 10, self.gate_rect.centery), 16)
     b = town.nearest_entrance(self.boxes, self.player.pos)
     self.pads["enter"].visible = b is not None
     for p in self.pads.values():
       if p.visible:
         self.draw_pad(s, p)
-    if b is not None and not self.g.overlay and self.picker is None and not self.show_directory:
+    if b is not None and not self.g.overlay and not self.panel_open:
       label = f"Go into {b.label}!"
       tw = self.g.font_at(20).size(label)[0]
       r = pygame.Rect(0, 0, min(w - 20, tw + 44), 46)
@@ -1614,7 +2129,7 @@ class WorldScene:
       s.blit(box, r.topleft)
       self.text(s, msg, r.center, size)
     self.tips_rect = self.tips_button = pygame.Rect(0, 0, 0, 0)
-    if self.show_tips and not self.g.overlay and self.picker is None and not self.show_directory:
+    if self.show_tips and not self.g.overlay and not self.panel_open:
       cw = min(440, w - 30)
       lines = []
       for col, tip in TIPS:
@@ -1644,6 +2159,10 @@ class WorldScene:
       self.draw_button(s, self.tips_button, "Let's go!", (60, 170, 90))
     if self.picker is not None:
       self.draw_picker(s)
+    if self.magic_open:
+      self.draw_magic_box(s)
+    if self.console is not None:
+      self.draw_console(s)
 
   def draw_picker(self, s):
     b, cats = self.picker
@@ -1660,6 +2179,8 @@ class WorldScene:
       pygame.draw.rect(s, WHITE, r, 3, border_radius=14)
       if cat == ROAD_GAME:
         pic = self.g.thumb("Children Crossing", "Road Safety", r.h - 46)
+      elif cat not in hub.CATEGORIES_HUB:
+        pic = None
       elif cat == MATHS_GAME:
         pic = self.g.thumb("7", "123", r.h - 46)
       else:
@@ -1667,7 +2188,10 @@ class WorldScene:
         pic = self.g.thumb(first, cat, r.h - 46)
       if pic is not None:
         s.blit(pic, pic.get_rect(center=(r.centerx, r.y + (r.h - 30) // 2 + 4)))
-      self.text(s, cat, (r.centerx, r.bottom - 16), 17)
+      size = 17
+      while size > 11 and self.g.font_at(size).size(cat)[0] > r.w - 8:
+        size -= 1
+      self.text(s, cat, (r.centerx, r.bottom - 16), size)
       if self.g.progress.has(f"c:{cat}"):
         self.g.draw_star(s, (r.right - 14, r.y + 14), 9)
     self.draw_button(s, close, "Back to town", (90, 110, 150))

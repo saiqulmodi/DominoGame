@@ -303,7 +303,13 @@ class MathsGame:
     d = self.data
     self.picking = not d["chosen"]
     game.banner_override = "MATHS PLAY"
-    if self.picking:
+    hint = getattr(game, "maths_open_class", None)   # from a Class Pavilion's console
+    game.maths_open_class = None
+    if hint:
+      self.picking = True
+      self.picker_cls = hint
+      self.say(START)
+    elif self.picking:
       self.picker_cls = d["cls"]
       self.say(START)
     else:

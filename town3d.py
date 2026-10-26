@@ -1,11 +1,15 @@
 """Wonder Town: the 3D world children explore to reach every part of Domino Game.
 
 Pure maths, no drawing (world.py paints it):
-  * the town - an island in the sea shaped like Dubai's Palm Jumeirah: the trunk (the
-    main street, from the beach on the mainland), one curved frond out to each class's
-    building, far apart over the water, and the outer crescent with the Games Arcade at
-    its top; plus the Story House, Family House, Drawing Studio and Sticker Museum, a canal
-    across the trunk with a bridge and swing posts, palm trees and lamp posts;
+  * the town - an island in the sea shaped like Dubai's Palm Jumeirah, at its grand scale
+    (10x wider than the first town: kilometre-long roads): the trunk (the main street,
+    from the beach on the mainland), one curved frond out to each class's building, far
+    apart over the water, and the outer crescent with the Games Arcade at its top; plus the
+    Story House, Family House, Drawing Studio and Sticker Museum, a canal across the trunk
+    with a bridge and swing posts, palm trees and lamp posts;
+  * the Magic Box at the entrance gate (one crystal button per class), a Class Pavilion
+    over the main street where each class's fronds begin (its Subject Magic Console opens
+    inside), and a Back to Gate crystal in front of every pavilion;
   * a perspective camera with near-plane clipping (works the same in the browser);
   * the player: walking, jumping, landing on roofs, and the rope swing - a rope to a roof
     corner or post that swings you across with real pendulum physics;
@@ -25,9 +29,11 @@ SUPER_JUMP_SPEED = 21.0     # magic boots
 GLIDE_FALL = 3.0            # the cape caps the falling speed (m/s)
 RADIUS = 0.6                # the player's body, for collisions
 ROPE_MIN, ROPE_MAX = 6.0, 40.0
-RIVER_Z = (96.0, 112.0)
+FROND_SPREAD_MULTIPLIER = 10.0   # fronds reach 10x further out over the sea ...
+HOUSE_DISTANCE_SPACING = 10.0    # ... and the fronds sit 10x further apart along the trunk
+RIVER_Z = (1032.0, 1048.0)
 BRIDGE_HALF = 6.0           # the street bridge over the river is |x| < 6
-BOUNDS = (-210.0, 210.0, -45.0, 385.0)      # x0, x1, z0, z1
+BOUNDS = (-2100.0, 2100.0, -120.0, 3850.0)  # x0, x1, z0, z1
 START = (0.0, 0.0, -18.0)
 
 
@@ -116,6 +122,35 @@ SUBJECT_HOUSES = [
     ("india",   -1, 305, 52.0, 26, 20, 16, (255, 153, 51), "Class 7: India Pavilion", "Class 7 - States, Constitution & Heritage", "India", None),
     ("fun",      1, 305, 52.0, 24, 18, 15, (220, 90, 190), "Class 7: Carnival Park", "Class 7 - Logic, Puzzles & Sports", "Fun", None),
 ]
+SUBJECT_HOUSES = [(key, side, z * HOUSE_DISTANCE_SPACING, reach * FROND_SPREAD_MULTIPLIER, *rest)
+                  for key, side, z, reach, *rest in SUBJECT_HOUSES]
+
+# The seven classes: the Magic Box's crystal buttons and the Class Pavilions
+CLASSES = [
+    (1, "Sunny Amber", (255, 191, 0), ("english", "hindi")),
+    (2, "Emerald Jade", (0, 168, 107), ("maths", "home", "rhymes")),
+    (3, "Sky Cyan", (40, 200, 240), ("science", "social")),
+    (4, "Royal Indigo", (75, 70, 200), ("nature", "food")),
+    (5, "Amethyst Violet", (153, 102, 204), ("travel", "bangla")),
+    (6, "Coral Orange", (255, 127, 80), ("safety", "world")),
+    (7, "Ruby Rose", (224, 17, 95), ("india", "fun")),
+]
+CLASS_COLOURS = {n: col for n, _name, col, _keys in CLASSES}
+CLASS_OF = {key: n for n, _name, _col, keys in CLASSES for key in keys}
+# Wonder Melas & Living Sanctuaries along the outer crescent: (key, label, sub, colour,
+# angle on the crescent in degrees, [categories]) - each opens its picture categories
+ZONES = [
+    ("zoo", "Safari Zoo", "All the animals", (230, 150, 60), 8, ["Animals", "Reptiles", "Animal Homes"]),
+    ("birdpark", "Bird Sanctuary", "Birds of every kind", (90, 190, 120), 26, ["Birds", "Flying High"]),
+    ("aquarium", "Coral Aquarium", "Fish and sea life", (40, 150, 220), 44, ["Sea"]),
+    ("garden", "Flower Garden", "Flowers and butterflies", (240, 110, 170), 62, ["Plants", "Flower Garden", "Insects"]),
+    ("mela", "Wonder Mela", "Rides, puppets and magic", (250, 190, 40), 118, ["Wonder Mela"]),
+    ("bookfair", "Book Fair", "Kitab Mela", (150, 100, 200), 136, ["Book Fair"]),
+    ("autoexpo", "Auto Expo", "Vehicle Mela", (220, 70, 70), 154, ["Auto Expo", "Vehicles", "Travel"]),
+    ("boatmela", "Boat Mela", "Boats and ships", (30, 170, 170), 172, ["Boat Mela"]),
+]
+PAVILION_HALF = (12.5, 8.0)  # the pavilion's canopy spans the street: |x| < 12.5, 16 m deep
+PAVILION_UP = 10.0           # ... on four pillars, this high
 
 EXTRA_HOUSES = [
     # Trunk Entry Houses
@@ -125,22 +160,23 @@ EXTRA_HOUSES = [
     ("studio", -1, 205, 20.0, 16, 12, 10, (120, 200, 255), "Drawing Studio", "Draw my own", "draw"),
     ("museum",  1, 205, 20.0, 16, 12, 10, (255, 215, 80), "Sticker Museum", "Your stickers", "stickers"),
 ]
+EXTRA_HOUSES = [(key, side, z * HOUSE_DISTANCE_SPACING, *rest) for key, side, z, *rest in EXTRA_HOUSES]
 
 
 # --- the Palm island: land shapes (everything else is sea) ---------------------------
 TRUNK_HALF = 14.0           # the trunk is |x| < 14 m
-TRUNK_END = 361.0           # ... and reaches the crescent
 MAINLAND_Z = -22.0          # south of this: the beach and the mainland
 FROND_HALF = 7.0            # half width of a frond
 FROND_SLOPE = 0.42          # fronds fan out north-east / north-west like the real Palm's
 PAD = 6.0                   # land around every building
-CRESCENT_C = (0.0, 175.0)   # the outer crescent (breakwater ring) ...
-CRESCENT_R = 195.0          # ... its radius
-CRESCENT_HALF = 9.0         # ... half its width
+CRESCENT_C = (0.0, 1750.0)  # the outer crescent (breakwater ring) ...
+CRESCENT_R = 1950.0         # ... its radius
+CRESCENT_HALF = 30.0        # ... half its width
 CRESCENT_ARC = (math.radians(-35), math.radians(215))   # open towards the beach (south)
+TRUNK_END = CRESCENT_C[1] + CRESCENT_R - CRESCENT_HALF  # the trunk reaches the crescent
 
 
-def _bezier(p0, p1, p2, n=14):
+def _bezier(p0, p1, p2, n=24):
   return [((1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0],
            (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1])
           for t in (k / (n - 1) for k in range(n))]
@@ -220,7 +256,7 @@ def strip(path, half):
   return left + right[::-1]
 
 
-def crescent_pieces(n=8, half=CRESCENT_HALF):
+def crescent_pieces(n=24, half=CRESCENT_HALF):
   """The crescent in n pieces (smaller polygons clip and cull better)."""
   lo, hi = CRESCENT_ARC
   out = []
@@ -251,15 +287,44 @@ def build_world():
   top = CRESCENT_C[1] + CRESCENT_R
   boxes.append(Box("arcade", -14, top - 8.5, 14, top + 8.5, 24, (255, 120, 60), "Games Arcade",
                    "Find it, Spell it, more", kind="games", roof=(250, 220, 60)))
+  # The Magic Box on its pedestal, just inside the entrance gate
+  boxes.append(Box("gateway", -13, -16, -9, -12, 4.0, (150, 90, 255), "Magic Box", "Pick your class",
+                   kind="gateway", windows=False, roof=(255, 215, 90)))
+  hx, hz = PAVILION_HALF
+  for n, name, col, _keys in CLASSES:          # a pavilion where the class's fronds begin
+    z = pavilion_z(n)
+    boxes.append(Box(f"class{n}", -hx, z - hz, hx, z + hz, PAVILION_UP + 3.0, col,
+                     f"Class {n} Pavilion", name, kind="class", payload=n, windows=False,
+                     y0=PAVILION_UP, roof=tuple(min(255, c + 60) for c in col), icon=("123", str(n))))
+    for x0 in (-hx, hx - 2.0):
+      for z0 in (z - hz, z + hz - 2.0):
+        boxes.append(Box(f"pillar{n}{x0}{z0}", x0, z0, x0 + 2.0, z0 + 2.0, PAVILION_UP,
+                         (250, 246, 236), windows=False, roof=col))
+    boxes.append(Box(f"return{n}", 9.8, z - hz - 8, 11.8, z - hz - 6, 3.4, (120, 230, 255),
+                     "Back to Gate", "Fly to the Magic Box", kind="return", windows=False,
+                     roof=(255, 255, 255)))
+  a = math.radians(100)                          # My Creations, beside the Games Arcade
+  x = CRESCENT_C[0] + CRESCENT_R * math.cos(a)
+  z = CRESCENT_C[1] + CRESCENT_R * math.sin(a)
+  boxes.append(Box("creations", x - 14, z - 11, x + 14, z + 11, 18, (255, 196, 60), "My Creations",
+                   "Everything you brought to life", kind="creations", gable=True,
+                   roof=(240, 90, 120)))
+  for key, label, sub, col, deg, cats in ZONES:   # the Wonder Melas along the crescent
+    a = math.radians(deg)
+    x = CRESCENT_C[0] + CRESCENT_R * math.cos(a)
+    z = CRESCENT_C[1] + CRESCENT_R * math.sin(a)
+    boxes.append(Box(key, x - 13, z - 10, x + 13, z + 10, 14, col, label, sub, kind="zone",
+                     payload=cats, gable=True))
   for b in boxes:                           # land under every building and its front path
     if b.kind is not None:
       PADS.append((b.x0 - PAD, b.z0 - PAD, b.x1 + PAD, b.z1 + PAD))
-      if b.kind != "subject" and b.key != "arcade":
+      if b.kind not in ("subject", "zone", "creations") and b.key != "arcade":
         dx, _, dz = b.door()
         PADS.append((min(dx, 0.0) - 5, dz - 5, max(dx, 0.0) + 5, dz + 5))
 
+  mid = (RIVER_Z[0] + RIVER_Z[1]) / 2
   for x in (-45, -24, 24, 45):
-    boxes.append(Box(f"post{x}", x - 1.1, 102.9, x + 1.1, 105.1, 18, (250, 200, 80),
+    boxes.append(Box(f"post{x}", x - 1.1, mid - 1.1, x + 1.1, mid + 1.1, 18, (250, 200, 80),
                      windows=False, roof=(240, 110, 60)))
   boxes.append(Box("gate_w", -8.5, -6, -6.5, -4, 10, (230, 90, 120), windows=False))
   boxes.append(Box("gate_e", 6.5, -6, 8.5, -4, 10, (230, 90, 120), windows=False))
@@ -268,6 +333,12 @@ def build_world():
     boxes.append(Box(f"rail{side}", side * 5.6, RIVER_Z[0] - 2, side * 6.2, RIVER_Z[1] + 2, 1.1,
                      (255, 255, 255), windows=False))
   return boxes
+
+
+def pavilion_z(n):
+  """Where class n's pavilion stands on the trunk: at its first frond."""
+  keys = dict((c[0], c[3]) for c in CLASSES)[n]
+  return min(z for key, _side, z, *_rest in SUBJECT_HOUSES if key in keys)
 
 
 def trees_and_lamps(boxes=()):
@@ -288,8 +359,8 @@ def trees_and_lamps(boxes=()):
   for i in range(26):                          # the mainland beach
     spots.append((((i * 73) % 360) - 180 + 0.5, -27 - (i * 37) % 16))
   lo, hi = CRESCENT_ARC
-  for k in range(18):                          # palms along the crescent
-    a = lo + (hi - lo) * (k + 0.5) / 18
+  for k in range(120):                         # palms along the crescent
+    a = lo + (hi - lo) * (k + 0.5) / 120
     spots.append((CRESCENT_C[0] + CRESCENT_R * math.cos(a), CRESCENT_C[1] + CRESCENT_R * math.sin(a)))
   for i, (x, z) in enumerate(spots):
     if not on_land(x, z) or any(b.contains_xz(x, z, 2.5) for b in boxes):
@@ -297,6 +368,8 @@ def trees_and_lamps(boxes=()):
     if any(b.kind is not None and math.dist((x, z), (b.door()[0], b.door()[2])) < 6 for b in boxes):
       continue
     trees.append((x, z, 5.0 + (i % 4) * 1.5))
+  trees.sort(key=lambda t: t[1])               # by z: drawing looks up only the nearby ones
+  lamps.sort(key=lambda lp: lp[1])
   return trees, lamps
 
 
@@ -314,6 +387,7 @@ class Camera:
   NEAR = 0.6
 
   def __init__(self, width, height):
+    self.fov = self.FOV
     self.pitch = -0.32
     self.dist = 28.0
     self.height_offset = 12.0
@@ -324,8 +398,14 @@ class Camera:
   def resize(self, width, height):
     self.w, self.h = width, height
     self.cx, self.cy = width / 2, height * 0.46
-    self.focal = (min(width * 0.85, height) / 2) / math.tan(self.FOV / 2)
+    self.focal = (min(width * 0.85, height) / 2) / math.tan(self.fov / 2)
     self._axes()
+
+  def set_fov(self, fov):
+    """A wider view (radians) for the warp-speed feel of the Domino Highway."""
+    if abs(fov - self.fov) > 1e-4:
+      self.fov = fov
+      self.focal = (min(self.w * 0.85, self.h) / 2) / math.tan(fov / 2)
 
   def _axes(self):
     cp, sp = math.cos(self.pitch), math.sin(self.pitch)

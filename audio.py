@@ -259,6 +259,13 @@ class SoundBank:
     notes = self.sounds.get("notes", {})
     return all((inst, m) in notes for m in range(NOTE_LOW, NOTE_HIGH + 1))
 
+  def prepare(self, inst, midis):
+    """Makes these notes now (the Domino Highway's raga), so its music never waits."""
+    if not self.ok:
+      return
+    for midi in midis:
+      self._voice(inst, max(NOTE_LOW, min(NOTE_HIGH, int(midi))))
+
   def warm(self, inst="bell"):
     """Makes one more note of the coming music ahead of time (called while the game
     is idle, so the domino music never has to wait)."""

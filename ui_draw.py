@@ -370,18 +370,40 @@ class GameDrawing:
         pygame.draw.lines(screen, self.theme["context"], False, line, 1)
 
     # The real picture appears only at the end (a faint copy behind the dots
-    # looked muddy over the scenery): it fades in with a bounce of joy.
+    # looked muddy over the scenery). "I made it!": the traced outline bursts with
+    # golden light and the real picture springs out of it with a bounce.
     if self.pic_path and self.pic_rect and self.stage == "finished":
       x, y, w, h = self.pic_rect
       t = now - self.finished_at
-      pop = 1.0 + 0.12 * math.sin(min(1.0, t / 0.7) * math.pi) * max(0.0, 1.0 - t / 0.7)
+      centre = (x + w / 2, y + h / 2)
+      if t < 1.2:                                  # golden rays and a ring of light
+        k = t / 1.2
+        glow = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+        reach = max(w, h) * (0.45 + 0.6 * k)
+        for i in range(14):
+          a = i * math.tau / 14 + t * 1.5
+          tip = (centre[0] + math.cos(a) * reach, centre[1] + math.sin(a) * reach)
+          side = (math.cos(a + 1.57) * 9, math.sin(a + 1.57) * 9)
+          pygame.draw.polygon(glow, (255, 215, 80, int(150 * (1 - k))),
+                              [(centre[0] + side[0], centre[1] + side[1]), tip,
+                               (centre[0] - side[0], centre[1] - side[1])])
+        pygame.draw.circle(glow, (255, 240, 160, int(200 * (1 - k))), (int(centre[0]), int(centre[1])),
+                           int(reach * 0.8), max(2, int(10 * (1 - k))))
+        screen.blit(glow, (0, 0))
+      # a spring: from small, past full size, settling with a little wobble
+      pop = 0.25 + 0.75 * (1.0 - math.exp(-5.0 * t) * math.cos(11.0 * t))
       size = (max(1, int(w * pop)), max(1, int(h * pop)))
       img = self.image(self.pic_path, (max(1, int(w)), max(1, int(h))))
       if img is not None:
-        if pop != 1.0:
+        if abs(pop - 1.0) > 0.003:
           img = pygame.transform.smoothscale(img, size)
-        img.set_alpha(int(70 + 185 * min(1.0, t / 0.6)))
-        screen.blit(img, img.get_rect(center=(x + w / 2, y + h / 2)))
+        else:
+          img = img.copy()
+        img.set_alpha(int(255 * min(1.0, 0.3 + t / 0.3)))
+        screen.blit(img, img.get_rect(center=centre))
+      if t < 4.0 and not self.is_custom:          # Sathi cheers beside the creation
+        sathi.draw(screen, min(PLAY_RECT.right - 40, x + w + 6), min(PLAY_RECT.bottom - 90, y + h),
+                   70, now, "cheer")
 
     if self.stage == "trace":
       # Dotted outline: faint guide line, hollow dots, filled when covered
@@ -472,6 +494,7 @@ class GameDrawing:
     if not self.celebration:
       self.draw_watch_button(screen, now)
       self.draw_sing_button(screen, now)
+      self.draw_showcase(screen, now)
     self.draw_praise(screen, now)
     self.draw_jingle_button(screen, now)
     hint = self.hint_text()
@@ -498,6 +521,23 @@ class GameDrawing:
     screen.set_clip(None)
 
   # ------------------------------------------------------------ tap-only extras
+  def draw_showcase(self, screen, now):
+    """Hear it / Spell it tabs under a picture brought to life."""
+    for rect, act, label in self.showcase_rects():
+      col = (60, 160, 230) if act == "hear" else (150, 90, 220)
+      pygame.draw.rect(screen, col, rect, border_radius=21)
+      pygame.draw.rect(screen, WHITE, rect, 2, border_radius=21)
+      cx, cy = rect.x + 24, rect.centery
+      if act == "hear":                          # a little speaker
+        pygame.draw.polygon(screen, WHITE, [(cx - 8, cy - 5), (cx - 3, cy - 5), (cx + 4, cy - 11),
+                                            (cx + 4, cy + 11), (cx - 3, cy + 5), (cx - 8, cy + 5)])
+        pygame.draw.arc(screen, WHITE, (cx + 2, cy - 8, 12, 16), -1.0, 1.0, 2)
+      else:
+        lbl = self.small_font.render("ABC", True, WHITE)
+        screen.blit(lbl, lbl.get_rect(center=(cx, cy)))
+      lbl = fit_label(self.hint_font, label, WHITE, rect.w - 50)
+      screen.blit(lbl, lbl.get_rect(midleft=(rect.x + 44, rect.centery)))
+
   def draw_praise(self, screen, now):
     """"Well done! Cat!" shown big for a few seconds after a finish (not said)."""
     if self.stage != "finished" or not self.praise_line:
@@ -806,11 +846,21 @@ class GameDrawing:
     # Subjects (top row) and their categories (second row)
     pygame.draw.rect(screen, tm["panel"], SUBJ_RECT.union(CAT_RECT))
     for rect, s in self.subject_rects():
+      if s in ("<", ">"):                       # page through the subjects
+        pygame.draw.rect(screen, PURPLE, rect, border_radius=8)
+        lbl = self.cat_font.render(s, True, WHITE)
+        screen.blit(lbl, lbl.get_rect(center=rect.center))
+        continue
       active = s == self.subject
       pygame.draw.rect(screen, YELLOW if active else tm["subject"], rect, border_radius=8)
       lbl = fit_label(self.cat_font, s, bg if active else WHITE, rect.w - 4)
       screen.blit(lbl, lbl.get_rect(center=rect.center))
     for rect, c in self.category_rects():
+      if c in ("<", ">"):                       # page through a long row
+        pygame.draw.rect(screen, PURPLE, rect, border_radius=8)
+        lbl = self.cat_font.render(c, True, WHITE)
+        screen.blit(lbl, lbl.get_rect(center=rect.center))
+        continue
       active = c == self.cat
       pygame.draw.rect(screen, CYAN if active else tm["cat"], rect, border_radius=8)
       lbl = fit_label(self.cat_font, c, bg if active else WHITE, rect.w - 4)
