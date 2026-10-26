@@ -166,6 +166,10 @@ def main():
   for d in GAME_DIRS:
     if d == "pics":                      # only pictures the game uses (old builds
       copy_used_pics(os.path.join(stage, d))   # leave unused ones behind)
+    elif d == "labels":
+      os.makedirs(os.path.join(stage, d))
+      for name in os.listdir(os.path.join(ROOT, d)):
+        pack_png(os.path.join(ROOT, d, name), os.path.join(stage, d, name), WORD_COLOURS)
     else:
       shutil.copytree(os.path.join(ROOT, d), os.path.join(stage, d))
   for f in GAME_FILES:
@@ -193,9 +197,13 @@ def write_compact_hub(dest):
   with open(os.path.join(ROOT, "hub_data.json"), encoding="utf-8") as fh:
     data = json.load(fh)
 
+  aliases = pic_aliases()
+
   def snap(x):
     if isinstance(x, float):
       return int(round(x))
+    if isinstance(x, str) and x.startswith("pics/") and x[5:] in aliases:
+      return "pics/" + aliases[x[5:]]           # one file for identical pictures
     if isinstance(x, list):
       return [snap(v) for v in x]
     if isinstance(x, dict):
@@ -227,38 +235,60 @@ def used_pics():
   return used
 
 
+def pic_aliases():
+  """{picture: the identical picture shipped in its place} - several items share one
+  emoji (Owl and Owl Eyes, Lemon and Sour), so the web copy keeps one file of each."""
+  import hashlib
+  first, out = {}, {}
+  for name in sorted(used_pics()):
+    path = os.path.join(ROOT, "pics", name)
+    if not os.path.exists(path):
+      continue
+    with open(path, "rb") as fh:
+      digest = hashlib.md5(fh.read()).hexdigest()
+    if digest in first:
+      out[name] = first[digest]
+    else:
+      first[digest] = name
+  return out
+
+
+def pack_png(src, out, colors, limit=None):
+  """A flat-colour copy (palette of a few colours; OpenMoji pictures and word pictures
+  look the same) scaled down to fit limit, kept only when it is smaller."""
+  from PIL import Image
+  img = Image.open(src).convert("RGBA")
+  if limit and max(img.size) > limit:
+    k = limit / max(img.size)
+    img = img.resize((round(img.width * k), round(img.height * k)), Image.LANCZOS)
+  img.quantize(colors=colors, method=Image.Quantize.FASTOCTREE,
+               dither=Image.Dither.NONE).save(out, optimize=True)
+  if os.path.getsize(out) >= os.path.getsize(src) and (not limit or max(Image.open(src).size) <= limit):
+    shutil.copy2(src, out)
+
+
 WEB_PIC_MAX = 448      # px: the game canvas is 450 wide, so bigger is never seen
-WEB_THUMB_MAX = 88     # px: menu, banner and word-card thumbnails are drawn at most ~74 px
+WEB_THUMB_MAX = 72     # px: menu, banner and word-card thumbnails are drawn at most ~74 px
+PIC_COLOURS, THUMB_COLOURS, WORD_COLOURS = 32, 40, 24   # keeps the Stratos box under 20 MB
 
 
 def copy_used_pics(dest):
-  """Copies the used pictures; full-size pictures are scaled down to fit the
-  450-wide canvas (keeps the Stratos copy under its 20 MB limit)."""
+  """Copies the used pictures, packed into a few flat colours; full-size pictures are
+  scaled down to fit the 450-wide canvas (keeps the Stratos copy under its 20 MB limit)."""
   import re
-  from PIL import Image
-  sys.path.insert(0, os.path.join(ROOT, "tools"))
-  from build_hub import compact
   os.makedirs(dest)
   used = used_pics()
+  aliases = pic_aliases()
   for name in os.listdir(os.path.join(ROOT, "pics")):
-    if name not in used:
+    if name not in used or name in aliases:
       continue
     src = os.path.join(ROOT, "pics", name)
     if re.search(r"_(hi|bn|w|l\d+(_hi|_bn)?)\.png$", name):
-      shutil.copy2(src, dest)            # word pictures stay as they are
+      pack_png(src, os.path.join(dest, name), WORD_COLOURS)   # word pictures: a few flat colours
       continue
-    img = Image.open(src)
-    limit = WEB_THUMB_MAX if name.endswith("_t.png") else WEB_PIC_MAX
-    if max(img.size) <= limit:
-      shutil.copy2(src, dest)
-      continue
-    k = limit / max(img.size)
-    img = img.convert("RGBA").resize((round(img.width * k), round(img.height * k)),
-                                      Image.LANCZOS)
-    out = os.path.join(dest, name)
-    compact(img).save(out, optimize=True)         # the hub's own picture packer
-    if os.path.getsize(out) >= os.path.getsize(src):
-      shutil.copy2(src, out)                      # keep whichever is smaller
+    thumb = name.endswith("_t.png")
+    pack_png(src, os.path.join(dest, name), THUMB_COLOURS if thumb else PIC_COLOURS,
+             WEB_THUMB_MAX if thumb else WEB_PIC_MAX)
 
 
 def make_pwa(docs):
