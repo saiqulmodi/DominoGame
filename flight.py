@@ -7,19 +7,16 @@ Every flight is made of
     loop, a bee's figure-eights or a dragonfly's zigzags (never the previous style);
   - one round around the house, however near it is;
   - a helicopter landing: hover above the door, rotor spinning, and down gently.
-Colourful dominoes stand along the whole path just behind the hero, and a toppling wave
-chases the hero along it; the last domino falls at the hero's feet just after touch-down,
-and then the house opens. Every flight has its own colours and its own music (instrument,
+Colourful dominoes stand along the whole path where the hero passed; only when the hero
+has landed does the whole run topple, from the start to the house (cascade_secs), and
+then the house opens. Every flight has its own colours and its own music (instrument,
 scale, melody), never the same as the flight before. A tap skips to the landing.
 
 The Domino Highway (Highway) is the Magic Box's ride to a Class Pavilion: down the main
-street at 10x walking speed, easing in and out, with glowing dominoes springing up and
-toppling right behind the hero's heels (a small pool, recycled as they finish) and a tune
-that climbs with speed and with the distance covered - every ride its own instrument,
-scale, tune shape and pace, never the same as the ride before.
-
-After every ride the camera rises and looks back over the whole path, every domino lying
-where it fell (path(); world.py's look back), before the house opens.
+street at 10x walking speed, easing in and out, in a child's playful way that changes
+every ride (zig-zags, wiggles, hops, skips, bounces, swerves). The dominoes stand where
+the hero passed and topple, start to end, once the hero has arrived; a tune climbs with
+speed - every ride its own instrument, scale, tune shape and pace.
 """
 
 import bisect
@@ -31,13 +28,19 @@ import pygame
 import magic
 
 SPACING = 3.0            # m between dominoes along the path
-DOM_H, DOM_W = 4.0, 2.0  # a domino's height and width (real 1:2 shape)
+DOM_H, DOM_W = 4.0, 1.0  # a domino's height and width (half a real domino's width, user 27-Oct)
 MAX_DOMINOES = 600       # the 10x Palm has kilometre-long flights
 MAX_POINTS = 1500        # path points of a flight's cruise
 FALL_SECS = 0.38         # one domino's fall
 FALL_ANGLE = 1.2         # rad: how far it leans onto the next one
 NOTES_PER_SECOND = 7
 FADE_SECS = 1.4          # after the house opens, the trail shrinks away
+CASCADE_PAUSE = 0.5      # s after landing before the first domino falls
+
+
+def cascade_secs(n):
+  """How long the whole run takes to topple, start to end (a long path runs faster)."""
+  return max(2.5, min(7.0, n * 0.03))
 LIGHT = (0.45, 0.80, -0.40)
 
 STYLES = {               # name -> (toast text, wing flaps per second)
@@ -315,11 +318,10 @@ class Flight:
                   PALETTES[self.palette](k / max(1, n - 1), k))
       dm.laid = ts[j] + (ts[j + 1] - ts[j]) * f + 0.2
       out.append(dm)
-    # the toppling wave chases the hero and reaches the last domino just after touch-down
-    lag0, end = 1.2, self.land_at + 0.35
-    extra = end - (out[-1].laid + lag0)
+    # they all stand until the hero has landed; then the whole run topples, first to last
+    start, span = self.land_at + CASCADE_PAUSE, cascade_secs(n)
     for k, dm in enumerate(out):
-      dm.fall = dm.laid + lag0 + extra * (k / (n - 1))
+      dm.fall = start + span * (k / (n - 1))
     self.dominoes = out
     self.done_at = out[-1].fall + FALL_SECS
     span = max(0.5, out[-1].fall - out[0].fall)
@@ -338,7 +340,18 @@ class Flight:
     return self.t >= self.land_at
 
   def skip(self):
-    self.t = max(self.t, self.done_at)
+    """A tap: straight to the landing (the run then topples); a tap during the run ends it."""
+    self.t = self.land_at if self.t < self.land_at else max(self.t, self.done_at)
+
+  @property
+  def cascading(self):
+    return self.landed and not self.finished
+
+  def front(self):
+    """(position, yaw) of the domino falling now: where the toppling wave is."""
+    i = bisect.bisect_right([dm.fall for dm in self.dominoes], self.t) - 1
+    dm = self.dominoes[max(0, min(len(self.dominoes) - 1, i))]
+    return dm.pos, math.atan2(dm.tan[0], dm.tan[2])
 
   def at(self, t):
     i = bisect.bisect_right(self.ts, t) - 1
@@ -398,10 +411,6 @@ class Flight:
   @property
   def gone(self):
     return self.finished and self.fade >= FADE_SECS
-
-  def path(self):
-    """(position, colour) of every domino from the start to the house (the look back)."""
-    return [(dm.pos, dm.col) for dm in self.dominoes]
 
   # ------------------------------------------------------------------ drawing
   def visible(self, cam_pos, far=170.0):
@@ -466,13 +475,14 @@ class Flight:
 # --------------------------------------------------------------------------------------
 HIGHWAY_SPEED = 120.0    # m/s at full speed: 10x the hero's walking speed (town3d.WALK_SPEED)
 RAMP_SECS = 2.4          # ease-in and ease-out
-TRAIL_GAP = 3.0          # m between the dominoes springing up behind the hero
-TRAIL_MAX = 60           # dominoes alive at once (a pool: finished ones are reused)
-TRAIL_LAG = 0.10         # s after the hero passes, a domino starts to fall
+TRAIL_GAP = 3.0          # m between the dominoes the hero leaves standing on the road
 TRAIL_FALL = 0.30
-TRAIL_LIFE = 1.30        # s from springing up to fading away
 HIGHWAY_PACES = [(3.0, 7.0), (2.5, 5.0), (4.0, 7.0), (3.0, 6.0)]   # notes per second: slow ...
                                                                    # full speed (never a buzz of clicks)
+HIGHWAY_STYLES = {       # a child's way down the road: name -> toast text (never the last one)
+    "zigzag": "zig-zagging", "wave": "wiggling like a snake", "hops": "hopping like a frog",
+    "skips": "skipping along", "bounce": "bouncing like a ball", "slalom": "swerving like a skier",
+}
 
 
 class TrailDomino:
@@ -480,14 +490,18 @@ class TrailDomino:
 
   def place(self, pos, tan, col, laid):
     self.pos, self.tan, self.col, self.laid = pos, tan, col, laid
-    self.fall = laid + TRAIL_LAG
+    self.fall = float("inf")               # set when the hero has arrived
     self.up = (0.0, 1.0, 0.0)
     self.side = _norm((tan[2], 0.0, -tan[0]))
     return self
 
 
 class Highway:
-  """A straight-on, warp-speed ride: same interface as Flight for world.py."""
+  """The Magic Box's ride to a Class Pavilion, at warp speed and in a child's playful way
+  (zig-zags, a snake's wiggle, frog hops, skips, a ball's bounces or a skier's swerves,
+  never the same as the last ride). Dominoes stand where the hero passed; once the hero
+  has arrived, the whole run topples from the start to the pavilion. Same interface as
+  Flight for world.py."""
 
   flap_rate = 0.0
   flap = 0.0
@@ -496,8 +510,10 @@ class Highway:
 
   def __init__(self, start, box, colour, instruments=(), seed=None):
     rng = random.Random(seed)
+    self.rng = rng
     self.box = box
-    self.label = "on the Domino Highway"
+    self.style = _pick(rng, "hw_style", list(HIGHWAY_STYLES))
+    self.label = HIGHWAY_STYLES[self.style] + " down the Domino Highway"
     self.colour = colour
     # every ride its own music: instrument, scale, tune shape, pace and pitch, never the
     # same as the ride or flight before
@@ -516,19 +532,39 @@ class Highway:
     self.cruise = max(0.0, (L - self.vmax * RAMP_SECS) / self.vmax)
     self.land_at = 2 * RAMP_SECS + self.cruise
     self.hover_t = self.land_at
-    self.done_at = self.land_at + 0.55
+    self.done_at = float("inf")            # known once the run's toppling is planned
     self.pos, self.yaw = self.at_s(0.0)[0], 0.0
     self.s = 0.0
     self.speed_k = 0.0
-    self.trail, self.pool = [], []
-    self.reviewing = False         # the whole road's dominoes lie fallen for the look back
+    self.dominoes = []
     self.next_gap = TRAIL_GAP
     self.next_note = 0.0
     self.note_k = 0
 
+  def _offset(self, u, run):
+    """(sideways, up) metres off the street's middle at share u of the long run."""
+    q, s = self.q, self.style
+    tau = math.tau
+    if s == "zigzag":
+      return q["a"] * _tri(u * run / q["len"]), 0.0
+    if s == "wave":
+      return q["a"] * math.sin(tau * u * run / q["len"] + self.ph), 0.0
+    if s == "hops":
+      return 1.2 * math.sin(tau * u * run / 90.0), q["h"] * abs(math.sin(math.pi * u * run / q["hop"]))
+    if s == "skips":
+      return (0.6 * q["a"] * math.sin(tau * u * run / q["len"]),
+              0.5 * q["h"] * abs(math.sin(math.pi * u * run / (0.5 * q["hop"]))))
+    if s == "bounce":
+      return 0.0, 2.2 * q["h"] * abs(math.sin(math.pi * u * run / (2.5 * q["hop"])))
+    k = math.sin(tau * u * run / q["len"])           # slalom: long swerves, side to side
+    return q["a"] * math.copysign(abs(k) ** 0.5, k), 0.0
+
   def _road(self, start, box):
-    """The road: onto the middle of the main street, then north to the pavilion's front,
-    swaying gently from side to side."""
+    """The road: onto the middle of the main street, then along it to the pavilion's
+    front in this ride's playful pattern."""
+    r = self.rng
+    self.q = {"a": r.uniform(4.5, 7.5), "len": r.uniform(45.0, 80.0), "h": r.uniform(1.8, 3.2),
+              "hop": r.uniform(10.0, 16.0)}
     ax, _ay, az = start
     door = box.door()
     sgn = 1.0 if door[2] >= az else -1.0
@@ -538,19 +574,20 @@ class Highway:
       u = i / 24
       cx, cz = 0.0, az + sgn * merge * 0.3
       ex, ez = 0.0, az + sgn * merge
-      pts.append(((1 - u) ** 2 * ax + 2 * (1 - u) * u * cx + u * u * ex,
+      pts.append(((1 - u) ** 2 * ax + 2 * (1 - u) * u * cx + u * u * ex, 0.0,
                   (1 - u) ** 2 * az + 2 * (1 - u) * u * cz + u * u * ez))
-    z0, z1 = pts[-1][1], door[2]
+    z0, z1 = pts[-1][2], door[2]
     run = abs(z1 - z0)
-    n = max(20, int(run / 4.0))
-    for i in range(1, n + 1):                            # the long run, swaying a little
+    n = max(40, min(3000, int(run / 1.5)))
+    for i in range(1, n + 1):                            # the long run, the playful way
       u = i / n
-      sway = 3.0 * math.sin(math.tau * u * max(1.0, run / 420.0)) * _ease(u / 0.1) * _ease((1 - u) / 0.1)
-      pts.append((sway, z0 + (z1 - z0) * u))
+      env = _ease(u / 0.06) * _ease((1 - u) / 0.06)       # straight in and out at the ends
+      side, up = self._offset(u, run)
+      pts.append((side * env, up * env, z0 + (z1 - z0) * u))
     self.road = pts
     self.arc = [0.0]
     for i in range(1, len(pts)):
-      self.arc.append(self.arc[-1] + math.dist(pts[i], pts[i - 1]))
+      self.arc.append(self.arc[-1] + math.hypot(pts[i][0] - pts[i - 1][0], pts[i][2] - pts[i - 1][2]))
     self.length = max(1.0, self.arc[-1])
 
   def at_s(self, s):
@@ -559,8 +596,7 @@ class Highway:
     i = max(0, min(len(self.arc) - 2, bisect.bisect_right(self.arc, s) - 1))
     a, b = self.road[i], self.road[i + 1]
     f = (s - self.arc[i]) / max(1e-9, self.arc[i + 1] - self.arc[i])
-    x, z = a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f
-    return (x, 0.0, z), math.atan2(b[0] - a[0], b[1] - a[1])
+    return tuple(a[c] + (b[c] - a[c]) * f for c in range(3)), math.atan2(b[0] - a[0], b[2] - a[2])
 
   def s_at(self, t):
     """Distance covered at time t: an ease-in, the cruise at full speed, an ease-out."""
@@ -589,50 +625,50 @@ class Highway:
     return self.t >= self.land_at
 
   @property
+  def cascading(self):
+    return self.landed and not self.finished
+
+  @property
   def gone(self):
     return self.finished
 
   def skip(self):
-    self.t = max(self.t, self.land_at)
-    self.s = self.length
-    self.pos, _ = self.at_s(self.length)
-    self.pool.extend(self.trail)
-    self.trail = []
+    """A tap: straight to the pavilion (the run then topples); a tap during the run ends it."""
+    if self.t < self.land_at:
+      self.t = self.land_at
+    elif self.done_at < float("inf"):
+      self.t = max(self.t, self.done_at)
 
   def _glow(self, s):
     glow = 0.35 + 0.35 * (0.5 + 0.5 * math.sin(s * 0.08))
     return tuple(min(255, int(c + (255 - c) * glow)) for c in self.colour)
 
-  def _gaps(self):
-    s = TRAIL_GAP
-    while s < self.length - 2.0:
-      yield s
-      s += TRAIL_GAP
-
-  def path(self):
-    """(position, colour) of every domino along the whole road (the look back)."""
-    return [(self.at_s(s)[0], self._glow(s)) for s in self._gaps()]
-
-  def look_back(self):
-    """Lays the whole road's dominoes, all fallen, for the look back over the path."""
-    self.reviewing = True
-    self.pool, self.trail = [], []
-    for s in self._gaps():
-      pos, yaw = self.at_s(s)
-      self.trail.append(TrailDomino().place(pos, (math.sin(yaw), 0.0, math.cos(yaw)),
-                                            self._glow(s), self.t - 10.0))
-
   def _spawn(self, s):
     pos, yaw = self.at_s(s)
     tan = (math.sin(yaw), 0.0, math.cos(yaw))
-    k = len(self.pool) + len(self.trail)
-    col = self._glow(s)
-    if self.trail and len(self.trail) >= TRAIL_MAX:
-      dm = self.trail.pop(0)
+    self.dominoes.append(TrailDomino().place((pos[0], 0.0, pos[2]), tan, self._glow(s), self.t))
+
+  def front(self):
+    """(position, yaw) of the domino falling now: where the toppling wave is."""
+    i = bisect.bisect_right([dm.fall for dm in self.dominoes], self.t) - 1
+    dm = self.dominoes[max(0, min(len(self.dominoes) - 1, i))]
+    return dm.pos, math.atan2(dm.tan[0], dm.tan[2])
+
+  def _note(self, sfx, f):
+    span = len(self.scale) * 2
+    d = int(round(max(0.0, min(1.0, f)) * (span - 1)))
+    d = min(span - 1, d + (1 if self.note_k % 3 == 1 else 0))
+    self.note_k += 1
+    midi = self.root + self.scale[d % len(self.scale)] + 12 * (d // len(self.scale))
+    if self.inst:
+      sfx.note(midi, self.inst, 1.0 if self.note_k % 4 == 1 else 0.7)
     else:
-      dm = self.pool.pop() if self.pool else TrailDomino()
-    self.trail.append(dm.place(pos, tan, col, self.t))
-    return k
+      sfx.play("clack", d)
+
+  def _shape(self, j, f):
+    return {"up": f, "down": 1 - f, "wave": 0.5 + 0.5 * math.sin(j * 0.6 + self.ph), "zigzag": (j % 4) / 3,
+            "mountain": 1 - abs(2 * f - 1), "valley": abs(2 * f - 1),
+            "ocean": 0.5 + 0.35 * math.sin(j * 0.5 + self.ph) + 0.15 * math.sin(j * 1.7)}[self.contour]
 
   def update(self, dt, sfx=None):
     if self.finished:
@@ -642,42 +678,38 @@ class Highway:
     self.t += dt
     s = self.s_at(min(self.t, self.land_at))
     pos, yaw = self.at_s(s)
-    while self.next_gap <= s - 1.5 and self.next_gap < self.length - 2.0:   # just behind the heels
+    if self.landed:
+      s = self.length
+    while self.next_gap <= s - 1.5 and self.next_gap < self.length - 2.0:   # left standing
       self._spawn(self.next_gap)
       self.next_gap += TRAIL_GAP
     self.s, self.pos, self.yaw = s, pos, yaw
     v = self.v_at(self.t)
     self.speed_k = v / HIGHWAY_SPEED
-    alive = [dm for dm in self.trail if self.t - dm.laid < TRAIL_LIFE]
-    if len(alive) < len(self.trail):                     # finished ones go back to the pool
-      self.pool.extend(dm for dm in self.trail if self.t - dm.laid >= TRAIL_LIFE)
-      self.trail = alive
     if sfx and v > 1.0 and self.t >= self.next_note:     # a tune that climbs as we go
       lo, hi = self.pace
       self.next_note = self.t + 1.0 / (lo + (hi - lo) * self.speed_k)
-      span = len(self.scale) * 2
-      j = self.note_k
-      shape = {"up": s / self.length, "down": 1 - s / self.length,
-               "wave": 0.5 + 0.5 * math.sin(j * 0.6 + self.ph), "zigzag": (j % 4) / 3,
-               "mountain": 1 - abs(2 * s / self.length - 1), "valley": abs(2 * s / self.length - 1),
-               "ocean": 0.5 + 0.35 * math.sin(j * 0.5 + self.ph) + 0.15 * math.sin(j * 1.7)}[self.contour]
-      f = 0.25 * (v / self.vmax) + 0.25 * (s / self.length) + 0.5 * shape
-      d = int(round(max(0.0, min(1.0, f)) * (span - 1)))
-      d = min(span - 1, d + (1 if self.note_k % 3 == 1 else 0))
-      self.note_k += 1
-      midi = self.root + self.scale[d % len(self.scale)] + 12 * (d // len(self.scale))
-      if self.inst:
-        sfx.note(midi, self.inst, 1.0 if self.note_k % 4 == 1 else 0.7)
-      else:
-        sfx.play("clack", d)
+      self._note(sfx, 0.25 * (v / self.vmax) + 0.25 * (s / self.length)
+                 + 0.5 * self._shape(self.note_k, s / self.length))
     if self.landed and not was:
       event = "landed"
       if sfx:
         sfx.play("pop", 3)
+      n = len(self.dominoes)                   # now the whole run topples, first to last
+      start, span = self.t + CASCADE_PAUSE, cascade_secs(n)
+      for k, dm in enumerate(self.dominoes):
+        dm.fall = start + span * (k / max(1, n - 1))
+      self.done_at = (self.dominoes[-1].fall if self.dominoes else self.t) + TRAIL_FALL + 0.3
+      self.next_note = start
+    if self.landed and self.dominoes and self.t >= self.next_note and self.t < self.done_at:
+      lo, hi = self.pace                       # the toppling run plays the tune too
+      self.next_note = self.t + 1.0 / hi
+      i = bisect.bisect_right([dm.fall for dm in self.dominoes], self.t)
+      if sfx and i > 0:
+        f = i / len(self.dominoes)
+        self._note(sfx, 0.5 * f + 0.5 * self._shape(self.note_k, f))
     if self.t >= self.done_at:
       self.finished = True
-      self.pool.extend(self.trail)
-      self.trail = []
       event = "done"
     return event
 
@@ -688,16 +720,14 @@ class Highway:
 
   def visible(self, cam_pos, far=170.0):
     out = []
-    for dm in self.trail:
+    for dm in self.dominoes:
       d = math.dist(dm.pos, cam_pos)
       if d < far:
         out.append((d, dm))
     return out
 
   def draw_domino(self, s, cam, dm, fog=None):
-    age = self.t - dm.laid
-    grow = 1.0 if self.reviewing else \
-        min(1.0, age / 0.08) * max(0.0, min(1.0, (TRAIL_LIFE - age) / 0.35))
+    grow = min(1.0, (self.t - dm.laid) / 0.08)
     if grow <= 0.02:
       return
     k = 0.0 if self.t < dm.fall else min(1.0, (self.t - dm.fall) / TRAIL_FALL)
@@ -712,6 +742,8 @@ class Highway:
       return
     poly, depth = got
     col = dm.col if fog is None else fog(dm.col, depth)
+    if 0 < k < 1:                                        # falling: a little brighter
+      col = tuple(min(255, int(c + (255 - c) * 0.25)) for c in col)
     pygame.draw.polygon(s, col, poly)
     ys = [q[1] for q in poly]
     tall = max(ys) - min(ys)

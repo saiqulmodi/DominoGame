@@ -18,9 +18,10 @@
   are served from the game's site, `docs/videos/`.
 - **Maps and rivers:** Natural Earth (https://www.naturalearthdata.com). Public domain.
   Country borders use Natural Earth's India point-of-view edition.
-- **Hindi letters and words:** drawn with the Noto Sans Devanagari font (SIL Open Font License),
-  https://notofonts.github.io. Only pictures made with the font are shipped, not the font itself.
-- **Bengali words:** drawn with Noto Sans Bengali (SIL Open Font License); only the pictures ship.
+- **Hindi and Bengali letters and words:** Noto Sans Devanagari and Noto Sans Bengali by the
+  Noto Project Authors (SIL Open Font License), https://notofonts.github.io. The word pictures
+  are drawn with them, and the fonts ship in `fonts/` (licence in `fonts/Noto-OFL.txt`) for the
+  Hindi and Bangla lines of Maths Play and the names of the letter sections.
 - **Game font:** Sniglet by Haley Fiege (SIL Open Font License), `fonts/Sniglet-ExtraBold.ttf`,
   licence in `fonts/Sniglet-OFL.txt`.
 - **Rhymes:** traditional nursery rhymes and folk rhymes in the public domain, poems by

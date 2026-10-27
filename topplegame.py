@@ -19,7 +19,7 @@ class ToppleTile:
         self.tilt = 0.0           # 0.0 (upright) -> 1.0 (fully toppled)
         self.toppling = False
         self.toppled = False
-        self.w = 16
+        self.w = 8               # half a real domino's width (user, 27-Oct)
         self.h = 42
 
 
@@ -209,8 +209,8 @@ class ToppleMode:
             surf.fill(color_theme)
             pygame.draw.rect(surf, (40, 40, 45), (0, 0, t.w, t.h), 2)
             pygame.draw.line(surf, (80, 80, 85), (2, t.h // 2), (t.w - 3, t.h // 2), 2)
-            pygame.draw.circle(surf, (30, 30, 35), (t.w // 2, t.h // 4), 3)
-            pygame.draw.circle(surf, (30, 30, 35), (t.w // 2, 3 * t.h // 4), 3)
+            pygame.draw.circle(surf, (30, 30, 35), (t.w // 2, t.h // 4), 2)
+            pygame.draw.circle(surf, (30, 30, 35), (t.w // 2, 3 * t.h // 4), 2)
             rot_deg = -math.degrees(t.angle) - (t.tilt * 48)
             rot_surf = pygame.transform.rotate(surf, rot_deg)
             s.blit(rot_surf, rot_surf.get_rect(center=(int(dx), int(dy))))

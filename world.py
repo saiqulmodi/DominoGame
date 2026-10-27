@@ -74,9 +74,9 @@ LABEL_FAR = 900.0             # name tags up to this far
 FOV_WARP = math.radians(14)   # the view widens this much at the Highway's full speed
 FLY_SECS = 5.0                # opening aerial view of the Palm, then down to the hero
 FLY_HOLD = 1.6                # ... of which this long it simply hangs above the island
-LOOK_RISE, LOOK_HOLD, LOOK_BACK = 1.3, 2.4, 0.9   # after a ride: up, look over the path, down
-LOOK_MIN = 40.0               # m: shorter rides show their whole path anyway
-LOOK_DOMINOES = 650.0         # m: nearer dominoes are drawn whole, further ones as a ribbon
+WALK_OUT_SECS = 1.8           # the hero walks out of the room before every journey
+WALK_OUT_FROM, WALK_OUT_TO = 2.0, 11.0   # m inside the door ... m out in front of it
+HOME_NEAR = 14.0              # m: a hero this near a door is in that house's room
 WEB = (250, 250, 255)
 LIGHT = (0.45, 0.80, -0.40)
 WHITE = (255, 255, 255)
@@ -193,7 +193,8 @@ class WorldScene:
     self.dream_rect = pygame.Rect(0, 0, 0, 0)
     self.dream_at = None
     self.flight = None            # the flight to a house now under way (flight.py)
-    self.review = None            # the look back over a finished ride's whole domino path
+    self.walk = None              # the hero walking out of the room, before a journey
+    self.origin = None            # (building, "flight" / "highway"): where the last journey began
     self.flight_inst = random.choice(magic.INSTRUMENTS)   # the next flight's music
     self.cam_side = 0.55
     self.magic_open = False       # the Magic Box's class buttons are showing
@@ -307,14 +308,17 @@ class WorldScene:
     self.g.say(f"{self.target.label}. {self.target.sub}")
 
   def fly_to(self, b, enter=True):
-    """Fly to a building: a flight in a new style with dominoes along the path, one round
-    around the house, a helicopter landing at the door; the house opens when the last
-    domino has fallen."""
-    if self.player.zip is not None or self.flying:
+    """Fly to a building: out of the room on foot, then a flight in a new style with
+    dominoes standing along the path, one round around the house and a helicopter landing
+    at the door; then the whole run topples, start to end, and the house opens."""
+    if self.player.zip is not None or self.flying or self.walk is not None:
       return
     self.show_directory = False
     self.target = b
     self.enter_on_arrival = b if enter else None
+    self.leave_then(lambda: self._fly(b), "flight")
+
+  def _fly(self, b):
     sfx = self.g.sfx
     sfx.play("switch")
     ready = [i for i in magic.INSTRUMENTS if getattr(sfx, "ok", False) and sfx.ready(i)]
@@ -343,24 +347,111 @@ class WorldScene:
     self.fly_to(b)
 
   def start_highway(self, n):
-    """The Magic Box's ride: down the Domino Highway at 10x speed to class n's pavilion."""
-    if self.flying:
+    """The Magic Box's ride: out of the room, then down the Domino Highway at 10x speed,
+    the playful way, to class n's pavilion."""
+    if self.flying or self.walk is not None:
       return
     b = self.by_key[f"class{n}"]
     self.magic_open = False
     self.target = b
     self.enter_on_arrival = b
+    self.leave_then(lambda: self._ride(b, town.CLASS_COLOURS[n], f"Class {n}"), "highway")
+
+  def _ride(self, b, colour, name):
     sfx = self.g.sfx
     p = self.player
     p.rope = p.zip = None
     ok = getattr(sfx, "ok", False)
-    self.flight = flights.Highway(tuple(p.pos), b, town.CLASS_COLOURS[n],
-                                  magic.INSTRUMENTS if ok else ())
+    self.flight = flights.Highway(tuple(p.pos), b, colour, magic.INSTRUMENTS if ok else ())
     if self.flight.inst:                                # this ride's own tune, made ahead
       sfx.prepare(self.flight.inst, self.flight.notes())
     sfx.play("switch")
     self.cam_side = 0.0
-    self.say(f"Domino Highway to Class {n}!", 3.5)
+    self.say(f"{name}: {self.flight.label}!", 3.5)
+
+  # --- out of the room, and back the same way ------------------------------------------
+  def home_box(self):
+    """The building whose door the hero stands at (its room), or None."""
+    p = self.player
+    best, best_d = None, HOME_NEAR
+    for b in self.boxes:
+      if b.kind is None:
+        continue
+      dx, _, dz = b.door()
+      d = math.hypot(dx - p.pos[0], dz - p.pos[2])
+      if d < best_d:
+        best, best_d = b, d
+    return best
+
+  def leave_then(self, go, way):
+    """Every journey starts with the hero walking out of the room (the house whose door
+    it stands at) to the street, a little skippy; then go() sets off. The place left is
+    remembered for the Come back button."""
+    home = self.home_box()
+    if home is not None and home is not self.target:
+      self.origin = (home, way)
+    if home is None:
+      go()
+      return
+    door = home.door()
+    cx, _, cz = home.centre
+    ox, oz = door[0] - cx, door[2] - cz
+    n = math.hypot(ox, oz) or 1.0
+    ox, oz = ox / n, oz / n
+    a = (door[0] - ox * WALK_OUT_FROM, 0.0, door[2] - oz * WALK_OUT_FROM)
+    b = (door[0] + ox * WALK_OUT_TO, 0.0, door[2] + oz * WALK_OUT_TO)
+    self.walk = {"t": 0.0, "a": a, "b": b, "go": go, "yaw": math.atan2(ox, oz),
+                 "wiggle": random.choice([-1.0, 1.0]) * random.uniform(0.8, 1.6),
+                 "hops": random.choice([2, 3, 4])}
+    self.say("Off we go!", WALK_OUT_SECS)
+
+  def walk_step(self, dt):
+    """The walk out of the room: a wiggle and a few little hops, then the journey."""
+    w = self.walk
+    w["t"] += dt
+    k = min(1.0, w["t"] / WALK_OUT_SECS)
+    p = self.player
+    a, b = w["a"], w["b"]
+    e = k * k * (3 - 2 * k)
+    side = w["wiggle"] * math.sin(math.pi * 2 * k) * (1 - k)
+    sx, sz = math.cos(w["yaw"]), -math.sin(w["yaw"])
+    p.pos = [a[0] + (b[0] - a[0]) * e + sx * side, 0.6 * abs(math.sin(math.pi * w["hops"] * k)),
+             a[2] + (b[2] - a[2]) * e + sz * side]
+    p.yaw = w["yaw"]
+    p.vel = [0.0, 0.0, 0.0]
+    p.grounded = True
+    p.walk_phase += dt * 9.0
+    self.cam.follow(p.pos, p.yaw, dt)
+    if k >= 1.0:
+      self.walk = None
+      p.pos = list(b)
+      w["go"]()
+
+  def finish_walk(self):
+    if self.walk is not None:
+      self.walk["t"] = WALK_OUT_SECS
+
+  def come_back_ready(self):
+    """The Come back button shows when the hero is away from where the last journey began."""
+    if self.origin is None or self.flying or self.walk is not None:
+      return False
+    b = self.origin[0]
+    dx, _, dz = b.door()
+    return math.hypot(dx - self.player.pos[0], dz - self.player.pos[2]) > 40.0
+
+  def come_back(self):
+    """Back to where the last journey began, the same way (a flight or the Highway)."""
+    b, way = self.origin
+    self.g.sfx.play("click")
+    if way == "highway":
+      self.target = b
+      self.enter_on_arrival = None
+      here = self.home_box()
+      colour = town.CLASS_COLOURS.get(here.payload, (255, 204, 0)) if here is not None and here.kind == "class" \
+          else (255, 204, 0)
+      self.leave_then(lambda: self._ride(b, colour, b.label), "highway")
+    else:
+      self.fly_to(b, enter=False)
 
   def class_word(self, n):
     """(English, picture of the class's name in the child's language or None)."""
@@ -673,8 +764,8 @@ class WorldScene:
     if self.flying:                         # a tap during a flight lands at once
       self.skip_flight()
       return
-    if self.review is not None:             # ... and a tap ends the look back
-      self.end_look_back()
+    if self.walk is not None:               # ... and a tap ends the walk out of the room
+      self.finish_walk()
       return
     if self.press_panels(pos):
       return
@@ -741,6 +832,9 @@ class WorldScene:
       self.g.sfx.play("switch")
       self.fly_to(self.by_key["gateway"])
       return
+    if getattr(self, "come_rect", None) and self.come_rect.collidepoint(pos):
+      self.come_back()
+      return
     if self.dream_rect.collidepoint(pos):
       self.g.sfx.play("chime")
       self.say_dream()
@@ -800,9 +894,9 @@ class WorldScene:
       if k in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_e, pygame.K_ESCAPE):
         self.skip_flight()
       return True
-    if self.review is not None:
+    if self.walk is not None:
       if k in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_e, pygame.K_ESCAPE):
-        self.end_look_back()
+        self.finish_walk()
       return True
     if self.panel_open and k in (pygame.K_ESCAPE, pygame.K_AC_BACK):
       self.picker = None
@@ -936,6 +1030,9 @@ class WorldScene:
     self.speak_welcome()
     self.steer_camera(dt)
     self.update_console_wave()
+    if self.walk is not None:
+      self.walk_step(dt)
+      return
     if self.flight is not None and self.fly(dt):
       return
     if self.flight is None and int(self.t * 60) % 3 == 1:
@@ -979,9 +1076,6 @@ class WorldScene:
   def fly(self, dt):
     """Moves the flight on; True while it steers the hero (and the camera)."""
     f = self.flight
-    if self.review is not None:
-      self.look_back_step(dt)
-      return True
     if f.finished:
       f.update(dt)
       if f.gone:
@@ -996,8 +1090,14 @@ class WorldScene:
     p.gliding = False
     if event == "done":
       p.safe = (p.pos[0], p.pos[2])
-      if not self.start_look_back(f):
-        self.arrive()
+      self.arrive()
+      if getattr(f, "highway", False):
+        self.flight = None
+    self.anchor = None
+    if f.cascading and f.dominoes:            # arrived: the camera follows the toppling run
+      pos, yaw = f.front()                    # forwards, from its start to the hero
+      self.cam.follow(pos, yaw, None if getattr(f, "highway", False) else dt)
+      return True
     cx, _, cz = f.box.centre
     look = self.cam.yaw
     if getattr(f, "highway", False):          # the Highway: the camera rides behind
@@ -1005,7 +1105,6 @@ class WorldScene:
       p.grounded = f.landed
     elif math.hypot(cx - p.pos[0], cz - p.pos[2]) > 4.0:
       look = math.atan2(cx - p.pos[0], cz - p.pos[2]) + self.cam_side
-    self.anchor = None
     self.cam.follow(p.pos, look, dt)
     return True
 
@@ -1017,136 +1116,13 @@ class WorldScene:
     else:
       self.g.sfx.play("chime")
 
-  # --- the look back: after a ride, the whole domino path from the start to the house ---
-  def start_look_back(self, f):
-    pts = f.path()
-    if len(pts) < 2:
-      return False
-    p = self.player
-    (sx, _sy, sz), (ex, _ey, ez) = pts[0][0], p.pos
-    if math.hypot(sx - ex, sz - ez) < LOOK_MIN:
-      return False
-    if hasattr(f, "look_back"):
-      f.look_back()
-    cam = self.cam
-    if cam.fov != cam.FOV:
-      cam.set_fov(cam.FOV)
-    now = (cam.pos, cam.pitch, cam.yaw)
-    top = self.look_back_view(pts, (sx, sz), (ex, ez))
-    cam.pitch = -0.32                               # the usual view behind the hero, after
-    cam.follow(p.pos, math.atan2(ex - sx, ez - sz))
-    home = (cam.pos, -0.32, cam.yaw)
-    cam.pos, cam.pitch, cam.yaw = now
-    cam._axes()
-    self.review = {"t": 0.0, "pts": pts, "from": now, "to": top, "home": home}
-    self.say("Look back! Your whole domino path.", LOOK_RISE + LOOK_HOLD)
-    return True
-
-  def look_back_view(self, pts, start, end):
-    """(position, pitch, yaw) of a camera high above the end, looking back at the start,
-    that fits every domino of the path on the screen (the lowest such camera)."""
-    cam = self.cam
-    (sx, sz), (ex, ez) = start, end
-    L = math.hypot(sx - ex, sz - ez)
-    dx, dz = (sx - ex) / L, (sz - ez) / L          # from the end towards the start
-    yaw = math.atan2(dx, dz)
-    step = max(1, len(pts) // 120)
-    sample = [q for q, _c in pts[::step]] + [pts[-1][0], tuple(self.player.pos)]
-    behind = max(0.0, max(-((q[0] - ex) * dx + (q[2] - ez) * dz) for q in sample))
-    B = 25.0 + behind                               # stand just behind the house
-    w, h = self.size
-    best, H = None, max(60.0, 0.12 * L)             # high enough to see over the house
-    while H < 3000.0:
-      pos = (ex - dx * B, H, ez - dz * B)
-      angles = []
-      for q in sample:
-        fwd = (q[0] - pos[0]) * dx + (q[2] - pos[2]) * dz
-        angles.append(math.atan2(H - q[1], max(1.0, fwd)))
-      pitch = -(max(angles) + min(angles)) / 2
-      cam.pos, cam.pitch, cam.yaw = pos, pitch, yaw
-      cam._axes()
-      fits = True
-      for q in sample:
-        pr = cam.project(q)
-        if not pr or not (24 <= pr[0] <= w - 24 and 70 <= pr[1] <= h - 110):
-          fits = False
-          break
-      best = (pos, pitch, yaw)
-      if fits:
-        break
-      H *= 1.12
-    self.review_far = L + B + 300.0
-    return best
-
-  def look_back_step(self, dt):
-    """Up over the path, a look at it, and down behind the hero; then the house opens."""
-    r = self.review
-    r["t"] += dt
-    t = r["t"]
-    if t >= LOOK_RISE + LOOK_HOLD + LOOK_BACK:
-      self.end_look_back()
-      return
-    if t < LOOK_RISE:
-      a, b, k = r["from"], r["to"], t / LOOK_RISE
-    elif t < LOOK_RISE + LOOK_HOLD:
-      a, b, k = r["to"], r["to"], 1.0
-    else:
-      a, b, k = r["to"], r["home"], (t - LOOK_RISE - LOOK_HOLD) / LOOK_BACK
-    e = k * k * (3 - 2 * k)
-    cam = self.cam
-    cam.pos = tuple(u + (v - u) * e for u, v in zip(a[0], b[0]))
-    cam.pitch = a[1] + (b[1] - a[1]) * e
-    cam.yaw = a[2] + ((b[2] - a[2] + math.pi) % math.tau - math.pi) * e
-    cam._axes()
-    up = 1.0 - e if b is r["home"] else e          # how far up the camera is (0 .. 1)
-    self.far = FAR_VIEW + (max(FAR_VIEW, self.review_far) - FAR_VIEW) * up
-    self.fog_k = 1.0 - 0.9 * up
-    if abs(cam.pitch - r.get("sky", 9.0)) > 0.03:  # a new horizon now and then while moving
-      r["sky"] = cam.pitch
-      self.sky_stale = True
-
-  def end_look_back(self):
-    r, self.review = self.review, None
-    if r is None:
-      return
-    cam = self.cam
-    cam.pos, cam.pitch, cam.yaw = r["home"]
-    cam.dist, cam.height_offset = 28.0, 12.0
-    cam._axes()
-    self.far, self.fog_k = FAR_VIEW, 1.0
-    self.sky_stale = True
-    self.toast = ("", 0.0)
-    if getattr(self.flight, "highway", False):
-      self.flight = None                            # its dominoes go (a flight's shrink away)
-    self.arrive()
-
-  def draw_look_back(self, s):
-    """The far part of the path as a ribbon of the dominoes' colours (nearer dominoes are
-    drawn whole, among the buildings)."""
-    cam = self.cam
-    base = max(4, min(self.size) // 70)             # wide screens look from higher up: thicker
-    prev, segs = None, []
-    for q, col in self.review["pts"]:
-      pr = cam.project(q)
-      if pr and pr[2] >= LOOK_DOMINOES * 0.8:
-        if prev:
-          width = max(base, min(base + 4, int(cam.focal * 2.4 / pr[2]) + 2))
-          segs.append((prev[:2], pr[:2], width, self.fog(col, pr[2])))
-        prev = pr
-      else:
-        prev = None
-    for a, b, width, col in segs:                   # a dark rim: it shows on sand and sea
-      pygame.draw.line(s, tuple(int(c * 0.45) for c in col), a, b, width + 3)
-    for a, b, width, col in segs:
-      pygame.draw.line(s, col, a, b, width)
-
   def steer_camera(self, dt):
     """During a flight the camera stands further back and higher, so the whole path shows."""
     cam = self.cam
-    if self.review is not None:               # the look back moves the camera itself
-      return
     warp = 0.0
-    if self.flying and getattr(self.flight, "highway", False):
+    if self.flying and self.flight.cascading:  # the toppling run, seen from just behind it
+      want = (26.0, 10.0, -0.36)
+    elif self.flying and getattr(self.flight, "highway", False):
       warp = self.flight.speed_k              # warp speed: further back, and a wider view
       want = (30.0 + 10.0 * warp, 12.0 + 2.0 * warp, -0.30)
     elif self.flying and self.flight.t < self.flight.hover_t - 0.8:
@@ -1194,8 +1170,6 @@ class WorldScene:
     self.draw_hills(s, hy)
     self.draw_ground(s)
     self.draw_sea_life(s)
-    if self.review is not None:
-      self.draw_look_back(s)
     items = []
     self.hit_polys = {}
     cp = cam.pos
@@ -1215,12 +1189,10 @@ class WorldScene:
         items.append((dist, 2, lp))
     items.append((math.dist(self.player.pos, cp), 3, None))
     if self.flight is not None:
-      far = LOOK_DOMINOES if self.review is not None else 170.0
-      items.extend((d, 4, dm) for d, dm in self.flight.visible(cp, far))
+      items.extend((d, 4, dm) for d, dm in self.flight.visible(cp))
     self.dream_at = None
     items.sort(key=lambda it: -it[0])
-    up_high = self.flyover is not None or self.flying or self.review is not None
-    labels = {} if up_high else self.place_labels()          # no name tags from up high
+    labels = self.place_labels() if self.flyover is None and not self.flying else {}   # no name tags from up high
     for dist, kind, obj in items:
       if kind == 0:
         self.draw_box(s, obj, dist)
@@ -1242,7 +1214,7 @@ class WorldScene:
     if self.flyover is not None:            # the aerial view: only the Palm and a title
       self.draw_flyover_title(s)
       return
-    if self.flying or self.review is not None:   # the path and the hero only
+    if self.flying:                         # the path and the hero only
       self.door_marks = []
       self.dream_at = None
     else:
@@ -2222,7 +2194,7 @@ class WorldScene:
       self.text(s, "Wonder Town", (w - self.map_rect.w - 30, 27), 22, YELLOW, anchor="midright")
     self.draw_map(s)
     self.zip_rect = pygame.Rect(0, 0, 0, 0)
-    if self.target is not None and self.player.zip is None and self.flight is None:
+    if self.target is not None and self.player.zip is None and self.flight is None and self.walk is None:
       p = self.player
       dx, _, dz = self.target.door()
       dist = math.hypot(dx - p.pos[0], dz - p.pos[2])
@@ -2248,12 +2220,28 @@ class WorldScene:
       gx0, gy0 = self.gate_rect.x + 18, self.gate_rect.centery
       pygame.draw.polygon(s, (170, 245, 255), [(gx0, gy0 - 10), (gx0 + 7, gy0), (gx0, gy0 + 10), (gx0 - 7, gy0)])
       self.text(s, label, (self.gate_rect.centerx + 10, self.gate_rect.centery), 16)
+    self.come_rect = pygame.Rect(0, 0, 0, 0)
+    if self.come_back_ready() and not self.panel_open and not self.g.overlay:
+      label = f"Come back: {self.origin[0].label}"     # back where the journey began, same way
+      size = 16
+      while size > 11 and self.g.font_at(size).size(label)[0] > w // 2 - 40:
+        size -= 1
+      tw = self.g.font_at(size).size(label)[0]
+      self.come_rect = pygame.Rect(0, 0, max(self.map_rect.w, tw + 46), 38)
+      top = (self.gate_rect.bottom if self.gate_rect.h else self.map_rect.bottom) + 10
+      self.come_rect.topright = (self.map_rect.right, top)
+      pygame.draw.rect(s, (240, 140, 40), self.come_rect, border_radius=19)
+      pygame.draw.rect(s, WHITE, self.come_rect, 2, border_radius=19)
+      cx0, cy0 = self.come_rect.x + 17, self.come_rect.centery     # a turning-back arrow
+      pygame.draw.arc(s, WHITE, (cx0 - 8, cy0 - 8, 16, 16), 0.3, math.pi, 3)
+      pygame.draw.polygon(s, WHITE, [(cx0 - 12, cy0 - 1), (cx0 - 4, cy0 - 1), (cx0 - 8, cy0 + 6)])
+      self.text(s, label, (self.come_rect.centerx + 10, self.come_rect.centery), size)
     b = town.nearest_entrance(self.boxes, self.player.pos)
     self.pads["enter"].visible = b is not None
     for p in self.pads.values():
       if p.visible:
         self.draw_pad(s, p)
-    if b is not None and not self.g.overlay and not self.panel_open and self.review is None:
+    if b is not None and not self.g.overlay and not self.panel_open and self.walk is None and not self.flying:
       label = f"Go into {b.label}!"
       tw = self.g.font_at(20).size(label)[0]
       r = pygame.Rect(0, 0, min(w - 20, tw + 44), 46)
@@ -2335,10 +2323,14 @@ class WorldScene:
         pic = self.g.thumb(first, cat, r.h - 46)
       if pic is not None:
         s.blit(pic, pic.get_rect(center=(r.centerx, r.y + (r.h - 30) // 2 + 4)))
-      size = 17
-      while size > 11 and self.g.font_at(size).size(cat)[0] > r.w - 8:
-        size -= 1
-      self.text(s, cat, (r.centerx, r.bottom - 16), size)
+      native = self.g.native_name(cat, 18)            # e.g. স্বরবর্ণ in Bangla mode
+      if native is not None:
+        s.blit(native, native.get_rect(center=(r.centerx, r.bottom - 16)))
+      else:
+        size = 17
+        while size > 11 and self.g.font_at(size).size(cat)[0] > r.w - 8:
+          size -= 1
+        self.text(s, cat, (r.centerx, r.bottom - 16), size)
       if self.g.progress.has(f"c:{cat}"):
         self.g.draw_star(s, (r.right - 14, r.y + 14), 9)
     self.draw_button(s, close, "Back to town", (90, 110, 150))

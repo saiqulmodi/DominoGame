@@ -856,6 +856,13 @@ class GameDrawing:
         return code
     return None
 
+  def native_tab(self, name, rect, colour):
+    """A menu tab's name in Hindi / Bangla mode (स्वर, স্বরবর্ণ ...), fitted to the tab."""
+    img = self.native_name(name, max(12, rect.h - 13), tuple(colour))
+    if img is not None and img.get_width() > rect.w - 4:
+      img = pygame.transform.smoothscale(img, (rect.w - 4, max(1, img.get_height() * (rect.w - 4) // img.get_width())))
+    return img
+
   def draw_lang_tabs(self, screen, tabs):
     """Each language named in its own letters; the chosen one is lit up."""
     cache = self.__dict__.setdefault("_tab_imgs", {})
@@ -899,7 +906,8 @@ class GameDrawing:
         continue
       active = s == self.subject
       pygame.draw.rect(screen, YELLOW if active else tm["subject"], rect, border_radius=8)
-      lbl = fit_label(self.cat_font, s, bg if active else WHITE, rect.w - 4)
+      lbl = (self.native_tab(s, rect, bg if active else WHITE)
+             or fit_label(self.cat_font, s, bg if active else WHITE, rect.w - 4))
       screen.blit(lbl, lbl.get_rect(center=rect.center))
     for rect, c in self.category_rects():
       if c in ("<", ">"):                       # page through a long row
@@ -909,7 +917,8 @@ class GameDrawing:
         continue
       active = c == self.cat
       pygame.draw.rect(screen, CYAN if active else tm["cat"], rect, border_radius=8)
-      lbl = fit_label(self.cat_font, c, bg if active else WHITE, rect.w - 4)
+      lbl = (self.native_tab(c, rect, bg if active else WHITE)
+             or fit_label(self.cat_font, c, bg if active else WHITE, rect.w - 4))
       screen.blit(lbl, lbl.get_rect(center=rect.center))
       if self.progress.has(f"c:{c}"):          # whole category finished
         pygame.draw.circle(screen, GOLD, (rect.right - 5, rect.top + 5), 5)

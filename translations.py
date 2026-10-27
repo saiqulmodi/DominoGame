@@ -273,3 +273,11 @@ TRANSLATIONS = {f"{cat}/{name}": (hi, bn)
                 for cat, rows in _ROWS.items() for name, hi, bn in rows}
 
 LANGUAGES = {"en": "English only", "hi": "English + Hindi", "bn": "English + Bangla"}
+
+# The letter sections and their subjects, in their own letters (picker cards and menu tabs
+# show these in Hindi / Bangla mode instead of the English spelling)
+CATEGORY_NATIVE = {
+    "Swar": ("स्वर", "স্বর"), "Vyanjan": ("व्यंजन", "ব্যঞ্জন"),
+    "Swarabarna": ("स्वरवर्ण", "স্বরবর্ণ"), "Byanjanbarna": ("व्यंजनवर्ण", "ব্যঞ্জনবর্ণ"),
+    "Hindi": ("हिंदी", "হিন্দি"), "Bangla": ("बांग्ला", "বাংলা"),
+}

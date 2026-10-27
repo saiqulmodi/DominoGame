@@ -45,7 +45,7 @@ import ui_draw
 import video
 import world
 from audio import IS_ANDROID, IS_WEB, SoundBank, Speaker
-from translations import LANGUAGES
+from translations import CATEGORY_NATIVE, LANGUAGES
 
 # The game screen is the whole screen: a slim top row (menu button, the
 # picture's name with speaker and video buttons, Next) and the play area under
@@ -99,8 +99,9 @@ DROP_GAP = 0.06                   # s between dominoes (less for big pictures)
 DROP_ALL = 2.4                    # s: the whole line has dropped by then
 DROP_HEIGHT = 80                  # px it drops from
 LETTER_SPACING = 34               # px between the big letter dominoes
-LETTER_TILE = (22, 44)            # letter domino (w, h): a real domino's 1 : 2 shape
-BADGE_R = 10                      # white badge with the letter on it (fits inside the tile)
+LETTER_TILE = (11, 44)            # letter domino (w, h): half a real domino's width (user, 27-Oct)
+DOMINO_TILE = (6, 28)             # picture domino (w, h): slim, 1 : 4.7 (was 12 x 28)
+BADGE_R = 7                       # white badge with the letter (small: the domino is slim)
 PIC_BOTTOM = 46                   # px under the picture kept for the hint and progress bar
 # Free drawing: crayons, Undo and Done sit along the top of the play area
 CRAYONS = [(255, 204, 0), (233, 69, 96), (255, 140, 40), (80, 200, 90),
@@ -154,6 +155,8 @@ SPELL_STEP = 0.82
 RATE_HINT = 44100  # mixer output rate; effects are resampled to it
 FONT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts",
                          "Sniglet-ExtraBold.ttf")
+NATIVE_FONTS = {"hi": ("NotoSansDevanagari-Bold.ttf", "Deva"),   # in fonts/, SIL Open Font License
+                "bn": ("NotoSansBengali-Bold.ttf", "Beng")}
 LANG_ORDER = ["hi", "bn", "en"]
 
 set_layout(PANEL_W, PANEL_H)
@@ -212,17 +215,17 @@ def domino_tile(color, plain=False):
     if len(_TILES) > 600:
       _TILES.clear()
     rgb = key[:3]
-    w, h = LETTER_TILE if plain else (12, 28)
+    w, h = LETTER_TILE if plain else DOMINO_TILE
     tile = pygame.Surface((w, h), pygame.SRCALPHA)
     dark = tuple(int(c * 0.55) for c in rgb)
     light = tuple(min(255, int(c + (255 - c) * 0.45)) for c in rgb)
     pygame.draw.rect(tile, dark, (0, 0, w, h), border_radius=3)
     pygame.draw.rect(tile, rgb, (1, 1, w - 2, h - 2), border_radius=3)
-    pygame.draw.line(tile, light, (2, 2), (2, h - 3), 2)
+    pygame.draw.line(tile, light, (1, 2), (1, h - 3), 1)
     if not plain:
-      pygame.draw.line(tile, WHITE, (2, 14), (9, 14), 1)
-      pygame.draw.circle(tile, WHITE, (6, 7), 2)
-      pygame.draw.circle(tile, WHITE, (6, 21), 2)
+      pygame.draw.line(tile, WHITE, (1, h // 2), (w - 2, h // 2), 1)
+      pygame.draw.circle(tile, WHITE, (w // 2, h // 4), max(1, w // 4))
+      pygame.draw.circle(tile, WHITE, (w // 2, 3 * h // 4), max(1, w // 4))
     _TILES[key] = tile
   return tile
 
@@ -375,6 +378,63 @@ class Game(ui_draw.GameDrawing):
     if size not in self.fonts:
       self.fonts[size] = load_font(size)
     return self.fonts[size]
+
+  def native_text(self, text, size, colour=(255, 255, 255), lang=None):
+    """Hindi or Bengali words drawn with Noto Sans (the game's own font has no Indian
+    letters); None for English or when the font is missing."""
+    lang = lang or self.lang
+    if lang not in NATIVE_FONTS or not text:
+      return None
+    f = self.native_font(lang, size)
+    if f is None:
+      return None
+    missing = self.fonts.get(("missing", lang))
+    if missing is None:                    # glyphs the font lacks draw as its "tofu" box
+      tofu = pygame.image.tobytes(f.render("", True, (0, 0, 0), (255, 255, 255)), "RGB")
+      missing = self.fonts[("missing", lang)] = {
+          c for c in map(chr, range(32, 127)) if c != " " and pygame.image.tobytes(
+              f.render(c, True, (0, 0, 0), (255, 255, 255)), "RGB") == tofu}
+    other = self.native_font("hi" if lang == "bn" else "bn", size) if missing else None
+    runs = []                              # Bengali has no Latin digits or signs: those
+    for c in text:                         # come from the matching Noto Devanagari font
+      use = other if (other and c in missing) else f
+      if runs and runs[-1][0] is use:
+        runs[-1][1].append(c)
+      else:
+        runs.append((use, [c]))
+    if len(runs) == 1:
+      return f.render(text, True, colour)
+    parts = [(fn, fn.render("".join(cs), True, colour)) for fn, cs in runs]
+    top = max(fn.get_ascent() for fn, _ in parts)
+    out = pygame.Surface((sum(p.get_width() for _, p in parts),
+                          max(top - fn.get_ascent() + p.get_height() for fn, p in parts)), pygame.SRCALPHA)
+    x = 0
+    for fn, p in parts:
+      out.blit(p, (x, top - fn.get_ascent()))
+      x += p.get_width()
+    return out
+
+  def native_name(self, name, size, colour=(255, 255, 255)):
+    """A letter section's or subject's name in Hindi / Bangla mode (CATEGORY_NATIVE), or None."""
+    k = {"hi": 0, "bn": 1}.get(self.lang)
+    words = CATEGORY_NATIVE.get(name)
+    if k is None or not words:
+      return None
+    key = ("name", name, size, colour, self.lang)
+    if key not in self.fonts:
+      self.fonts[key] = self.native_text(words[k], size, colour)
+    return self.fonts[key]
+
+  def native_font(self, lang, size):
+    key = ("native", lang, size)
+    if key not in self.fonts:
+      try:
+        f = pygame.font.Font(os.path.join(os.path.dirname(FONT_FILE), NATIVE_FONTS[lang][0]), size)
+        f.set_script(NATIVE_FONTS[lang][1])     # joins the letters properly (HarfBuzz)
+      except Exception:
+        f = None
+      self.fonts[key] = f
+    return self.fonts[key]
 
   @property
   def shelf_open(self):
@@ -595,7 +655,7 @@ class Game(ui_draw.GameDrawing):
       if item.get("hindi") and self.pic_path:       # Hindi letters: the letter picture
         ink = self.native_letter_image()
       elif self.domino_letter:
-        size = 19 if len(self.domino_letter) == 1 else 13
+        size = 14 if len(self.domino_letter) == 1 else 10
         ink = self.render_char(self.domino_letter, size, (25, 30, 70))
       else:
         ink = None

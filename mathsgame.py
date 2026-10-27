@@ -42,7 +42,8 @@ PAPER = (255, 250, 230)
 CLASSES = 7
 STEP_UP_RUN = 5          # right first time in a row to make the chapter harder
 NEXT_AFTER = 3.4         # s after a right answer before the next question (at the least)
-SQUISH_SECS = 0.45       # a tapped answer button squishes and springs back
+NATIVE_LINE = 28         # px the picture moves down for the Hindi / Bangla line of a question
+SQUISH_SECS = 0.45      # a tapped answer button squishes and springs back
 STAR_SECS = 0.9          # gold stars fly out of a right answer
 SPEECH_GAP = 0.4        # s of quiet after the spoken sentence before the next question
 CASCADE_STEP = 0.32      # s between falling dominoes in the cascade
@@ -67,6 +68,7 @@ START = ("Let's play with numbers! Pick your class, then a chapter.",
          "চলো সংখ্যা নিয়ে খেলি! তোমার শ্রেণি বেছে নাও, তারপর একটা অধ্যায়।")
 CHOSEN = ("Class {c}: {n}.", "कक्षा {c}: {n}।", "শ্রেণি {c}: {n}।")
 MIX_NAME = ("Mixed practice", "मिली-जुली अभ्यास", "মিশ্র অনুশীলন")
+PICK = ("Pick your class and a chapter", "अपनी कक्षा और अध्याय चुनो", "তোমার শ্রেণি আর অধ্যায় বেছে নাও")
 
 
 def fmt(line, **kw):
@@ -479,7 +481,7 @@ class MathsGame:
     lay["prompt_y"] = a.y + 12
     lay["eq_y"] = top - 26
     lay["steps_y"] = top - 60
-    scene_top = a.y + 92
+    scene_top = a.y + 92 + (NATIVE_LINE if self.native_ask() else 0)
     lay["scene"] = pygame.Rect(a.x + 10, scene_top, a.w - 20, max(60, top - 82 - scene_top))
     return lay
 
@@ -539,7 +541,12 @@ class MathsGame:
     a = self.area()
     d = self.data
     cls, chips, cells, back = self.picker_layout()
-    self.text(s, "Pick your class and a chapter", (a.centerx, a.y + 26), 22, YELLOW, a.w - 20)
+    k = {"hi": 1, "bn": 2}.get(g.lang)
+    title = self.native_lines(PICK[k], 21, a.w - 20, YELLOW)[:1] if k else []
+    if title:
+      s.blit(title[0], title[0].get_rect(center=(a.centerx, a.y + 26)))
+    else:
+      self.text(s, PICK[0], (a.centerx, a.y + 26), 22, YELLOW, a.w - 20)
     f = g.font_at(18)
     for i, r in enumerate(chips):
       on = cls == i + 1
@@ -557,10 +564,11 @@ class MathsGame:
       pygame.draw.rect(s, (20, 20, 40), r.move(2, 3), border_radius=12)
       pygame.draw.rect(s, colour, r, border_radius=12)
       pygame.draw.rect(s, YELLOW if current else WHITE, r, 4 if current else 2, border_radius=12)
-      lines = wrap(cf, name, r.w - 56)[:2]
-      for n_, line in enumerate(lines):
-        lt = cf.render(line, True, WHITE)
-        s.blit(lt, lt.get_rect(midleft=(r.x + 10, r.centery + (n_ - (len(lines) - 1) / 2) * 18)))
+      native = self.native_lines(self.chapter_name(cls, ch)[k], 14, r.w - 56, (240, 245, 255))[:1] if k else []
+      lines = wrap(cf, name, r.w - 56)[:1 if native else 2]
+      rows = [cf.render(line, True, WHITE) for line in lines] + native   # English, then Hindi / Bangla
+      for n_, lt in enumerate(rows):
+        s.blit(lt, lt.get_rect(midleft=(r.x + 10, r.centery + (n_ - (len(rows) - 1) / 2) * 19)))
       stars = d["stars"].get(f"{cls}-{ch}", 0)
       if stars:
         gold = stars >= CHAPTER_STAR
@@ -700,6 +708,41 @@ class MathsGame:
       self._quiet_at = now
     return now - self._quiet_at >= SPEECH_GAP
 
+  def native_ask(self):
+    """The question in the child's second language (None in English)."""
+    k = {"hi": 1, "bn": 2}.get(self.g.lang)
+    if not k or not self.q or self.picking or self.school is not None:
+      return None
+    return self.q["ask"][k]
+
+  def native_lines(self, text, size, max_w, colour):
+    """Hindi / Bangla text wrapped into lines no wider than max_w (cached)."""
+    if not text:
+      return []
+    cache = self.__dict__.setdefault("_native_cache", {})
+    key = (text, size, max_w, colour, self.g.lang)
+    if key not in cache:
+      out, cur = [], ""
+      for word in text.split(" "):
+        trial = (cur + " " + word).strip()
+        img = self.g.native_text(trial, size, colour)
+        if img is None:
+          return []
+        if img.get_width() > max_w and cur:
+          out.append(self.g.native_text(cur, size, colour))
+          cur = word
+        else:
+          cur = trial
+      if cur:
+        img = self.g.native_text(cur, size, colour)
+        if img.get_width() > max_w:
+          img = pygame.transform.smoothscale(img, (max_w, img.get_height() * max_w // img.get_width()))
+        out.append(img)
+      if len(cache) > 200:
+        cache.clear()
+      cache[key] = out
+    return cache[key]
+
   def cascade_fall(self, i, now):
     if not self.shown:
       return 0.0
@@ -722,9 +765,15 @@ class MathsGame:
     lay = self.layout()
     q = self.q
     font = g.font_at(21)
-    for n, line in enumerate(wrap(font, q["ask"][0], a.w - 30)[:3]):
+    native = self.native_ask()
+    lines = wrap(font, q["ask"][0], a.w - 30)[:2 if native else 3]
+    for n, line in enumerate(lines):
       t = font.render(line, True, YELLOW)
       s.blit(t, t.get_rect(center=(a.centerx, lay["prompt_y"] + 13 + n * 25)))
+    y = lay["prompt_y"] + 6 + len(lines) * 25
+    for img in self.native_lines(native, 20, a.w - 24, WHITE)[:2]:   # the same in Hindi / Bangla
+      s.blit(img, img.get_rect(midtop=(a.centerx, y)))
+      y += img.get_height() - 2
     self._cascade = []
     scene = getattr(self, "scene_" + q["scene"], self.scene_expr)
     clip = s.get_clip()
@@ -822,7 +871,9 @@ class MathsGame:
     if t.get_width() > btn.w - 16:
       t = pygame.transform.smoothscale(t, (btn.w - 16, t.get_height()))
     s.blit(t, t.get_rect(midleft=(btn.x + 8, btn.centery - 8)))
-    sub = g.small_font.render("Tap to change class or chapter", True, (220, 230, 255))
+    k = {"hi": 1, "bn": 2}.get(g.lang)
+    sub = self.native_lines(self.chapter_name()[k], 14, btn.w - 16, (220, 230, 255))[:1] if k else []
+    sub = sub[0] if sub else g.small_font.render("Tap to change class or chapter", True, (220, 230, 255))
     s.blit(sub, sub.get_rect(midleft=(btn.x + 8, btn.centery + 11)))
     right = lay["foot"].right
     score = g.font_at(19).render(str(d["stars"].get(self.key, 0)), True, YELLOW)

@@ -420,10 +420,37 @@ def bangla_mask(text):
   return mask
 
 
+def mixed_render(text, lang, size, colour):
+  """Hindi / Bengali text; the Bengali font has no Latin digits or signs (- , : + =), so
+  those come from the matching Noto Devanagari font instead of showing as boxes."""
+  import pygame
+  font = deva_font(size) if lang == "hi" else beng_font(size)
+  if lang == "hi" or not any(c in BENG_MISSING for c in text):
+    return font.render(text, True, colour)
+  runs = []
+  for c in text:
+    f = deva_font(size) if c in BENG_MISSING else font
+    if runs and runs[-1][0] is f:
+      runs[-1][1].append(c)
+    else:
+      runs.append((f, [c]))
+  parts = [(f, f.render("".join(cs), True, colour)) for f, cs in runs]
+  top = max(f.get_ascent() for f, _ in parts)
+  out = pygame.Surface((sum(p.get_width() for _, p in parts),
+                        max(top - f.get_ascent() + p.get_height() for f, p in parts)), pygame.SRCALPHA)
+  x = 0
+  for f, p in parts:
+    out.blit(p, (x, top - f.get_ascent()))
+    x += p.get_width()
+  return out
+
+
+BENG_MISSING = set("0123456789+-=:,.()%/")
+
+
 def native_word_image(text, slug, lang):
   import pygame
-  font = deva_font(72) if lang == "hi" else beng_font(72)
-  surf = font.render(text, True, (255, 230, 120))
+  surf = mixed_render(text, lang, 72, (255, 230, 120))
   raw = pygame.image.tobytes(surf, "RGBA")
   img = Image.frombytes("RGBA", surf.get_size(), raw)
   img = img.crop(img.getbbox())
