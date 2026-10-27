@@ -14,8 +14,9 @@ scale, melody), never the same as the flight before. A tap skips to the landing.
 
 The Domino Highway (Highway) is the Magic Box's ride to a Class Pavilion: down the main
 street at 10x walking speed, easing in and out, with glowing dominoes springing up and
-toppling right behind the hero's heels (a small pool, recycled as they finish) and bell
-notes of a raga that climb with speed and with the distance covered.
+toppling right behind the hero's heels (a small pool, recycled as they finish) and a tune
+that climbs with speed and with the distance covered - every ride its own instrument,
+scale, tune shape and pace, never the same as the ride before.
 
 After every ride the camera rises and looks back over the whole path, every domino lying
 where it fell (path(); world.py's look back), before the house opens.
@@ -470,8 +471,8 @@ TRAIL_MAX = 60           # dominoes alive at once (a pool: finished ones are reu
 TRAIL_LAG = 0.10         # s after the hero passes, a domino starts to fall
 TRAIL_FALL = 0.30
 TRAIL_LIFE = 1.30        # s from springing up to fading away
-HIGHWAY_NOTES = (3.0, 7.0)   # notes per second: slow ... full speed (never a buzz of clicks)
-BHUPALI = [0, 2, 4, 7, 9]
+HIGHWAY_PACES = [(3.0, 7.0), (2.5, 5.0), (4.0, 7.0), (3.0, 6.0)]   # notes per second: slow ...
+                                                                   # full speed (never a buzz of clicks)
 
 
 class TrailDomino:
@@ -493,14 +494,19 @@ class Highway:
   rotor = 0.0
   highway = True
 
-  def __init__(self, start, box, colour, inst=None, seed=None):
+  def __init__(self, start, box, colour, instruments=(), seed=None):
     rng = random.Random(seed)
     self.box = box
     self.label = "on the Domino Highway"
     self.colour = colour
-    self.inst = inst
-    self.root = rng.choice([60, 62, 63])
-    self.scale = BHUPALI if rng.random() < 0.5 else dict(magic.SCALES)["Bilawal"][:7]
+    # every ride its own music: instrument, scale, tune shape, pace and pitch, never the
+    # same as the ride or flight before
+    self.inst = _pick(rng, "inst", list(instruments)) if instruments else None
+    self.scale = dict(magic.SCALES)[_pick(rng, "scale", [s[0] for s in magic.SCALES])]
+    self.contour = _pick(rng, "contour", magic.CONTOURS)
+    self.pace = _pick(rng, "pace", HIGHWAY_PACES)
+    self.root = rng.choice([57, 60, 62, 63, 65, 67])
+    self.ph = rng.uniform(0, math.tau)
     self.t = 0.0
     self.finished = False
     self.fade = FADE_SECS
@@ -646,11 +652,16 @@ class Highway:
     if len(alive) < len(self.trail):                     # finished ones go back to the pool
       self.pool.extend(dm for dm in self.trail if self.t - dm.laid >= TRAIL_LIFE)
       self.trail = alive
-    if sfx and v > 1.0 and self.t >= self.next_note:     # a raga that climbs as we go
-      lo, hi = HIGHWAY_NOTES
+    if sfx and v > 1.0 and self.t >= self.next_note:     # a tune that climbs as we go
+      lo, hi = self.pace
       self.next_note = self.t + 1.0 / (lo + (hi - lo) * self.speed_k)
       span = len(self.scale) * 2
-      f = 0.35 * (v / self.vmax) + 0.65 * (s / self.length)
+      j = self.note_k
+      shape = {"up": s / self.length, "down": 1 - s / self.length,
+               "wave": 0.5 + 0.5 * math.sin(j * 0.6 + self.ph), "zigzag": (j % 4) / 3,
+               "mountain": 1 - abs(2 * s / self.length - 1), "valley": abs(2 * s / self.length - 1),
+               "ocean": 0.5 + 0.35 * math.sin(j * 0.5 + self.ph) + 0.15 * math.sin(j * 1.7)}[self.contour]
+      f = 0.25 * (v / self.vmax) + 0.25 * (s / self.length) + 0.5 * shape
       d = int(round(max(0.0, min(1.0, f)) * (span - 1)))
       d = min(span - 1, d + (1 if self.note_k % 3 == 1 else 0))
       self.note_k += 1

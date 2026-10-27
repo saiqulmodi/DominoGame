@@ -354,10 +354,11 @@ class WorldScene:
     sfx = self.g.sfx
     p = self.player
     p.rope = p.zip = None
-    inst = "bell" if getattr(sfx, "ok", False) else None
-    self.flight = flights.Highway(tuple(p.pos), b, town.CLASS_COLOURS[n], inst)
-    if inst:
-      sfx.prepare(inst, self.flight.notes())
+    ok = getattr(sfx, "ok", False)
+    self.flight = flights.Highway(tuple(p.pos), b, town.CLASS_COLOURS[n],
+                                  magic.INSTRUMENTS if ok else ())
+    if self.flight.inst:                                # this ride's own tune, made ahead
+      sfx.prepare(self.flight.inst, self.flight.notes())
     sfx.play("switch")
     self.cam_side = 0.0
     self.say(f"Domino Highway to Class {n}!", 3.5)
