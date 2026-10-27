@@ -16,6 +16,9 @@ The Domino Highway (Highway) is the Magic Box's ride to a Class Pavilion: down t
 street at 10x walking speed, easing in and out, with glowing dominoes springing up and
 toppling right behind the hero's heels (a small pool, recycled as they finish) and bell
 notes of a raga that climb with speed and with the distance covered.
+
+After every ride the camera rises and looks back over the whole path, every domino lying
+where it fell (path(); world.py's look back), before the house opens.
 """
 
 import bisect
@@ -395,6 +398,10 @@ class Flight:
   def gone(self):
     return self.finished and self.fade >= FADE_SECS
 
+  def path(self):
+    """(position, colour) of every domino from the start to the house (the look back)."""
+    return [(dm.pos, dm.col) for dm in self.dominoes]
+
   # ------------------------------------------------------------------ drawing
   def visible(self, cam_pos, far=170.0):
     """(distance, domino) for the dominoes laid so far and near enough to draw."""
@@ -508,6 +515,7 @@ class Highway:
     self.s = 0.0
     self.speed_k = 0.0
     self.trail, self.pool = [], []
+    self.reviewing = False         # the whole road's dominoes lie fallen for the look back
     self.next_gap = TRAIL_GAP
     self.next_note = 0.0
     self.note_k = 0
@@ -585,12 +593,34 @@ class Highway:
     self.pool.extend(self.trail)
     self.trail = []
 
+  def _glow(self, s):
+    glow = 0.35 + 0.35 * (0.5 + 0.5 * math.sin(s * 0.08))
+    return tuple(min(255, int(c + (255 - c) * glow)) for c in self.colour)
+
+  def _gaps(self):
+    s = TRAIL_GAP
+    while s < self.length - 2.0:
+      yield s
+      s += TRAIL_GAP
+
+  def path(self):
+    """(position, colour) of every domino along the whole road (the look back)."""
+    return [(self.at_s(s)[0], self._glow(s)) for s in self._gaps()]
+
+  def look_back(self):
+    """Lays the whole road's dominoes, all fallen, for the look back over the path."""
+    self.reviewing = True
+    self.pool, self.trail = [], []
+    for s in self._gaps():
+      pos, yaw = self.at_s(s)
+      self.trail.append(TrailDomino().place(pos, (math.sin(yaw), 0.0, math.cos(yaw)),
+                                            self._glow(s), self.t - 10.0))
+
   def _spawn(self, s):
     pos, yaw = self.at_s(s)
     tan = (math.sin(yaw), 0.0, math.cos(yaw))
     k = len(self.pool) + len(self.trail)
-    glow = 0.35 + 0.35 * (0.5 + 0.5 * math.sin(s * 0.08))
-    col = tuple(min(255, int(c + (255 - c) * glow)) for c in self.colour)
+    col = self._glow(s)
     if self.trail and len(self.trail) >= TRAIL_MAX:
       dm = self.trail.pop(0)
     else:
@@ -655,7 +685,8 @@ class Highway:
 
   def draw_domino(self, s, cam, dm, fog=None):
     age = self.t - dm.laid
-    grow = min(1.0, age / 0.08) * max(0.0, min(1.0, (TRAIL_LIFE - age) / 0.35))
+    grow = 1.0 if self.reviewing else \
+        min(1.0, age / 0.08) * max(0.0, min(1.0, (TRAIL_LIFE - age) / 0.35))
     if grow <= 0.02:
       return
     k = 0.0 if self.t < dm.fall else min(1.0, (self.t - dm.fall) / TRAIL_FALL)

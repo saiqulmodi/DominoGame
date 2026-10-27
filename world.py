@@ -75,6 +75,9 @@ LABEL_FAR = 900.0             # name tags up to this far
 FOV_WARP = math.radians(14)   # the view widens this much at the Highway's full speed
 FLY_SECS = 5.0                # opening aerial view of the Palm, then down to the hero
 FLY_HOLD = 1.6                # ... of which this long it simply hangs above the island
+LOOK_RISE, LOOK_HOLD, LOOK_BACK = 1.3, 2.4, 0.9   # after a ride: up, look over the path, down
+LOOK_MIN = 40.0               # m: shorter rides show their whole path anyway
+LOOK_DOMINOES = 650.0         # m: nearer dominoes are drawn whole, further ones as a ribbon
 WEB = (250, 250, 255)
 LIGHT = (0.45, 0.80, -0.40)
 WHITE = (255, 255, 255)
@@ -191,6 +194,7 @@ class WorldScene:
     self.dream_rect = pygame.Rect(0, 0, 0, 0)
     self.dream_at = None
     self.flight = None            # the flight to a house now under way (flight.py)
+    self.review = None            # the look back over a finished ride's whole domino path
     self.flight_inst = random.choice(magic.INSTRUMENTS)   # the next flight's music
     self.cam_side = 0.55
     self.magic_open = False       # the Magic Box's class buttons are showing
@@ -670,6 +674,9 @@ class WorldScene:
     if self.flying:                         # a tap during a flight lands at once
       self.skip_flight()
       return
+    if self.review is not None:             # ... and a tap ends the look back
+      self.end_look_back()
+      return
     if self.press_panels(pos):
       return
     if self.show_directory:
@@ -793,6 +800,10 @@ class WorldScene:
     if self.flying:
       if k in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_e, pygame.K_ESCAPE):
         self.skip_flight()
+      return True
+    if self.review is not None:
+      if k in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_e, pygame.K_ESCAPE):
+        self.end_look_back()
       return True
     if self.panel_open and k in (pygame.K_ESCAPE, pygame.K_AC_BACK):
       self.picker = None
@@ -969,6 +980,9 @@ class WorldScene:
   def fly(self, dt):
     """Moves the flight on; True while it steers the hero (and the camera)."""
     f = self.flight
+    if self.review is not None:
+      self.look_back_step(dt)
+      return True
     if f.finished:
       f.update(dt)
       if f.gone:
@@ -983,11 +997,8 @@ class WorldScene:
     p.gliding = False
     if event == "done":
       p.safe = (p.pos[0], p.pos[2])
-      if self.enter_on_arrival is not None:
-        b, self.enter_on_arrival = self.enter_on_arrival, None
-        self.enter(b)
-      else:
-        self.g.sfx.play("chime")
+      if not self.start_look_back(f):
+        self.arrive()
     cx, _, cz = f.box.centre
     look = self.cam.yaw
     if getattr(f, "highway", False):          # the Highway: the camera rides behind
@@ -999,9 +1010,137 @@ class WorldScene:
     self.cam.follow(p.pos, look, dt)
     return True
 
+  def arrive(self):
+    """The ride is over: the house opens (or a chime when the hero only flew there)."""
+    if self.enter_on_arrival is not None:
+      b, self.enter_on_arrival = self.enter_on_arrival, None
+      self.enter(b)
+    else:
+      self.g.sfx.play("chime")
+
+  # --- the look back: after a ride, the whole domino path from the start to the house ---
+  def start_look_back(self, f):
+    pts = f.path()
+    if len(pts) < 2:
+      return False
+    p = self.player
+    (sx, _sy, sz), (ex, _ey, ez) = pts[0][0], p.pos
+    if math.hypot(sx - ex, sz - ez) < LOOK_MIN:
+      return False
+    if hasattr(f, "look_back"):
+      f.look_back()
+    cam = self.cam
+    if cam.fov != cam.FOV:
+      cam.set_fov(cam.FOV)
+    now = (cam.pos, cam.pitch, cam.yaw)
+    top = self.look_back_view(pts, (sx, sz), (ex, ez))
+    cam.pitch = -0.32                               # the usual view behind the hero, after
+    cam.follow(p.pos, math.atan2(ex - sx, ez - sz))
+    home = (cam.pos, -0.32, cam.yaw)
+    cam.pos, cam.pitch, cam.yaw = now
+    cam._axes()
+    self.review = {"t": 0.0, "pts": pts, "from": now, "to": top, "home": home}
+    self.say("Look back! Your whole domino path.", LOOK_RISE + LOOK_HOLD)
+    return True
+
+  def look_back_view(self, pts, start, end):
+    """(position, pitch, yaw) of a camera high above the end, looking back at the start,
+    that fits every domino of the path on the screen (the lowest such camera)."""
+    cam = self.cam
+    (sx, sz), (ex, ez) = start, end
+    L = math.hypot(sx - ex, sz - ez)
+    dx, dz = (sx - ex) / L, (sz - ez) / L          # from the end towards the start
+    yaw = math.atan2(dx, dz)
+    step = max(1, len(pts) // 120)
+    sample = [q for q, _c in pts[::step]] + [pts[-1][0], tuple(self.player.pos)]
+    behind = max(0.0, max(-((q[0] - ex) * dx + (q[2] - ez) * dz) for q in sample))
+    B = 25.0 + behind                               # stand just behind the house
+    w, h = self.size
+    best, H = None, max(60.0, 0.12 * L)             # high enough to see over the house
+    while H < 3000.0:
+      pos = (ex - dx * B, H, ez - dz * B)
+      angles = []
+      for q in sample:
+        fwd = (q[0] - pos[0]) * dx + (q[2] - pos[2]) * dz
+        angles.append(math.atan2(H - q[1], max(1.0, fwd)))
+      pitch = -(max(angles) + min(angles)) / 2
+      cam.pos, cam.pitch, cam.yaw = pos, pitch, yaw
+      cam._axes()
+      fits = True
+      for q in sample:
+        pr = cam.project(q)
+        if not pr or not (24 <= pr[0] <= w - 24 and 70 <= pr[1] <= h - 110):
+          fits = False
+          break
+      best = (pos, pitch, yaw)
+      if fits:
+        break
+      H *= 1.12
+    self.review_far = L + B + 300.0
+    return best
+
+  def look_back_step(self, dt):
+    """Up over the path, a look at it, and down behind the hero; then the house opens."""
+    r = self.review
+    r["t"] += dt
+    t = r["t"]
+    if t >= LOOK_RISE + LOOK_HOLD + LOOK_BACK:
+      self.end_look_back()
+      return
+    if t < LOOK_RISE:
+      a, b, k = r["from"], r["to"], t / LOOK_RISE
+    elif t < LOOK_RISE + LOOK_HOLD:
+      a, b, k = r["to"], r["to"], 1.0
+    else:
+      a, b, k = r["to"], r["home"], (t - LOOK_RISE - LOOK_HOLD) / LOOK_BACK
+    e = k * k * (3 - 2 * k)
+    cam = self.cam
+    cam.pos = tuple(u + (v - u) * e for u, v in zip(a[0], b[0]))
+    cam.pitch = a[1] + (b[1] - a[1]) * e
+    cam.yaw = a[2] + ((b[2] - a[2] + math.pi) % math.tau - math.pi) * e
+    cam._axes()
+    up = 1.0 - e if b is r["home"] else e          # how far up the camera is (0 .. 1)
+    self.far = FAR_VIEW + (max(FAR_VIEW, self.review_far) - FAR_VIEW) * up
+    self.fog_k = 1.0 - 0.9 * up
+    if abs(cam.pitch - r.get("sky", 9.0)) > 0.03:  # a new horizon now and then while moving
+      r["sky"] = cam.pitch
+      self.sky_stale = True
+
+  def end_look_back(self):
+    r, self.review = self.review, None
+    if r is None:
+      return
+    cam = self.cam
+    cam.pos, cam.pitch, cam.yaw = r["home"]
+    cam.dist, cam.height_offset = 28.0, 12.0
+    cam._axes()
+    self.far, self.fog_k = FAR_VIEW, 1.0
+    self.sky_stale = True
+    self.toast = ("", 0.0)
+    if getattr(self.flight, "highway", False):
+      self.flight = None                            # its dominoes go (a flight's shrink away)
+    self.arrive()
+
+  def draw_look_back(self, s):
+    """The far part of the path as a ribbon of the dominoes' colours (nearer dominoes are
+    drawn whole, among the buildings)."""
+    cam = self.cam
+    prev = None
+    for q, col in self.review["pts"]:
+      pr = cam.project(q)
+      if pr and pr[2] >= LOOK_DOMINOES * 0.8:
+        if prev:
+          width = max(3, min(6, int(cam.focal * 2.4 / pr[2]) + 2))
+          pygame.draw.line(s, self.fog(col, pr[2]), prev[:2], pr[:2], width)
+        prev = pr
+      else:
+        prev = None
+
   def steer_camera(self, dt):
     """During a flight the camera stands further back and higher, so the whole path shows."""
     cam = self.cam
+    if self.review is not None:               # the look back moves the camera itself
+      return
     warp = 0.0
     if self.flying and getattr(self.flight, "highway", False):
       warp = self.flight.speed_k              # warp speed: further back, and a wider view
@@ -1051,6 +1190,8 @@ class WorldScene:
     self.draw_hills(s, hy)
     self.draw_ground(s)
     self.draw_sea_life(s)
+    if self.review is not None:
+      self.draw_look_back(s)
     items = []
     self.hit_polys = {}
     cp = cam.pos
@@ -1070,10 +1211,12 @@ class WorldScene:
         items.append((dist, 2, lp))
     items.append((math.dist(self.player.pos, cp), 3, None))
     if self.flight is not None:
-      items.extend((d, 4, dm) for d, dm in self.flight.visible(cp))
+      far = LOOK_DOMINOES if self.review is not None else 170.0
+      items.extend((d, 4, dm) for d, dm in self.flight.visible(cp, far))
     self.dream_at = None
     items.sort(key=lambda it: -it[0])
-    labels = self.place_labels() if self.flyover is None and not self.flying else {}   # no name tags from up high
+    up_high = self.flyover is not None or self.flying or self.review is not None
+    labels = {} if up_high else self.place_labels()          # no name tags from up high
     for dist, kind, obj in items:
       if kind == 0:
         self.draw_box(s, obj, dist)
@@ -1095,7 +1238,7 @@ class WorldScene:
     if self.flyover is not None:            # the aerial view: only the Palm and a title
       self.draw_flyover_title(s)
       return
-    if self.flying:                         # the path and the hero only
+    if self.flying or self.review is not None:   # the path and the hero only
       self.door_marks = []
       self.dream_at = None
     else:
@@ -2106,7 +2249,7 @@ class WorldScene:
     for p in self.pads.values():
       if p.visible:
         self.draw_pad(s, p)
-    if b is not None and not self.g.overlay and not self.panel_open:
+    if b is not None and not self.g.overlay and not self.panel_open and self.review is None:
       label = f"Go into {b.label}!"
       tw = self.g.font_at(20).size(label)[0]
       r = pygame.Rect(0, 0, min(w - 20, tw + 44), 46)
