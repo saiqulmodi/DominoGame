@@ -431,6 +431,55 @@ class WorldScene:
     if self.walk is not None:
       self.walk["t"] = WALK_OUT_SECS
 
+  # --- the class list on the left: Class 1 to 7, each straight to its pavilion -----------
+  def class_list_rects(self):
+    """[(rect, class number)] down the left side, between the top row and the pads (none
+    while a journey, a panel or the opening view is on)."""
+    if (self.flyover is not None or self.flying or self.walk is not None or self.panel_open
+            or self.g.overlay or self.show_tips):
+      return []
+    w, h = self.size
+    top = 112
+    bottom = min(p.rect.top for p in self.pads.values()) - 70
+    n = len(town.CLASSES)
+    gap = 6
+    bh = max(34, min(58, (bottom - top - gap * (n - 1)) // n))
+    bw = 96 if w < 640 else 118
+    return [(pygame.Rect(10, top + k * (bh + gap), bw, bh), num)
+            for k, (num, _name, _col, _keys) in enumerate(town.CLASSES)]
+
+  def go_to_class(self, n):
+    """A class in the list: to its pavilion (the Domino Highway); there, in to its subjects."""
+    self.g.sfx.play("click")
+    b = self.by_key[f"class{n}"]
+    here = self.home_box()
+    if here is b:
+      self.target = b
+      self.enter(b)
+      return
+    self.start_highway(n)
+
+  def draw_class_list(self, s):
+    here = self.home_box()
+    for r, n in self.class_list_rects():
+      col = town.CLASS_COLOURS[n]
+      at = here is not None and here.key == f"class{n}"
+      pygame.draw.rect(s, (20, 20, 40), r.move(2, 3), border_radius=12)
+      pygame.draw.rect(s, col, r, border_radius=12)
+      pygame.draw.rect(s, YELLOW if at else WHITE, r, 3 if at else 2, border_radius=12)
+      num = self.g.font_at(min(30, r.h - 8)).render(str(n), True, WHITE)
+      s.blit(num, num.get_rect(center=(r.x + 18, r.centery)))
+      native = self.label_image(f"class{n}", max(12, r.h // 2 - 6))
+      word = self.g.font_at(14 if native else 16).render("Class", True, WHITE)
+      x = r.x + 34
+      if native is not None:
+        if native.get_width() > r.right - x - 4:
+          native = pygame.transform.smoothscale(native, (r.right - x - 4, max(1, native.get_height() * (r.right - x - 4) // native.get_width())))
+        s.blit(word, word.get_rect(midleft=(x, r.centery - r.h // 4 + 1)))
+        s.blit(native, native.get_rect(midleft=(x, r.centery + r.h // 4 - 1)))
+      else:
+        s.blit(word, word.get_rect(midleft=(x, r.centery)))
+
   def come_back_ready(self):
     """The Come back button shows when the hero is away from where the last journey began."""
     if self.origin is None or self.flying or self.walk is not None:
@@ -807,6 +856,10 @@ class WorldScene:
         self.close_tips()
         return
 
+    for r, n in self.class_list_rects():       # the class list on the left
+      if r.collidepoint(pos):
+        self.go_to_class(n)
+        return
     if self.buttons["guide"].collidepoint(pos):
       self.next_tour()
       return
@@ -2236,6 +2289,7 @@ class WorldScene:
       pygame.draw.arc(s, WHITE, (cx0 - 8, cy0 - 8, 16, 16), 0.3, math.pi, 3)
       pygame.draw.polygon(s, WHITE, [(cx0 - 12, cy0 - 1), (cx0 - 4, cy0 - 1), (cx0 - 8, cy0 + 6)])
       self.text(s, label, (self.come_rect.centerx + 10, self.come_rect.centery), size)
+    self.draw_class_list(s)
     b = town.nearest_entrance(self.boxes, self.player.pos)
     self.pads["enter"].visible = b is not None
     for p in self.pads.values():
