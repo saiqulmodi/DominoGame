@@ -26,7 +26,6 @@ import pygame
 
 import os
 
-import counter
 import domino_data as hub
 import flight as flights
 import magic
@@ -362,7 +361,6 @@ class WorldScene:
     sfx.play("switch")
     self.cam_side = 0.0
     self.say(f"Domino Highway to Class {n}!", 3.5)
-    counter.count_event("magic_box_class_travel", f"class{n}")
 
   def class_word(self, n):
     """(English, picture of the class's name in the child's language or None)."""

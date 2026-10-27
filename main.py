@@ -27,7 +27,6 @@ import time
 import pygame
 
 import calls
-import counter
 import domino_data as hub
 import fun
 import howto
@@ -1301,8 +1300,6 @@ class Game(ui_draw.GameDrawing):
     if self.show:                          # one of seven celebrations
       area = pygame.Rect(self.pic_rect) if self.pic_rect else PLAY_RECT
       self.show.finale(area, self.sfx)
-      counter.count_event("celebration_finale_played", self.show.finale_kind)
-    counter.count_event("creation_item_unlocked", self.cat)
     self.praised_at = time.time()
     self.call_at = None            # its real sound plays when the little picture is tapped
     self.particles.confetti(PLAY_RECT)
@@ -1647,7 +1644,6 @@ async def main():
   speaker = Speaker()
   game = Game(sfx, speaker)
   game.fullscreen = fullscreen
-  counter.count_open()             # anonymous "app opened" count (Android only)
 
   # Touch and mouse share one code path. Phones also send "fake" mouse events
   # for each touch, so those are ignored to avoid double taps.
