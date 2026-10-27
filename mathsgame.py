@@ -17,6 +17,7 @@ up a step, three misses in a row moves one down. Stars count right answers per
 chapter; ten earn the chapter's gold star. A wrong tap is just a lesson.
 """
 
+import datetime
 import math
 import random
 import re
@@ -26,6 +27,7 @@ import pygame
 
 import maths_bank as mb
 import modes
+import schoolday
 from maths_bank import add_all, factor_pair, is_prime, num
 
 WHITE = (255, 255, 255)
@@ -39,7 +41,10 @@ LADDOO = (255, 165, 40)
 PAPER = (255, 250, 230)
 CLASSES = 7
 STEP_UP_RUN = 5          # right first time in a row to make the chapter harder
-NEXT_AFTER = 3.4         # s after a right answer before the next question
+NEXT_AFTER = 3.4         # s after a right answer before the next question (at the least)
+SQUISH_SECS = 0.45       # a tapped answer button squishes and springs back
+STAR_SECS = 0.9          # gold stars fly out of a right answer
+SPEECH_GAP = 0.4        # s of quiet after the spoken sentence before the next question
 CASCADE_STEP = 0.32      # s between falling dominoes in the cascade
 CHAPTER_STAR = 10        # right answers that earn a chapter its gold star
 MIX = -1                 # "chapter" index for mixed practice of a whole class
@@ -308,9 +313,20 @@ class MathsGame:
     if hint:
       self.picking = True
       self.picker_cls = hint
-      self.say(START)
     elif self.picking:
       self.picker_cls = d["cls"]
+    self.school = None
+    if schoolday.due(game.progress):                 # once a day: getting ready for school
+      self.school = schoolday.SchoolDay(game, self.area)
+      game.progress.data["school_day"] = datetime.date.today().isoformat()
+      game.progress.save()
+    else:
+      self.begin()
+
+  def begin(self):
+    """Maths Play proper: the class picker or the first question."""
+    self.school = None
+    if self.picking:
       self.say(START)
     else:
       self.new_question()
@@ -363,6 +379,7 @@ class MathsGame:
     kind = modes.fresh_pick(g, "maths:" + str(self.key), self.kinds(), keep=3)
     self.q = mb.make(kind, d["diff"].get(self.key, 0))
     self.wrong, self.shake = set(), {}
+    self.pressed = {}
     self.solved_at = self.revealed_at = self.level_up_at = None
     self.badge = None
     self.asked_at = time.time()
@@ -374,9 +391,21 @@ class MathsGame:
     g.banner_override = "MATHS PLAY"
     g.announced_at = time.time()
     self.ask_after = None
+    self._quiet_at = None
     self.say(self.q["ask"], lead)
 
+  def next_button(self):
+    """The top row's Next: the story's next picture, or the next question."""
+    if self.school is not None:
+      self.school.next()
+      if self.school.done:
+        self.begin()
+      return
+    self.new_question()
+
   def ask(self):
+    if self.school is not None:
+      return
     if self.picking or not self.q:
       self.say(START)
     else:
@@ -547,6 +576,11 @@ class MathsGame:
   # ------------------------------------------------------------ input
   def press(self, pos):
     g = self.g
+    if self.school is not None:
+      self.school.press(pos)
+      if self.school.done:
+        self.begin()
+      return
     if self.picking or not self.q:
       self.picker_press(pos)
       return
@@ -573,6 +607,7 @@ class MathsGame:
     d = self.data
     tap2 = q.get("tap2")
     picked = i if tap2 else q["choices"][i]
+    self.pressed = {i: time.time()}              # the tapped button squishes and springs back
     if picked == q["c"]:
       if hasattr(self.g.progress, "record_quest_step"):
         self.g.progress.record_quest_step("maths", self.g)
@@ -630,6 +665,8 @@ class MathsGame:
 
   # ------------------------------------------------------------ update
   def update(self, now):
+    if self.school is not None:
+      return
     if self.picking or not self.q:
       return
     if not self.shown:
@@ -637,7 +674,7 @@ class MathsGame:
     t = now - self.done_at
     if self.solved_at is not None:
       wait = NEXT_AFTER + (1.5 if self.level_up_at else 0.0) + CASCADE_STEP * len(self._cascade)
-      if t > wait:
+      if t > wait and self.voice_done(now):        # never cut the sentence off
         self.new_question()
         return
     top = self.q.get("lit_to")
@@ -653,6 +690,16 @@ class MathsGame:
         if label:
           self.g.particles.text(x, y, label, YELLOW)
 
+  def voice_done(self, now):
+    """True SPEECH_GAP seconds after the spoken sentence has ended."""
+    busy = getattr(self.g.speaker, "busy", None)
+    if busy and busy():
+      self._quiet_at = None
+      return False
+    if getattr(self, "_quiet_at", None) is None:
+      self._quiet_at = now
+    return now - self._quiet_at >= SPEECH_GAP
+
   def cascade_fall(self, i, now):
     if not self.shown:
       return 0.0
@@ -666,6 +713,9 @@ class MathsGame:
     veil = pygame.Surface(a.size, pygame.SRCALPHA)
     veil.fill((*g.theme["bg"], 215))
     s.blit(veil, a.topleft)
+    if self.school is not None:
+      self.school.draw(s, now)
+      return
     if self.picking or not self.q:
       self.draw_picker(s, now)
       return
@@ -732,6 +782,10 @@ class MathsGame:
       if good and self.solved_at is not None:
         p = int(6 * math.sin(now * 8))
         rr = rr.inflate(p, p)
+      k = (now - self.pressed[i]) / SQUISH_SECS if i in getattr(self, "pressed", {}) else 1.0
+      if k < 1.0:                                  # squish, then a springy bounce back
+        sq = -0.14 * math.cos(k * 3 * math.pi) * (1 - k)
+        rr = rr.inflate(int(rr.w * sq * 0.6), int(rr.h * sq))
       pygame.draw.rect(s, (20, 20, 40), rr.move(3, 4), border_radius=18)
       pygame.draw.rect(s, col, rr, border_radius=18)
       pygame.draw.rect(s, WHITE, rr, 3, border_radius=18)
@@ -742,6 +796,13 @@ class MathsGame:
       t = render_expr(g, label, size, WHITE)
       s.blit(o, o.get_rect(center=(rr.centerx + 2, rr.centery + 2)))
       s.blit(t, t.get_rect(center=rr.center))
+      if good and self.solved_at is not None and now - self.solved_at < STAR_SECS:
+        k = (now - self.solved_at) / STAR_SECS     # a ring of gold stars bursts out
+        for n in range(8):
+          a = n * math.pi / 4 + k
+          dist = rr.w * 0.35 + rr.w * 0.6 * (1 - (1 - k) ** 2)
+          g.draw_star(s, (int(rr.centerx + math.cos(a) * dist), int(rr.centery + math.sin(a) * dist * 0.8)),
+                      max(3, int(11 * (1 - k))))
       if q["kind"] == "prime" and self.shown:
         v = int(label.replace(",", ""))
         if is_prime(v):

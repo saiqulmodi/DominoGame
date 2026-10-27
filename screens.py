@@ -109,7 +109,7 @@ class Menu:
         ("stories", "All stories", ("Sky", "Rainbow"), f"{len(stories.STORIES)} adventures"),
         ("players", f"Player: {player['name']}", fun.AVATARS[player["avatar"]],
          "Tap to change or add a player"),
-        ("lang", "Language", ("Countries", "India"), LANGUAGES[g.lang] + "  (tap to change)"),
+        ("lang", "Language", ("Countries", "India"), None),
         ("howto", "How to play", None, "Pictures show you what to do"),
         ("parents", "For parents", ("Helpers", "Teacher"), "See what your child learned"),
     ]
@@ -123,6 +123,12 @@ class Menu:
     for i, it in enumerate(items):
       out.append((pygame.Rect(16, 56 + i * step, 418, step - 7), it))
     return out
+
+  @staticmethod
+  def lang_box(rect):
+    """The English | हिंदी | বাংলা tabs on the right of the Language row."""
+    h = min(36, rect.h - 10)
+    return pygame.Rect(rect.x + 170, rect.centery - h // 2, rect.w - 180, h)
 
   def draw(self, screen, g, now):
     shade(screen, g.theme)
@@ -144,6 +150,8 @@ class Menu:
       else:
         pic = g.thumb(icon[1], icon[0], 44)
       button(screen, g, rect, text, g.theme["subject"], pic, sub, active)
+      if key == "lang":
+        g.draw_lang_tabs(screen, g.lang_tab_rects(self.lang_box(rect)))
     tip = g.small_font.render("Tap outside a button to close", True, HINT)
     screen.blit(tip, tip.get_rect(center=(225, AREA_BOTTOM - 12)))
 
@@ -168,7 +176,9 @@ class Menu:
         elif key == "players":
           g.overlay = "players"
         elif key == "lang":
-          g.next_language()
+          code = g.lang_tab_hit(pos, self.lang_box(rect))
+          if code:
+            g.set_language(code)
         elif key == "howto":
           g.open_guide()
         elif key == "parents":

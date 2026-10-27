@@ -30,6 +30,16 @@ LABELS = {
 }
 for n in range(1, 8):
   LABELS[f"class{n}"] = (f"कक्षा {HI_DIGITS[n]}", f"শ্রেণি {BN_DIGITS[n]}")
+# (the Bengali font has no : , + = signs, so the Bangla lines use words)
+# the "Getting ready for school" story before Maths Play (schoolday.py): one line per picture
+SCHOOL = {
+    "school_wake": ("सुप्रभात! सात बज गए।", "সুপ্রভাত! সাতটা বাজে।"),
+    "school_pack": ("बस्ता लगाओ: 3 किताबें, 2 पेंसिल", "ব্যাগ গোছাও! ৩টি বই আর ২টি পেনসিল"),
+    "school_ready": ("तैयार! 3 + 2 = 5 चीज़ें", "তৈরি! ৩ আর ২ মিলে ৫টি জিনিস"),
+    "school_walk": ("माँ के साथ स्कूल चलें!", "মায়ের সঙ্গে স্কুলে চলো!"),
+    "school_road": ("ज़ेबरा क्रॉसिंग: दाएँ, बाएँ, फिर दाएँ देखो", "জেব্রা ক্রসিং! ডানে বাঁয়ে আবার ডানে দেখো"),
+    "school_class": ("कक्षा में स्वागत है! चलो गिनें!", "ক্লাসে স্বাগতম! চলো গুনি!"),
+}
 
 
 def render(font, text):
@@ -53,7 +63,13 @@ def main():
     for lang, text, font in (("hi", hi, bh.deva_font(56)), ("bn", bn, bh.beng_font(56))):
       path = os.path.join(OUT, f"{lang}_{key}.png")
       pygame.image.save(render(font, text), path)
-  print(len(LABELS) * 2, "labels in", OUT)
+  # the language tabs (English | हिंदी | বাংলা) always name each language in its own letters
+  pygame.image.save(render(bh.deva_font(56), "हिंदी"), os.path.join(OUT, "tab_hi.png"))
+  pygame.image.save(render(bh.beng_font(56), "বাংলা"), os.path.join(OUT, "tab_bn.png"))
+  for key, (hi, bn) in SCHOOL.items():
+    for lang, text, font in (("hi", hi, bh.deva_font(44)), ("bn", bn, bh.beng_font(44))):
+      pygame.image.save(render(font, text), os.path.join(OUT, f"{lang}_{key}.png"))
+  print(len(LABELS) * 2 + 2 + len(SCHOOL) * 2, "labels in", OUT)
 
 
 if __name__ == "__main__":

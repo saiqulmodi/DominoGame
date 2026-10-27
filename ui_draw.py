@@ -834,6 +834,52 @@ class GameDrawing:
     pygame.draw.rect(screen, WHITE, NEXT_BTN, 2, border_radius=12)
     cx, cy = NEXT_BTN.center
     pygame.draw.polygon(screen, WHITE, [(cx - 8, cy - 13), (cx + 10, cy), (cx - 8, cy + 13)])
+    if self.show_lang_tabs():
+      self.draw_lang_tabs(screen, self.lang_tab_rects())
+
+  def show_lang_tabs(self):
+    """The top row shows the language tabs where it has no description to show."""
+    return bool(self.banner_override) and not self.story
+
+  def lang_tab_rects(self, box=None):
+    """English | हिंदी | বাংলা: three tabs (in the top row, or in `box`)."""
+    if box is None:
+      box = pygame.Rect(0, 0, min(300, WIDTH - 2 * (TOWN_BTN.right + 8)), 32)
+      box.midtop = (BANNER_RECT.centerx, DESC_Y + 2)
+    tw = (box.w - 8) // 3
+    return [(pygame.Rect(box.x + k * (tw + 4), box.y, tw, box.h), code)
+            for k, code in enumerate(("en", "hi", "bn"))]
+
+  def lang_tab_hit(self, pos, box=None):
+    for r, code in self.lang_tab_rects(box):
+      if r.inflate(4, 8).collidepoint(pos):
+        return code
+    return None
+
+  def draw_lang_tabs(self, screen, tabs):
+    """Each language named in its own letters; the chosen one is lit up."""
+    cache = self.__dict__.setdefault("_tab_imgs", {})
+    for r, code in tabs:
+      on = code == self.lang
+      pygame.draw.rect(screen, YELLOW if on else (60, 80, 140), r, border_radius=r.h // 2)
+      pygame.draw.rect(screen, WHITE, r, 3 if on else 2, border_radius=r.h // 2)
+      key = (code, r.h, on)
+      if key not in cache:
+        img = None
+        if code == "en":
+          img = self.font_at(max(12, r.h - 14)).render("English", True, (40, 40, 70) if on else WHITE)
+        else:
+          try:
+            raw = pygame.image.load(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                 "labels", f"tab_{code}.png")).convert_alpha()
+            h = r.h - 6
+            img = pygame.transform.smoothscale(raw, (max(1, raw.get_width() * h // raw.get_height()), h))
+          except Exception:
+            img = self.font_at(max(12, r.h - 14)).render({"hi": "Hindi", "bn": "Bangla"}[code], True, WHITE)
+        if img.get_width() > r.w - 8:
+          img = pygame.transform.smoothscale(img, (r.w - 8, img.get_height() * (r.w - 8) // img.get_width()))
+        cache[key] = img
+      screen.blit(cache[key], cache[key].get_rect(center=r.center))
 
   def draw_menu_panel(self, screen, now):
     """The menu: subjects, categories, every picture of the category and the

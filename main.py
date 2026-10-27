@@ -733,6 +733,18 @@ class Game(ui_draw.GameDrawing):
     self.progress.save()
     self.announce()
 
+  def set_language(self, code):
+    """A language tab: English, Hindi or Bangla."""
+    self.sfx.play("click")
+    if code == self.lang:
+      return
+    self.progress.data["lang"] = code
+    self.progress.save()
+    if self.mode == "maths" and self.maths:
+      self.maths.ask()                    # the question again, in the new language
+    else:
+      self.announce()
+
   def apply_profile(self):
     self.theme = fun.THEMES[self.progress.data.get("theme", 0) % len(fun.THEMES)]
     self.progress.mark_day(datetime.date.today().isoformat())
@@ -828,7 +840,7 @@ class Game(ui_draw.GameDrawing):
       return
     if self.mode == "maths":
       self.sfx.play("click")
-      self.maths.new_question()
+      self.maths.next_button()
       return
     order = [(s, c, n) for s, cats in self.subjects.items() for c in cats
              for n in hub.CATEGORIES_HUB[c]]
@@ -961,6 +973,8 @@ class Game(ui_draw.GameDrawing):
     elif (self.mode == "trace" and self.stage != "draw"
           and math.hypot(mx - JINGLE_CENTER[0], my - JINGLE_CENTER[1]) <= JINGLE_R + 4):
       self.play_jingle()
+    elif self.show_lang_tabs() and self.lang_tab_hit((mx, my)):
+      self.set_language(self.lang_tab_hit((mx, my)))
     elif TOWN_BTN.collidepoint(mx, my):
       self.go_to_town()
     elif MENU_BTN.collidepoint(mx, my):

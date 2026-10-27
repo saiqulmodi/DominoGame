@@ -15,6 +15,7 @@ import shutil
 import struct
 import subprocess
 import sys
+import time
 from array import array
 
 import pygame
@@ -30,6 +31,8 @@ IS_ANDROID = "ANDROID_ARGUMENT" in os.environ or hasattr(
 # Procedural sound effects
 # --------------------------------------------------------------------------
 _RAW_ONLY = []   # set once the mixer refuses WAV files (the browser build)
+SFX_GAIN = 0.65  # headroom: a chime, pops, clacks and the voice together never clip
+TAIL_SECS = 0.008  # every sound fades out over its last few ms (no click at the end)
 
 
 def _render(duration, fn, peak=0.6):
@@ -39,7 +42,10 @@ def _render(duration, fn, peak=0.6):
   n = int(rate * duration)
   data = [fn(i / rate, i / n) for i in range(n)]
   top = max(1e-9, max(abs(s) for s in data))
-  scale = peak / top
+  scale = peak * SFX_GAIN / top
+  tail = max(1, int(rate * TAIL_SECS))
+  for i in range(max(0, n - tail), n):
+    data[i] *= (n - 1 - i) / tail
   pcm = array("h", (int(s * scale * 32767) for s in data))
   if sys.byteorder == "big":
     pcm.byteswap()
@@ -356,10 +362,13 @@ while ($true) {
 class Speaker:
   """Says words out loud using whatever voice the device already has."""
 
+  CHARS_PER_SEC = 10.0     # how fast the voices speak at their slow rate (an estimate)
+
   def __init__(self):
     self.mode = None
     self._proc = None
     self._tts = None
+    self._said_at, self._est = 0.0, 0.0
     try:
       if IS_WEB:
         import platform  # pygbag's browser bridge
@@ -397,6 +406,8 @@ class Speaker:
     """Speaks text. If `hindi` (native text) is given it is spoken in that
     language (lang "hi" Hindi or "bn" Bengali) where the device has such a
     voice; otherwise the English text is spoken."""
+    self._said_at = time.time()
+    self._est = 0.5 + len(hindi or text or "") / self.CHARS_PER_SEC
     try:
       if self.mode == "windows":
         if self._proc.poll() is None:
@@ -448,6 +459,24 @@ class Speaker:
         )
     except Exception as exc:
       print(f"[audio] could not speak: {exc}")
+
+  def busy(self):
+    """True while the last line is still being spoken, so the game can wait for the end
+    of a sentence instead of cutting it off. The browser and Android say when they are
+    speaking; elsewhere the line's length gives an estimate."""
+    if self.mode is None:
+      return False
+    since = time.time() - self._said_at
+    if since > self._est * 2.5 + 3.0:            # never wait for ever
+      return False
+    try:
+      if self.mode == "web":
+        return since < 0.6 or bool(self._window.speechSynthesis.speaking)
+      if self.mode == "android":
+        return since < 0.6 or bool(self._tts.isSpeaking())
+    except Exception:
+      pass
+    return since < self._est
 
   def _stop_child(self):
     if self._proc is not None and self._proc.poll() is None:
