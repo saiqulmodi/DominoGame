@@ -1126,16 +1126,21 @@ class WorldScene:
     """The far part of the path as a ribbon of the dominoes' colours (nearer dominoes are
     drawn whole, among the buildings)."""
     cam = self.cam
-    prev = None
+    base = max(4, min(self.size) // 70)             # wide screens look from higher up: thicker
+    prev, segs = None, []
     for q, col in self.review["pts"]:
       pr = cam.project(q)
       if pr and pr[2] >= LOOK_DOMINOES * 0.8:
         if prev:
-          width = max(3, min(6, int(cam.focal * 2.4 / pr[2]) + 2))
-          pygame.draw.line(s, self.fog(col, pr[2]), prev[:2], pr[:2], width)
+          width = max(base, min(base + 4, int(cam.focal * 2.4 / pr[2]) + 2))
+          segs.append((prev[:2], pr[:2], width, self.fog(col, pr[2])))
         prev = pr
       else:
         prev = None
+    for a, b, width, col in segs:                   # a dark rim: it shows on sand and sea
+      pygame.draw.line(s, tuple(int(c * 0.45) for c in col), a, b, width + 3)
+    for a, b, width, col in segs:
+      pygame.draw.line(s, col, a, b, width)
 
   def steer_camera(self, dt):
     """During a flight the camera stands further back and higher, so the whole path shows."""
