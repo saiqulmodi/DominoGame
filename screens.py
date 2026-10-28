@@ -388,6 +388,8 @@ CREDITS = [
                                 "(SIL Open Font License)."),
     ("Game font", "Sniglet by Haley Fiege (SIL Open Font License)."),
     ("Rhymes", "traditional nursery rhymes, free for everyone (public domain)."),
+    ("Voices", "Piper voices: Cori (LibriVox, public domain), Priyamvada (AI4Bharat, "
+               "CC BY-NC-SA 4.0), Google Bengali (CC BY-SA 4.0)."),
     ("Made by", "Saiqul Modi, for children everywhere."),
 ]
 

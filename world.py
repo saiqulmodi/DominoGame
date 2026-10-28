@@ -96,6 +96,16 @@ TOUR = ["gateway"] + [f"class{n}" for n in range(1, 8)] + [
         "creations"] + [z[0] for z in town.ZONES]
 HI_NUM = ["एक", "दो", "तीन", "चार", "पाँच", "छह", "सात"]
 BN_TO = ["একে", "দুইয়ে", "তিনে", "চারে", "পাঁচে", "ছয়ে", "সাতে"]
+# Spoken lines (English, Hindi, Bengali); tools/make_voice.py records them in natural voices
+WELCOME = ("Welcome to Wonder Town! Tap a building or Houses to visit and learn.",
+           "वंडर टाउन में स्वागत है! सीखने के लिए किसी भी इमारत पर टैप करो।",
+           "ওয়ান্ডার টাউনে স্বাগতম! শিখতে যেকোনো বাড়িতে টোকা দাও।")
+PICK_CLASS = ("Pick your class!", "अपनी कक्षा चुनो!", "তোমার শ্রেণি বেছে নাও!")
+
+
+def class_welcome(n):
+  return (f"Welcome to Class {n}!", f"कक्षा {HI_NUM[n - 1]} में आपका स्वागत है!",
+          f"শ্রেণি {BN_TO[n - 1]} স্বাগতম!")
 LABELS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "labels")
 # The Subject Magic Console: (key, English name, icon (category, item)); some only for some classes
 CONSOLE = [
@@ -296,9 +306,7 @@ class WorldScene:
     if full is not None and full.first_tap:
       return
     self.welcomed = True
-    self.g.say("Welcome to Wonder Town! Tap a building or Houses to visit and learn.",
-               {"hi": "वंडर टाउन में स्वागत है! सीखने के लिए किसी भी इमारत पर टैप करो।",
-                "bn": "ওয়ান্ডার টাউনে স্বাগতম! শিখতে যেকোনো বাড়িতে টোকা দাও।"}.get(self.g.lang))
+    self.g.say(WELCOME[0], {"hi": WELCOME[1], "bn": WELCOME[2]}.get(self.g.lang))
 
   def next_tour(self):
     self.g.sfx.play("click")
@@ -524,9 +532,8 @@ class WorldScene:
     return self._labels[k]
 
   def welcome_class(self, n):
-    self.g.say(f"Welcome to Class {n}!",
-               {"hi": f"कक्षा {HI_NUM[n - 1]} में आपका स्वागत है!",
-                "bn": f"শ্রেণি {BN_TO[n - 1]} স্বাগতম!"}.get(self.g.lang))
+    en, hi, bn = class_welcome(n)
+    self.g.say(en, {"hi": hi, "bn": bn}.get(self.g.lang))
 
   # --- entering buildings ----------------------------------------------------------
   def enter(self, b):
@@ -552,7 +559,7 @@ class WorldScene:
       g.overlay = "menu"
     elif kind == "gateway":
       self.magic_open = True
-      g.say("Pick your class!", {"hi": "अपनी कक्षा चुनो!", "bn": "তোমার শ্রেণি বেছে নাও!"}.get(g.lang))
+      g.say(PICK_CLASS[0], {"hi": PICK_CLASS[1], "bn": PICK_CLASS[2]}.get(g.lang))
     elif kind == "class":
       self.console = b
       self.console_wave = None

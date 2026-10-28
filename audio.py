@@ -20,6 +20,8 @@ from array import array
 
 import pygame
 
+import voice
+
 RATE = 22050
 IS_WEB = sys.platform == "emscripten"
 IS_ANDROID = "ANDROID_ARGUMENT" in os.environ or hasattr(
@@ -410,7 +412,30 @@ _WEB_TTS = r"""
         return u;
       });
     };
+    window.dgStopClip();
     if (S.speaking || S.pending) { S.cancel(); setTimeout(go, 80); } else go();
+  };
+  window.dgClip = null;
+  window.dgClipOn = false;
+  window.dgStopClip = function() {
+    if (window.dgClip) { window.dgClip.onended = window.dgClip.onerror = null; window.dgClip.pause(); }
+    window.dgClip = null;
+    window.dgClipOn = false;
+  };
+  window.dgPlay = function(url, hi, en, lg) {
+    if (S.speaking || S.pending) S.cancel();
+    window.dgStopClip();
+    var a = new Audio(url), fallback = function() {
+      if (window.dgClip !== a) return;
+      window.dgStopClip();
+      window.dgSay(hi, en, lg);
+    };
+    window.dgClip = a;
+    window.dgClipOn = true;
+    a.onended = function() { if (window.dgClip === a) window.dgClipOn = false; };
+    a.onerror = fallback;
+    var p = a.play();
+    if (p && p.catch) p.catch(fallback);
   };
 })();
 """
@@ -475,10 +500,12 @@ class Speaker:
           self._proc.stdin.write(line.encode("utf-8"))
           self._proc.stdin.flush()
       elif self.mode == "web":
-        self._window.eval(
-            f"window.dgSay && window.dgSay({json.dumps(hindi)}, {json.dumps(text)}, "
-            f"{json.dumps(lang)});"
-        )
+        args = f"{json.dumps(hindi)}, {json.dumps(text)}, {json.dumps(lang)}"
+        clip = voice.url(lang, hindi) if hindi else voice.url("en", text)
+        if clip:
+          self._window.eval(f"window.dgPlay && window.dgPlay({json.dumps(clip)}, {args});")
+        else:
+          self._window.eval(f"window.dgSay && window.dgSay({args});")
       elif self.mode == "android":
         self._tts.setSpeechRate(0.8)
         speak = text
@@ -524,7 +551,8 @@ class Speaker:
       return False
     try:
       if self.mode == "web":
-        return since < 0.6 or bool(self._window.speechSynthesis.speaking)
+        return (since < 0.6 or bool(self._window.speechSynthesis.speaking)
+                or bool(self._window.dgClipOn))
       if self.mode == "android":
         return since < 0.6 or bool(self._tts.isSpeaking())
     except Exception:
