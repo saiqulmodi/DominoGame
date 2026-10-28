@@ -1794,7 +1794,9 @@ def open_display(full=None):
 
 
 async def main():
-  pygame.mixer.pre_init(RATE_HINT, -16, 2, 1024 if IS_ANDROID else 512)
+  # The browser mixes sound on the same thread as the game: a bigger buffer rides out
+  # slow frames (the town takes 50-80 ms) instead of breaking up the sound
+  pygame.mixer.pre_init(RATE_HINT, -16, 2, 4096 if IS_WEB else 1024 if IS_ANDROID else 512)
   pygame.init()
   fullscreen = FullScreen()
   # The computer version opens full screen (tests use the dummy video driver)

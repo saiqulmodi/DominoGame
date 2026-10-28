@@ -359,6 +359,63 @@ while ($true) {
 """
 
 
+# Browser speech: the device's most natural voice (Edge "Natural" neural voices, Chrome's
+# Google voices, Apple's enhanced ones) instead of the default robotic one. Each sentence
+# is its own utterance (long ones stop half way in Chrome) and is kept referenced until
+# spoken (Chrome drops utterances that get garbage collected, cutting the line).
+_WEB_TTS = r"""
+(function(){
+  var S = window.speechSynthesis;
+  if (!S || window.dgSay) return;
+  var picked = {};
+  function score(v, lg) {
+    var lang = v.lang.replace('_', '-').toLowerCase(), n = v.name.toLowerCase(), s = 0;
+    if (lang.indexOf(lg) !== 0) return -1;
+    if (n.indexOf('natural') >= 0) s += 100;
+    if (n.indexOf('neural') >= 0 || n.indexOf('online') >= 0) s += 60;
+    if (n.indexOf('google') >= 0) s += 50;
+    if (n.indexOf('premium') >= 0 || n.indexOf('enhanced') >= 0) s += 40;
+    if (!v.localService) s += 10;
+    if (/-in$/.test(lang)) s += 8;
+    if (/female|neerja|swara|tanishaa|heera|kalpana|aria|jenny|samantha|zira|lekha|veena/.test(n)) s += 3;
+    if (/david|mark|espeak|compact|novelty|bad news|whisper|zarvox|bells/.test(n)) s -= 30;
+    return s;
+  }
+  function pick(lg) {
+    if (picked[lg] !== undefined) return picked[lg];
+    var vs = S.getVoices(), best = null, bs = -1;
+    for (var i = 0; i < vs.length; i++) {
+      var s = score(vs[i], lg);
+      if (s > bs) { bs = s; best = vs[i]; }
+    }
+    if (vs.length) picked[lg] = best;
+    return best;
+  }
+  S.getVoices();
+  if (S.addEventListener) S.addEventListener('voiceschanged', function(){ picked = {}; });
+  window.dgQ = [];
+  window.dgSay = function(hi, en, lg) {
+    var v = hi ? pick(lg) : null, text = v ? hi : en;
+    if (!v) v = pick('en');
+    var stop = '.!?' + String.fromCharCode(2404);
+    var parts = String(text).match(new RegExp('[^' + stop + ']+[' + stop + ']* *', 'g')) || [String(text)];
+    var smooth = v && (!v.localService || /natural|neural|google|premium|enhanced/i.test(v.name));
+    var go = function() {
+      window.dgQ = parts.map(function(p) {
+        var u = new SpeechSynthesisUtterance(p.trim());
+        if (v) { u.voice = v; u.lang = v.lang; }
+        u.rate = smooth ? 0.92 : 0.85;
+        u.pitch = 1.05;
+        S.speak(u);
+        return u;
+      });
+    };
+    if (S.speaking || S.pending) { S.cancel(); setTimeout(go, 80); } else go();
+  };
+})();
+"""
+
+
 class Speaker:
   """Says words out loud using whatever voice the device already has."""
 
@@ -373,6 +430,7 @@ class Speaker:
       if IS_WEB:
         import platform  # pygbag's browser bridge
         self._window = platform.window
+        self._window.eval(_WEB_TTS)
         self.mode = "web"
       elif IS_ANDROID:
         from jnius import autoclass
@@ -418,13 +476,8 @@ class Speaker:
           self._proc.stdin.flush()
       elif self.mode == "web":
         self._window.eval(
-            "(function(){speechSynthesis.cancel();"
-            f"var hi={json.dumps(hindi)}, en={json.dumps(text)}, lg={json.dumps(lang)};"
-            "var hv=hi && speechSynthesis.getVoices().find(function(v){"
-            "return v.lang.indexOf(lg)===0;});"
-            "var u=new SpeechSynthesisUtterance(hv ? hi : en);"
-            "if(hv){u.voice=hv; u.lang=hv.lang;}"
-            "u.rate=0.8; speechSynthesis.speak(u);})();"
+            f"window.dgSay && window.dgSay({json.dumps(hindi)}, {json.dumps(text)}, "
+            f"{json.dumps(lang)});"
         )
       elif self.mode == "android":
         self._tts.setSpeechRate(0.8)
