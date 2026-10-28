@@ -22,7 +22,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Every .py in the game folder is a game module (tools live in tools/), so all of
 # them ship. A hand-kept list missed magic.py on 17-Oct and the web game stopped at
 # "No module named 'magic'" (grey screen) until 18-Oct.
-GAME_FILES = sorted(f for f in os.listdir(ROOT) if f.endswith(".py")) + ["hub_data.json", "videos.json"]
+GAME_FILES = sorted(f for f in os.listdir(ROOT) if f.endswith(".py")) + ["hub_data.json", "videos.json", "photos.json"]
 GAME_DIRS = ["pics", "sounds", "fonts", "labels"]   # labels: Hindi / Bangla button words
 APP = "dominowonderdash"
 ICONS = ["icon-180.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png"]

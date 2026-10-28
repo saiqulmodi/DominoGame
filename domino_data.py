@@ -1254,6 +1254,25 @@ def video_for(cat, name):
   return fetch_video_from_hub(name, cat)
 
 
+_PHOTOS = None
+
+
+def photo_for(cat, name):
+  """The real photo (and a zoo's live camera link) the user approved, from photos.json;
+  letters use their word's."""
+  global _PHOTOS
+  if _PHOTOS is None:
+    try:
+      with open(os.path.join(HERE, "photos.json"), encoding="utf-8") as fh:
+        _PHOTOS = json.load(fh)
+    except (OSError, ValueError):
+      _PHOTOS = {}
+  word = letter_word(cat, name)
+  if word:
+    cat, name = word
+  return _PHOTOS.get(item_key(cat, name))
+
+
 def fetch_video_from_hub(shape_name, cat=None):
   global _VIDEOS
   if _VIDEOS is None:

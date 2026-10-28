@@ -586,7 +586,8 @@ class GameDrawing:
   def draw_showcase(self, screen, now):
     """Hear it / Spell it tabs under a picture brought to life."""
     for rect, act, label in self.showcase_rects():
-      col = {"hear": (60, 160, 230), "draw": (40, 160, 90)}.get(act, (150, 90, 220))
+      col = {"hear": (60, 160, 230), "draw": (40, 160, 90),
+             "photo": (230, 120, 40)}.get(act, (150, 90, 220))
       pygame.draw.rect(screen, col, rect, border_radius=21)
       pygame.draw.rect(screen, WHITE, rect, 2, border_radius=21)
       cx, cy = rect.x + 24, rect.centery
@@ -596,6 +597,11 @@ class GameDrawing:
         pygame.draw.arc(screen, WHITE, (cx + 2, cy - 8, 12, 16), -1.0, 1.0, 2)
       elif act == "draw":                        # a little pencil
         draw_pencil(screen, (cx - 9, cy + 10), 0.55)
+      elif act == "photo":                       # a little camera
+        pygame.draw.rect(screen, WHITE, (cx - 11, cy - 6, 22, 15), border_radius=3)
+        pygame.draw.rect(screen, WHITE, (cx - 5, cy - 9, 9, 4))
+        pygame.draw.circle(screen, (230, 120, 40), (cx, cy + 1), 5)
+        pygame.draw.circle(screen, WHITE, (cx, cy + 1), 2)
       else:
         lbl = self.small_font.render("ABC", True, WHITE)
         screen.blit(lbl, lbl.get_rect(center=(cx, cy)))

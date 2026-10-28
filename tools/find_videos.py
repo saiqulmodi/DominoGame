@@ -119,6 +119,9 @@ PINNED = {
     "Monuments/Meenakshi Temple": "File:Madurai Meenakshi Temple.webm",
     "Monuments/Sanchi Stupa": "File:Buddhist Monuments - Sanchi Hill 2013-02-21 4421.ogv",
 }
+# animal videos the user approved on the review page (28-Oct-2026)
+with open(os.path.join(HERE, "videos_pinned.json"), encoding="utf-8") as _fh:
+  PINNED.update(json.load(_fh))
 
 # Never show a video whose name, description or categories have these words
 BLOCK = re.compile(

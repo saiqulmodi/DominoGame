@@ -61,6 +61,23 @@ BODY = """<div id="dwd-video">
 <div id="dwd-bye">Close this tab to go back to the game.</div>
 <div class="credit" id="dwd-credit">{credit}</div></div>"""
 
+# The real photo of a picture (photos.json), and a zoo's live camera link for some animals
+PHOTO_CSS = """
+#dwd-video img{max-width:100%;max-height:62vh;border-radius:14px;border:3px solid #ffcc00;
+ background:#222;object-fit:contain}
+#dwd-video a.live{font-size:20px;font-weight:bold;color:#0d0d1a;background:#ffcc00;
+ border-radius:16px;padding:12px 22px;text-decoration:none}
+"""
+
+PHOTO_BODY = """<div id="dwd-video">
+<h1 id="dwd-head">{heading}</h1>
+<img id="dwd-photo" src="{src}" alt="{heading}"
+ onerror="this.style.display='none';document.getElementById('dwd-msg').style.display='block'">
+<div class="msg" id="dwd-msg">This photo needs the internet. Try again later!</div>
+<div class="row">{live}<button id="dwd-back">&#9664; Back to play</button></div>
+<div id="dwd-bye">Close this tab to go back to the game.</div>
+<div class="credit" id="dwd-credit">{credit}</div></div>"""
+
 # States and union territories: one button per famous place
 PLACE_CSS = """
 #dwd-video .place{font-size:17px;padding:8px 14px;border-radius:22px;
@@ -157,6 +174,35 @@ class VideoPlayer:
     self.opened_at = time.time()
     return True
 
+  def show_photo(self, photo, title):
+    """The real photo, with a live camera link when there is one. False if it cannot open."""
+    if not photo:
+      return False
+    live = photo.get("live")
+    link = (f'<a class="live" href="{html.escape(live["url"])}" target="_blank" rel="noopener">'
+            f'&#128249; {html.escape(live["label"])}</a>' if live else "")
+    credit = " - ".join(x for x in ("Photo: " + (photo.get("artist") or "Wikimedia Commons"),
+                                    photo.get("license", ""), "Wikimedia Commons") if x)
+    body = PHOTO_BODY.format(heading=html.escape(f"The real {title}!"),
+                             src=html.escape(photo.get("src", "")), live=link,
+                             credit=html.escape(credit) if photo.get("src") else "")
+    if not photo.get("src"):            # live camera only
+      body = body.replace('<img id="dwd-photo"', '<img hidden id="dwd-photo"')
+    try:
+      if IS_WEB:
+        self._show_web_body(body, "")
+      elif IS_ANDROID:
+        self._open_android(photo.get("page") or (live or {}).get("url"))
+      else:
+        self._show_desktop_body(body, "", title)
+    except Exception as exc:
+      print("photo:", exc)
+      return False
+    self.open = True
+    self.left_game = False
+    self.opened_at = time.time()
+    return True
+
   def closed(self):
     """Browser: True once the child pressed "Back to play" (checked each frame)."""
     if not (self.open and IS_WEB):
@@ -183,27 +229,33 @@ class VideoPlayer:
 
   # ------------------------------------------------------------ per platform
   def _show_web(self, video, title):
-    import platform
     body, clips = _parts(video, title)
+    self._show_web_body(body, clips + SCRIPT)
+
+  def _show_web_body(self, body, script):
+    import platform
     js = ("(function(){var old=document.getElementById('dwd-video');if(old)old.remove();"
           "try{speechSynthesis.cancel();}catch(e){}"
           "window.dwdVideoClosed=0;var d=document.createElement('div');"
           "d.innerHTML=" + json.dumps(body) + ";document.body.appendChild(d.firstChild);"
           "if(!document.getElementById('dwd-style')){var s=document.createElement('style');"
-          "s.id='dwd-style';s.textContent=" + json.dumps(CSS + PLACE_CSS)
+          "s.id='dwd-style';s.textContent=" + json.dumps(CSS + PLACE_CSS + PHOTO_CSS)
           + ";document.head.appendChild(s);}"
           "document.getElementById('dwd-back').onclick=function(){"
           "var v=document.getElementById('dwd-player');if(v)v.pause();"
           "try{speechSynthesis.cancel();}catch(e){}"
           "document.getElementById('dwd-video').remove();window.dwdVideoClosed=1;"
           "var c=document.getElementById('canvas');if(c&&c.focus)c.focus();};"
-          + clips + SCRIPT + "})()")
+          + script + "})()")
     platform.window.eval(js)
 
   def _show_desktop(self, video, title):
     body, clips = _parts(video, title)
-    page = PAGE.format(title=html.escape(title), css=CSS + PLACE_CSS, body=body,
-                       script=clips + SCRIPT)
+    self._show_desktop_body(body, clips + SCRIPT, title)
+
+  def _show_desktop_body(self, body, script, title):
+    page = PAGE.format(title=html.escape(title), css=CSS + PLACE_CSS + PHOTO_CSS, body=body,
+                       script=script)
     path = os.path.join(tempfile.gettempdir(), "domino_wonder_dash_video.html")
     with open(path, "w", encoding="utf-8") as fh:
       fh.write(page)
@@ -225,6 +277,15 @@ class VideoPlayer:
       act.startActivity(intent)
     except Exception:                        # no Chrome: any browser
       act.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(player_url(video, title))))
+
+
+  def _open_android(self, url):
+    """A web page (the photo's Commons page or a live camera) in the phone's browser."""
+    from jnius import autoclass, cast
+    Intent = autoclass("android.content.Intent")
+    Uri = autoclass("android.net.Uri")
+    act = cast("android.app.Activity", autoclass("org.kivy.android.PythonActivity").mActivity)
+    act.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
 
 
 # The player page on the game's website (written by tools/build_web.py). The

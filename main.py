@@ -767,6 +767,27 @@ class Game(ui_draw.GameDrawing):
         full.resume()
       self.say("Sorry, the video cannot play here.")
 
+  def current_photo(self):
+    """The item's approved real photo / live camera (photos.json), only while tracing."""
+    if self.mode != "trace" or self.banner_override or self.is_custom:
+      return None
+    return hub.photo_for(self.cat, self.puzzle)
+
+  def see_photo(self):
+    title = hub.CATEGORIES_HUB[self.cat][self.puzzle].get("label") or self.puzzle
+    word = hub.letter_word(self.cat, self.puzzle)
+    if word:
+      title = hub.CATEGORIES_HUB[word[0]][word[1]].get("label") or word[1]
+    self.sfx.play("click")
+    self.call_at = None
+    full = getattr(self, "fullscreen", None)
+    if full and not IS_WEB and not IS_ANDROID:
+      full.pause()
+    if not self.player.show_photo(self.current_photo(), title):
+      if full:
+        full.resume()
+      self.say("Sorry, the photo cannot open here.")
+
   def back_from_video(self):
     """Back to play: a finished picture starts again so the child can redo it."""
     full = getattr(self, "fullscreen", None)
@@ -1126,6 +1147,9 @@ class Game(ui_draw.GameDrawing):
         if act == "draw":
           self.start_copy()
           return
+        if act == "photo":
+          self.see_photo()
+          return
         if self.current_video() and self.watch_rect().collidepoint(mx, my):
           self.watch_video()
         elif self.story:
@@ -1463,6 +1487,9 @@ class Game(ui_draw.GameDrawing):
       acts.append(("spell", "Spell it"))
     if any(len(lp) > 1 for lp in self.loops):
       acts.append(("draw", "Draw it"))
+    photo = self.current_photo()
+    if photo:
+      acts.append(("photo", "Real photo" if photo.get("src") else "Live camera"))
     if not acts:
       return []
     below = self.sing_rect() or (self.watch_rect() if self.current_video() else None)
