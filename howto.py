@@ -863,7 +863,7 @@ def draw_idle_hand(g, screen, now, play_rect):
     c = (play_rect.centerx, play_rect.centery)
     tap_rings(screen, c, now)
     draw_hand(screen, c, int(now * 2) % 2 == 0)   # shown, not said
-  elif g.stage == "draw" and not g.drawing and idle > IDLE_DRAW:
+  elif g.stage == "draw" and not g.drawing and idle > IDLE_DRAW and not getattr(g, "copy_loops", None):
     t = (idle - IDLE_DRAW) % 2.5
     c = play_rect.center
     pts = [(c[0] - 80 + k * 8, c[1] + 30 * math.sin(k / 3)) for k in range(int(min(1, t / 1.8) * 20) + 1)]

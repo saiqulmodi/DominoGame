@@ -128,7 +128,13 @@ BLOCK = re.compile(
     r"execution|torture|abuse|drown|victim|dying|disease|cruel|explo|terror|"
     r"lecture|interview|speech|tutorial|presentation|conference|parliament|election|"
     r"politic|advert|commercial|trailer|nazi|propaganda|horror|zombie|"
-    r"elephants dream|animation|cartoon|music video",
+    r"elephants dream|animation|cartoon|music video|"
+    # animals: only calm life in nature for children (user, 27-Oct)
+    r"venom|milking|\bbite|biting|\bsting|eating a|feeding on|devour|swallow(ing)? (a|its)|"
+    r"birth|calving|placenta|\begg[- ]?laying|circus|rodeo|bullfight|poach|\btrap|snare|"
+    r"taxiderm|stuffed|skinn|skull|skeleton|bones\b|parasit|maggot|rotting|decompos|roadkill|"
+    r"slaughterhouse|abattoir|market|butcher|meat|fur farm|chained|caged|injured|rescue|"
+    r"\bvet\b|veterinar|necropsy|euthan|dying|stranded|beached|trophy",
     re.I)
 
 # File names a person rejected after checking (add more here)

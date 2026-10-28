@@ -143,6 +143,8 @@ def set_layout(width, height=PANEL_H):
   modes.set_area(PLAY_RECT)
   ui_draw.share(globals())      # the drawing code reads the new layout too
 MAX_DRAW_DOMINOES = 260
+COPY_SPEED = 220       # px/s the Draw it pencil draws the outline
+COPY_MIN_SECS, COPY_MAX_SECS = 3.0, 10.0
 TRACE_RADIUS = 24      # how close the finger must pass to cover a dot
 TRACE_DONE = 0.95      # share of dots that completes the outline
 CALL_DELAY = 1.4       # real sound plays this long after the chime
@@ -507,6 +509,7 @@ class Game(ui_draw.GameDrawing):
     self.stage = "draw" if self.is_custom else "trace"
     self.user_points = []
     self.drawing = []            # free drawing: [crayon colour, points] per stroke
+    self.copy_loops = None       # Draw it: the outline the pencil draws for the child to copy
     self.crayon = getattr(self, "crayon", 0)
     self.strokes = []
     self.last_pointer = None
@@ -1120,6 +1123,9 @@ class Game(ui_draw.GameDrawing):
           self.spell_card = True
           self.spell_aloud()
           return
+        if act == "draw":
+          self.start_copy()
+          return
         if self.current_video() and self.watch_rect().collidepoint(mx, my):
           self.watch_video()
         elif self.story:
@@ -1169,8 +1175,59 @@ class Game(ui_draw.GameDrawing):
     self.last_pointer = None
 
   # ------------------------------------------------------------ free drawing
+  def start_copy(self):
+    """Draw it: a pencil slowly draws this picture's own outline, line by line, and
+    the child draws it with the crayons; Done turns the child's lines into dominoes."""
+    self.sfx.play("click")
+    if not self.copy_loops:   # again after a Draw it: the picture's outline, not the child's lines
+      self.copy_loops = [list(lp) for lp in self.loops if len(lp) > 1]
+      flags = [c for lp, c in zip(self.loops, self.loop_closed) if len(lp) > 1]
+      self.copy_flags = flags + [False] * (len(self.copy_loops) - len(flags))
+      self.copy_loops = self.below_toolbar(self.copy_loops)
+    length = 0.0
+    for lp, closed in zip(self.copy_loops, self.copy_flags):
+      pts = lp + lp[:1] if closed and len(lp) > 2 else lp
+      length += sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:]))
+    self.copy_length = length
+    self.copy_speed = length / min(COPY_MAX_SECS, max(COPY_MIN_SECS, length / COPY_SPEED))
+    self.copy_at = time.time()
+    self.stage = "draw"
+    self.particles.items, self.particles.texts = [], []   # a clean page for drawing
+    self.drawing, self.user_points, self.strokes = [], [], []
+    self.dominoes = []
+    self.show = self.celebration = self.sing = None
+    self.spell_card = False
+    self.praise_line = ""
+    self.last_progress_at = time.time()
+
+  @staticmethod
+  def below_toolbar(loops):
+    """The outline shrunk and moved, if needed, into the page under the crayons."""
+    xs = [p[0] for lp in loops for p in lp]
+    ys = [p[1] for lp in loops for p in lp]
+    area = pygame.Rect(PLAY_RECT.x + 8, TOOLBAR_BOTTOM + 6, PLAY_RECT.w - 16,
+                       PLAY_RECT.bottom - PIC_BOTTOM - TOOLBAR_BOTTOM - 6)
+    w, h = max(1.0, max(xs) - min(xs)), max(1.0, max(ys) - min(ys))
+    if min(ys) >= area.top and max(ys) <= area.bottom:
+      return loops
+    k = min(1.0, area.w / w, area.h / h)
+    ox = area.centerx - (min(xs) + w / 2) * k
+    oy = area.centery - (min(ys) + h / 2) * k
+    return [[(ox + x * k, oy + y * k) for x, y in lp] for lp in loops]
+
+  def copy_drawing(self, now=None):
+    """True while the pencil is still drawing the outline."""
+    if not self.copy_loops:
+      return False
+    return ((now or time.time()) - self.copy_at) * self.copy_speed < self.copy_length
+
   def draw_press(self, mx, my):
     """Free drawing: pick a crayon, Undo, Done, or start a new stroke."""
+    if (self.copy_loops and not self.copy_drawing()
+        and math.hypot(mx - JINGLE_CENTER[0], my - JINGLE_CENTER[1]) <= JINGLE_R + 4):
+      self.sfx.play("click")             # Draw it: watch the pencil again
+      self.copy_at = time.time()
+      return
     for i, colour in enumerate(CRAYONS):
       if math.hypot(mx - self.crayon_x(i), my - CRAYON_Y) <= CRAYON_R + 4:
         self.crayon = i
@@ -1404,14 +1461,22 @@ class Game(ui_draw.GameDrawing):
       acts.append(("hear", "Hear it"))
     if self.can_spell():
       acts.append(("spell", "Spell it"))
+    if any(len(lp) > 1 for lp in self.loops):
+      acts.append(("draw", "Draw it"))
     if not acts:
       return []
     below = self.sing_rect() or (self.watch_rect() if self.current_video() else None)
     base = below.top - 12 if below else PLAY_RECT.bottom - 34
     w = 130
-    x0 = PLAY_RECT.centerx - (len(acts) * w + (len(acts) - 1) * 12) // 2
-    return [(pygame.Rect(x0 + i * (w + 12), base - 42, w, 42), act, label)
-            for i, (act, label) in enumerate(acts)]
+    room = PLAY_RECT.w - 2 * (JINGLE_CENTER[0] - PLAY_RECT.x + JINGLE_R + 8)  # clear of the ♪ button
+    per_row = max(1, min(len(acts), (room + 12) // (w + 12)))
+    out = []
+    for i, (act, label) in enumerate(acts):         # rows from the bottom up
+      row, col = divmod(i, per_row)
+      n = min(per_row, len(acts) - row * per_row)
+      x0 = PLAY_RECT.centerx - (n * w + (n - 1) * 12) // 2
+      out.append((pygame.Rect(x0 + col * (w + 12), base - 42 - row * 52, w, 42), act, label))
+    return out
 
   def showcase_hit(self, pos):
     for rect, act, _label in self.showcase_rects():
@@ -1544,6 +1609,10 @@ class Game(ui_draw.GameDrawing):
       return (ox2 + (p[0] - ox1) * k, oy2 + (p[1] - oy1) * k)
 
     self.loops = [[move(p) for p in lp] for lp in self.loops]
+    if getattr(self, "copy_loops", None):
+      self.copy_loops = [[move(p) for p in lp] for lp in self.copy_loops]
+      self.copy_length *= k
+      self.copy_speed *= k
     self.dots = [p for lp in self.loops for p in lp]
     self.strokes = [[move(p) for p in st] for st in self.strokes]
     for stroke in self.drawing:

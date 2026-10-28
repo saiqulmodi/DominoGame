@@ -12,6 +12,27 @@ def share(names):
   globals().update({k: v for k, v in names.items() if not k.startswith("__")})
 
 
+def draw_pencil(screen, tip, scale=1.0):
+  """A yellow pencil leaning up to the right, its lead at tip (Draw it)."""
+  ux, uy = 0.6, -0.8                       # along the pencil, from the lead upwards
+  px, py = -uy, ux                         # across it
+  half = 6 * scale
+
+  def at(along, across):
+    return (tip[0] + ux * along + px * across, tip[1] + uy * along + py * across)
+
+  cone, body, rub = 14 * scale, 50 * scale, 9 * scale
+  pygame.draw.polygon(screen, (40, 40, 60), [at(0, 0), at(cone * 0.4, -half * 0.4), at(cone * 0.4, half * 0.4)])
+  pygame.draw.polygon(screen, (240, 205, 160), [at(cone * 0.4, -half * 0.4), at(cone, -half),
+                                                at(cone, half), at(cone * 0.4, half * 0.4)])
+  pygame.draw.polygon(screen, (255, 200, 40), [at(cone, -half), at(cone + body, -half),
+                                               at(cone + body, half), at(cone, half)])
+  pygame.draw.polygon(screen, (245, 140, 160), [at(cone + body, -half), at(cone + body + rub, -half),
+                                                at(cone + body + rub, half), at(cone + body, half)])
+  pygame.draw.polygon(screen, (60, 50, 40), [at(0, 0), at(cone, -half), at(cone + body + rub, -half),
+                                             at(cone + body + rub, half), at(cone, half)], 2)
+
+
 class GameDrawing:
 
   def draw_places(self, screen, now):
@@ -256,6 +277,12 @@ class GameDrawing:
 
   def hint_text(self):
     if self.stage == "draw":
+      if self.copy_loops:
+        if self.copy_drawing():
+          return "Watch the pencil draw it!"
+        if not self.drawing:
+          return "Now you draw it with the crayons!"
+        return "Draw more, or tap Done to make dominoes"
       if not self.drawing:
         return "Draw anything you imagine!"
       return "Draw more, or tap Done to make dominoes"
@@ -308,6 +335,39 @@ class GameDrawing:
           pts.append((c[0] + rad * math.cos(a), c[1] + rad * math.sin(a)))
         pygame.draw.polygon(screen, (120, 130, 160), pts)
         pygame.draw.polygon(screen, WHITE, pts, 1)
+
+  def draw_copy_guide(self, screen, now):
+    """Draw it: the pencil draws the picture's own outline, one line after another,
+    and the line stays (soft) for the child to draw on; the round pencil button
+    where the jingle button sits shows it again."""
+    left = (now - self.copy_at) * self.copy_speed
+    tip = None
+    for lp, closed in zip(self.copy_loops, self.copy_flags):
+      pts = lp + lp[:1] if closed and len(lp) > 2 else lp
+      drawn = [pts[0]]
+      for a, b in zip(pts, pts[1:]):
+        d = math.hypot(b[0] - a[0], b[1] - a[1])
+        if left >= d:
+          drawn.append(b)
+          left -= d
+          continue
+        k = left / d if d else 0.0
+        tip = (a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k)
+        drawn.append(tip)
+        break
+      if len(drawn) > 1:
+        pygame.draw.lines(screen, (40, 50, 80), False, drawn, 6)
+        pygame.draw.lines(screen, (225, 230, 245), False, drawn, 3)
+      if tip is not None:
+        break
+    if tip is not None:
+      draw_pencil(screen, tip)
+    else:
+      c = JINGLE_CENTER                    # watch again
+      pygame.draw.circle(screen, (40, 40, 80), (c[0], c[1] + 3), JINGLE_R)
+      pygame.draw.circle(screen, (40, 160, 90), c, JINGLE_R)
+      pygame.draw.circle(screen, WHITE, c, JINGLE_R, 2)
+      draw_pencil(screen, (c[0] - 8, c[1] + 9), 0.5)
 
   def draw_free_drawing(self, screen, now):
     """The child's own picture in crayon colours, plus the crayon toolbar."""
@@ -365,7 +425,7 @@ class GameDrawing:
       screen.set_clip(None)
       return
 
-    for line in self.context:
+    for line in ([] if self.copy_loops and self.stage == "draw" else self.context):
       if len(line) > 1:
         pygame.draw.lines(screen, self.theme["context"], False, line, 1)
 
@@ -440,7 +500,9 @@ class GameDrawing:
         r = 13 + 4 * math.sin(now * 6)
         pygame.draw.circle(screen, YELLOW, (int(fx), int(fy)), int(r), 2)
 
-    if self.is_custom:
+    if self.copy_loops and self.stage == "draw":
+      self.draw_copy_guide(screen, now)
+    if self.is_custom or self.copy_loops:
       self.draw_free_drawing(screen, now)
 
     if self.stage in ("ready", "running", "finished"):
@@ -471,7 +533,7 @@ class GameDrawing:
         if letter is not None:
           letter.set_alpha(alpha)
           screen.blit(letter, letter.get_rect(center=(d.x, d.y - lift)))
-      if self.is_custom and self.stage == "finished":
+      if (self.is_custom or self.copy_loops) and self.stage == "finished":
         self.draw_free_drawing(screen, now)   # the child's picture is the reward
       if self.show and self.stage == "running":   # suspense: the teetering domino glows
         front = next((d for d in reversed(self.dominoes) if d.state == "falling"), None)
@@ -524,7 +586,7 @@ class GameDrawing:
   def draw_showcase(self, screen, now):
     """Hear it / Spell it tabs under a picture brought to life."""
     for rect, act, label in self.showcase_rects():
-      col = (60, 160, 230) if act == "hear" else (150, 90, 220)
+      col = {"hear": (60, 160, 230), "draw": (40, 160, 90)}.get(act, (150, 90, 220))
       pygame.draw.rect(screen, col, rect, border_radius=21)
       pygame.draw.rect(screen, WHITE, rect, 2, border_radius=21)
       cx, cy = rect.x + 24, rect.centery
@@ -532,6 +594,8 @@ class GameDrawing:
         pygame.draw.polygon(screen, WHITE, [(cx - 8, cy - 5), (cx - 3, cy - 5), (cx + 4, cy - 11),
                                             (cx + 4, cy + 11), (cx - 3, cy + 5), (cx - 8, cy + 5)])
         pygame.draw.arc(screen, WHITE, (cx + 2, cy - 8, 12, 16), -1.0, 1.0, 2)
+      elif act == "draw":                        # a little pencil
+        draw_pencil(screen, (cx - 9, cy + 10), 0.55)
       else:
         lbl = self.small_font.render("ABC", True, WHITE)
         screen.blit(lbl, lbl.get_rect(center=(cx, cy)))
