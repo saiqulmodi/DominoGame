@@ -1518,6 +1518,19 @@ class Game(ui_draw.GameDrawing):
     img = self.image(path)
     if img is None:
       return None
+    if not path.endswith("_t.png"):     # web build: the full picture, cropped like a thumb
+      crop = self.images.get(("crop", path))
+      if crop is None:
+        box = img.get_bounding_rect()
+        crop = img.subsurface(box if box.w and box.h else img.get_rect()).copy()
+        self.images[("crop", path)] = crop
+      w, h = crop.get_size()
+      s = min(max_size / w, max_size / h)
+      size = (max(1, int(w * s)), max(1, int(h * s)))
+      key = (("crop", path), size)
+      if key not in self.images:
+        self.images[key] = pygame.transform.smoothscale(crop, size)
+      return self.images[key]
     w, h = img.get_size()
     s = min(max_size / w, max_size / h)
     return self.image(path, (max(1, int(w * s)), max(1, int(h * s))))

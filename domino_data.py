@@ -1187,7 +1187,14 @@ def fetch_thumb_from_hub(shape_name, cat=None):
   item = _find(shape_name, cat)
   if not item or not item.get("thumb"):
     return None
-  return os.path.join(HERE, item["thumb"])
+  path = os.path.join(HERE, item["thumb"])
+  if path not in _THUMB_PATH:      # web build: no small copies, the picture itself
+    _THUMB_PATH[path] = (path if os.path.exists(path) or not item.get("pic")
+                         else os.path.join(HERE, item["pic"]))
+  return _THUMB_PATH[path]
+
+
+_THUMB_PATH = {}
 
 
 _VIDEOS = None

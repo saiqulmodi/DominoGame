@@ -115,6 +115,8 @@ def main():
   for f in GAME_FILES:
     if f == "hub_data.json":             # outline points to whole pixels: smaller download
       write_compact_hub(os.path.join(stage, f))
+    elif f == "videos.json":             # only what the video player reads
+      write_compact_videos(os.path.join(stage, f))
     else:
       shutil.copy2(os.path.join(ROOT, f), stage)
   for d in GAME_DIRS:
@@ -167,6 +169,22 @@ def write_compact_hub(dest):
   with open(dest, "w", encoding="utf-8") as fh:
     json.dump({k: snap(v) for k, v in data.items()}, fh, separators=(",", ":"),
               ensure_ascii=False)
+
+
+VIDEO_FIELDS = ("artist", "license", "sources", "place", "places")   # what video.py reads
+
+
+def write_compact_videos(dest):
+  """videos.json with only the fields the game's video player reads, and no spaces."""
+  with open(os.path.join(ROOT, "videos.json"), encoding="utf-8") as fh:
+    data = json.load(fh)
+
+  def slim(clip):
+    return {k: ([slim(p) for p in clip[k]] if k == "places" else clip[k])
+            for k in VIDEO_FIELDS if k in clip}
+
+  with open(dest, "w", encoding="utf-8") as fh:
+    json.dump({k: slim(v) for k, v in data.items()}, fh, separators=(",", ":"), ensure_ascii=False)
 
 
 def used_pics():
@@ -236,6 +254,9 @@ def copy_used_pics(dest):
   for name in os.listdir(os.path.join(ROOT, "pics")):
     if name not in used or name in aliases:
       continue
+    if name.endswith("_t.png") and os.path.exists(os.path.join(ROOT, "pics", name[:-6] + ".png")):
+      continue      # the small copy of a picture: the game shrinks the picture itself
+    #                 (domino_data.fetch_thumb_from_hub, Game.thumb)
     src = os.path.join(ROOT, "pics", name)
     if re.search(r"_(hi|bn|w|l\d+(_hi|_bn)?)\.png$", name):
       pack_png(src, os.path.join(dest, name), WORD_COLOURS)   # word pictures: a few flat colours
