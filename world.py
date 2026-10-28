@@ -1154,8 +1154,8 @@ class WorldScene:
       if getattr(f, "highway", False):
         self.flight = None
     self.anchor = None
-    if f.cascading and f.dominoes:            # arrived: the camera follows the toppling run
-      pos, yaw = f.front()                    # forwards, from its start to the hero
+    if f.toppling:                            # arrived and seen: the camera follows the toppling
+      pos, yaw = f.front()                    # run forwards, from its start to the hero
       self.cam.follow(pos, yaw, None if getattr(f, "highway", False) else dt)
       return True
     cx, _, cz = f.box.centre
@@ -1180,8 +1180,9 @@ class WorldScene:
     """During a flight the camera stands further back and higher, so the whole path shows."""
     cam = self.cam
     warp = 0.0
-    if self.flying and self.flight.cascading:  # the toppling run, seen from just behind it
-      want = (26.0, 10.0, -0.36)
+    if self.flying and self.flight.toppling:   # the toppling run, seen from behind and above:
+      v = self.flight.wave_speed               # a faster wave, a wider view, so it never rushes by
+      want = (min(70.0, 26.0 + 0.35 * v), min(32.0, 10.0 + 0.18 * v), -0.36 - min(0.14, 0.0015 * v))
     elif self.flying and getattr(self.flight, "highway", False):
       warp = self.flight.speed_k              # warp speed: further back, and a wider view
       want = (30.0 + 10.0 * warp, 12.0 + 2.0 * warp, -0.30)

@@ -35,12 +35,14 @@ FALL_SECS = 0.38         # one domino's fall
 FALL_ANGLE = 1.2         # rad: how far it leans onto the next one
 NOTES_PER_SECOND = 7
 FADE_SECS = 1.4          # after the house opens, the trail shrinks away
-CASCADE_PAUSE = 0.5      # s after landing before the first domino falls
+CASCADE_PAUSE = 1.5      # s after landing before the first domino falls: the arrival is seen first
+WAVE_RATE = 12.0         # dominoes toppling per second: a calm wave, never a hurry
 
 
 def cascade_secs(n):
-  """How long the whole run takes to topple, start to end (a long path runs faster)."""
-  return max(2.5, min(7.0, n * 0.03))
+  """How long the whole run takes to topple, start to end: a calm wave of WAVE_RATE
+  dominoes a second, 6-25 s (only the longest paths run a little faster)."""
+  return max(6.0, min(25.0, n / WAVE_RATE))
 LIGHT = (0.45, 0.80, -0.40)
 
 STYLES = {               # name -> (toast text, wing flaps per second)
@@ -322,6 +324,7 @@ class Flight:
     start, span = self.land_at + CASCADE_PAUSE, cascade_secs(n)
     for k, dm in enumerate(out):
       dm.fall = start + span * (k / (n - 1))
+    self.wave_speed = total / span                     # m/s: the camera stands back to match
     self.dominoes = out
     self.done_at = out[-1].fall + FALL_SECS
     span = max(0.5, out[-1].fall - out[0].fall)
@@ -346,6 +349,11 @@ class Flight:
   @property
   def cascading(self):
     return self.landed and not self.finished
+
+  @property
+  def toppling(self):
+    """The run is falling (after the pause that shows the arrival)."""
+    return self.cascading and bool(self.dominoes) and self.t >= self.dominoes[0].fall - 0.4
 
   def front(self):
     """(position, yaw) of the domino falling now: where the toppling wave is."""
@@ -537,6 +545,7 @@ class Highway:
     self.s = 0.0
     self.speed_k = 0.0
     self.dominoes = []
+    self.wave_speed = 0.0
     self.next_gap = TRAIL_GAP
     self.next_note = 0.0
     self.note_k = 0
@@ -629,6 +638,11 @@ class Highway:
     return self.landed and not self.finished
 
   @property
+  def toppling(self):
+    """The run is falling (after the pause that shows the arrival)."""
+    return self.cascading and bool(self.dominoes) and self.t >= self.dominoes[0].fall - 0.4
+
+  @property
   def gone(self):
     return self.finished
 
@@ -699,6 +713,7 @@ class Highway:
       start, span = self.t + CASCADE_PAUSE, cascade_secs(n)
       for k, dm in enumerate(self.dominoes):
         dm.fall = start + span * (k / max(1, n - 1))
+      self.wave_speed = self.length / span
       self.done_at = (self.dominoes[-1].fall if self.dominoes else self.t) + TRAIL_FALL + 0.3
       self.next_note = start
     if self.landed and self.dominoes and self.t >= self.next_note and self.t < self.done_at:
