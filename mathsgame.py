@@ -28,6 +28,7 @@ import pygame
 import maths_bank as mb
 import modes
 import schoolday
+import stratos_track
 from maths_bank import add_all, factor_pair, is_prime, num
 
 WHITE = (255, 255, 255)
@@ -385,6 +386,7 @@ class MathsGame:
     self.solved_at = self.revealed_at = self.level_up_at = None
     self.badge = None
     self.asked_at = time.time()
+    stratos_track.track("level_start", level=f"maths/{self.key}")   # analytics: a question starts
     self._lit = 0
     self._cascade = []
     self._fired = set()
@@ -621,6 +623,7 @@ class MathsGame:
         self.g.progress.record_quest_step("maths", self.g)
       first = not self.wrong
       self.solved_at = time.time()
+      stratos_track.track("level_complete", level=f"maths/{self.key}", first_try=first)   # + seconds
       d["asked"] += 1
       d["solved"] += 1
       if first:
@@ -664,6 +667,7 @@ class MathsGame:
     elif len(self.wrong) >= 2 or len(q["choices"]) - len(self.wrong) <= 1:
       d["asked"] += 1
       self.revealed_at = time.time()
+      stratos_track.track("game_over", level=f"maths/{self.key}")   # answer shown after misses (+ seconds)
       sp = self.speak_label(q["c"])
       self.say(q["explain"], tuple(SHOW[k].format(c=sp[k]) for k in range(3)))
       g.progress.save()

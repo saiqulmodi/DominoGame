@@ -37,6 +37,7 @@ import roadsafety
 import mathsgame
 import scenery
 import sathi
+import stratos_track
 import screens
 import singalong
 import stories
@@ -506,6 +507,7 @@ class Game(ui_draw.GameDrawing):
   # ------------------------------------------------------------ item state
   def load_item(self, announce=True):
     """(Re)start the current item at the tracing stage."""
+    stratos_track.track("level_start", level=f"{self.cat}/{self.puzzle}")   # analytics: a picture starts
     self.stage = "draw" if self.is_custom else "trace"
     self.user_points = []
     self.drawing = []            # free drawing: [crayon colour, points] per stroke
@@ -1436,6 +1438,7 @@ class Game(ui_draw.GameDrawing):
 
   def finish_item(self):
     self.stage = "finished"
+    stratos_track.track("level_complete", level=f"{self.cat}/{self.puzzle}")   # analytics: picture done (+ seconds)
     self.finished_at = time.time()
     self.sfx.play("chime")
     if self.show:                          # one of seven celebrations

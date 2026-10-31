@@ -4,7 +4,9 @@ Every flight is made of
   - a cruise in the style of something that travels through the air: a thrown stone's
     arc, a penguin's hops, a butterfly's flutter, an eagle circling up a warm wind and
     gliding down, a swallow's dives, a hummingbird's darts and hovers, a paper plane's
-    loop, a bee's figure-eights or a dragonfly's zigzags (never the previous style);
+    loop, a bee's figure-eights, a dragonfly's zigzags, a kite's lazy swings, a maple
+    seed's corkscrew or an owl's low glide and swoop (12 styles, all used before any
+    one comes again, and never the previous one);
   - one round around the house, however near it is;
   - a helicopter landing: hover above the door, rotor spinning, and down gently.
 Colourful dominoes stand along the whole path where the hero passed; only when the hero
@@ -14,7 +16,9 @@ scale, melody), never the same as the flight before. A tap skips to the landing.
 
 The Domino Highway (Highway) is the Magic Box's ride to a Class Pavilion: down the main
 street at 10x walking speed, easing in and out, in a child's playful way that changes
-every ride (zig-zags, wiggles, hops, skips, bounces, swerves). The dominoes stand where
+every ride (zig-zags, wiggles, hops, skips, bounces, swerves, kangaroo leaps, rabbit hops, crab
+shuffles, corkscrew loops, dolphin jumps, pogo bounces: 12 ways, all used before any one
+comes again). The dominoes stand where
 the hero passed and topple, start to end, once the hero has arrived; a tune climbs with
 speed - every ride its own instrument, scale, tune shape and pace.
 """
@@ -55,6 +59,9 @@ STYLES = {               # name -> (toast text, wing flaps per second)
     "paper plane": ("like a paper plane", 0.0),
     "bee": ("like a bee", 12.0),
     "dragonfly": ("like a dragonfly", 9.0),
+    "kite": ("swinging like a kite", 0.0),
+    "maple seed": ("spinning like a maple seed", 0.0),
+    "owl": ("gliding like an owl", 1.0),
 }
 
 
@@ -82,6 +89,23 @@ def _pick(rng, key, options):
   """A random choice that is never the previous flight's choice."""
   fresh = [o for o in options if o != _LAST.get(key)] or list(options)
   _LAST[key] = choice = rng.choice(fresh)
+  return choice
+
+
+_BAGS = {}
+
+
+def _pick_bag(rng, key, options):
+  """Every option once, in a random order, before any one comes again (a shuffled bag),
+  and never the same as the previous journey's - so journeys differ every time."""
+  bag = [o for o in _BAGS.get(key, []) if o in options]
+  if not bag:
+    bag = list(options)
+    rng.shuffle(bag)
+    if len(bag) > 1 and bag[-1] == _LAST.get(key):   # the bag is used from the end
+      bag[0], bag[-1] = bag[-1], bag[0]
+  _LAST[key] = choice = bag.pop()
+  _BAGS[key] = bag
   return choice
 
 
@@ -128,7 +152,7 @@ class Flight:
     rng = random.Random(seed)
     self.rng = rng
     self.box = box
-    self.style = _pick(rng, "style", list(STYLES))
+    self.style = _pick_bag(rng, "style", list(STYLES))
     self.label, self.flap_rate = STYLES[self.style]
     self.palette = _pick(rng, "palette", list(PALETTES))
     ready = [i for i in instruments if i != _LAST.get("inst")]
@@ -186,6 +210,16 @@ class Flight:
         fwd = d * 0.24 * (a / tau) - d * (u - lo) + q["r"] * math.sin(a)
         return fwd, 0.0, 4.0 + q["r"] * (1 - math.cos(a)), 0.8
       return 0.0, 0.0, 4.0, 1.1
+    if s == "kite":                        # big lazy swings side to side, rising and sinking on the wind
+      return (0.0, 1.6 * q["a"] * math.sin(tau * 1.5 * u + q["p"]),
+              3.2 * q["h"] * u * (1 - u) + 1.5 * math.sin(tau * 3.0 * u + q["p2"]),
+              0.6 + 0.25 * math.sin(tau * 1.5 * u + q["p"]) ** 2)
+    if s == "maple seed":                  # a spinning corkscrew all the way
+      a = tau * q["n"] * u + q["p"]
+      return 0.0, 4.5 * math.sin(a), 4.5 + 4.5 * math.cos(a), 0.8
+    if s == "owl":                         # low, silent glide ... one big swoop up ... and down
+      swoop = math.exp(-((u - q["c"]) / 0.1) ** 2)
+      return 0.0, q["dir"] * 2.5 * math.sin(math.pi * u), 1.5 + 11.0 * swoop, 0.85 + 0.45 * swoop
     if s == "bee":                         # little figure-eights
       return 0.0, 3.2 * math.sin(tau * q["n"] * u), 4.0 + 1.8 * math.sin(2 * tau * q["n"] * u), 1.0
     # dragonfly: sharp zigzags with a tiny stop at every corner
@@ -490,6 +524,9 @@ HIGHWAY_PACES = [(3.0, 7.0), (2.5, 5.0), (4.0, 7.0), (3.0, 6.0)]   # notes per s
 HIGHWAY_STYLES = {       # a child's way down the road: name -> toast text (never the last one)
     "zigzag": "zig-zagging", "wave": "wiggling like a snake", "hops": "hopping like a frog",
     "skips": "skipping along", "bounce": "bouncing like a ball", "slalom": "swerving like a skier",
+    "kangaroo": "leaping like a kangaroo", "rabbit": "hopping like a rabbit",
+    "crab": "shuffling like a crab", "corkscrew": "looping like a corkscrew",
+    "dolphin": "jumping like a dolphin", "pogo": "bouncing on a pogo stick",
 }
 
 
@@ -520,7 +557,7 @@ class Highway:
     rng = random.Random(seed)
     self.rng = rng
     self.box = box
-    self.style = _pick(rng, "hw_style", list(HIGHWAY_STYLES))
+    self.style = _pick_bag(rng, "hw_style", list(HIGHWAY_STYLES))
     self.label = HIGHWAY_STYLES[self.style] + " down the Domino Highway"
     self.colour = colour
     # every ride its own music: instrument, scale, tune shape, pace and pitch, never the
@@ -565,6 +602,23 @@ class Highway:
               0.5 * q["h"] * abs(math.sin(math.pi * u * run / (0.5 * q["hop"]))))
     if s == "bounce":
       return 0.0, 2.2 * q["h"] * abs(math.sin(math.pi * u * run / (2.5 * q["hop"])))
+    if s == "kangaroo":                  # long, high leaps with a gentle sway
+      return (0.5 * q["a"] * math.sin(tau * u * run / (2.0 * q["len"])),
+              1.8 * q["h"] * abs(math.sin(math.pi * u * run / (1.6 * q["hop"]))) ** 0.6)
+    if s == "rabbit":                    # quick little hops, zig and zag
+      return (0.4 * q["a"] * _tri(u * run / (0.4 * q["len"])),
+              0.6 * q["h"] * abs(math.sin(math.pi * u * run / (0.35 * q["hop"]))))
+    if s == "crab":                      # quick sideways shuffles
+      return 0.7 * q["a"] * math.sin(tau * u * run / (0.2 * q["len"])), 0.0
+    if s == "corkscrew":                 # rolling loops round the road
+      a = tau * u * run / q["len"]
+      return 0.5 * q["a"] * math.sin(a), 0.5 * q["a"] * (1 - math.cos(a))
+    if s == "dolphin":                   # arcs up out of the road and back, with a sway
+      return (0.5 * q["a"] * math.sin(tau * u * run / (1.5 * q["len"])),
+              1.4 * q["h"] * max(0.0, math.sin(tau * u * run / (1.2 * q["hop"]))))
+    if s == "pogo":                      # tiny quick bounces
+      return (0.3 * q["a"] * math.sin(tau * u * run / q["len"]),
+              0.5 * q["h"] * abs(math.sin(math.pi * u * run / (0.2 * q["hop"]))))
     k = math.sin(tau * u * run / q["len"])           # slalom: long swerves, side to side
     return q["a"] * math.copysign(abs(k) ** 0.5, k), 0.0
 
