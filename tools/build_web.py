@@ -90,6 +90,13 @@ self.addEventListener('fetch', (e) => {
 });
 """
 
+# The game page opens the 3D Wonder Town first (no words: the domino ring starts); the town comes back here
+# with ?open=<house> (main.py _web_open_key). ?game skips the town (straight into the pygame game).
+TOWN_DOOR = """    <script data-town-door>
+      if (!/[?&](open|game)(=|&|$)/.test(location.search)) { location.replace('town/' + location.hash); }
+    </script>
+"""
+
 HEAD = """    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="%(theme)s">
     <meta name="apple-mobile-web-app-title" content="Domino Game">
@@ -289,8 +296,14 @@ def make_pwa(docs):
   if 'rel="manifest"' not in html:
     assert html.count("</head>") == 1, "pygbag page changed: no single </head>"
     html = html.replace("</head>", HEAD % {"theme": THEME} + "</head>")
-    with open(page, "w", encoding="utf-8") as fh:
-      fh.write(html)
+  if "data-town-door" not in html:
+    assert html.count("</head>") == 1, "pygbag page changed: no single </head>"
+    html = html.replace("</head>", TOWN_DOOR + "</head>")
+  with open(page, "w", encoding="utf-8") as fh:
+    fh.write(html)
+  # the 3D Wonder Town (three.js, town_web/) is the front door: docs/town/
+  town = os.path.join(docs, "town")
+  shutil.copytree(os.path.join(ROOT, "town_web"), town, dirs_exist_ok=True)
 
 
 if __name__ == "__main__":

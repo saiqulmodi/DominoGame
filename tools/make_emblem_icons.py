@@ -7,7 +7,8 @@ the star lights up in colour. A white rim like a sticker.
 
 Writes tools/emblem.svg and renders it with headless Chrome (sharp at every size) into icons/:
 icon-512, icon-192, icon-180 (Apple), icon-48 (favicon source), icon-maskable-512 (sky full bleed, 80 %).
-Replaces the domino-spiral drawing of tools/make_icons.py for these files (presplash.png is left alone).
+Superseded on 01-Nov-2026 by tools/make_ring_icons.py (the 3D domino ring the user chose); running this
+script would put the star icons back.
 Run:  python tools/make_emblem_icons.py
 """
 

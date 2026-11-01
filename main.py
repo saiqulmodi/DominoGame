@@ -1818,6 +1818,11 @@ async def main():
   speaker = Speaker()
   game = Game(sfx, speaker)
   game.fullscreen = fullscreen
+  # Came from the 3D Wonder Town with a house picked: skip the opening show and open that house
+  open_key = _web_open_key()
+  if open_key and open_key in game.world.by_key:
+    game.intro = None
+    game.world.enter(game.world.by_key[open_key])
 
   # Touch and mouse share one code path. Phones also send "fake" mouse events
   # for each touch, so those are ignored to avoid double taps.
@@ -1865,6 +1870,24 @@ def _debug_input():
 
 
 DEBUG_INPUT = _debug_input()
+
+
+def _web_open_key():
+  """The 3D Wonder Town page (town_web/, served at town/) opens the game at one house:
+  index.html?open=<key> (a subject such as maths, or story / family / studio / museum / arcade).
+  Returns the key, or None when there is none (or not in the browser)."""
+  if not IS_WEB:
+    return os.environ.get("DOMINO_OPEN") or None
+  try:
+    import platform
+    search = str(platform.window.location.search)
+  except Exception:
+    return None
+  for part in search.lstrip("?").split("&"):
+    if part.startswith("open="):
+      key = part[5:].strip()
+      return key if key.replace("_", "").isalnum() else None
+  return None
 DEBUG_TYPES = {pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.FINGERDOWN,
                pygame.FINGERUP}
 
