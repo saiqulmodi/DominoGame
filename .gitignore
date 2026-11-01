@@ -6,3 +6,4 @@ bin/
 
 # working list from tools/find_videos.py (includes rejected picks)
 tools/videos_review.txt
+tools/.emblem_tmp/
