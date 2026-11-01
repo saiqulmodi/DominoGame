@@ -69,7 +69,7 @@ DREAMS = [
     ("Helpers", "Farmer", "Farmer", "किसान", "কৃষক"),
 ]
 DREAM_SECS = 4.0
-FAR_VIEW = 1400.0             # how far away buildings and land are still drawn (the 10x Palm)
+FAR_VIEW = 1400.0             # how far away buildings and land are still drawn (the 5x Palm fits inside)
 LABEL_FAR = 900.0             # name tags up to this far
 FOV_WARP = math.radians(14)   # the view widens this much at the Highway's full speed
 FLY_SECS = 5.0                # opening aerial view of the Palm, then down to the hero
@@ -157,7 +157,7 @@ class WorldScene:
     self.boxes = town.build_world()
     # Collectible Stars along Palm Trunk and Fronds
     self.stars = []
-    for z in range(0, 3100, 180):
+    for z in range(0, 1550, 90):           # stars along the whole trunk (5x Palm)
       self.stars.append([0.0, z, True, 0.0]) # [x, z, active, bob_phase]
     for key, path in town.FRONDS.items():     # two stars along every frond
       for k, phase in ((len(path) // 3, 0.5), (2 * len(path) // 3, 1.0)):

@@ -29,11 +29,12 @@ SUPER_JUMP_SPEED = 21.0     # magic boots
 GLIDE_FALL = 3.0            # the cape caps the falling speed (m/s)
 RADIUS = 0.6                # the player's body, for collisions
 ROPE_MIN, ROPE_MAX = 6.0, 40.0
-FROND_SPREAD_MULTIPLIER = 10.0   # fronds reach 10x further out over the sea ...
-HOUSE_DISTANCE_SPACING = 10.0    # ... and the fronds sit 10x further apart along the trunk
-RIVER_Z = (1032.0, 1048.0)
+# 01-Nov-2026 (user: classes too far, reaching takes double): halved from 10x to 5x; the 10x layout is git tag backup-town-10x
+FROND_SPREAD_MULTIPLIER = 5.0    # fronds reach 5x further out over the sea ...
+HOUSE_DISTANCE_SPACING = 5.0     # ... and the fronds sit 5x further apart along the trunk
+RIVER_Z = (512.0, 528.0)
 BRIDGE_HALF = 6.0           # the street bridge over the river is |x| < 6
-BOUNDS = (-2100.0, 2100.0, -120.0, 3850.0)  # x0, x1, z0, z1
+BOUNDS = (-1050.0, 1050.0, -120.0, 1925.0)  # x0, x1, z0, z1
 START = (0.0, 0.0, -18.0)
 
 
@@ -169,8 +170,8 @@ MAINLAND_Z = -22.0          # south of this: the beach and the mainland
 FROND_HALF = 7.0            # half width of a frond
 FROND_SLOPE = 0.42          # fronds fan out north-east / north-west like the real Palm's
 PAD = 6.0                   # land around every building
-CRESCENT_C = (0.0, 1750.0)  # the outer crescent (breakwater ring) ...
-CRESCENT_R = 1950.0         # ... its radius
+CRESCENT_C = (0.0, 875.0)   # the outer crescent (breakwater ring) ...
+CRESCENT_R = 975.0          # ... its radius
 CRESCENT_HALF = 30.0        # ... half its width
 CRESCENT_ARC = (math.radians(-35), math.radians(215))   # open towards the beach (south)
 TRUNK_END = CRESCENT_C[1] + CRESCENT_R - CRESCENT_HALF  # the trunk reaches the crescent
@@ -419,7 +420,7 @@ class Camera:
       self.yaw = yaw
     else:
       d = (yaw - self.yaw + math.pi) % (2 * math.pi) - math.pi
-      self.yaw += d * min(1.0, dt * 5.0)
+      self.yaw += d * (1.0 - math.exp(-5.0 * dt))   # frame-rate independent: no judder on uneven web frames
     self._axes()
     tx, ty, tz = target[0], target[1] + 1.5, target[2]
     want = (
@@ -430,7 +431,7 @@ class Camera:
     if dt is None:
       self.pos = want
     else:
-      k = min(1.0, dt * 8.0)
+      k = 1.0 - math.exp(-8.0 * dt)                  # frame-rate independent smoothing (was min(1, 8 dt))
       self.pos = tuple(self.pos[i] + (want[i] - self.pos[i]) * k for i in range(3))
 
   def to_cam(self, p):
