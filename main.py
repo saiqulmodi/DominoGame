@@ -43,6 +43,7 @@ import singalong
 import stories
 import topplegame
 import symbols  # noqa: F401 - shared with ui_draw (symbols-only buttons)
+import packs
 import ui_draw
 import video
 import world
@@ -890,7 +891,18 @@ class Game(ui_draw.GameDrawing):
     self.cat = cat
     self.page = 0
     self.puzzle = self.items()[0]
+    self.fetch_pack(cat)
     self.refresh_mode()
+
+  def fetch_pack(self, cat):
+    """Browser: if this category's pictures are in a class pack not downloaded yet, fetch it (packs.py)."""
+    pics = [v for item in hub.CATEGORIES_HUB.get(cat, {}).values() for v in item.values()
+            if isinstance(v, str) and v.startswith("pics/")]
+    packs.request(pics, self.pack_arrived)
+
+  def pack_arrived(self, pack):
+    """A class pack is unpacked: pictures that could not load before are tried again on the next frame."""
+    self.images = {k: v for k, v in self.images.items() if v is not None}
 
   def select_puzzle(self, name):
     self.in_world = False

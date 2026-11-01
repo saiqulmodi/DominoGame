@@ -13,6 +13,7 @@ Run:  python tools/build_web.py
 import json
 import os
 import shutil
+import tarfile
 import subprocess
 import sys
 import tempfile
@@ -128,7 +129,14 @@ def main():
       shutil.copy2(os.path.join(ROOT, f), stage)
   for d in GAME_DIRS:
     if d == "pics":                      # only pictures the game uses (old builds
-      copy_used_pics(os.path.join(stage, d))   # leave unused ones behind)
+      plan = class_pack_plan()
+      pack_dir = os.path.join(stage_root, "packs")
+      copy_used_pics(os.path.join(stage, d), plan, pack_dir)   # leave unused ones behind)
+      # the game reads packs.json: which class pack holds which picture (packs.py)
+      with open(os.path.join(stage, "packs.json"), "w", encoding="utf-8") as fh:
+        json.dump({f"class{n}": {"file": f"packs/class{n}.tar",
+                                 "pics": sorted(k for k, v in plan.items() if v == n)} for n in PACK_CLASSES}, fh,
+                  separators=(",", ":"))
     elif d == "labels":
       os.makedirs(os.path.join(stage, d))
       for name in os.listdir(os.path.join(ROOT, d)):
@@ -150,6 +158,15 @@ def main():
       continue                         # (dropped 01-Nov-2026 to stay under 20 MB; last copy kept in D:\DominoGame_backups)
     shutil.copy2(os.path.join(stage, "build", "web", name), docs)
   open(os.path.join(docs, ".nojekyll"), "w").close()
+  # class packs next to the game (GitHub Pages serves them; the Stratos box fetches them from there)
+  packs_out = os.path.join(docs, "packs")
+  shutil.rmtree(packs_out, ignore_errors=True)
+  os.makedirs(packs_out)
+  for n in PACK_CLASSES:
+    folder = os.path.join(stage_root, "packs", f"class{n}")
+    with tarfile.open(os.path.join(packs_out, f"class{n}.tar"), "w") as tar:   # PNGs are compressed already
+      for name in sorted(os.listdir(folder)) if os.path.isdir(folder) else []:
+        tar.add(os.path.join(folder, name), arcname=name)
   make_pwa(docs)
   shutil.rmtree(stage_root, ignore_errors=True)
   for name in sorted(os.listdir(docs)):
@@ -253,7 +270,44 @@ WEB_THUMB_MAX = 72     # px: menu, banner and word-card thumbnails are drawn at 
 PIC_COLOURS, THUMB_COLOURS, WORD_COLOURS = 32, 40, 24   # keeps the Stratos box under 20 MB
 
 
-def copy_used_pics(dest):
+PACK_CLASSES = range(2, 8)   # Class 1 and everything shared stay in the game; Classes 2-7 download on demand
+
+
+def class_pack_plan():
+  """Picture file -> class number, for pictures used only by one of Classes 2-7 (not a category's first picture,
+  which the menus show as the category's tab). Everything else stays in the game bundle (user, 01-Nov-2026:
+  fetch class content when the player needs it, keep the box under 20 MB)."""
+  sys.path.insert(0, ROOT)
+  import domino_data as hub
+  import town3d
+  cls_of_subject = {b.payload: town3d.CLASS_OF.get(b.key) for b in town3d.build_world() if b.kind == "subject"}
+  cat_class = {}
+  for subj, cats in hub.subjects().items():
+    for c in cats:
+      cat_class.setdefault(c, cls_of_subject.get(subj))
+  with open(os.path.join(ROOT, "hub_data.json"), encoding="utf-8") as fh:
+    data = json.load(fh)
+  owners, first = {}, set()
+  seen_cat = set()
+  for key, entry in data.items():
+    cat = key.split("/", 1)[0]
+    pics = [v[len("pics/"):] for v in entry.values() if isinstance(v, str) and v.startswith("pics/")]
+    if cat not in seen_cat:                 # the category's first picture stays (menu tab)
+      seen_cat.add(cat)
+      first.update(pics)
+    for name in pics:
+      owners.setdefault(name, set()).add(cat_class.get(cat))
+  plan = {}
+  for name, classes in owners.items():
+    if name in first or len(classes) != 1:
+      continue
+    n = next(iter(classes))
+    if n in PACK_CLASSES:
+      plan[name] = n
+  return plan
+
+
+def copy_used_pics(dest, plan=None, pack_dir=None):
   """Copies the used pictures, packed into a few flat colours; full-size pictures are
   scaled down to fit the 450-wide canvas (keeps the Stratos copy under its 20 MB limit)."""
   import re
@@ -263,15 +317,19 @@ def copy_used_pics(dest):
   for name in os.listdir(os.path.join(ROOT, "pics")):
     if name not in used or name in aliases:
       continue
+    target = dest
+    if plan and name in plan:                 # a class pack picture: staged for packs/class<n>.tar
+      target = os.path.join(pack_dir, f"class{plan[name]}")
+      os.makedirs(target, exist_ok=True)
     if name.endswith("_t.png") and os.path.exists(os.path.join(ROOT, "pics", name[:-6] + ".png")):
       continue      # the small copy of a picture: the game shrinks the picture itself
     #                 (domino_data.fetch_thumb_from_hub, Game.thumb)
     src = os.path.join(ROOT, "pics", name)
     if re.search(r"_(hi|bn|w|l\d+(_hi|_bn)?)\.png$", name):
-      pack_png(src, os.path.join(dest, name), WORD_COLOURS)   # word pictures: a few flat colours
+      pack_png(src, os.path.join(target, name), WORD_COLOURS)   # word pictures: a few flat colours
       continue
     thumb = name.endswith("_t.png")
-    pack_png(src, os.path.join(dest, name), THUMB_COLOURS if thumb else PIC_COLOURS,
+    pack_png(src, os.path.join(target, name), THUMB_COLOURS if thumb else PIC_COLOURS,
              WEB_THUMB_MAX if thumb else WEB_PIC_MAX)
 
 

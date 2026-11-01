@@ -571,6 +571,13 @@ class GameDrawing:
     if hint:
       self.draw_hint_symbol(screen, now, streak)
     howto.draw_idle_hand(self, screen, now, PLAY_RECT)
+    if packs.busy():                           # a class pack is downloading: a spinning rainbow ring
+      cx, cy, r = PLAY_RECT.centerx, PLAY_RECT.y + 40, 18
+      for k in range(8):
+        a = now * 5 + k * math.pi / 4
+        col = ((233, 69, 96), (255, 138, 30), (255, 210, 30), (60, 207, 78),
+               (31, 181, 255), (79, 107, 255), (180, 77, 255), (255, 255, 255))[k]
+        pygame.draw.circle(screen, col, (int(cx + r * math.cos(a)), int(cy + r * math.sin(a))), 4 + (k == 0) * 2)
     if self.sing:
       self.sing.draw(screen, PLAY_RECT, now)
     if self.celebration:
