@@ -561,17 +561,8 @@ class GameDrawing:
     self.draw_jingle_button(screen, now)
     hint = self.hint_text()
     streak = self.streak.active(now) if self.stage == "trace" else 0
-    if streak >= 5:
-      hint = f"Streak {streak}!  " + hint
     if hint:
-      surf = fit_label(self.hint_font, hint, YELLOW if streak >= 5 else WHITE, PLAY_RECT.w - 40)
-      box = surf.get_rect(center=(PLAY_RECT.centerx, PLAY_RECT.bottom - 18)).inflate(26, 10)
-      pill = pygame.Surface(box.size, pygame.SRCALPHA)
-      pygame.draw.rect(pill, (20, 24, 50, 170), pill.get_rect(), border_radius=box.h // 2)
-      screen.blit(pill, box.topleft)
-      screen.blit(surf, surf.get_rect(center=box.center))
-      if self.stage == "trace" and self.dots:
-        self.draw_trace_progress(screen, box)
+      self.draw_hint_symbol(screen, now, streak)
     howto.draw_idle_hand(self, screen, now, PLAY_RECT)
     if self.sing:
       self.sing.draw(screen, PLAY_RECT, now)
@@ -590,7 +581,7 @@ class GameDrawing:
              "photo": (230, 120, 40)}.get(act, (150, 90, 220))
       pygame.draw.rect(screen, col, rect, border_radius=21)
       pygame.draw.rect(screen, WHITE, rect, 2, border_radius=21)
-      cx, cy = rect.x + 24, rect.centery
+      cx, cy = rect.centerx, rect.centery        # icon only, no words
       if act == "hear":                          # a little speaker
         pygame.draw.polygon(screen, WHITE, [(cx - 8, cy - 5), (cx - 3, cy - 5), (cx + 4, cy - 11),
                                             (cx + 4, cy + 11), (cx - 3, cy + 5), (cx - 8, cy + 5)])
@@ -605,8 +596,43 @@ class GameDrawing:
       else:
         lbl = self.small_font.render("ABC", True, WHITE)
         screen.blit(lbl, lbl.get_rect(center=(cx, cy)))
-      lbl = fit_label(self.hint_font, label, WHITE, rect.w - 50)
-      screen.blit(lbl, lbl.get_rect(midleft=(rect.x + 44, rect.centery)))
+
+  def draw_hint_symbol(self, screen, now, streak):
+    """The pill under the picture, as pictures: a hand tracing (with the progress bar and stars), a hand tapping
+    when the dominoes are ready to push, falling dominoes while they drop, and a star count for a streak."""
+    box = pygame.Rect(0, 0, 210, 44)
+    box.center = (PLAY_RECT.centerx, PLAY_RECT.bottom - 22)
+    pill = pygame.Surface(box.size, pygame.SRCALPHA)
+    pygame.draw.rect(pill, (20, 24, 50, 170), pill.get_rect(), border_radius=box.h // 2)
+    screen.blit(pill, box.topleft)
+    cx, cy = box.center
+    if self.stage == "trace":
+      howto.draw_hand(screen, (box.x + 26, box.y + 4 + 3 * math.sin(now * 5)), scale=0.5)
+      if self.dots:
+        self.draw_trace_progress(screen, box)
+    elif self.stage == "ready" and self.dropping():
+      for k in range(5):                        # dominoes falling into place
+        y = cy - 10 + ((now * 40 + k * 9) % 18)
+        pygame.draw.rect(screen, (250, 250, 245), (cx - 50 + k * 22, int(y), 9, 18), border_radius=2)
+    elif self.stage == "ready":
+      howto.draw_hand(screen, (cx, box.y + 6), pressed=int(now * 2) % 2 == 0, scale=0.5)
+    else:
+      for k in range(3):
+        self.draw_star_shape(screen, (cx - 40 + k * 40, cy), 12, (255, 215, 64))
+    if streak >= 5:                              # a streak: a big star with the count
+      self.draw_star_shape(screen, (box.right + 26, cy), 18, (255, 215, 64))
+      n = self.small_font.render(str(streak), True, (60, 40, 10))
+      screen.blit(n, n.get_rect(center=(box.right + 26, cy + 1)))
+
+  @staticmethod
+  def draw_star_shape(screen, centre, r, colour):
+    pts = []
+    for i in range(10):
+      a = -math.pi / 2 + i * math.pi / 5
+      rr = r if i % 2 == 0 else r * 0.45
+      pts.append((centre[0] + rr * math.cos(a), centre[1] + rr * math.sin(a)))
+    pygame.draw.polygon(screen, colour, pts)
+    pygame.draw.polygon(screen, (255, 255, 255), pts, 2)
 
   def draw_praise(self, screen, now):
     """"Well done! Cat!" shown big for a few seconds after a finish (not said)."""
@@ -841,14 +867,10 @@ class GameDrawing:
       return
     native = None if item.get("word_img") else self.native_image(self.cat, self.puzzle, 18)
     desc = item["desc"]
-    if native is not None:
+    if native is not None:                      # the word in Hindi / Bangla: part of the lesson
       screen.blit(native, native.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y)))
-      line = fit_label(self.font, desc, CYAN, desc_w)
-      screen.blit(line, line.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + 19)))
-      return
-    for n, line in enumerate(wrap_text(self.font, desc, desc_w)[:2]):
-      surf = self.font.render(line, True, CYAN)
-      screen.blit(surf, surf.get_rect(midtop=(BANNER_RECT.centerx, DESC_Y + n * 17)))
+    # no description sentence under the name (user: symbols only, no write-up); `desc` is still spoken on tap
+    del desc
 
   def draw(self, screen):
     """Game screen: the play area fills the screen under a slim top row

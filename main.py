@@ -860,7 +860,14 @@ class Game(ui_draw.GameDrawing):
     self.overlay = "players"
 
   def go_to_town(self):
-    """Back to Wonder Town, to the door you left from."""
+    """Back to Wonder Town, to the door you left from. In the browser: back to the 3D Wonder Town (town/)."""
+    if IS_WEB:
+      try:
+        import platform
+        platform.window.location.href = "town/"
+        return
+      except Exception:
+        pass
     self.sfx.play("switch")
     self.overlay = None
     self.in_world = True
@@ -1823,6 +1830,14 @@ async def main():
   if open_key and open_key in game.world.by_key:
     game.intro = None
     game.world.enter(game.world.by_key[open_key])
+    cat_n = _web_param("cat", "DOMINO_CAT")
+    if cat_n is not None and cat_n.isdigit() and game.world.picker:
+      b, cats = game.world.picker
+      if int(cat_n) < len(cats):
+        game.world.pick_category(b, cats[int(cat_n)])
+        if game.overlay == "nav":        # picked in the 3D town: straight to tracing its first picture
+          game.overlay = None
+          game.select_puzzle(game.items()[0])
 
   # Touch and mouse share one code path. Phones also send "fake" mouse events
   # for each touch, so those are ignored to avoid double taps.
@@ -1872,22 +1887,27 @@ def _debug_input():
 DEBUG_INPUT = _debug_input()
 
 
-def _web_open_key():
-  """The 3D Wonder Town page (town_web/, served at town/) opens the game at one house:
-  index.html?open=<key> (a subject such as maths, or story / family / studio / museum / arcade).
-  Returns the key, or None when there is none (or not in the browser)."""
+def _web_param(name, env):
+  """One ?name=value from the web address (letters, digits and _ only), or the env variable on the desktop."""
   if not IS_WEB:
-    return os.environ.get("DOMINO_OPEN") or None
+    return os.environ.get(env) or None
   try:
     import platform
     search = str(platform.window.location.search)
   except Exception:
     return None
   for part in search.lstrip("?").split("&"):
-    if part.startswith("open="):
-      key = part[5:].strip()
-      return key if key.replace("_", "").isalnum() else None
+    if part.startswith(name + "="):
+      value = part[len(name) + 1:].strip()
+      return value if value.replace("_", "").isalnum() else None
   return None
+
+
+def _web_open_key():
+  """The 3D Wonder Town page (town_web/, served at town/) opens the game at one house:
+  index.html?open=<key> (a subject such as maths, or story / family / studio / museum / arcade),
+  optionally &cat=<n>: that house's n-th category (town_web/data.json uses the same order)."""
+  return _web_param("open", "DOMINO_OPEN")
 DEBUG_TYPES = {pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.FINGERDOWN,
                pygame.FINGERUP}
 

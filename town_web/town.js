@@ -31,6 +31,10 @@ const GLYPH = {
   fun: { e: '🎡' }, story: { e: '📖' }, family: { e: '👪' }, studio: { e: '🖍️' }, museum: { e: '⭐' }, arcade: { e: '🎮' },
 };
 const RAINBOW = [0xff3b3b, 0xff8a1e, 0xffd21e, 0x3ccf4e, 0x1fb5ff, 0x4f6bff, 0xb44dff];
+GLYPH.mathsplay = { draw: 'maths' }; GLYPH.roadgame = { e: '🚸' }; GLYPH.star = { e: '⭐' };
+// every house's categories (tools/export_town_data.py): [{pic: 'thumbs/n.webp' | null, glyph}], game order
+let DATA = {};
+fetch('data.json').then((r) => r.json()).then((d) => { DATA = d; }).catch(() => { /* subjects still open the game */ });
 
 // ------------------------------------------------------------------ renderer, scene, camera
 const canvas = document.getElementById('view');
@@ -407,6 +411,28 @@ function makeBlock(key, tint) {
   return g;
 }
 
+function makePicBlock(entry, tint) {
+  if (!entry.pic) return makeBlock(entry.glyph || 'star', tint);
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 256;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, 256, 256);
+  g.strokeStyle = '#' + new THREE.Color(tint).getHexString(); g.lineWidth = 16; g.strokeRect(8, 8, 240, 240);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = ANISO;
+  const img = new Image();
+  img.onload = () => { g.drawImage(img, 28, 28, 200, 200); tex.needsUpdate = true; };
+  img.src = entry.pic;
+  const grp = new THREE.Group();
+  const body = new THREE.Mesh(blockGeo, new THREE.MeshStandardMaterial({ color: tint, roughness: 0.35 }));
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(10.4, 10.4), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.5 }));
+  face.position.z = 2.05;
+  grp.add(body, face);
+  grp.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+  return grp;
+}
+
 // ------------------------------------------------------------------ dominoes (pips) - shared by the ring and the class signs
 const pipGeo = new THREE.SphereGeometry(0.42, 12, 8);
 const pipMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
@@ -638,23 +664,49 @@ const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 // ------------------------------------------------------------------ subject blocks at a house
 let blocks = [];
+let level = 'subjects';   // at a house: its subject blocks, or one subject's category blocks
+let openKey = null;       // the subject whose categories are out
+function addBlock(b, item, base, k, key, cat) {
+  b.position.copy(base);
+  b.lookAt(item.view.pos);
+  b.scale.setScalar(0.01);
+  b.userData = { key, cat, base, born: performance.now() / 1000 + k * 0.06 };
+  scene.add(b);
+  pickables.push(b);
+  blocks.push(b);
+}
+function frame(item) {
+  const toCam = item.view.pos.clone().sub(item.pos).setY(0).normalize();
+  return { toCam, right: new THREE.Vector3(toCam.z, 0, -toCam.x) };
+}
 function showBlocks(item) {
   clearBlocks();
+  level = 'subjects';
   const keys = item.n ? CLASSES.find((c) => c.n === item.n).subjects : [item.key];
-  const toCam = item.view.pos.clone().sub(item.pos).setY(0).normalize();
-  const right = new THREE.Vector3(toCam.z, 0, -toCam.x);
+  const { toCam, right } = frame(item);
   keys.forEach((key, k) => {
-    const b = makeBlock(key, item.colour);
     const off = (k - (keys.length - 1) / 2) * 19;
     const base = item.pos.clone().addScaledVector(toCam, item.n ? 66 : 46).addScaledVector(right, off * 1.25);
     base.y = item.n ? 34 : 24;
-    b.position.copy(base);
-    b.lookAt(item.view.pos);
-    b.scale.setScalar(0.01);
-    b.userData = { block: key, base, born: performance.now() / 1000 + k * 0.12 };
-    scene.add(b);
-    pickables.push(b);
-    blocks.push(b);
+    addBlock(makeBlock(key, item.colour), item, base, k, key, undefined);
+  });
+  if (!item.n) item.sign.visible = false;
+}
+// one subject's categories as picture blocks in rows, in front of the house
+function showCategories(item, key) {
+  clearBlocks();
+  level = 'cats';
+  openKey = key;
+  const list = DATA[key];
+  const cols = Math.min(6, Math.ceil(Math.sqrt(list.length * 1.8)));
+  const rows = Math.ceil(list.length / cols);
+  const { toCam, right } = frame(item);
+  list.forEach((entry, k) => {
+    const r = Math.floor(k / cols), c = k % cols;
+    const inRow = Math.min(cols, list.length - r * cols);
+    const base = item.pos.clone().addScaledVector(toCam, item.n ? 78 : 56).addScaledVector(right, (c - (inRow - 1) / 2) * 17.5);
+    base.y = (item.n ? 36 : 26) + ((rows - 1) / 2 - r) * 17;
+    addBlock(makePicBlock(entry, item.colour), item, base, k, key, k);
   });
   if (!item.n) item.sign.visible = false;
 }
@@ -711,15 +763,24 @@ function goHouse(item) {
   flyTo(item.view.pos, item.view.look, () => showBlocks(item));
   setButtons();
 }
-function openSubject(key) {
+function tapBlock(b) {
+  const { key, cat } = b.userData;
+  if (cat !== undefined) { openSubject(key, cat); return; }
+  const list = DATA[key];
+  if (list && list.length > 1) { pop(800); showCategories(current, key); return; }
+  openSubject(key, list && list.length === 1 ? 0 : undefined);
+}
+function openSubject(key, cat) {
   pop(880);
   if (current && current.n) { visited.add(current.key); try { localStorage.setItem('dg.town.visited', JSON.stringify([...visited])); } catch (e) { /* storage blocked */ } }
   document.getElementById('fade').style.opacity = '1';
-  setTimeout(() => { location.href = `../index.html?open=${encodeURIComponent(key)}`; }, 520);
+  const extra = cat !== undefined ? `&cat=${cat}` : '';
+  setTimeout(() => { location.href = `../index.html?open=${encodeURIComponent(key)}${extra}`; }, 520);
 }
 backBtn.onclick = () => {
   if (flight) return;
-  if (view === 'house') goIsland();
+  if (view === 'house' && level === 'cats' && current) { pop(600); showBlocks(current); }
+  else if (view === 'house') goIsland();
   else if (view === 'island') {
     view = 'logo'; logoFall = -1;
     ringTiles.forEach((r) => { r.holder.visible = true; });
@@ -745,9 +806,8 @@ canvas.addEventListener('pointerup', (e) => {
   if (!hit) { if (view === 'logo') startFromLogo(); return; }
   const u = hit.object.userData;
   if (view === 'logo') { startFromLogo(); return; }
-  let o = hit.object;
-  while (o && o.userData.block === undefined && !o.userData.house) o = o.parent;
-  if (blocks.some((b) => b === o || b.children.includes(hit.object))) { openSubject(hit.object.userData.block || o.userData.block); return; }
+  const blk = blocks.find((b) => { for (let o = hit.object; o; o = o.parent) if (o === b) return true; return false; });
+  if (blk) { tapBlock(blk); return; }
   if (u.house) goHouse(u.house);
 });
 
@@ -807,6 +867,13 @@ if (!LOGO_ONLY) renderer.setAnimationLoop(() => {
   logo.rotation.y = Math.PI + Math.sin(t * 0.5) * 0.12;
   logo.position.y = 268 + Math.sin(t * 1.1) * 1.5;
 
+  // at a house, other houses that come between the camera and the blocks step aside (hidden)
+  for (const h of houses) {
+    const near = view === 'house' && current && h !== current && h.group.position.distanceTo(camera.position) < 120;
+    h.group.visible = !near;
+    if (h !== current || level !== 'cats') h.sign.visible = !near && !(view === 'house' && h === current && !h.n);
+  }
+
   // class signs spin, beams shimmer, rings breathe, blocks pop in and bob
   houses.forEach((h, k) => {
     h.sign.rotation.y = t * 0.8 + k;
@@ -817,7 +884,7 @@ if (!LOGO_ONLY) renderer.setAnimationLoop(() => {
   for (const b of blocks) {
     const life = performance.now() / 1000 - b.userData.born;
     const s = life < 0 ? 0.01 : Math.min(1, 1 - Math.pow(1 - Math.min(1, life / 0.45), 3) + Math.sin(Math.min(1, life / 0.45) * Math.PI) * 0.15);
-    b.scale.setScalar(Math.max(0.01, s) * 1.45);
+    b.scale.setScalar(Math.max(0.01, s) * (level === 'cats' ? 1.2 : 1.45));
     b.position.y = b.userData.base.y + Math.sin(t * 2 + b.userData.base.x) * 1.2;
   }
 

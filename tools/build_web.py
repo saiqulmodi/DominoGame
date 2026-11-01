@@ -303,7 +303,9 @@ def make_pwa(docs):
     fh.write(html)
   # the 3D Wonder Town (three.js, town_web/) is the front door: docs/town/
   town = os.path.join(docs, "town")
-  shutil.copytree(os.path.join(ROOT, "town_web"), town, dirs_exist_ok=True)
+  subprocess.run([sys.executable, os.path.join(ROOT, "tools", "export_town_data.py")], check=True)  # categories + pictures
+  shutil.rmtree(town, ignore_errors=True)
+  shutil.copytree(os.path.join(ROOT, "town_web"), town)
 
 
 if __name__ == "__main__":
