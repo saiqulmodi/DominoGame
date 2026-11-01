@@ -1260,7 +1260,8 @@ class WorldScene:
       items.extend((d, 4, dm) for d, dm in self.flight.visible(cp))
     self.dream_at = None
     items.sort(key=lambda it: -it[0])
-    labels = self.place_labels() if self.flyover is None and not self.flying else {}   # no name tags from up high
+    labels = (self.place_labels() if self.flyover is None and not self.flying and not symbols.ONLY
+              else {})   # no name tags from up high; none at all with symbols only (the houses show their pictures)
     for dist, kind, obj in items:
       if kind == 0:
         self.draw_box(s, obj, dist)
@@ -1552,6 +1553,8 @@ class WorldScene:
     return sign
 
   def draw_wall_sign(self, s, b, pts):
+    if symbols.ONLY:                           # a word sign on the wall: not drawn with symbols only
+      return
     cam = self.cam
     p0, p1, _, p3 = pts
     width = math.dist((p0[0], p0[2]), (p1[0], p1[2]))
