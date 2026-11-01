@@ -11,6 +11,7 @@ import domino_data as hub
 import fun
 import howto
 import stories
+import symbols
 import world
 from translations import LANGUAGES
 
@@ -29,15 +30,26 @@ def shade(screen, theme, alpha=245):
   screen.blit(s, (0, 0))
 
 
-def title(screen, g, text, y=26):
+def title(screen, g, text, y=26, words=False):
+  if symbols.ONLY and not words:           # no headings for children (symbols only); grown-up pages pass words=True
+    return
   t = g.big_font.render(text, True, YELLOW)
   screen.blit(t, t.get_rect(center=(screen.get_width() / 2, y)))
 
 
-def button(screen, g, rect, text, color, icon=None, sub=None, active=False):
+def button(screen, g, rect, text, color, icon=None, sub=None, active=False, words=False):
   pygame.draw.rect(screen, color, rect, border_radius=12)
   pygame.draw.rect(screen, YELLOW if active else WHITE, rect, 3 if active else 2,
                    border_radius=12)
+  if symbols.ONLY and not words:           # the picture alone, centred and bigger; no label
+    if icon is not None:
+      room = max(16, min(rect.w, rect.h) - 14)          # fit inside the tile both ways
+      k = room / max(1, icon.get_width(), icon.get_height())
+      big = pygame.transform.smoothscale(icon, (max(1, int(icon.get_width() * k)), max(1, int(icon.get_height() * k))))
+      screen.blit(big, big.get_rect(center=rect.center))
+    else:
+      symbols.draw(screen, symbols.kind_of(text), rect)
+    return
   x = rect.x + 12
   if icon is not None:
     screen.blit(icon, icon.get_rect(midleft=(x, rect.centery)))
@@ -118,8 +130,16 @@ class Menu:
       items.append(("screen", "Exit full screen" if full.is_full() else "Full screen",
                     ("Sky", "Mountain"),
                     "Back to a window" if full.is_full() else "Fill the whole screen"))
-    step = min(76, (AREA_BOTTOM - 34 - 56) // len(items))
     out = []
+    if symbols.ONLY:                        # picture tiles, 4 a row; the language tabs on their own row
+      tiles = [it for it in items if it[0] != "lang"]
+      size, gap = 96, 11
+      for i, it in enumerate(tiles):
+        out.append((pygame.Rect(16 + (i % 4) * (size + gap), 40 + (i // 4) * (size + gap), size, size), it))
+      lang = next(it for it in items if it[0] == "lang")
+      out.append((pygame.Rect(16, 40 + ((len(tiles) + 3) // 4) * (size + gap) + 6, 418, 56), lang))
+      return out
+    step = min(76, (AREA_BOTTOM - 34 - 56) // len(items))
     for i, it in enumerate(items):
       out.append((pygame.Rect(16, 56 + i * step, 418, step - 7), it))
     return out
@@ -128,6 +148,8 @@ class Menu:
   def lang_box(rect):
     """The English | हिंदी | বাংলা tabs on the right of the Language row."""
     h = min(36, rect.h - 10)
+    if symbols.ONLY:
+      return pygame.Rect(rect.x + 10, rect.centery - h // 2, rect.w - 20, h)
     return pygame.Rect(rect.x + 170, rect.centery - h // 2, rect.w - 180, h)
 
   def draw(self, screen, g, now):
@@ -149,11 +171,15 @@ class Menu:
         pic = howto.help_icon(44)
       else:
         pic = g.thumb(icon[1], icon[0], 44)
-      button(screen, g, rect, text, g.theme["subject"], pic, sub, active)
+      if key == "lang" and symbols.ONLY:     # the language names are written in their own script: the symbol
+        pygame.draw.rect(screen, g.theme["subject"], rect, border_radius=12)
+      else:
+        button(screen, g, rect, text, g.theme["subject"], pic, sub, active)
       if key == "lang":
         g.draw_lang_tabs(screen, g.lang_tab_rects(self.lang_box(rect)))
-    tip = g.small_font.render("Tap outside a button to close", True, HINT)
-    screen.blit(tip, tip.get_rect(center=(225, AREA_BOTTOM - 12)))
+    if not symbols.ONLY:
+      tip = g.small_font.render("Tap outside a button to close", True, HINT)
+      screen.blit(tip, tip.get_rect(center=(225, AREA_BOTTOM - 12)))
 
   def press(self, g, pos):
     for rect, (key, *_rest) in self.rows(g):
@@ -214,8 +240,9 @@ class Players:
         pygame.draw.rect(screen, WHITE, card, 2, border_radius=14)
         plus = g.font_at(60).render("+", True, WHITE)
         screen.blit(plus, plus.get_rect(center=(card.centerx, card.centery - 16)))
-        t = g.hint_font.render("New player", True, WHITE)
-        screen.blit(t, t.get_rect(center=(card.centerx, card.bottom - 30)))
+        if not symbols.ONLY:
+          t = g.hint_font.render("New player", True, WHITE)
+          screen.blit(t, t.get_rect(center=(card.centerx, card.bottom - 30)))
         continue
       p = profs[idx]
       current = idx == g.progress.store["current"]
@@ -232,13 +259,23 @@ class Players:
                                         (card.right - 8, card.top + 32), fun.cap_colours(caps))
       nm = g.hint_font.render(p["name"], True, WHITE)
       screen.blit(nm, nm.get_rect(center=(card.centerx, card.top + 104)))
-      info = g.small_font.render(f"{len(p['done'])} traced, {len(p['stickers'])} stickers",
-                                 True, (230, 235, 255))
-      screen.blit(info, info.get_rect(center=(card.centerx, card.top + 128)))
       ren = self.rename_rect(card)
       pygame.draw.rect(screen, (230, 160, 20), ren, border_radius=8)
-      t = g.small_font.render("Rename", True, WHITE)
-      screen.blit(t, t.get_rect(center=ren.center))
+      if symbols.ONLY:                       # pictures traced (a domino) and stickers (a star), as numbers; pencil = rename
+        y = card.top + 130
+        pygame.draw.rect(screen, WHITE, (card.centerx - 70, y - 9, 8, 18), border_radius=2)
+        n1 = g.small_font.render(str(len(p['done'])), True, (230, 235, 255))
+        screen.blit(n1, n1.get_rect(midleft=(card.centerx - 56, y)))
+        symbols.star(screen, (card.centerx + 22, y), 9)
+        n2 = g.small_font.render(str(len(p['stickers'])), True, (230, 235, 255))
+        screen.blit(n2, n2.get_rect(midleft=(card.centerx + 36, y)))
+        symbols.draw(screen, "pencil", ren)
+      else:
+        info = g.small_font.render(f"{len(p['done'])} traced, {len(p['stickers'])} stickers",
+                                   True, (230, 235, 255))
+        screen.blit(info, info.get_rect(center=(card.centerx, card.top + 128)))
+        t = g.small_font.render("Rename", True, WHITE)
+        screen.blit(t, t.get_rect(center=ren.center))
 
   @staticmethod
   def rename_rect(card):
@@ -323,7 +360,7 @@ class Parents:
   def draw(self, screen, g, now):
     shade(screen, g.theme, 250)
     p = g.progress.data
-    title(screen, g, f"{p['name']}'s learning")
+    title(screen, g, f"{p['name']}'s learning", words=True)
     y = 58
     for subj, cats in g.subjects.items():
       keys = [hub.item_key(c, n) for c in cats for n in hub.CATEGORIES_HUB[c]]
@@ -365,7 +402,7 @@ class Parents:
       y += step
     tip = g.small_font.render("Tap anywhere to go back", True, HINT)
     screen.blit(tip, tip.get_rect(midleft=(20, AREA_BOTTOM - 14)))
-    button(screen, g, CREDITS_BTN, "Credits", (90, 110, 170))
+    button(screen, g, CREDITS_BTN, "Credits", (90, 110, 170), words=True)
 
   def press(self, g, pos):
     if CREDITS_BTN.collidepoint(pos):
@@ -399,7 +436,7 @@ class Credits:
 
   def draw(self, screen, g, now):
     shade(screen, g.theme, 250)
-    title(screen, g, "Credits & thanks")
+    title(screen, g, "Credits & thanks", words=True)
     y = 60
     for head, text in CREDITS:
       h = g.hint_font.render(head, True, YELLOW)

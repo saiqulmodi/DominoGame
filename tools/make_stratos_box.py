@@ -77,6 +77,9 @@ for name in (f"{APP}.tar.gz", "favicon.png"):
   shutil.copyfile(os.path.join(DOCS, name), os.path.join(BOX, name))
 if os.path.exists(os.path.join(BOX, f"{APP}.apk")):
   os.remove(os.path.join(BOX, f"{APP}.apk"))
+# the 3D Wonder Town (three.js, vendored: no outside scripts) is the front door: box/town/
+shutil.rmtree(os.path.join(BOX, "town"), ignore_errors=True)
+shutil.copytree(os.path.join(DOCS, "town"), os.path.join(BOX, "town"))
 
 html = open(os.path.join(DOCS, "index.html"), encoding="utf-8").read()
 html = html.replace('<script src="https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js"></script>', "")

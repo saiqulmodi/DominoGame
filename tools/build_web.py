@@ -146,6 +146,8 @@ def main():
   docs = os.path.join(ROOT, "docs")
   os.makedirs(docs, exist_ok=True)
   for name in os.listdir(os.path.join(stage, "build", "web")):
+    if name.endswith(".apk"):          # pygbag's zip copy is only read on itch.io; the page loads the .tar.gz
+      continue                         # (dropped 01-Nov-2026 to stay under 20 MB; last copy kept in D:\DominoGame_backups)
     shutil.copy2(os.path.join(stage, "build", "web", name), docs)
   open(os.path.join(docs, ".nojekyll"), "w").close()
   make_pwa(docs)

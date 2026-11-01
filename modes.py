@@ -11,6 +11,7 @@ import time
 import pygame
 
 import domino_data as hub
+import symbols
 
 CUSTOM = "Custom Draw"
 WHITE = (255, 255, 255)
@@ -139,6 +140,9 @@ class QuizMode:
     area = g_area()
     cat, name = self.target
     prompt = g.hint_font.render(f"Find the {label_of(cat, name)}!", True, YELLOW)
+    if symbols.ONLY:                             # the name is heard, not read: a speaker instead of the sentence
+      prompt = pygame.Surface((54, 44), pygame.SRCALPHA)
+      symbols.draw(prompt, "speaker", prompt.get_rect(), YELLOW)
     screen.blit(prompt, prompt.get_rect(center=(area.centerx, area.top + 22)))
     for i, rect in enumerate(self.rects()):
       ccat, cname = self.choices[i]
@@ -154,13 +158,14 @@ class QuizMode:
       if th is not None:
         screen.blit(th, th.get_rect(center=(r.centerx, r.centery - 8)))
       if solved or i in self.wrong:      # show the name once it is known
-        lbl = g.hint_font.render(label_of(ccat, cname), True, WHITE)
+        lbl = g.hint_font.render("" if symbols.ONLY else label_of(ccat, cname), True, WHITE)
         screen.blit(lbl, lbl.get_rect(center=(r.centerx, r.bottom - 16)))
       if i in self.wrong:
         pygame.draw.line(screen, WHITE, (r.right - 30, r.top + 10), (r.right - 10, r.top + 30), 4)
         pygame.draw.line(screen, WHITE, (r.right - 10, r.top + 10), (r.right - 30, r.top + 30), 4)
     q = g.progress.data["quiz"]
-    score = g.small_font.render(f"Right first time: {q['right']} of {q['asked']}", True, WHITE)
+    score = g.small_font.render(f"{q['right']} / {q['asked']}" if symbols.ONLY else
+                                f"Right first time: {q['right']} of {q['asked']}", True, WHITE)
     screen.blit(score, score.get_rect(center=(area.centerx, area.bottom - 14)))
 
 
@@ -297,6 +302,12 @@ class SpellMode:
       pygame.draw.rect(screen, WHITE, r, 2, border_radius=10)
       lbl = tile_font.render(letter, True, g.theme["bg"])
       screen.blit(lbl, lbl.get_rect(center=r.center))
+    if symbols.ONLY:                             # a star when the word is right, a tapping hand while spelling
+      if self.done_at is not None:
+        symbols.star(screen, (area.centerx, area.bottom - 18), 16)
+      else:
+        symbols.draw(screen, "hand", pygame.Rect(area.centerx - 18, area.bottom - 36, 36, 36), (170, 180, 210))
+      return
     msg = ("Well done! Tap for the next word" if self.done_at is not None
            else "Tap the letters in the right order")
     s = g.hint_font.render(msg, True, YELLOW if self.done_at else (170, 180, 210))

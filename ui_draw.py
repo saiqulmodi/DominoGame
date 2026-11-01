@@ -125,6 +125,13 @@ class GameDrawing:
              hub.CATEGORIES_HUB[self.cat][self.puzzle].get("label") or self.puzzle)
     words = (f"See {title}'s famous places!" if self.current_video().get("places")
              else f"Watch the real {title}!")
+    if symbols.ONLY:                           # play symbol + the picture itself: "watch the real one"
+      th = self.thumb(self.puzzle, self.cat, rect.h - 8)
+      if th is not None:
+        screen.blit(th, th.get_rect(midleft=(rect.x + 56, rect.centery)))
+      pygame.draw.circle(screen, WHITE, (rect.right - 30, cy), 9)          # a little camera lens: real video
+      pygame.draw.circle(screen, (230, 40, 50), (rect.right - 30, cy), 4)
+      return
     lbl = fit_label(self.hint_font, words, WHITE, rect.w - 64)
     screen.blit(lbl, lbl.get_rect(midleft=(rect.x + 52, rect.centery)))
 
@@ -642,6 +649,13 @@ class GameDrawing:
     if t > 4.0:
       return
     grow = min(1.0, t / 0.3)
+    if symbols.ONLY:                           # three stars pop up one after another: well done!
+      for k in range(3):
+        g = min(1.0, max(0.0, (t - k * 0.18) / 0.3))
+        if g > 0:
+          symbols.star(screen, (PLAY_RECT.centerx + (k - 1) * 70, PLAY_RECT.y + 50 - (12 if k == 1 else 0)),
+                       int((30 if k == 1 else 24) * (g + 0.25 * math.sin(min(1.0, g) * math.pi))))
+      return
     lbl = fit_label(self.font_at(34), self.praise_line, YELLOW, PLAY_RECT.w - 60)
     if grow < 1.0:
       lbl = pygame.transform.smoothscale(
@@ -806,6 +820,8 @@ class GameDrawing:
                      self.sticker_picture(sid, int(radius * 1.0)), t=now * 0.6)
     for text, y, font in (("New sticker!", cy - radius - 26, self.big_font),
                           (fun.sticker_title(sid), cy + radius + 22, self.hint_font)):
+      if symbols.ONLY:
+        break
       surf = font.render(text, True, YELLOW)
       screen.blit(surf, surf.get_rect(center=(cx, y)))
 
@@ -816,12 +832,17 @@ class GameDrawing:
     shade = pygame.Surface(area.size, pygame.SRCALPHA)
     shade.fill((*self.theme["bg"], 240))
     screen.blit(shade, area.topleft)
-    title = self.big_font.render(f"{self.progress.data['name']}'s Stickers", True, YELLOW)
-    screen.blit(title, title.get_rect(center=(width / 2, 24)))
-    info = (f"Traced {self.progress.count()} of {self.progress.total}   "
-            f"Best streak {self.progress.data.get('best_streak', 0)}")
-    surf = self.font.render(info, True, CYAN)
-    screen.blit(surf, surf.get_rect(center=(width / 2, 50)))
+    if symbols.ONLY:                           # stars earned / all, as a big star and numbers
+      symbols.star(screen, (width / 2 - 60, 34), 18)
+      n = self.big_font.render(f"{len(self.progress.data['stickers'])}", True, YELLOW)
+      screen.blit(n, n.get_rect(midleft=(width / 2 - 34, 34)))
+    else:
+      title = self.big_font.render(f"{self.progress.data['name']}'s Stickers", True, YELLOW)
+      screen.blit(title, title.get_rect(center=(width / 2, 24)))
+      info = (f"Traced {self.progress.count()} of {self.progress.total}   "
+              f"Best streak {self.progress.data.get('best_streak', 0)}")
+      surf = self.font.render(info, True, CYAN)
+      screen.blit(surf, surf.get_rect(center=(width / 2, 50)))
     cats = [c for cs in self.subjects.values() for c in cs]
     stickers = self.progress.all_stickers(cats, [s["id"] for s in stories.STORIES])
     cols = 8
@@ -841,10 +862,13 @@ class GameDrawing:
       else:
         label = (fun.sticker_title(sid) if earned
                  else fun.sticker_need(sid, self.progress.total))
+      if symbols.ONLY:                         # the badge says it; no caption
+        continue
       lbl = fit_label(self.small_font, label, WHITE if earned else HINT, cw - 2)
       screen.blit(lbl, lbl.get_rect(center=(cx, cy + r + 7)))
-    tip = self.small_font.render("Tap anywhere to go back", True, HINT)
-    screen.blit(tip, tip.get_rect(center=(width / 2, area.bottom - 10)))
+    if not symbols.ONLY:
+      tip = self.small_font.render("Tap anywhere to go back", True, HINT)
+      screen.blit(tip, tip.get_rect(center=(width / 2, area.bottom - 10)))
 
   def _loop_slices(self):
     out, start = [], 0
@@ -998,8 +1022,10 @@ class GameDrawing:
         continue
       active = s == self.subject
       pygame.draw.rect(screen, YELLOW if active else tm["subject"], rect, border_radius=8)
-      lbl = (self.native_tab(s, rect, bg if active else WHITE)
-             or fit_label(self.cat_font, s, bg if active else WHITE, rect.w - 4))
+      cats = self.subjects.get(s) or []
+      pic = self.tab_picture(cats[0], rect) if (symbols.ONLY and cats) else None
+      lbl = pic or (self.native_tab(s, rect, bg if active else WHITE)
+                    or fit_label(self.cat_font, s, bg if active else WHITE, rect.w - 4))
       screen.blit(lbl, lbl.get_rect(center=rect.center))
     for rect, c in self.category_rects():
       if c in ("<", ">"):                       # page through a long row
@@ -1009,8 +1035,9 @@ class GameDrawing:
         continue
       active = c == self.cat
       pygame.draw.rect(screen, CYAN if active else tm["cat"], rect, border_radius=8)
-      lbl = (self.native_tab(c, rect, bg if active else WHITE)
-             or fit_label(self.cat_font, c, bg if active else WHITE, rect.w - 4))
+      pic = self.tab_picture(c, rect) if symbols.ONLY else None
+      lbl = pic or (self.native_tab(c, rect, bg if active else WHITE)
+                    or fit_label(self.cat_font, c, bg if active else WHITE, rect.w - 4))
       screen.blit(lbl, lbl.get_rect(center=rect.center))
       if self.progress.has(f"c:{c}"):          # whole category finished
         pygame.draw.circle(screen, GOLD, (rect.right - 5, rect.top + 5), 5)
@@ -1021,6 +1048,12 @@ class GameDrawing:
     for rect, name in cells:
       if name == ">more":
         pygame.draw.rect(screen, PURPLE, rect, border_radius=8)
+        if symbols.ONLY:                         # an arrow and a dot per page (this page lit)
+          symbols.draw(screen, "next", rect.inflate(0, -18).move(0, -6))
+          for k in range(pages):
+            x = rect.centerx + (k - (pages - 1) / 2) * 10
+            pygame.draw.circle(screen, YELLOW if k == self.page else WHITE, (int(x), rect.bottom - 10), 3)
+          continue
         lbl = self.hint_font.render("More >", True, WHITE)
         screen.blit(lbl, lbl.get_rect(center=(rect.centerx, rect.centery - 8)))
         pg = self.small_font.render(f"{self.page + 1} / {pages}", True, WHITE)
@@ -1028,16 +1061,17 @@ class GameDrawing:
         continue
       active = self.puzzle == name and self.mode == "trace"  # no hints in quiz/spell
       pygame.draw.rect(screen, CYAN if active else tm["cell"], rect, border_radius=8)
-      th = self.thumb(name, self.cat, rect.h - 24)
+      th = self.thumb(name, self.cat, rect.h - (8 if symbols.ONLY else 24))
       if th is not None:
-        screen.blit(th, th.get_rect(center=(rect.centerx, rect.y + (rect.h - 18) / 2 + 2)))
+        screen.blit(th, th.get_rect(center=(rect.centerx, rect.centery if symbols.ONLY else rect.y + (rect.h - 18) / 2 + 2)))
       elif name == CUSTOM:
         screen.blit(screens.crayon_icon(rect.h - 30),
                     screens.crayon_icon(rect.h - 30).get_rect(
                         center=(rect.centerx, rect.y + (rect.h - 18) / 2 + 2)))
-      label = hub.CATEGORIES_HUB[self.cat][name].get("label", name)  # Hindi: "ka"
-      lbl = fit_label(self.small_font, label, bg if active else WHITE, rect.w - 6)
-      screen.blit(lbl, lbl.get_rect(center=(rect.centerx, rect.bottom - 10)))
+      if not symbols.ONLY:                       # the picture says it; no name under it
+        label = hub.CATEGORIES_HUB[self.cat][name].get("label", name)  # Hindi: "ka"
+        lbl = fit_label(self.small_font, label, bg if active else WHITE, rect.w - 6)
+        screen.blit(lbl, lbl.get_rect(center=(rect.centerx, rect.bottom - 10)))
       if self.progress.is_done(self.key(name)):  # gold star = already traced
         self.draw_star(screen, (rect.right - 10, rect.top + 10), 8)
       if self.mode == "trace" and hub.video_for(self.cat, name):
@@ -1047,11 +1081,15 @@ class GameDrawing:
 
     # Reset, Games, Stickers, Theme and Play (back to the game)
     pygame.draw.rect(screen, (255, 100, 100), RESET_RECT, border_radius=10)
-    lbl = self.hint_font.render("Reset", True, WHITE)
-    screen.blit(lbl, lbl.get_rect(center=RESET_RECT.center))
     pygame.draw.rect(screen, (70, 130, 230), GAMES_RECT, border_radius=10)
-    lbl = self.hint_font.render("Games", True, WHITE)
-    screen.blit(lbl, lbl.get_rect(center=GAMES_RECT.center))
+    if symbols.ONLY:
+      symbols.draw(screen, "reset", RESET_RECT)
+      symbols.draw(screen, "games", GAMES_RECT)
+    else:
+      lbl = self.hint_font.render("Reset", True, WHITE)
+      screen.blit(lbl, lbl.get_rect(center=RESET_RECT.center))
+      lbl = self.hint_font.render("Games", True, WHITE)
+      screen.blit(lbl, lbl.get_rect(center=GAMES_RECT.center))
     pygame.draw.rect(screen, (230, 160, 20), STICKER_RECT, border_radius=10)
     self.draw_star(screen, (STICKER_RECT.x + 18, STICKER_RECT.centery), 11)
     lbl = self.hint_font.render(str(len(self.progress.data["stickers"])), True, WHITE)
@@ -1062,8 +1100,16 @@ class GameDrawing:
       pygame.draw.circle(screen, col, (int(THEME_RECT.centerx + 9 * math.cos(a)),
                                        int(THEME_RECT.centery + 9 * math.sin(a))), 6)
     pygame.draw.rect(screen, (60, 180, 90), NEXT_RECT, border_radius=10)
-    lbl = self.hint_font.render("Play >", True, WHITE)
-    screen.blit(lbl, lbl.get_rect(center=NEXT_RECT.center))
+    if symbols.ONLY:
+      symbols.draw(screen, "play", NEXT_RECT)
+    else:
+      lbl = self.hint_font.render("Play >", True, WHITE)
+      screen.blit(lbl, lbl.get_rect(center=NEXT_RECT.center))
+
+  def tab_picture(self, cat, rect):
+    """A subject / category tab as a picture: the category's first picture, fitted into the tab."""
+    items = list(hub.CATEGORIES_HUB.get(cat, {}).keys())
+    return self.thumb(items[0], cat, rect.h - 6) if items else None
 
   def draw_star(self, screen, center, r):
     cx, cy = center

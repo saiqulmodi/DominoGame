@@ -16,6 +16,8 @@ import time
 
 import pygame
 
+import symbols
+
 import domino_data as hub
 
 WHITE = (255, 255, 255)
@@ -189,7 +191,7 @@ def help_icon(size):
   pygame.draw.circle(s, (150, 80, 200), (size // 2, size // 2), size // 2)
   pygame.draw.circle(s, WHITE, (size // 2, size // 2), size // 2, max(2, size // 16))
   f = pygame.font.Font(None, int(size * 0.95))
-  q = f.render("?", True, WHITE)
+  q = f.render(symbols.text("?"), True, WHITE)
   s.blit(q, q.get_rect(center=(size // 2, size // 2 + size // 16)))
   return s
 
@@ -201,7 +203,7 @@ def small_tile(colour, w=18, h=34, letter=None, font=None):
   pygame.draw.rect(s, colour, (2, 2, w - 4, h - 4), border_radius=4)
   if letter and font:
     pygame.draw.circle(s, WHITE, (w // 2, h // 2), w // 2 - 1)
-    lb = font.render(letter, True, dark)
+    lb = font.render(symbols.text(letter), True, dark)
     s.blit(lb, lb.get_rect(center=(w // 2, h // 2 + 1)))
   else:
     pygame.draw.line(s, WHITE, (3, h // 2), (w - 4, h // 2), 1)
@@ -276,7 +278,7 @@ class Guide:
     pygame.draw.rect(screen, tm["panel"], screen.get_rect(), 3)
     anim, title, en, _hi, _bn = self.pages()[self.page]
     t = now - self.at
-    head = g.font_at(30).render(title, True, YELLOW)
+    head = g.font_at(30).render(symbols.text(title), True, YELLOW)
     screen.blit(head, head.get_rect(center=(225, 52)))
     # close (X)
     pygame.draw.circle(screen, (255, 100, 100), CLOSE_BTN.center, 22)
@@ -293,7 +295,7 @@ class Guide:
     # the line, big and short
     font = g.font_at(21)
     for n, line in enumerate(wrap_text(font, en, 410)[:4]):
-      s = font.render(line, True, WHITE)
+      s = font.render(symbols.text(line), True, WHITE)
       screen.blit(s, s.get_rect(center=(225, 530 + n * 28)))
     # page dots
     total = len(self.pages())
@@ -330,7 +332,7 @@ class Guide:
     elif kind == "play":
       self_star(screen, (cx, cy), 18)
     label = {"next": "Next", "back": "Back", "hear": "Hear", "play": "Let's play!"}[kind]
-    lb = g.font_at(17).render(label, True, WHITE)
+    lb = g.font_at(17).render(symbols.text(label), True, WHITE)
     screen.blit(lb, lb.get_rect(center=(r.centerx, r.bottom - 16)))
 
   # ------------------------------------------------------------ sample picture
@@ -389,7 +391,7 @@ class Guide:
       th = g.thumb(name, cat, 84)
       if th is not None:
         screen.blit(th, th.get_rect(center=(rect.centerx, rect.y + 56)))
-      lb = g.font_at(17).render(name, True, g.theme["bg"] if on else WHITE)
+      lb = g.font_at(17).render(symbols.text(name), True, g.theme["bg"] if on else WHITE)
       screen.blit(lb, lb.get_rect(center=(rect.centerx, rect.bottom - 16)))
     target = cells[0][0].center
     k = min(1.0, max(0.0, (t - 1.6) / 1.0))
@@ -423,7 +425,7 @@ class Guide:
       f = (t / 0.11) % 1.0
       tip = (a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f)
       draw_hand(screen, tip, True)
-    lb = g.font_at(20).render(f"{upto} / {len(dots)}", True, YELLOW)
+    lb = g.font_at(20).render(symbols.text(f"{upto} / {len(dots)}"), True, YELLOW)
     screen.blit(lb, lb.get_rect(midbottom=(STAGE.centerx, STAGE.bottom - 8)))
 
   def anim_topple(self, screen, g, t):
@@ -458,7 +460,7 @@ class Guide:
       tap_rings(screen, (STAGE.centerx, STAGE.centery), t)
       draw_hand(screen, (STAGE.centerx, STAGE.centery), True)
     if reveal:
-      lb = g.font_at(30).render("Cat!", True, YELLOW)
+      lb = g.font_at(30).render(symbols.text("Cat!"), True, YELLOW)
       screen.blit(lb, lb.get_rect(midbottom=(STAGE.centerx, STAGE.bottom - 8)))
 
   def anim_hear(self, screen, g, t):
@@ -471,7 +473,7 @@ class Guide:
       r = pygame.Rect(STAGE.centerx - 130 + i * 62, STAGE.y + 20 - (8 if i == lit else 0), 54, 66)
       pygame.draw.rect(screen, YELLOW if i == lit else hue(i, 3, 70, 95), r, border_radius=10)
       pygame.draw.rect(screen, WHITE, r, 3, border_radius=10)
-      lb = g.font_at(40).render(ch, True, (40, 40, 70) if i == lit else WHITE)
+      lb = g.font_at(40).render(symbols.text(ch), True, (40, 40, 70) if i == lit else WHITE)
       screen.blit(lb, lb.get_rect(center=r.center))
     sp = (STAGE.right - 46, STAGE.y + 53)
     pygame.draw.circle(screen, CYAN, sp, 24)
@@ -497,7 +499,7 @@ class Guide:
         pygame.draw.rect(glow, (255, 255, 255, 50), glow.get_rect(), border_radius=12)
         screen.blit(glow, (STAGE.x + 8, y - 4))
       icon_button(screen, kind, r, g)
-      lb = g.font_at(20).render(text, True, YELLOW if i == on else WHITE)
+      lb = g.font_at(20).render(symbols.text(text), True, YELLOW if i == on else WHITE)
       screen.blit(lb, lb.get_rect(midleft=(r.right + 18, r.centery)))
       if i == on:
         draw_hand(screen, (r.centerx + 6, r.centery + 6), int(t * 2) % 2 == 0, 0.8)
@@ -518,9 +520,9 @@ class Guide:
       if img is not None:
         screen.blit(img, img.get_rect(center=(rect.centerx, rect.y + 64)))
       ink = g.theme["bg"] if i == on else WHITE
-      lb = g.font_at(20).render(name, True, ink)
+      lb = g.font_at(20).render(symbols.text(name), True, ink)
       screen.blit(lb, lb.get_rect(center=(rect.centerx, rect.bottom - 46)))
-      sb = g.font_at(14).render(sub, True, ink)
+      sb = g.font_at(14).render(symbols.text(sub), True, ink)
       screen.blit(sb, sb.get_rect(center=(rect.centerx, rect.bottom - 20)))
       if i == on:
         draw_hand(screen, (rect.centerx + 34, rect.y + 70), int(t * 2) % 2 == 0, 0.7)
@@ -531,7 +533,7 @@ class Guide:
     pygame.draw.circle(screen, CYAN, sp, 26)
     pygame.draw.polygon(screen, g.theme["bg"], [(sp[0] - 11, sp[1] - 7), (sp[0] + 5, sp[1] - 17),
                                                  (sp[0] + 5, sp[1] + 17), (sp[0] - 11, sp[1] + 7)])
-    lb = g.font_at(26).render("Find the Cat!", True, YELLOW)
+    lb = g.font_at(26).render(symbols.text("Find the Cat!"), True, YELLOW)
     screen.blit(lb, lb.get_rect(midleft=(sp[0] + 40, sp[1])))
     picks = [CHOICES[1], CHOICES[0], CHOICES[3], CHOICES[2]]
     right = t > 2.4
@@ -548,7 +550,7 @@ class Guide:
       if name == SAMPLE[1]:
         target = rect.center
     if right:
-      lb = g.font_at(30).render("Yes!", True, YELLOW)
+      lb = g.font_at(30).render(symbols.text("Yes!"), True, YELLOW)
       screen.blit(lb, lb.get_rect(center=(STAGE.centerx, STAGE.bottom - 32)))
     k = min(1.0, max(0.0, (t - 1.0) / 1.0))
     start = (STAGE.centerx, STAGE.bottom - 20)
@@ -570,7 +572,7 @@ class Guide:
       pygame.draw.rect(screen, YELLOW if i < placed else g.theme["banner"], r, border_radius=10)
       pygame.draw.rect(screen, WHITE, r, 2, border_radius=10)
       if i < placed:
-        lb = font.render(word[i], True, g.theme["bg"])
+        lb = font.render(symbols.text(word[i]), True, g.theme["bg"])
         screen.blit(lb, lb.get_rect(center=r.center))
     tiles = [pygame.Rect(STAGE.centerx - 100 + i * 72, STAGE.y + 270, 62, 62) for i in range(3)]
     for i, (r, ch) in enumerate(zip(tiles, pool)):
@@ -578,7 +580,7 @@ class Guide:
         continue
       pygame.draw.rect(screen, hue(i * 2, 6, 65, 95), r, border_radius=12)
       pygame.draw.rect(screen, WHITE, r, 2, border_radius=12)
-      lb = font.render(ch, True, WHITE)
+      lb = font.render(symbols.text(ch), True, WHITE)
       screen.blit(lb, lb.get_rect(center=r.center))
     if placed < 3:
       nxt = word[placed]
@@ -589,7 +591,7 @@ class Guide:
         tap_rings(screen, target, t)
       draw_hand(screen, target, pressed)
     else:
-      lb = g.font_at(30).render("CAT!", True, YELLOW)
+      lb = g.font_at(30).render(symbols.text("CAT!"), True, YELLOW)
       screen.blit(lb, lb.get_rect(center=(STAGE.centerx, STAGE.bottom - 30)))
 
   def anim_road(self, screen, g, t):
@@ -607,13 +609,13 @@ class Guide:
     box = pygame.Rect(s.right - 80, s.y + 16, 56, 76)
     pygame.draw.rect(screen, (35, 35, 40), box, border_radius=8)
     rs.draw_person(screen, box.center, 60, rs.GREEN_LAMP if green else rs.RED_LAMP, green, t)
-    lbl = g.font_at(16).render("WALK" if green else "WAIT", True,
+    lbl = g.font_at(16).render(symbols.text("WALK" if green else "WAIT"), True,
                                rs.GREEN_LAMP if green else rs.RED_LAMP)
     screen.blit(lbl, lbl.get_rect(midtop=(box.centerx, box.bottom + 4)))
     btn = pygame.Rect(s.x + 20, s.bottom - 70, 130, 56)
     pygame.draw.rect(screen, (40, 170, 80) if green else (120, 130, 150), btn, border_radius=16)
     pygame.draw.rect(screen, WHITE, btn, 3, border_radius=16)
-    w = g.font_at(22).render("Walk", True, WHITE)
+    w = g.font_at(22).render(symbols.text("Walk"), True, WHITE)
     screen.blit(w, w.get_rect(center=btn.center))
     k = min(1.0, max(0.0, (t - 3.6) / 2.4))
     kid = (s.centerx, road.bottom + 44 - k * (road.h + 70))
@@ -637,7 +639,7 @@ class Guide:
       on = i + 1 == cls
       pygame.draw.rect(screen, YELLOW if on else (90, 110, 160), r, border_radius=10)
       pygame.draw.rect(screen, WHITE, r, 2, border_radius=10)
-      s = g.font_at(20).render(str(i + 1), True, (40, 40, 70) if on else WHITE)
+      s = g.font_at(20).render(symbols.text(str(i + 1)), True, (40, 40, 70) if on else WHITE)
       screen.blit(s, s.get_rect(center=r.center))
     target = (STAGE.x + 20 + 2 * 55 + 24, STAGE.y + 46)
     picked = t > 3.6
@@ -649,7 +651,7 @@ class Guide:
       size = 17
       while size > 11 and g.font_at(size).size(names[0])[0] > r.w - 16:
         size -= 1
-      s = g.font_at(size).render(names[0], True, WHITE)
+      s = g.font_at(size).render(symbols.text(names[0]), True, WHITE)
       screen.blit(s, s.get_rect(midleft=(r.x + 8, r.centery)))
       if k == 2:
         chapter = r.center
@@ -671,7 +673,7 @@ class Guide:
   def anim_maths(self, screen, g, t):
     import mathsgame as mg
     t %= 5.0
-    lb = g.font_at(24).render("How many dots?", True, YELLOW)
+    lb = g.font_at(24).render(symbols.text("How many dots?"), True, YELLOW)
     screen.blit(lb, lb.get_rect(center=(STAGE.centerx, STAGE.y + 34)))
     dom = pygame.Rect(0, 0, 90, 180)
     dom.center = (STAGE.centerx, STAGE.y + 160)
@@ -683,12 +685,12 @@ class Guide:
       good = n == 5 and t > 2.4
       pygame.draw.rect(screen, (60, 210, 110) if good else mg.TILE_COLOURS[i], r, border_radius=16)
       pygame.draw.rect(screen, WHITE, r, 3, border_radius=16)
-      s = g.font_at(34).render(str(n), True, WHITE)
+      s = g.font_at(34).render(symbols.text(str(n)), True, WHITE)
       screen.blit(s, s.get_rect(center=r.center))
       if n == 5:
         target = r.center
     if t > 2.4:
-      eq = g.font_at(26).render("3 + 2 = 5", True, (60, 210, 110))
+      eq = g.font_at(26).render(symbols.text("3 + 2 = 5"), True, (60, 210, 110))
       screen.blit(eq, eq.get_rect(center=(STAGE.centerx, STAGE.bottom - 32)))
     k = min(1.0, max(0.0, (t - 1.0) / 1.0))
     start = (STAGE.centerx, STAGE.bottom - 10)
@@ -700,7 +702,7 @@ class Guide:
   def anim_maths2(self, screen, g, t):
     import mathsgame as mg
     t %= 5.0
-    lb = g.font_at(24).render("4 × 3 = 4 + 4 + 4", True, YELLOW)
+    lb = g.font_at(24).render(symbols.text("4 × 3 = 4 + 4 + 4"), True, YELLOW)
     screen.blit(lb, lb.get_rect(center=(STAGE.centerx, STAGE.y + 34)))
     face = mg.face_surface(64, 128, 2, 2)
     total = 0
@@ -710,10 +712,10 @@ class Guide:
       mg.fall_blit(screen, face, (x, STAGE.y + 250), fall * 0.42)
       if fall > 0:
         total += 4
-        s = g.font_at(26).render(f"+4 = {total}", True, YELLOW)
+        s = g.font_at(26).render(symbols.text(f"+4 = {total}"), True, YELLOW)
         screen.blit(s, s.get_rect(center=(x, STAGE.y + 96)))
     if t > 2.8:
-      eq = g.font_at(34).render("= 12", True, (60, 210, 110))
+      eq = g.font_at(34).render(symbols.text("= 12"), True, (60, 210, 110))
       screen.blit(eq, eq.get_rect(center=(STAGE.centerx, STAGE.bottom - 40)))
 
   def anim_draw(self, screen, g, t):
@@ -725,7 +727,7 @@ class Guide:
     done = pygame.Rect(STAGE.right - 110, STAGE.bottom - 66, 92, 48)
     pygame.draw.rect(screen, GREEN, done, border_radius=12)
     pygame.draw.rect(screen, WHITE, done, 2, border_radius=12)
-    lb = g.font_at(20).render("Done", True, WHITE)
+    lb = g.font_at(20).render(symbols.text("Done"), True, WHITE)
     screen.blit(lb, lb.get_rect(center=done.center))
     # a little house drawn with one line
     path = [(0.25, 0.85), (0.25, 0.5), (0.5, 0.25), (0.75, 0.5), (0.75, 0.85), (0.25, 0.85)]

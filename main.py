@@ -42,6 +42,7 @@ import screens
 import singalong
 import stories
 import topplegame
+import symbols  # noqa: F401 - shared with ui_draw (symbols-only buttons)
 import ui_draw
 import video
 import world

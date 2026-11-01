@@ -31,6 +31,7 @@ import flight as flights
 import magic
 import ncert
 import sathi
+import symbols
 import town3d as town
 
 SKY_TOP = (90, 160, 240)
@@ -271,7 +272,9 @@ class WorldScene:
 
   # --- helpers ---------------------------------------------------------------------
   def text(self, s, msg, pos, size, colour=WHITE, anchor="center"):
-    img = self.g.font_at(size).render(msg, True, colour)
+    if symbols.ONLY and not set(str(msg)) <= set("0123456789/ +-=×"):   # numbers stay; words go
+      return pygame.Rect(int(pos[0]), int(pos[1]), 0, 0)
+    img = self.g.font_at(size).render(symbols.text(msg), True, colour)
     r = img.get_rect(**{anchor: (int(pos[0]), int(pos[1]))})
     s.blit(img, r)
     return r
@@ -475,10 +478,14 @@ class WorldScene:
       pygame.draw.rect(s, (20, 20, 40), r.move(2, 3), border_radius=12)
       pygame.draw.rect(s, col, r, border_radius=12)
       pygame.draw.rect(s, YELLOW if at else WHITE, r, 3 if at else 2, border_radius=12)
-      num = self.g.font_at(min(30, r.h - 8)).render(str(n), True, WHITE)
+      num = self.g.font_at(min(30, r.h - 8)).render(symbols.text(str(n)), True, WHITE)
+      if symbols.ONLY:                       # the class number alone, big, in the middle
+        num = self.g.font_at(min(34, r.h - 6)).render(symbols.text(str(n)), True, WHITE)
+        s.blit(num, num.get_rect(center=r.center))
+        continue
       s.blit(num, num.get_rect(center=(r.x + 18, r.centery)))
       native = self.label_image(f"class{n}", max(12, r.h // 2 - 6))
-      word = self.g.font_at(14 if native else 16).render("Class", True, WHITE)
+      word = self.g.font_at(14 if native else 16).render(symbols.text("Class"), True, WHITE)
       x = r.x + 34
       if native is not None:
         if native.get_width() > r.right - x - 4:
@@ -1032,9 +1039,9 @@ class WorldScene:
   def draw_flyover_title(self, s):
     w, h = self.size
     k = min(1.0, self.flyover / 0.6) * min(1.0, max(0.0, (FLY_SECS - self.flyover) / 0.8))
-    if k <= 0:
+    if k <= 0 or symbols.ONLY:               # no title card: the island itself is the opening
       return
-    big = self.g.font_at(34 if w >= 600 else 28).render("Wonder Town", True, WHITE)
+    big = self.g.font_at(34 if w >= 600 else 28).render(symbols.text("Wonder Town"), True, WHITE)
     small = self.g.font_at(18).render("An island in the sea, shaped like a palm tree", True, (230, 240, 255))
     if small.get_width() > w - 60:
       small = pygame.transform.smoothscale(small, (w - 60, max(1, small.get_height() * (w - 60) // small.get_width())))
@@ -1046,7 +1053,7 @@ class WorldScene:
     for surf, y in ((big, box.y + 10), (small, box.y + 52)):
       surf.set_alpha(int(255 * k))
       s.blit(surf, surf.get_rect(midtop=(box.centerx, y)))
-    tip = self.g.font_at(16).render("Tap to start", True, WHITE)
+    tip = self.g.font_at(16).render(symbols.text("Tap to start"), True, WHITE)
     tip.set_alpha(int(255 * k * (0.6 + 0.4 * math.sin(self.t * 3))))
     s.blit(tip, tip.get_rect(midbottom=(w // 2, h - 16)))
 
@@ -1315,7 +1322,7 @@ class WorldScene:
     pygame.draw.rect(s, (255, 215, 0), star_hud, 2, border_radius=17)
     pygame.draw.circle(s, (255, 215, 0), (star_hud.x + 18, star_hud.y + 17), 9)
     pygame.draw.circle(s, (255, 255, 255), (star_hud.x + 18, star_hud.y + 17), 4)
-    count_txt = self.g.font_at(20).render(str(self.score_stars), True, (255, 255, 255))
+    count_txt = self.g.font_at(20).render(symbols.text(str(self.score_stars)), True, (255, 255, 255))
     s.blit(count_txt, (star_hud.x + 36, star_hud.y + 7))
 
     self.draw_hud(s)
@@ -1536,7 +1543,7 @@ class WorldScene:
   def sign_surface(self, b):
     sign = self._signs.get(b.key)
     if sign is None:
-      text = self.g.font_at(44).render(b.label, True, (40, 40, 70))
+      text = self.g.font_at(44).render(symbols.text(b.label), True, (40, 40, 70))
       sign = pygame.Surface((text.get_width() + 40, text.get_height() + 16))
       sign.fill((255, 255, 255))
       pygame.draw.rect(sign, b.colour, sign.get_rect(), 7)
@@ -1832,7 +1839,7 @@ class WorldScene:
       pygame.draw.polygon(s, (200, 120, 0), arrow(3))
       pygame.draw.polygon(s, YELLOW, arrow(0))
       if rank == 0:
-        lbl = self.g.font_at(max(14, int(16 * k))).render("GO IN", True, WHITE)
+        lbl = self.g.font_at(max(14, int(16 * k))).render(symbols.text("GO IN"), True, WHITE)
         box = lbl.get_rect(midbottom=(int(x), int(y - h - 6))).inflate(16, 8)
         pygame.draw.rect(s, (60, 170, 90), box, border_radius=box.h // 2)
         pygame.draw.rect(s, WHITE, box, 2, border_radius=box.h // 2)
@@ -2065,7 +2072,7 @@ class WorldScene:
       pic.set_alpha(int(255 * fade))
       s.blit(pic, pic.get_rect(center=(bubble.centerx, bubble.centery - 8)))
     f = self.g.font_at(max(12, size // 5))
-    label = f.render(en, True, (40, 40, 70))
+    label = f.render(symbols.text(en), True, (40, 40, 70))
     label.set_alpha(int(255 * fade))
     s.blit(label, label.get_rect(center=(bubble.centerx, bubble.bottom - 12)))
     self.dream_rect = bubble.inflate(10, 10)
@@ -2195,6 +2202,9 @@ class WorldScene:
   def draw_button(self, s, rect, label, colour):
     pygame.draw.rect(s, colour, rect, border_radius=12)
     pygame.draw.rect(s, WHITE, rect, 2, border_radius=12)
+    if symbols.ONLY:
+      symbols.draw(s, symbols.kind_of(label), rect)
+      return
     size = 17
     while size > 11 and self.g.font_at(size).size(label)[0] > rect.w - 10:
       size -= 1
@@ -2264,9 +2274,15 @@ class WorldScene:
         tw = self.g.font_at(17).size(label)[0]
         self.zip_rect = pygame.Rect(0, 0, min(w - 20, tw + 40), 40)
         self.zip_rect.midtop = (w // 2 if w >= 560 else (w - self.map_rect.w - 20) // 2 + 4, 62)
+        if symbols.ONLY:
+          self.zip_rect = pygame.Rect(0, 0, 76, 44)
+          self.zip_rect.midtop = (w // 2 if w >= 560 else (w - self.map_rect.w - 20) // 2 + 4, 62)
         pygame.draw.rect(s, (240, 140, 40), self.zip_rect, border_radius=20)
         pygame.draw.rect(s, WHITE, self.zip_rect, 2, border_radius=20)
-        self.text(s, label, self.zip_rect.center, 17 if tw + 40 <= w - 20 else 14)
+        if symbols.ONLY:
+          symbols.draw(s, "fly", self.zip_rect)
+        else:
+          self.text(s, label, self.zip_rect.center, 17 if tw + 40 <= w - 20 else 14)
     self.gate_rect = pygame.Rect(0, 0, 0, 0)
     gx, _, gz = self.by_key["gateway"].door()
     if (self.flight is None and not self.panel_open and not self.g.overlay
@@ -2310,11 +2326,17 @@ class WorldScene:
       top_of_pads = min(p.rect.top for p in self.pads.values())
       r.midbottom = (w // 2, top_of_pads - 10)
       pulse = int(30 * (1 + math.sin(self.t * 6)))
+      if symbols.ONLY:
+        r = pygame.Rect(0, 0, 84, 50)
+        r.midbottom = (w // 2, top_of_pads - 10)
       pygame.draw.rect(s, (170 + pulse // 2, 70, 170), r, border_radius=23)
       pygame.draw.rect(s, WHITE, r, 2, border_radius=23)
-      self.text(s, label, r.center, 20)
+      if symbols.ONLY:
+        symbols.draw(s, "go", r)
+      else:
+        self.text(s, label, r.center, 20)
     msg, ttl = self.toast
-    if ttl > 0 and msg:
+    if ttl > 0 and msg and not symbols.ONLY:
       size = 17
       while size > 11 and self.g.font_at(size).size(msg)[0] > w - 50:
         size -= 1
@@ -2326,7 +2348,7 @@ class WorldScene:
       s.blit(box, r.topleft)
       self.text(s, msg, r.center, size)
     self.tips_rect = self.tips_button = pygame.Rect(0, 0, 0, 0)
-    if self.show_tips and not self.g.overlay and not self.panel_open:
+    if self.show_tips and not self.g.overlay and not self.panel_open and not symbols.ONLY:
       cw = min(440, w - 30)
       lines = []
       for col, tip in TIPS:
