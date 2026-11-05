@@ -31,5 +31,5 @@ The town, the journeys and picture tracing are already 3D (`town_web/town.js`, `
 ## When publishing
 
 - Build with `tools/build_web.py` only, never raw pygbag: the 4-Nov commit (69e9c60) used raw pygbag and lost the line that opens the 3D town.
-- Keep `town/pics3d` out of the Stratos box (the stage fetches pictures from GitHub Pages there), and keep the box's no-saving rule.
-- `docs/dominowonderdash.apk` came back with the 4-Nov commit and is unused.
+- Keep `town/pics3d` and `town/js` out of the Stratos box (the stage fetches pictures from GitHub Pages there), and keep the box's no-saving rule.
+- Stratos form: one `dominowonderdash.zip` made from `docs/dominowonderdash.tar.gz`, with `load` and `save` in `fun.py` emptied; no `dg.town.visited` save in the box's `town.js`. `tools/make_stratos_box.py` still makes the old form, so do not run it as it is.
