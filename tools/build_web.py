@@ -92,9 +92,9 @@ self.addEventListener('fetch', (e) => {
 """
 
 # The game page opens the 3D Wonder Town first (no words: the domino ring starts); the town comes back here
-# with ?open=<house> (main.py _web_open_key). ?game skips the town (straight into the pygame game).
+# with ?open=<house> (main.py _web_open_key). The web game is 3D only: no way round the town (user, 05-Nov-2026).
 TOWN_DOOR = """    <script data-town-door>
-      if (!/[?&](open|game)(=|&|$)/.test(location.search)) { location.replace('town/' + location.hash); }
+      if (!/[?&]open=/.test(location.search)) { location.replace('town/' + location.hash); }
     </script>
 """
 
@@ -364,6 +364,7 @@ def make_pwa(docs):
   # the 3D Wonder Town (three.js, town_web/) is the front door: docs/town/
   town = os.path.join(docs, "town")
   subprocess.run([sys.executable, os.path.join(ROOT, "tools", "export_town_data.py")], check=True)  # categories + pictures
+  subprocess.run([sys.executable, os.path.join(ROOT, "tools", "export_trace3d.py")], check=True)     # the 3D tracing stage
   shutil.rmtree(town, ignore_errors=True)
   shutil.copytree(os.path.join(ROOT, "town_web"), town)
 

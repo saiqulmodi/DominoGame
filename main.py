@@ -1850,7 +1850,10 @@ async def main():
         game.world.pick_category(b, cats[int(cat_n)])
         if game.overlay == "nav":        # picked in the 3D town: straight to tracing its first picture
           game.overlay = None
-          game.select_puzzle(game.items()[0])
+          game.select_puzzle(_web_item(game))
+
+  if open_key == "syllabus":
+    _open_syllabus(game)
 
   # Touch and mouse share one code path. Phones also send "fake" mouse events
   # for each touch, so those are ignored to avoid double taps.
@@ -1860,6 +1863,10 @@ async def main():
   running = True
   errors_seen = set()
   while running:
+    if IS_WEB and game.in_world and game.overlay is None and game.intro is None:
+      game.go_to_town()             # the web game is 3D only: never the pygame town (user, 05-Nov-2026)
+      await asyncio.sleep(0.5)      # the browser is leaving this page
+      continue
     try:
       running = frame(game, view, canvas, state)
     except Exception as exc:     # never freeze a child's screen: log and go on
@@ -1914,6 +1921,32 @@ def _web_param(name, env):
       value = part[len(name) + 1:].strip()
       return value if value.replace("_", "").isalnum() else None
   return None
+
+
+def _web_item(game):
+  """The picture named by ?item=<n> (the 3D stage's sparkle button), else the category's first."""
+  items = game.items()
+  n = _web_param("item", "DOMINO_ITEM")
+  return items[int(n)] if n and n.isdigit() and int(n) < len(items) else items[0]
+
+
+def _open_syllabus(game):
+  """A class's own subject from the 3D Wonder Town: index.html?open=syllabus&cls=<n>&subj=<key>&cat=<i>
+  (ncert.SYLLABUS). Maths Play opens on that class's chapters; pictures go straight to tracing."""
+  import ncert
+  try:
+    n = int(_web_param("cls", "DOMINO_CLS"))
+    cat = ncert.SYLLABUS[n][_web_param("subj", "DOMINO_SUBJ")][int(_web_param("cat", "DOMINO_CAT"))]
+    pavilion = game.world.by_key[f"class{n}"]
+  except (TypeError, ValueError, KeyError, IndexError):
+    return
+  game.intro = None
+  if cat == ncert.MATHS_PLAY:
+    game.maths_open_class = n
+  game.world.pick_category(pavilion, cat)
+  if game.overlay == "nav":
+    game.overlay = None
+    game.select_puzzle(_web_item(game))
 
 
 def _web_open_key():

@@ -911,7 +911,7 @@ class GameDrawing:
       self.intro.draw(screen, now)
       return
     if self.in_world:
-      self.world.draw(screen)
+      self.world.draw(screen) if not IS_WEB else screen.fill(self.theme["bg"])   # the web game is 3D only: no pygame town behind menus
     else:
       screen.fill(self.theme["bg"])
       self.draw_play_area(screen, now)
