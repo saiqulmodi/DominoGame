@@ -11,6 +11,14 @@ import time
 _started = 0.0
 
 
+def pic_no(key):
+  """A stable number 1-9999 for a picture, so Stratos Coins pay its first finish once as a new level."""
+  h = 5381
+  for ch in str(key):
+    h = (h * 33 + ord(ch)) % 2147483647
+  return h % 9999 + 1
+
+
 def track(name, **details):
   global _started
   try:

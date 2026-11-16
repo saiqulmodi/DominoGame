@@ -1458,7 +1458,7 @@ class Game(ui_draw.GameDrawing):
 
   def finish_item(self):
     self.stage = "finished"
-    stratos_track.track("level_complete", level=f"{self.cat}/{self.puzzle}")   # analytics: picture done (+ seconds)
+    stratos_track.track("level_complete", level=f"{self.cat}/{self.puzzle}", stage=stratos_track.pic_no(f"{self.cat}/{self.puzzle}"))   # analytics: picture done (+ seconds); stage = Stratos Coins once per picture
     self.finished_at = time.time()
     self.sfx.play("chime")
     if self.show:                          # one of seven celebrations
